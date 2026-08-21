@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
+const { sanitizeUser } = require('../helpers/userDto');
 
 function loadStudentArchive(studentId) {
   const student = db.prepare(
@@ -12,6 +13,9 @@ function loadStudentArchive(studentId) {
   ).get(studentId);
 
   if (!student) return null;
+
+  // AUTH-01：脱敏，剔除 password_hash 等敏感字段
+  const safeStudent = sanitizeUser(student);
 
   const courses = db.prepare(
     `SELECT c.title, c.theme, c.grade_level, c.difficulty,
@@ -42,7 +46,7 @@ function loadStudentArchive(studentId) {
     growthRecords.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
   }
 
-  return { student, courses, works, reflections, evaluations, ability, growthRecords };
+  return { student: safeStudent, courses, works, reflections, evaluations, ability, growthRecords };
 }
 
 // 档案导出页面
