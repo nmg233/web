@@ -1,11 +1,13 @@
 const express = require('express');
 const controller = require('../controllers/feedbackController');
-const { requireAuth, requireRole } = require('../middleware/auth');
+const { requireAuth, requirePasswordChanged, requireRole } = require('../middleware/auth');
 const { uploadFeedbackAttachments } = require('../middleware/feedbackUpload');
 
 const router = express.Router();
 
 router.use(requireAuth);
+// AUTH-04：强制改密守卫覆盖反馈模块
+router.use(requirePasswordChanged);
 
 router.get('/options', controller.options);
 router.get('/mine', controller.mine);
