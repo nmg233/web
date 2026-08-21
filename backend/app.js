@@ -14,9 +14,17 @@ const API_PREFIX = process.env.API_PREFIX || '/api';
 // JWT 密钥
 // 优先读环境变量 JWT_SECRET；否则读取/生成持久化的 .jwt-secret 文件。
 // 避免每次服务重启都随机生成密钥，导致已登录用户的 token 全部失效。
+// AUTH-10：生产环境若未设置 JWT_SECRET，直接硬失败终止进程（多实例/只读系统不允许写文件）。
 // ============================================
 function getOrCreateJwtSecret() {
   if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ [FATAL] 生产环境必须显式设置 JWT_SECRET 环境变量，禁止自动生成/写文件。请设置后重启。');
+    process.exit(1);
+  }
+
+  // 仅开发/测试环境允许读取或自动生成 .jwt-secret 文件
   const secretFile = path.join(__dirname, '.jwt-secret');
   try {
     const existing = fs.readFileSync(secretFile, 'utf8').trim();
@@ -41,6 +49,8 @@ app.use(cors({
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'same-origin');
+  // AUTH-09 补偿措施：全局响应头增加 CSP，缓解 XSS 对 localStorage 中 Token 的影响
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'");
   next();
 });
 app.use(express.urlencoded({ extended: true }));
