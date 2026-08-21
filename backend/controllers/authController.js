@@ -2,9 +2,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const db = require('../config/database');
+const { isStrongPassword } = require('../helpers/passwordPolicy');
 
 const PUBLIC_ROLES = ['student'];
 const REFRESH_TOKEN_TTL_DAYS = 7; // 刷新令牌有效期（天）
+// AUTH-09 补偿措施：Access Token 有效期缩短至 15 分钟（可通过 JWT_ACCESS_EXPIRES_IN 配置）
+const ACCESS_TOKEN_EXPIRES_MIN = parseInt(process.env.JWT_ACCESS_EXPIRES_IN, 10) || 15;
 
 function generateToken(user, secret) {
   return jwt.sign(
@@ -18,8 +21,13 @@ function generateToken(user, secret) {
       force_reset_password: user.force_reset_password || 0
     },
     secret,
-    { expiresIn: '24h' }
+    { expiresIn: `${ACCESS_TOKEN_EXPIRES_MIN}m` }
   );
+}
+
+// AUTH-03：撤销用户所有 Refresh Token（改密 / 重置密码后调用）
+function revokeAllRefreshTokens(userId) {
+  db.prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(userId);
 }
 
 // 刷新令牌：随机串 + SHA-256 哈希入库（只存哈希，不存明文）
@@ -47,18 +55,6 @@ function generateTemporaryPassword() {
     pwd += chars[crypto.randomInt(0, chars.length)];
   }
   return pwd;
-}
-
-// 强密码策略：长度 >= 8，且至少满足 大写字母/小写字母/数字/特殊字符 中的 3 类
-function isStrongPassword(pwd) {
-  if (!pwd || pwd.length < 8) return false;
-  const categories = [
-    /[A-Z]/.test(pwd),
-    /[a-z]/.test(pwd),
-    /\d/.test(pwd),
-    /[^A-Za-z0-9]/.test(pwd)
-  ];
-  return categories.filter(Boolean).length >= 3;
 }
 
 // 自助修改密码限流：每用户每分钟最多 5 次尝试（内存实现，单实例适用）
@@ -168,8 +164,11 @@ exports.register = (req, res) => {
       return res.status(400).json({ error: '请填写真实姓名' });
     }
 
-    if (!password || password.length < 6) {
-      return res.status(400).json({ error: '密码至少6位' });
+    // AUTH-08：统一密码策略（>=8 位，且包含大写/小写/数字/特殊字符中的至少 3 类）
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
+      });
     }
     if (password !== password_confirm) {
       return res.status(400).json({ error: '两次密码输入不一致' });
@@ -326,6 +325,9 @@ exports.adminResetPassword = (req, res) => {
       'UPDATE users SET password_hash = ?, force_reset_password = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
     ).run(password_hash, user_id);
 
+    // AUTH-03：重置密码后撤销该用户所有 Refresh Token，防止旧令牌换取新 Access Token
+    revokeAllRefreshTokens(user_id);
+
     // 注意：此处不得 console.log 临时密码
     res.json({
       message: `已重置 ${target.real_name} 的密码，请将临时密码线下告知用户`,
@@ -368,6 +370,9 @@ exports.changePassword = (req, res) => {
     db.prepare(
       'UPDATE users SET password_hash = ?, force_reset_password = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
     ).run(password_hash, userId);
+
+    // AUTH-03：修改密码后撤销该用户所有 Refresh Token，已泄漏的旧 Refresh Token 立即失效
+    revokeAllRefreshTokens(userId);
 
     changePwdAttempts.delete(userId); // 成功后清空该用户尝试计数
     res.json({ message: '密码修改成功' });

@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/authController');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { loginRateLimit } = require('../middleware/loginRateLimit');
 
 router.get('/schools', controller.getSchools);
 router.get('/classes', controller.getClasses);
-router.post('/login', controller.login);
+// AUTH-07：登录接口增加 IP 限流 / 用户名失败限流 / 账户锁定
+router.post('/login', loginRateLimit(controller.login));
 router.post('/register', controller.register);
 router.post('/refresh', controller.refresh);
 router.post('/logout', controller.logout);
