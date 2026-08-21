@@ -5,6 +5,8 @@ const path = require('path');
 const XLSX = require('xlsx');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
+const { sanitizeUser } = require('../helpers/userDto');
+const { isStrongPassword } = require('../helpers/passwordPolicy');
 
 const USERNAME_RE = /^[a-zA-Z0-9]+$/;
 const MANAGED_ROLES = ['student', 'teacher', 'executive_mentor'];
@@ -107,15 +109,22 @@ exports.create = (req, res) => {
 
     const studentUsername = `student${Date.now()}${Math.floor(Math.random() * 100000)}`;
     const studentPassword = password || 'pbl123456';
+    // AUTH-08：若管理员显式设置了自定义密码，则必须满足统一强密码策略
+    if (password && !isStrongPassword(password)) {
+      return res.status(400).json({
+        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
+      });
+    }
     const password_hash = bcrypt.hashSync(studentPassword, 10);
 
+    // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
     db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id)
-       VALUES (?, ?, ?, ?, ?, 'student', ?, ?)`
+      `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id, force_reset_password)
+       VALUES (?, ?, ?, ?, ?, 'student', ?, ?, 1)`
     ).run(studentUsername, password_hash, real_name, email || null, phone || null,
           school_id || null, class_id || null);
 
-    res.json({ message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}` });
+    res.json({ message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）` });
   } catch (err) {
     console.error('添加学生错误:', err);
     res.status(500).json({ error: '添加失败，请稍后重试' });
@@ -223,9 +232,10 @@ exports.import = (req, res) => {
     }
 
     const password_hash = bcrypt.hashSync('pbl123456', 10);
+    // AUTH-06：批量导入默认密码统一 pbl123456，强制首次登录修改密码
     const insert = db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
     );
     const nameExists = db.prepare('SELECT id FROM users WHERE real_name = ?');
     const findSchool = db.prepare('SELECT id FROM schools WHERE name = ?');
@@ -365,8 +375,11 @@ exports.createUser = (req, res) => {
       return res.status(400).json({ error: '该姓名已存在' });
     }
 
-    if (password && password.length < 6) {
-      return res.status(400).json({ error: '密码至少6位' });
+    // AUTH-08：管理员自定义密码须满足统一强密码策略
+    if (password && !isStrongPassword(password)) {
+      return res.status(400).json({
+        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
+      });
     }
 
     if (class_id) {
@@ -383,9 +396,10 @@ exports.createUser = (req, res) => {
     const password_hash = bcrypt.hashSync(finalPassword, 10);
     const finalSchoolId = role === 'executive_mentor' ? null : school_id;
     const finalClassId = role === 'executive_mentor' ? null : class_id;
+    // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
     db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
     ).run(finalUsername, password_hash, real_name, email || null, phone || null,
           profile || null, role, finalSchoolId || null, finalClassId || null);
 
@@ -436,8 +450,11 @@ exports.updateUser = (req, res) => {
       return res.status(400).json({ error: '该姓名已存在' });
     }
 
-    if (password && password.length < 6) {
-      return res.status(400).json({ error: '密码至少6位' });
+    // AUTH-08：管理员重置/修改用户密码须满足统一强密码策略
+    if (password && !isStrongPassword(password)) {
+      return res.status(400).json({
+        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
+      });
     }
 
     const finalSchoolId = role === 'executive_mentor' ? null : school_id;
@@ -446,6 +463,8 @@ exports.updateUser = (req, res) => {
 
     if (password) {
       const password_hash = bcrypt.hashSync(password, 10);
+      // AUTH-03：管理员直接改密后，撤销该用户所有 Refresh Token
+      db.prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(userId);
       db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(password_hash, userId);
     }
 
@@ -597,11 +616,17 @@ exports.showEditStudent = (req, res) => {
       return res.status(400).json({ error: '无权编辑其他学校学生' });
     }
 
+    const schoolId = student.school_id;
+    // AUTH-01：返回前用 DTO 脱敏，剔除 password_hash 等敏感字段
+    const safeStudent = sanitizeUser(student);
+
     const schools = isTeacher(req.user.role)
       ? db.prepare('SELECT id, name FROM schools WHERE id = ?').all(req.user.school_id || 0)
       : db.prepare('SELECT id, name FROM schools ORDER BY name').all();
     const classes = db.prepare('SELECT id, name, grade FROM classes WHERE school_id = ? ORDER BY grade, name')
-      .all(student.school_id);
+      .all(schoolId);
+
+    res.json({ title: '编辑学生', student: safeStudent, schools, classes, errors: [] });
 
     res.json({ title: '编辑学生', student, schools, classes, errors: [] });
   } catch (err) {
@@ -694,6 +719,9 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '无权查看其他学校学生' });
     }
 
+    // AUTH-01：返回前用 DTO 脱敏，剔除 password_hash 等敏感字段
+    const safeStudent = sanitizeUser(student);
+
     const courses = db.prepare(
       `SELECT c.title, c.theme, e.enrolled_at, e.completed_at
        FROM enrollments e JOIN courses c ON e.course_id = c.id
@@ -725,8 +753,8 @@ exports.detail = (req, res) => {
     ).all(id);
 
     res.json({
-      title: `${student.real_name} - 成长档案`,
-      student, courses, works, reflections, evaluations
+      title: `${safeStudent.real_name} - 成长档案`,
+      student: safeStudent, courses, works, reflections, evaluations
     });
   } catch (err) {
     console.error('学生详情错误:', err);
