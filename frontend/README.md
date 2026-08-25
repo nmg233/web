@@ -34,7 +34,7 @@ npm run dev
 
 前端默认运行在 `http://localhost:5173`。
 
-当前没有配置 Vite API 代理。Axios 在 `src/api/client.js` 中直接请求 `http://localhost:3000/api`，因此本地后端应运行在 3000 端口。
+Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，Axios 默认请求同源 `/api`；如需覆盖，可通过 `VITE_API_BASE` 环境变量指定。
 
 ## 命令
 
