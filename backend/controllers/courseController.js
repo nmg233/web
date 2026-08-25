@@ -1,6 +1,9 @@
 const db = require('../config/database');
 const fs = require('fs');
+const path = require('path');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
+const { UPLOAD_ROOT } = require('../middleware/upload');
+const { decodeOriginalName } = require('../helpers/fileName');
 
 function canManageCourse(user, courseId) {
   if (user.role === 'admin') return true;
@@ -114,15 +117,27 @@ exports.detail = (req, res) => {
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
     const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id);
-    const enrollments = db.prepare(
-      `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
-       FROM enrollments e
-       JOIN users u ON e.student_id = u.id
-       LEFT JOIN schools s ON u.school_id = s.id
-       LEFT JOIN classes c2 ON u.class_id = c2.id
-       WHERE e.course_id = ?
-       ORDER BY e.enrolled_at DESC`
-    ).all(id);
+    const enrollments = COURSE_MANAGER_ROLES.includes(req.user.role)
+      ? db.prepare(
+          `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
+           FROM enrollments e
+           JOIN users u ON e.student_id = u.id
+           LEFT JOIN schools s ON u.school_id = s.id
+           LEFT JOIN classes c2 ON u.class_id = c2.id
+           WHERE e.course_id = ?
+           ORDER BY e.enrolled_at DESC`
+        ).all(id)
+      : req.user.role === 'student'
+        ? db.prepare(
+            `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
+             FROM enrollments e
+             JOIN users u ON e.student_id = u.id
+             LEFT JOIN schools s ON u.school_id = s.id
+             LEFT JOIN classes c2 ON u.class_id = c2.id
+             WHERE e.course_id = ? AND e.student_id = ?
+             ORDER BY e.enrolled_at DESC`
+          ).all(id, req.user.id)
+        : [];
 
     res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments });
   } catch (err) {
@@ -237,15 +252,42 @@ exports.uploadResource = (req, res) => {
     }
 
     const { resource_type, title } = req.body;
+    const displayTitle = title || decodeOriginalName(req.file.originalname) || req.file.originalname;
     db.prepare(
       'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(id, resource_type || 'other', title || req.file.originalname,
+    ).run(id, resource_type || 'other', displayTitle,
          req.file.path, req.file.size, req.user.id);
 
     res.json({ message: '资源上传成功' });
   } catch (err) {
     console.error('上传资源错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
+  }
+};
+
+// 下载课程资源
+exports.downloadResource = (req, res) => {
+  try {
+    const resource = db.prepare(`
+      SELECT r.*, c.status AS course_status
+      FROM resources r
+      JOIN courses c ON c.id = r.course_id
+      WHERE r.id = ?
+    `).get(req.params.resource_id);
+    if (!resource || !resource.file_path) return res.status(404).json({ error: '附件不存在' });
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && resource.course_status !== 'published') {
+      return res.status(404).json({ error: '附件不存在' });
+    }
+
+    const resolvedPath = path.resolve(resource.file_path);
+    const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath) || !fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ error: '附件文件不存在' });
+    }
+    return res.download(resolvedPath, decodeOriginalName(resource.title) || path.basename(resolvedPath));
+  } catch (err) {
+    console.error('下载课程资源错误:', err);
+    return res.status(500).json({ error: '下载附件失败' });
   }
 };
 

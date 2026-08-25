@@ -8,6 +8,7 @@ const {
   FEEDBACK_LABELS,
 } = require('../constants/feedback');
 const notificationService = require('./notificationService');
+const { decodeOriginalName } = require('../helpers/fileName');
 
 const { NOTIFICATION_EVENTS } = notificationService;
 
@@ -143,7 +144,7 @@ function create(user, data, files = []) {
     files.forEach((file) => {
       insertAttachment.run(
         feedbackId,
-        file.originalname,
+        decodeOriginalName(file.originalname),
         file.filename,
         file.path,
         file.mimetype,

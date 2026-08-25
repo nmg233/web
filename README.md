@@ -2,7 +2,7 @@
 
 面向“大中小贯通科创育人”项目的 PBL（项目式学习）本地数字化管理平台。平台围绕学校、班级、用户、课程、作品与成长档案，提供学生选课和作品提交、教师与导师管理、成长记录、反思日志、规则式学习助手、用户反馈闭环及站内通知等功能。
 
-> 当前项目仅用于本地运行，尚未配置服务器部署。
+> 支持本地开发与服务器部署，部署步骤见文末“服务器部署”章节。
 
 ## 技术栈
 
@@ -39,8 +39,8 @@ project/
 │   ├── database/
 │   │   ├── schema.sql          # 数据库表结构
 │   │   └── init.js             # 数据库初始化脚本
-│   ├── uploads/                # 本地上传文件（不提交到 Git）
-│   ├── private_uploads/        # 需要鉴权下载的反馈附件
+│   ├── uploads/                # 作品与课程资源上传目录（不公开静态托管）
+│   ├── private_uploads/        # 反馈附件等需要鉴权下载的文件
 │   └── test/                   # Node.js 自动化测试
 ├── frontend/
 │   ├── index.html              # HTML 入口
@@ -53,6 +53,7 @@ project/
 │       ├── pages/              # 页面组件
 │       ├── hooks/              # 通知等共享状态 Hooks
 │       └── store/              # 认证与通知状态
+├── deploy.sh                   # 一键部署脚本
 ├── 网站使用手册.docx
 └── README.md
 ```
@@ -150,7 +151,7 @@ npm run dev
 
 前端默认地址：`http://localhost:5173`
 
-当前 Vite 配置没有 API 代理。前端在 `frontend/src/api/client.js` 中直接请求 `http://localhost:3000/api`，后端通过 CORS 允许来自 `http://localhost:5173` 的本地请求。
+Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端请求同源 `/api`，本地开发无需跨域。生产环境由 nginx 将 `/api` 代理到后端。
 
 ## 常用命令
 
@@ -288,14 +289,14 @@ npm run dev
 | 教师 | 李老师 | `teacher123` |
 | 学生 | 王小明 | `student123` |
 
-这些账号仅用于本地开发和演示。若未来部署到服务器，必须删除或修改默认密码，并设置固定、强随机的 `JWT_SECRET`。
+这些账号用于本地开发和测试部署。测试环境可保留默认账号便于验收；公网正式发布前应修改或删除默认密码，并设置固定、强随机的 `JWT_SECRET`。
 
 ## 本地数据
 
 - SQLite 数据库：`backend/database/pbl_platform.db`
 - SQLite WAL 文件：`backend/database/pbl_platform.db-wal`
 - SQLite 共享内存文件：`backend/database/pbl_platform.db-shm`
-- 上传文件：`backend/uploads/`
+- 作品与课程资源上传文件：`backend/uploads/`（不公开静态托管）
 - 私有反馈附件：`backend/private_uploads/feedback/`
 - 环境变量：`backend/.env`
 
@@ -303,14 +304,52 @@ npm run dev
 
 ## 已知限制
 
-- 当前仅验证本地双进程运行，尚无服务器部署配置。
-- 前端 API 地址仍硬编码为本机后端地址。
 - `/dashboard/schools/add` 与 `/students/import` 前端路由尚未实现。
 - 学习助手为关键词规则匹配，不是真实生成式 AI。
 - 前端 ESLint 当前仍有未处理的问题。
 - 通知目前仅支持站内消息和 60 秒轮询，不含管理员公告编辑、定时发布、邮件、短信、WebSocket/SSE 或移动端推送。
-- 反馈服务和通知服务已有自动化测试；作品等其他业务模块仍缺少完整测试，项目尚无 CI。
+- 反馈、通知与安全相关模块已有自动化测试；作品等部分业务模块仍缺少完整测试，项目尚无 CI。
 - 后端仍保留早期 EJS 页面、静态资源和部分未使用依赖。
+
+## 服务器部署
+
+1. 安装 better-sqlite3 本地编译所需依赖：
+
+Alibaba Cloud Linux / RHEL 系（当前测试服务器）：
+
+```bash
+sudo dnf install -y gcc gcc-c++ make python3
+```
+
+Ubuntu / Debian 系：
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential python3
+```
+
+2. 配置后端环境变量，生产环境必须设置 `JWT_SECRET`：
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+3. 执行一键部署脚本（默认部署 main 分支）：
+
+```bash
+./deploy.sh main
+```
+
+如需重置数据库并恢复默认测试账号：
+
+```bash
+RESET_DB=1 ./deploy.sh main
+```
+
+脚本会依次完成依赖安装、better-sqlite3 本地编译、前端构建、同步 `dist`、重启服务并做健康检查。nginx 需将 `/api` 代理到后端，并用 `try_files $uri $uri/ /index.html;` 支持 SPA 路由。
+
+脚本默认对应当前 ECS 环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`。如需调整，可通过 `NGINX_ROOT`、`SERVICE` 环境变量覆盖；需要同步删除旧文件时设置 `SYNC_DELETE=1`。
 
 ## License
 

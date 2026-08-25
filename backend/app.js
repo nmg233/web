@@ -4,9 +4,10 @@ const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { UPLOAD_ROOT } = require('./middleware/upload');
 
 const app = express();
+// 生产环境部署在 nginx 反向代理之后，信任第一层代理以获取真实客户端 IP
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const API_PREFIX = process.env.API_PREFIX || '/api';
 
@@ -68,18 +69,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 静态文件（上传目录）
-app.use('/uploads', express.static(UPLOAD_ROOT, {
-  dotfiles: 'deny',
-  index: false,
-  fallthrough: false,
-  setHeaders(res, filePath) {
-    if (!/\.(png|jpe?g|gif|webp|mp4|webm)$/i.test(filePath)) {
-      res.setHeader('Content-Disposition', 'attachment');
-    }
-  }
-}));
-
 // ============================================
 // API 路由
 // ============================================
@@ -105,13 +94,19 @@ app.use((req, res) => {
 
 // 全局错误处理
 app.use((err, req, res, _next) => {
-  console.error('服务器错误:', err);
-  res.status(500).json({ error: '服务器内部错误', message: process.env.NODE_ENV === 'development' ? err.message : '请稍后重试' });
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error('服务器错误:', err);
+  res.status(status).json({
+    error: status === 404 ? '文件不存在' : '服务器内部错误',
+    message: status === 404 ? undefined : (process.env.NODE_ENV === 'development' ? err.message : '请稍后重试'),
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
-  console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
+    console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+  });
+}
 
 module.exports = app;

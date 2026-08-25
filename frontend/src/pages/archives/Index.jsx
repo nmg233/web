@@ -30,10 +30,6 @@ export default function ArchiveIndex() {
             title: `📚 ${cls.grade ? `${cls.grade} - ` : ''}${cls.name}`,
             key: `class-${cls.id}`,
             children: [
-              ...(cls.roles?.teacher || []).map((t) => ({
-                title: `👨‍🏫 ${t.real_name}`,
-                key: `user-${t.id}`, icon: <UserOutlined />, isLeaf: true,
-              })),
               ...(cls.roles?.student || []).map((s) => ({
                 title: s.real_name,
                 key: `user-${s.id}`, icon: <UserOutlined />, isLeaf: true,
@@ -127,7 +123,17 @@ function ArchiveDetail({ archive }) {
       <Title level={5}>反思日志</Title>
       <List dataSource={archive.reflections || []} renderItem={(r) => (
         <List.Item>
-          <List.Item.Meta title={r.lesson_title || '—'} description={r.content?.slice(0, 100)} />
+          <List.Item.Meta
+            title={r.lesson_title || '—'}
+            description={
+              <Space direction="vertical" size={0}>
+                {r.difficulty && <Text>困难：{r.difficulty}</Text>}
+                {r.solution && <Text>解决方式：{r.solution}</Text>}
+                {r.improvement && <Text>改进收获：{r.improvement}</Text>}
+                {r.new_question && <Text>新问题：{r.new_question}</Text>}
+              </Space>
+            }
+          />
         </List.Item>
       )} />
 
@@ -136,7 +142,10 @@ function ArchiveDetail({ archive }) {
           <Title level={5}>教师评价</Title>
           <List dataSource={archive.evaluations} renderItem={(ev) => (
             <List.Item>
-              <List.Item.Meta title={`${ev.evaluator_name} 的评价`} description={ev.content} />
+              <List.Item.Meta
+                title={`${ev.evaluator_name} 的评价`}
+                description={`${ev.eval_type ? `${ev.eval_type} · ` : ''}${ev.score != null ? `得分 ${ev.score}` : ''}${ev.comment ? `：${ev.comment}` : ''}`}
+              />
             </List.Item>
           )} />
         </>

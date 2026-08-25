@@ -34,7 +34,7 @@ npm run dev
 
 前端默认运行在 `http://localhost:5173`。
 
-当前没有配置 Vite API 代理。Axios 在 `src/api/client.js` 中直接请求 `http://localhost:3000/api`，因此本地后端应运行在 3000 端口。
+Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，Axios 默认请求同源 `/api`；如需覆盖，可通过 `VITE_API_BASE` 环境变量指定。
 
 ## 命令
 
@@ -81,7 +81,7 @@ index.html
 
 ## 已知限制
 
-- API 地址尚未通过环境变量配置。
+- API 地址通过 `VITE_API_BASE` 环境变量配置，默认使用同源 `/api`。
 - ESLint 当前仍有未处理的 Hooks 和未使用导入问题。
-- 尚无前端自动化测试；反馈与通知服务的后端测试位于 `backend/test`。
+- 尚无前端自动化测试；反馈、通知与安全相关后端测试位于 `backend/test`。
 - `src/assets/vite.svg`、`public/icons.svg` 等模板资源目前未被页面使用。

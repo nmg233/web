@@ -58,6 +58,7 @@ exports.showExport = (req, res) => {
 
     const user = req.user;
     const tree = buildUserTree({
+      roles: ['student'],
       search: req.query.search || '',
       schoolId: isTeacher(user.role) ? user.school_id : null
     });

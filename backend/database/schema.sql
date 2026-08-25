@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT,
   phone TEXT,
   profile TEXT,
+  teacher_id INTEGER,
+  mentor_id INTEGER,
+  force_reset_password INTEGER NOT NULL DEFAULT 0,
   role TEXT NOT NULL CHECK(role IN ('admin','academic_mentor','executive_mentor','teacher','student','media')),
   school_id INTEGER,
   class_id INTEGER,
@@ -43,6 +46,16 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE SET NULL,
   FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL
+);
+
+-- 3.1 刷新令牌
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 4. 实践队
