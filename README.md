@@ -315,6 +315,14 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 
 1. 安装 better-sqlite3 本地编译所需依赖：
 
+Alibaba Cloud Linux / RHEL 系（当前测试服务器）：
+
+```bash
+sudo dnf install -y gcc gcc-c++ make python3
+```
+
+Ubuntu / Debian 系：
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y build-essential python3
