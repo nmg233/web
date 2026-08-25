@@ -1,6 +1,8 @@
 const db = require('../config/database');
 const fs = require('fs');
+const path = require('path');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
+const { UPLOAD_ROOT } = require('../middleware/upload');
 
 function canManageCourse(user, courseId) {
   if (user.role === 'admin') return true;
@@ -246,6 +248,32 @@ exports.uploadResource = (req, res) => {
   } catch (err) {
     console.error('上传资源错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
+  }
+};
+
+// 下载课程资源
+exports.downloadResource = (req, res) => {
+  try {
+    const resource = db.prepare(`
+      SELECT r.*, c.status AS course_status
+      FROM resources r
+      JOIN courses c ON c.id = r.course_id
+      WHERE r.id = ?
+    `).get(req.params.resource_id);
+    if (!resource || !resource.file_path) return res.status(404).json({ error: '附件不存在' });
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && resource.course_status !== 'published') {
+      return res.status(404).json({ error: '附件不存在' });
+    }
+
+    const resolvedPath = path.resolve(resource.file_path);
+    const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath) || !fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ error: '附件文件不存在' });
+    }
+    return res.download(resolvedPath, resource.title || path.basename(resolvedPath));
+  } catch (err) {
+    console.error('下载课程资源错误:', err);
+    return res.status(500).json({ error: '下载附件失败' });
   }
 };
 
