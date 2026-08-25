@@ -5,7 +5,7 @@ const db = require('../config/database');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 
 const PUBLIC_ROLES = ['student'];
-const REFRESH_TOKEN_TTL_DAYS = 7; // 刷新令牌有效期（天）
+const REFRESH_TOKEN_TTL_DAYS = parseInt(process.env.JWT_REFRESH_EXPIRES_IN, 10) || 7; // 刷新令牌有效期（天）
 // AUTH-09 补偿措施：Access Token 有效期缩短至 15 分钟（可通过 JWT_ACCESS_EXPIRES_IN 配置）
 const ACCESS_TOKEN_EXPIRES_MIN = parseInt(process.env.JWT_ACCESS_EXPIRES_IN, 10) || 15;
 
