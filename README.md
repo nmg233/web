@@ -39,8 +39,8 @@ project/
 │   ├── database/
 │   │   ├── schema.sql          # 数据库表结构
 │   │   └── init.js             # 数据库初始化脚本
-│   ├── uploads/                # 本地上传文件（不提交到 Git）
-│   ├── private_uploads/        # 需要鉴权下载的反馈附件
+│   ├── uploads/                # 作品与课程资源上传目录（不公开静态托管）
+│   ├── private_uploads/        # 反馈附件等需要鉴权下载的文件
 │   └── test/                   # Node.js 自动化测试
 ├── frontend/
 │   ├── index.html              # HTML 入口
@@ -53,6 +53,7 @@ project/
 │       ├── pages/              # 页面组件
 │       ├── hooks/              # 通知等共享状态 Hooks
 │       └── store/              # 认证与通知状态
+├── deploy.sh                   # 一键部署脚本
 ├── 网站使用手册.docx
 └── README.md
 ```
@@ -150,7 +151,7 @@ npm run dev
 
 前端默认地址：`http://localhost:5173`
 
-当前 Vite 配置没有 API 代理。前端在 `frontend/src/api/client.js` 中直接请求 `http://localhost:3000/api`，后端通过 CORS 允许来自 `http://localhost:5173` 的本地请求。
+Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端请求同源 `/api`，本地开发无需跨域。生产环境由 nginx 将 `/api` 代理到后端。
 
 ## 常用命令
 
@@ -288,14 +289,14 @@ npm run dev
 | 教师 | 李老师 | `teacher123` |
 | 学生 | 王小明 | `student123` |
 
-这些账号仅用于本地开发和演示。若未来部署到服务器，必须删除或修改默认密码，并设置固定、强随机的 `JWT_SECRET`。
+这些账号用于本地开发和测试部署。测试环境可保留默认账号便于验收；公网正式发布前应修改或删除默认密码，并设置固定、强随机的 `JWT_SECRET`。
 
 ## 本地数据
 
 - SQLite 数据库：`backend/database/pbl_platform.db`
 - SQLite WAL 文件：`backend/database/pbl_platform.db-wal`
 - SQLite 共享内存文件：`backend/database/pbl_platform.db-shm`
-- 上传文件：`backend/uploads/`
+- 作品与课程资源上传文件：`backend/uploads/`（不公开静态托管）
 - 私有反馈附件：`backend/private_uploads/feedback/`
 - 环境变量：`backend/.env`
 
