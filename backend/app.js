@@ -105,8 +105,12 @@ app.use((req, res) => {
 
 // 全局错误处理
 app.use((err, req, res, _next) => {
-  console.error('服务器错误:', err);
-  res.status(500).json({ error: '服务器内部错误', message: process.env.NODE_ENV === 'development' ? err.message : '请稍后重试' });
+  const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error('服务器错误:', err);
+  res.status(status).json({
+    error: status === 404 ? '文件不存在' : '服务器内部错误',
+    message: status === 404 ? undefined : (process.env.NODE_ENV === 'development' ? err.message : '请稍后重试'),
+  });
 });
 
 app.listen(PORT, () => {
