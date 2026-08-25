@@ -341,6 +341,8 @@ RESET_DB=1 ./deploy.sh main
 
 脚本会依次完成依赖安装、better-sqlite3 本地编译、前端构建、同步 `dist`、重启服务并做健康检查。nginx 需将 `/api` 代理到后端，并用 `try_files $uri $uri/ /index.html;` 支持 SPA 路由。
 
+脚本默认对应当前 ECS 环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`。如需调整，可通过 `NGINX_ROOT`、`SERVICE` 环境变量覆盖；需要同步删除旧文件时设置 `SYNC_DELETE=1`。
+
 ## License
 
 本项目仅供“大中小贯通科创育人”项目组内部使用，仓库目前未包含独立的开源许可证文件。
