@@ -33,6 +33,7 @@ export const courseAPI = {
   uploadResource: (courseId, formData) => client.post(`/courses/${courseId}/resources`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
+  downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
   enroll: (courseId, studentIds) => client.post(`/courses/${courseId}/enroll`, { student_ids: studentIds }),
   studentEnroll: (courseId) => client.post('/courses/enroll', { course_id: courseId }),
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),

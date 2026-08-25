@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select } from 'antd';
-import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
@@ -67,6 +67,18 @@ export default function CourseDetail() {
     } catch { /* handled */ }
   };
 
+  const downloadResource = async (r) => {
+    try {
+      const blob = await courseAPI.downloadResource(r.id);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = r.title || '课程资源';
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch { /* handled */ }
+  };
+
   if (!course) return null;
 
   const isStudent = user?.role === 'student';
@@ -103,7 +115,7 @@ export default function CourseDetail() {
               <Space>
                 <Tag>{r.resource_type}</Tag>
                 <span>{r.title}</span>
-                <Button size="small" type="link" href={`http://localhost:3000/${r.file_path}`} target="_blank">下载</Button>
+                <Button size="small" type="link" icon={<DownloadOutlined />} onClick={() => downloadResource(r)}>下载</Button>
               </Space>
             </Card>
           ))}
