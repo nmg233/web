@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
+const { decodeOriginalName } = require('../helpers/fileName');
 const notificationService = require('../services/notificationService');
 
 const { NOTIFICATION_EVENTS } = notificationService;
@@ -21,12 +22,6 @@ function removeUploadedFile(file) {
   if (file && file.path) {
     try { fs.unlinkSync(file.path); } catch (e) { /* 文件可能已删除 */ }
   }
-}
-
-function decodeOriginalName(name) {
-  if (!name || /^[\x00-\x7F]*$/.test(name) || /[\u3400-\u9FFF]/.test(name)) return name;
-  const decoded = Buffer.from(name, 'latin1').toString('utf8');
-  return decoded.includes('\uFFFD') ? name : decoded;
 }
 
 function canAccessStudent(user, student) {
@@ -85,7 +80,7 @@ exports.list = (req, res) => {
     }
 
     if (isTeacher(req.user.role)) {
-      sql += ` AND (u.school_id = ? OR (c.id IS NOT NULL AND c.status = 'published'))`;
+      sql += ' AND u.school_id = ?';
       params.push(req.user.school_id || 0);
     }
 
@@ -326,8 +321,7 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '无权查看该作品' });
     }
 
-    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id
-        && work.course_status !== 'published') {
+    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
       return res.status(400).json({ error: '无权查看其他学校作品' });
     }
 
@@ -354,8 +348,9 @@ exports.download = (req, res) => {
     `).get(req.params.id);
     if (!work || !work.file_path) return res.status(404).json({ error: '附件不存在' });
     if (!isStaff(req.user.role) && work.student_id !== req.user.id) return res.status(403).json({ error: '无权下载该附件' });
-    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id
-        && work.course_status !== 'published') return res.status(403).json({ error: '无权下载该附件' });
+    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
+      return res.status(403).json({ error: '无权下载该附件' });
+    }
 
     const resolvedPath = path.resolve(work.file_path);
     const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
