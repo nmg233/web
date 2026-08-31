@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AuthProvider } from './store/AuthContext';
+import NotificationProvider from './store/NotificationProvider';
 import SeasonPixelBackground from './components/SeasonPixelBackground';
 import Login from './pages/auth/Login';
 
@@ -53,47 +54,50 @@ function App() {
       <AntApp>
         <SeasonPixelBackground />
         <AuthProvider>
-          <BrowserRouter>
-            <Suspense
-              fallback={(
-                <div className="loading-screen">
-                  <Spin size="large" description="页面加载中..." />
-                </div>
-              )}
-            >
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/" element={<AppLayout />}>
-                  <Route path="change-password" element={<ChangePassword />} />
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="dashboard/schools/:id" element={<SchoolDetail />} />
-                  <Route path="dashboard/ai" element={<AIAssistant />} />
-                  <Route path="courses" element={<CourseList />} />
-                  <Route path="courses/create" element={<CourseForm />} />
-                  <Route path="courses/:id" element={<CourseDetail />} />
-                  <Route path="courses/:id/learn" element={<Learning />} />
-                  <Route path="courses/:id/edit" element={<CourseForm />} />
-                  <Route path="students" element={<StudentList />} />
-                  <Route path="students/:id" element={<StudentDetail />} />
-                  <Route path="works" element={<WorkList />} />
-                  <Route path="works/upload" element={<WorkUpload />} />
-                  <Route path="works/:id" element={<WorkDetail />} />
-                  <Route path="tasks" element={<TaskList />} />
-                  <Route path="tasks/:id" element={<TaskDetail />} />
-                  <Route path="archives" element={<ArchiveIndex />} />
-                  <Route path="archives/reflection" element={<Reflection />} />
-                  <Route path="feedback" element={<FeedbackList />} />
-                  <Route path="feedback/new" element={<FeedbackForm />} />
-                  <Route path="feedback/manage" element={<FeedbackManage />} />
-                  <Route path="feedback/:id" element={<FeedbackDetail />} />
-                  <Route path="notifications" element={<NotificationList />} />
-                  <Route path="notifications/:id" element={<NotificationDetail />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
+          {/* 为顶部通知组件提供共享状态，避免登录后页面渲染报错。 */}
+          <NotificationProvider>
+            <BrowserRouter>
+              <Suspense
+                fallback={(
+                  <div className="loading-screen">
+                    <Spin size="large" description="页面加载中..." />
+                  </div>
+                )}
+              >
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/" element={<AppLayout />}>
+                    <Route path="change-password" element={<ChangePassword />} />
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="dashboard/schools/:id" element={<SchoolDetail />} />
+                    <Route path="dashboard/ai" element={<AIAssistant />} />
+                    <Route path="courses" element={<CourseList />} />
+                    <Route path="courses/create" element={<CourseForm />} />
+                    <Route path="courses/:id" element={<CourseDetail />} />
+                    <Route path="courses/:id/learn" element={<Learning />} />
+                    <Route path="courses/:id/edit" element={<CourseForm />} />
+                    <Route path="students" element={<StudentList />} />
+                    <Route path="students/:id" element={<StudentDetail />} />
+                    <Route path="works" element={<WorkList />} />
+                    <Route path="works/upload" element={<WorkUpload />} />
+                    <Route path="works/:id" element={<WorkDetail />} />
+                    <Route path="tasks" element={<TaskList />} />
+                    <Route path="tasks/:id" element={<TaskDetail />} />
+                    <Route path="archives" element={<ArchiveIndex />} />
+                    <Route path="archives/reflection" element={<Reflection />} />
+                    <Route path="feedback" element={<FeedbackList />} />
+                    <Route path="feedback/new" element={<FeedbackForm />} />
+                    <Route path="feedback/manage" element={<FeedbackManage />} />
+                    <Route path="feedback/:id" element={<FeedbackDetail />} />
+                    <Route path="notifications" element={<NotificationList />} />
+                    <Route path="notifications/:id" element={<NotificationDetail />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </NotificationProvider>
         </AuthProvider>
       </AntApp>
     </ConfigProvider>

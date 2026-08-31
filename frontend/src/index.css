@@ -859,3 +859,25 @@ h5.ant-typography,
     font-size: 13px;
   }
 }
+/* 四季背景层级修复：
+   原图仍由 SeasonPixelBackground 的 Canvas 像素化渲染；
+   这里只让像素背景回到应用底层，避免被 body 的实色底板遮挡。 */
+body {
+  background: transparent;
+}
+
+#root {
+  z-index: 0;
+}
+
+.season-pixel-bg {
+  z-index: 0;
+}
+
+/* 登录页与登录后的业务布局始终位于像素背景之上。 */
+.app-shell.ant-layout,
+.auth-screen,
+.loading-screen {
+  position: relative;
+  z-index: 1;
+}
