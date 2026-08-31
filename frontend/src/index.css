@@ -881,3 +881,9 @@ body {
   position: relative;
   z-index: 1;
 }
+/* 顶部仅保留操作控件，不再使用整行白色容器。 */
+.app-header.ant-layout-header {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}

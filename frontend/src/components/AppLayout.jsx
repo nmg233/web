@@ -12,7 +12,7 @@ export default function AppLayout() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="loading-screen">
         <Spin size="large" tip="加载中..." />
       </div>
     );
@@ -22,17 +22,19 @@ export default function AppLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  // 强制修改密码：管理员重置密码后，未改密前禁止访问其他页面
   if (user?.force_reset_password && location.pathname !== '/change-password') {
     return <Navigate to="/change-password" replace />;
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="app-shell">
       <Sidebar />
-      <Layout>
+
+      {/* 使用四季主题布局类，让背景、侧栏、顶部栏和内容区样式一致生效。 */}
+      <Layout className="app-main">
         <HeaderBar />
-        <Content style={{ margin: 16, padding: 24, background: '#f5f7fa', borderRadius: 8, minHeight: 360 }}>
+
+        <Content className="app-content">
           <Outlet />
         </Content>
       </Layout>

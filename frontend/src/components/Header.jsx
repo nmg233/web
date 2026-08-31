@@ -1,5 +1,10 @@
 import { Layout, Dropdown, Space, Avatar, Button, Tag } from 'antd';
-import { UserOutlined, LogoutOutlined, MessageOutlined, KeyOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  LogoutOutlined,
+  MessageOutlined,
+  KeyOutlined,
+} from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/AuthContext';
 import NotificationBell from './notifications/NotificationBell';
@@ -25,25 +30,44 @@ export default function HeaderBar() {
     navigate('/login');
   };
 
-  const roleInfo = roleMap[user?.role] || { label: user?.role, color: 'default' };
+  const roleInfo = roleMap[user?.role] || {
+    label: user?.role,
+    color: 'default',
+  };
 
   return (
     <Header className="app-header">
       <Space className="header-actions" size="middle" wrap>
         <NotificationBell />
+
         <Button
           type="text"
           icon={<MessageOutlined />}
-          onClick={() => navigate('/feedback/new', { state: { from: location.pathname } })}
+          onClick={() => navigate('/feedback/new', {
+            state: { from: location.pathname },
+          })}
         >
           意见反馈
         </Button>
-        <Dropdown menu={{
-          items: [
-            { key: 'change-password', icon: <KeyOutlined />, label: '修改密码', onClick: () => navigate('/change-password') },
-            { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout }
-          ]
-        }}>
+
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: 'change-password',
+                icon: <KeyOutlined />,
+                label: '修改密码',
+                onClick: () => navigate('/change-password'),
+              },
+              {
+                key: 'logout',
+                icon: <LogoutOutlined />,
+                label: '退出登录',
+                onClick: handleLogout,
+              },
+            ],
+          }}
+        >
           <Space className="user-entry">
             <Avatar size="small" icon={<UserOutlined />} />
             <span>{user?.real_name}</span>
