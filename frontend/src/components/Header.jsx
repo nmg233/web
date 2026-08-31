@@ -28,12 +28,8 @@ export default function HeaderBar() {
   const roleInfo = roleMap[user?.role] || { label: user?.role, color: 'default' };
 
   return (
-    <Header style={{
-      background: '#fff', padding: '0 24px', display: 'flex',
-      alignItems: 'center', justifyContent: 'flex-end',
-      borderBottom: '1px solid #f0f0f0', height: 56
-    }}>
-      <Space size="middle">
+    <Header className="app-header">
+      <Space className="header-actions" size="middle" wrap>
         <NotificationBell />
         <Button
           type="text"
@@ -48,9 +44,9 @@ export default function HeaderBar() {
             { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout }
           ]
         }}>
-          <Space style={{ cursor: 'pointer' }}>
+          <Space className="user-entry">
             <Avatar size="small" icon={<UserOutlined />} />
-            <span style={{ fontWeight: 500 }}>{user?.real_name}</span>
+            <span>{user?.real_name}</span>
             <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
           </Space>
         </Dropdown>

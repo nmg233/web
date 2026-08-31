@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../store/AuthContext';
+import SeasonSwitcher from '../../components/SeasonSwitcher';
 
 const { Title, Text } = Typography;
 
@@ -26,46 +27,26 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        position: 'absolute',
-        inset: -20,
-        background: "url('/images/beihang_building.jpg') center/cover no-repeat",
-        filter: 'blur(8px) brightness(0.35) saturate(1.2)',
-        zIndex: 0
-      }} />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(135deg, rgba(13,21,38,0.4) 0%, rgba(26,42,74,0.3) 50%, rgba(26,69,128,0.3) 100%)',
-        zIndex: 0
-      }} />
-      <Card
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          width: 480,
-          maxWidth: '95vw',
-          borderRadius: 12,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-        }}
-        styles={{ body: { padding: 40 } }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+    <div className="auth-screen">
+      <div className="auth-season-rail">
+        <SeasonSwitcher />
+      </div>
+      <Card className="auth-card auth-card--login">
+        <div className="auth-intro">
           <img
+            className="auth-logo"
             src="/images/beihang_logo_black.png"
             alt="北京航空航天大学"
-            style={{ height: 52, width: 'auto', opacity: 0.9, marginBottom: 12 }}
+            width="1537"
+            height="386"
+            decoding="async"
+            fetchPriority="high"
           />
-          <Title level={2} style={{ marginBottom: 4 }}>PBL 科创育人平台</Title>
-          <Text type="secondary">大中小贯通 · 项目式学习数字化平台</Text>
+          {/* 标题、副标题各自占一行，避免全局标题底板让两段文字挤在同一行。 */}
+          <Title className="auth-title" level={2}>PBL 科创育人平台</Title>
+          <Text className="auth-subtitle" type="secondary">
+            大中小贯通 · 项目式学习数字化平台
+          </Text>
         </div>
         <Form onFinish={onFinish} size="large">
           <Form.Item name="real_name" rules={[{ required: true, message: '请输入姓名' }]}>
@@ -80,9 +61,9 @@ export default function Login() {
             </Button>
           </Form.Item>
         </Form>
-        <div style={{ textAlign: 'center' }}>
+        <div className="auth-links">
           <Text type="secondary">还没有账号？</Text>
-          <Link to="/register" style={{ marginLeft: 8 }}>立即注册</Link>
+          <Link to="/register">立即注册</Link>
         </div>
       </Card>
     </div>

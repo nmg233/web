@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Form, Input, Button, Card, Select, Typography, message } from 'antd';
 import { authAPI } from '../../api';
+import SeasonSwitcher from '../../components/SeasonSwitcher';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -41,14 +42,14 @@ export default function Register() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center',
-      background: 'linear-gradient(135deg, #1a73e8 0%, #1557b0 100%)'
-    }}>
-      <Card style={{ width: 440, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title level={2}>📝 学生注册</Title>
-          <Text type="secondary">注册后即可选课学习</Text>
+    <div className="auth-screen">
+      <div className="auth-season-rail">
+        <SeasonSwitcher />
+      </div>
+      <Card className="auth-card">
+        <div className="auth-intro">
+          <Title className="auth-title" level={2}>📝 学生注册</Title>
+          <Text className="auth-subtitle" type="secondary">注册后即可选课学习</Text>
         </div>
         <Form layout="vertical" onFinish={onFinish}>
           <Form.Item label="真实姓名" name="real_name" rules={[{ required: true, message: '请输入真实姓名' }]}>
@@ -86,9 +87,9 @@ export default function Register() {
             <Button type="primary" htmlType="submit" loading={loading} block>注册</Button>
           </Form.Item>
         </Form>
-        <div style={{ textAlign: 'center' }}>
+        <div className="auth-links">
           <Text type="secondary">已有账号？</Text>
-          <Link to="/login" style={{ marginLeft: 8 }}>去登录</Link>
+          <Link to="/login">去登录</Link>
         </div>
       </Card>
     </div>

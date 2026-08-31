@@ -13,6 +13,7 @@ import {
   BellOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../store/AuthContext';
+import SeasonSwitcher from './SeasonSwitcher';
 
 const { Sider } = Layout;
 
@@ -90,15 +91,17 @@ export default function Sidebar() {
       : '/' + location.pathname.split('/').slice(1, 3).join('/');
 
   return (
-    <Sider width={200} style={{ background: '#001529' }}>
-      <div style={{
-        height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: '#fff', fontSize: 18, fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        🚀 PBL 科创平台
+    <Sider width={216} className="app-sidebar">
+      <div className="app-brand">
+        <span className="app-brand__mark">PBL</span>
+        <span>科创平台</span>
+      </div>
+      {/* 主题入口固定在导航区，所有登录后的页面均可见且不占用账户操作空间。 */}
+      <div className="sidebar-season-switcher">
+        <SeasonSwitcher compact />
       </div>
       <Menu
-        theme="dark"
+        theme="light"
         mode="inline"
         selectedKeys={[selectedKey]}
         items={items}
