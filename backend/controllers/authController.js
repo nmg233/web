@@ -153,6 +153,11 @@ exports.login = (req, res) => {
 // 处理注册
 exports.register = (req, res) => {
   try {
+    // 注册总开关：默认关闭，需显式设置 ALLOW_REGISTRATION=true 才开放学生自助注册
+    if (process.env.ALLOW_REGISTRATION !== 'true') {
+      return res.status(403).json({ error: '注册暂未开放', message: '请联系管理员开通账号' });
+    }
+
     const { password, password_confirm, email, role, phone, school_id, class_id } = req.body;
     const real_name = String(req.body.real_name || '').trim();
 

@@ -53,6 +53,8 @@ project/
 │       ├── pages/              # 页面组件
 │       ├── hooks/              # 通知等共享状态 Hooks
 │       └── store/              # 认证与通知状态
+├── deploy/
+│   └── nginx.conf              # nginx 站点配置（HTTPS + 安全响应头 + 反代）
 ├── deploy.sh                   # 一键部署脚本
 ├── 网站使用手册.docx
 └── README.md
@@ -88,6 +90,8 @@ Copy-Item .env.example .env
 | `CORS_ORIGIN` | 否 | `http://localhost:5173` | 允许访问 API 的前端来源 |
 | `API_PREFIX` | 否 | `/api` | API 路由前缀 |
 | `DB_PATH` | 否 | `database/pbl_platform.db` | SQLite 路径；自动化测试会覆盖为临时数据库 |
+| `ALLOW_REGISTRATION` | 否 | `false` | 是否开放学生自助注册；默认关闭，设为 `true` 才开放 |
+| `REGISTER_RATE_LIMIT` | 否 | `5` | 注册接口同 IP 每分钟最大次数 |
 
 本地 `.env` 示例：
 
@@ -291,6 +295,8 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 
 这些账号用于本地开发和测试部署。测试环境可保留默认账号便于验收；公网正式发布前应修改或删除默认密码，并设置固定、强随机的 `JWT_SECRET`。
 
+> 学生自助注册默认**关闭**（`ALLOW_REGISTRATION=false`）。测试服务器如需验收「注册」流程，可临时设为 `true`；对外公开前建议保持关闭，改为管理员创建账号。
+
 ## 本地数据
 
 - SQLite 数据库：`backend/database/pbl_platform.db`
@@ -347,9 +353,43 @@ cp .env.example .env
 RESET_DB=1 ./deploy.sh main
 ```
 
-脚本会依次完成依赖安装、better-sqlite3 本地编译、前端构建、同步 `dist`、重启服务并做健康检查。nginx 需将 `/api` 代理到后端，并用 `try_files $uri $uri/ /index.html;` 支持 SPA 路由。
+脚本会依次完成依赖安装、better-sqlite3 本地编译、前端构建、同步 `dist`、重启服务并做健康检查。nginx 需将 `/api` 代理到后端，并用 `try_files $uri $uri/ /index.html;` 支持 SPA 路由。仓库提供了现成的 `deploy/nginx.conf`，见下节。
 
 脚本默认对应当前 ECS 环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`。如需调整，可通过 `NGINX_ROOT`、`SERVICE` 环境变量覆盖；需要同步删除旧文件时设置 `SYNC_DELETE=1`。
+
+### nginx 配置与 HTTPS
+
+仓库 `deploy/nginx.conf` 提供了完整的 nginx 站点配置，包含：
+
+- HTTP → HTTPS 跳转（启用证书后打开 `return 301`）
+- TLS 1.2/1.3、HSTS
+- 安全响应头（`X-Frame-Options`、`X-Content-Type-Options`、`Referrer-Policy` 等，用于防点击劫持与 MIME 嗅探）
+- `/api` 反向代理到 `127.0.0.1:3000`，以及对齐后端 multer 上限的 `client_max_body_size 110m`
+
+部署步骤：
+
+1. 将 `deploy/nginx.conf` 放到 `/etc/nginx/conf.d/`（http 上下文），替换其中的 `your.domain.com` 与证书路径：
+
+```bash
+sudo cp deploy/nginx.conf /etc/nginx/conf.d/pbl-platform.conf
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+2. 申请证书（裸 IP 无法申请免费证书，需域名）：
+
+```bash
+# Let's Encrypt（需域名已解析到本机）
+sudo dnf install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d your.domain.com
+```
+
+> 阿里云免费 DV 证书或 CDN/WAF 边缘 HTTPS 亦可；测试环境临时可用自签名证书（浏览器会告警）。
+
+3. 确认安全头生效：
+
+```bash
+curl -sI https://your.domain.com/ | grep -iE 'Strict-Transport|X-Frame|X-Content|Referrer'
+```
 
 ## License
 
