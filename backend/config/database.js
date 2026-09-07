@@ -187,6 +187,28 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_user_notifications_unread ON user_notifications(user_id, is_read, is_hidden);
 `);
 
+// 滑翔机模拟记录兼容迁移（学生提交参数 -> 后端运行 -> 落库结果）。
+db.exec(`
+  CREATE TABLE IF NOT EXISTS glider_simulations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    dihedral_deg REAL NOT NULL DEFAULT 0,
+    cg_x REAL NOT NULL DEFAULT 0,
+    speed REAL NOT NULL DEFAULT 36,
+    alt REAL NOT NULL DEFAULT 150,
+    status TEXT NOT NULL DEFAULT 'running' CHECK(status IN ('running','success','error')),
+    state TEXT,
+    glide_time REAL,
+    summary_json TEXT,
+    error TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_glider_sims_student ON glider_simulations(student_id, id DESC);
+`);
+
 console.log('✅ SQLite 数据库连接成功:', dbPath);
 
 module.exports = db;

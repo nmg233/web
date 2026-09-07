@@ -74,6 +74,7 @@ app.use((req, res, next) => {
 // ============================================
 app.use(`${API_PREFIX}/auth`, require('./routes/auth'));
 app.use(`${API_PREFIX}/dashboard`, require('./routes/dashboard'));
+app.use(`${API_PREFIX}/glider`, require('./routes/gliders'));
 app.use(`${API_PREFIX}/courses`, require('./routes/courses'));
 app.use(`${API_PREFIX}/tasks`, require('./routes/tasks'));
 app.use(`${API_PREFIX}/students`, require('./routes/students'));
