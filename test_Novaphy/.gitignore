@@ -1,0 +1,7 @@
+# glider_sim 输出与临时文件
+glider_sim/output/
+glider_sim/_tmpframes/
+glider_sim/_*.png
+glider_sim/_*.gif
+__pycache__/
+*.pyc
