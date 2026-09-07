@@ -8,7 +8,8 @@
     "dev": "nodemon app.js",
     "test": "node --test",
     "db:init": "node database/init.js",
-    "db:reset": "node database/init.js --force"
+    "db:reset": "node database/init.js --force",
+    "db:provision": "node database/provision.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
