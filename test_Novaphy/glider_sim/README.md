@@ -1,7 +1,8 @@
 # NovaPhy 气动滑翔机 3D 仿真（glider_sim）
 
 在 **novaPhy** 物理引擎（`novaphy` wheel 0.4.0，CPU 版）上做一架**符合空气动力学**的
-滑翔机 6 自由度仿真，并输出 **3D 展示**（追逐相机 GIF + PNG 图表 + 交互数据）。
+滑翔机 6 自由度仿真。`sim_service.py` 为无界面服务入口，供 **PBL 科创平台**后端调用：
+输出 3D 航迹图、遥测曲线图、遥测 CSV、`summary.json` 与**固定机位 MP4 飞行回放**。
 
 > ⚠️ **本机运行限制**：交付的 `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` 是
 > **Linux x86_64 + CPython 3.11 专用**。当前开发机是 Windows + Python 3.13，
@@ -15,24 +16,25 @@
 
 ---
 
-## 1. 快速开始（Windows / 无 novaPhy）
+## 1. 快速开始（headless 服务）
+
+直接用 `sim_service.py`（供 PBL 平台调用，也可命令行独立运行；无 novaPhy 时自动回退纯 numpy 参考后端）：
 
 ```bash
-cd glider_sim
-python run_glider.py --maneuver circuit --seconds 60     # 自动用 reference 后端
-python run_glider.py --maneuver straight --seconds 40
-python run_glider.py --maneuver sine    --seconds 60
+python sim_service.py --dihedral 6 --cg 0.1 --speed 36 --alt 150 --outdir output/sim1
+# 加 --video 生成固定机位 MP4 飞行回放
+python sim_service.py --dihedral 6 --cg 0.1 --speed 36 --video --video-fps 10 --outdir output/sim2
 ```
 
-输出到 `glider_sim/output/`：
-- `glider_flight.gif` —— 3D 追逐镜头动画（滑翔机盒体模型 + 航迹 + HUD）
-- `trajectory3d.png` —— 世界系 3D 航迹（盘旋/蛇形一目了然）
+输出到 `--outdir`：
+- `trajectory3d.png` —— 世界系 3D 航迹
 - `flight_telemetry.png` —— 高度 / 空速 / 迎角 / 下沉率 / L/D 随时间变化
-- `flight_telemetry.csv` —— 全量遥测（t、位置、姿态四元数、速度、CL/CD、舵面…）
-- `summary.json` —— 参数与结果摘要
+- `flight_telemetry.csv` —— 全量遥测
+- `summary.json` —— 参数与结果摘要（reason / glide_time / distance 等）
+- `flight_replay.mp4` —— 固定机位飞行回放（`--video` 时生成）
 
-常用参数：`--seconds`、`--maneuver {straight|circuit|sine}`、`--bank-deg`、
-`--alt`、`--V-ref`、`--gif-start/--gif-end/--gif-fps`、`--no-gif/--no-plot/--no-csv`。
+常用参数：`--dihedral`、`--cg`、`--speed`、`--alt`、`--timeout`、`--backend`、
+`--video/--video-fps/--video-max`。
 
 ---
 
@@ -50,13 +52,11 @@ python -m pip install ./novaphy-0.4.0-cp311-cp311-linux_x86_64.whl
 python -m pip install numpy matplotlib
 
 # 4) 运行（-–backend novaphy 显式指定）
-python run_glider.py --backend novaphy --maneuver circuit --seconds 60
+python sim_service.py --dihedral 6 --cg 0.1 --speed 36 --video --backend novaphy --outdir output/sim_novaphy
 ```
 
 `--backend auto` 会先探测 novaPhy 是否可用，可用则优先用它，否则回退 reference。
-若希望“交互式 3D 窗口”，可在 Linux 有显示的环境里把
-`output/glider_flight.gif` 用图片查看器打开，或自行接入 novaPhy 自带 ViewerGL
-（本项目 3D 展示使用跨平台的 matplotlib，保证 headless 也可出图）。
+本项目 3D / 图表 / 回放全部用跨平台 matplotlib 生成，headless 即可出图（无显示环境也可用）。
 
 ---
 
@@ -99,56 +99,18 @@ glider_sim/
 ├─ sim_core.py         # 后端无关的飞行循环、控制器、遥测
 ├─ backend_novaphy.py  # ★ novaPhy 后端（ModelBuilder+SolverSemiImplicit）
 ├─ backend_reference.py# 纯 numpy 参考后端（本地验证）
-├─ render.py           # matplotlib 3D 追逐镜头 + GIF/帧 + HUD
+├─ render.py           # matplotlib 渲染：固定机位/追逐镜头 + MP4/GIF 帧 + HUD
 ├─ plot_flight.py      # 高度/空速/迎角/下沉/L-D 图表、3D 航迹图
-├─ run_glider.py       # 命令行入口（出 GIF/图/CSV）
-├─ glider_interactive.py  # ★ 交互教学：设高度/速度/重心/上反角，ViewerGL 实时动画+滑翔时长
-├─ fix_wsl_gl.py       # WSL 下 ViewerGL/ImGui OpenGL 上下文修复（随附）
-└─ output/             # 生成结果（gif/png/csv/json）
+├─ sim_service.py      # ★ PBL 平台入口：headless 模拟 → 图/CSV/summary/MP4 回放
+├─ requirements.txt    # Python 依赖清单（numpy/matplotlib 等）
+└─ output/             # 生成结果（png/csv/json/mp4）
 ```
 
 ## 5. 常见问题
 
 - **`--backend novaphy` 报“novaPhy 不可用”**：确认在 Linux x86_64 + CPython 3.11
   环境，且 `pip install` 成功；可先 `python -c "import novaphy"` 自检。
-- **GIF 里的中文字体方块**：HUD 用英文避免 DejaVu 无 CJK 字形。
+- **HUD/图表里的中文字体方块**：文本用英文避免 DejaVu 无 CJK 字形。
 - **想改机型**：改 `aircraft.py` 的质量/惯量/翼面积/AC 位置即可（气动自动适配）。
-
----
-
-## 6. 交互式滑翔教学（`glider_interactive.py`，ViewerGL 实时动画）
-
-学 `study` 项目 `drone_mountain.py` 的交互风格：设置参数 → 弹窗实时观察滑翔 →
-触地自动给出**滑翔时长**；按 `R` 重新投放，`Space` 暂停，`H` 面板，关窗退出。
-
-可设置：起飞高度、初始速度、**重心**、**机翼上反角**。
-
-| 参数 | 含义 | 物理效果 |
-|---|---|---|
-| `--alt` | 起飞高度 (m) | 越高滑翔越久 |
-| `--speed` | 初始投放速度 (m/s) | 需高于失速(~20)，影响初始爬升/配平 |
-| `--cg` | 重心沿机体前移量 (m) | `>0` 靠前→更稳但俯冲略快/时长↓；`<0` 靠后→接近失稳 |
-| `--dihedral` | 机翼上反角 (°) | `>0` 增强横向静稳定（配合 `--no-autolevel` 对比最明显） |
-| `--no-autolevel` | 关闭副翼自动回中 | 关闭后机翼水平完全交给被动气动（上反角作用凸显） |
-
-在 WSL（已配 `/opt/novaphy`）里运行（注意用 `\` 换行粘贴多行示例）：
-
-```bash
-cd /mnt/d/html-source/PBLproject/jointproject/test_Novaphy/glider_sim
-/opt/novaphy/bin/python glider_interactive.py --alt 100 --dihedral 3
-# 对比重心：后移(易失控) vs 前移(快而稳)
-/opt/novaphy/bin/python glider_interactive.py --alt 100 --cg -0.30
-/opt/novaphy/bin/python glider_interactive.py --alt 100 --cg  0.30
-# 对比上反角（关自动回平，看谁飞得稳）：0° vs 10°
-/opt/novaphy/bin/python glider_interactive.py --alt 100 --dihedral 0 --no-autolevel
-/opt/novaphy/bin/python glider_interactive.py --alt 100 --dihedral 10 --no-autolevel
-```
-
-无窗口快速试参（Windows 也能用 reference 后端）：
-
-```bash
-python glider_interactive.py --headless --alt 100 --cg -0.30
-```
-
-实测滑翔时长（alt=100，vref=31）：默认 50.4 s；`--cg 0.30`→44.8 s；`--cg -0.30`→56.5 s。
-上反角在无自动回平时把初始横滚扰动压回（0° 时 bank 漂到 ~22°，10° 时 ~8°）。
+- **想看交互式 ViewerGL 窗口**：原交互脚本（`glider_interactive.py` 等）已从本仓库移除，
+  平台统一使用 headless 的 `sim_service.py`（matplotlib 出图/回放）。
