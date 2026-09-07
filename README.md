@@ -20,6 +20,7 @@
 
 - Node.js 22.12 或更高版本
 - npm 10 或更高版本
+- Python 3.11+（仅“滑翔机模拟（学生科创）”需要，详见对应章节）
 
 Node.js 18 不满足当前依赖要求：Vite 8 要求 Node.js 20.19+，`better-sqlite3` 13 要求 Node.js 22+。建议统一使用 Node.js 22 LTS 或更高版本。
 
@@ -50,10 +51,13 @@ project/
 │       ├── App.jsx             # 前端路由
 │       ├── api/                # Axios 请求封装
 │       ├── components/         # 布局、反馈、通知等公共组件
-│       ├── pages/              # 页面组件
+│       ├── pages/              # 页面组件（含 glider/ 滑翔机模拟实验室）
 │       ├── hooks/              # 通知等共享状态 Hooks
 │       └── store/              # 认证与通知状态
-├── deploy.sh                   # 一键部署脚本
+├── test_Novaphy/
+│   └── glider_sim/             # 滑翔机气动仿真（Python）：aircraft/aero/sim_core/render/plot_flight
+│       └── sim_service.py      # 供平台后端 spawn 调用的 headless 服务（结果图 + MP4 回放）
+├── deploy.sh                   # 一键部署脚本（测试/演示环境）
 ├── 网站使用手册.docx
 └── README.md
 ```
@@ -82,6 +86,7 @@ Copy-Item .env.example .env
 | 变量 | 是否必需 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `PORT` | 否 | `3000` | 后端端口 |
+| `HOST` | 否 | `127.0.0.1` | 服务监听地址；生产保持 `127.0.0.1`，由 Nginx 反代对外 |
 | `NODE_ENV` | 否 | 未设置 | 推荐本地设为 `development` |
 | `JWT_SECRET` | 生产环境必需 | 开发时随机生成 | JWT 签名密钥；本地也建议固定设置，避免重启后 Token 失效 |
 | `UPLOAD_PATH` | 否 | `uploads` | 相对于 `backend` 的上传目录 |
@@ -153,6 +158,32 @@ npm run dev
 
 Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端请求同源 `/api`，本地开发无需跨域。生产环境由 nginx 将 `/api` 代理到后端。
 
+#### 启动滑翔机模拟（可选）
+
+滑翔机模拟是 Python 物理仿真，需要一套含 `numpy`、`matplotlib`、`imageio-ffmpeg` 的 Python 环境（推荐用 `web/.venv`）：
+
+```bash
+cd /d/html-source/PBLproject/jointproject/web
+export PATH="$PWD/.venv/Scripts:$PATH"     # Windows(Git Bash)；macOS/Linux 用 .venv/bin
+python -m venv .venv 2>/dev/null || true
+source .venv/Scripts/activate
+pip install numpy matplotlib imageio imageio-ffmpeg
+```
+
+然后在 `backend/.env` 声明引擎并正常启动后端：
+
+```dotenv
+# 方案一：本机无 WSL/无 novaPhy —— 纯 numpy 参考后端（结果与真 novaPhy 等价）
+GLIDER_PYTHON=python
+GLIDER_BACKEND=reference
+
+# 方案二：有 WSL 的 Linux novaPhy 环境 —— 跑真 novaPhy（推荐）
+# GLIDER_PYTHON=wsl:Ubuntu-24.04:/opt/novaphy/bin/python
+# GLIDER_BACKEND=novaphy
+```
+
+学生登录后进入 `/glider`：填机翼上反角、重心、初始速度 → 开始试飞 → 等待约 30 秒~2 分钟（真 novaPhy 渲染全程回放较慢），可查看 3D 航迹、遥测曲线与固定机位的 MP4 飞行回放。结果文件保存在 `backend/uploads/glider/<id>/`。原理与环境变量详见“滑翔机模拟（学生科创）”章节。
+
 ## 常用命令
 
 ### 后端
@@ -163,7 +194,8 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 | `npm start` | 使用 Node.js 启动服务 |
 | `npm test` | 使用 Node.js 内置测试框架执行后端测试 |
 | `npm run db:init` | 在数据库不存在时创建数据库和测试数据 |
-| `npm run db:reset` | 删除并重建本地数据库，会清空数据 |
+| `npm run db:reset` | 删除并重建本地数据库，会清空数据（仅测试环境） |
+| `npm run db:provision` | 幂等初始化正式库：建表 + 创建正式管理员（无测试数据，生产用） |
 
 ### 前端
 
@@ -182,7 +214,7 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 | 执行导师 `executive_mentor` | 学生管理；本人创建课程的管理 |
 | 学术导师 `academic_mentor` | 学生查看与评价；本人创建课程的管理 |
 | 教师 `teacher` | 本校学生管理；作品查看和批改；成长记录 |
-| 学生 `student` | 注册、选课、上传作品、反思日志、个人成长档案 |
+| 学生 `student` | 注册、选课、上传作品、反思日志、个人成长档案、滑翔机模拟试飞 |
 | 新媒体 `media` | 预留角色，暂无独立功能入口 |
 
 所有已登录角色均可提交反馈、查看自己的反馈、追加说明和确认处理结果，也可以通过顶部铃铛和通知中心接收、筛选及管理站内通知。管理员可查看全部反馈、设置优先级和状态、填写处理结果，并添加仅管理员可见的内部备注。
@@ -196,6 +228,7 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 | `/dashboard` | 工作台 |
 | `/dashboard/schools/:id` | 学校详情 |
 | `/dashboard/ai` | 规则式学习助手 |
+| `/glider` | 滑翔机模拟实验室（学生试飞） |
 | `/courses` | 课程列表 |
 | `/courses/create` | 创建课程 |
 | `/courses/:id` | 课程详情 |
@@ -226,6 +259,7 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 | 学生 | `/api/students` | 用户、学校、班级和批量导入 |
 | 作品 | `/api/works` | 上传、查看、批改和版本管理 |
 | 档案 | `/api/archives` | 成长档案、反思、评价和成长记录 |
+| 滑翔机 | `/api/glider` | 提交参数、运行模拟、查看试飞记录与结果图/视频 |
 | 反馈 | `/api/feedback` | 提交、列表、详情、回复、状态、优先级、统计和私有附件 |
 | 通知 | `/api/notifications` | 列表、最近通知、未读数、详情、已读/未读和隐藏操作 |
 | 健康检查 | `/api/health` | 服务状态 |
@@ -297,10 +331,61 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 - SQLite WAL 文件：`backend/database/pbl_platform.db-wal`
 - SQLite 共享内存文件：`backend/database/pbl_platform.db-shm`
 - 作品与课程资源上传文件：`backend/uploads/`（不公开静态托管）
+- 滑翔机模拟结果（3D 航迹图 / 遥测图 / CSV / MP4 回放）：`backend/uploads/glider/`
 - 私有反馈附件：`backend/private_uploads/feedback/`
 - 环境变量：`backend/.env`
 
 以上内容均被 Git 忽略。数据库的 `-wal` 和 `-shm` 文件可能包含运行状态或尚未检查点的数据，不应在服务运行时单独删除。
+
+## 滑翔机模拟（学生科创）
+
+学生可在 `/glider`（工作台卡片或侧边栏“滑翔机模拟”）提交三组参数，后端用**真实气动仿真**试飞：
+
+- 机翼上反角（°）—— 越大横向越稳；
+- 重心位置（沿机头方向前移量，m）—— 靠前更稳但滑翔差，靠后易失速翻滚；
+- 初始投放速度（m/s）—— 需高于失速（约 20 m/s）。
+
+数据链路：前端提交 → `POST /api/glider/simulate`（限学生）→ 后端 `spawn` 调用
+`test_Novaphy/glider_sim/sim_service.py` → 物理积分 → 输出 `backend/uploads/glider/<id>/`
+（`summary.json`、CSV、3D 航迹图、遥测图、`flight_replay.mp4` 回放）→ 前端轮询详情、经鉴权接口拉取结果图与视频播放。历史试飞记录仅本人（管理员可看全部）可见，结果文件也仅本人/管理员可下载，**无需** nginx 额外暴露 `/uploads`。
+
+### 引擎双后端（本地 = 服务器一致）
+
+交付的 `novaphy` 物理引擎 wheel 仅支持 **Linux x86_64 + CPython 3.11**。`sim_service.py` 与气动代码（`aircraft/aero/sim_core`）平台无关，差异只在“调用哪个解释器”，用 `GLIDER_PYTHON` 一个变量表达三种环境：
+
+| 环境 | `GLIDER_PYTHON` | 说明 |
+| --- | --- | --- |
+| 服务器(Linux) | `/opt/novaphy/bin/python` | 原生调用，跑真 novaPhy |
+| 本地 Windows + WSL | `wsl:Ubuntu-24.04:/opt/novaphy/bin/python` | 经 `wsl.exe` 调 WSL 内 novaPhy（`/mnt/d` 与 `D:` 同盘互通） |
+| 无 WSL 的 Windows | `python` + `GLIDER_BACKEND=reference` | 纯 numpy 参考后端，物理结果等价 |
+
+`GLIDER_BACKEND` 支持 `auto`（默认，可加载 novaPhy 则优先）/ `novaphy` / `reference`。
+
+### Python 依赖
+
+- 本机 `web/.venv`（Windows 参考后端）：`numpy matplotlib imageio imageio-ffmpeg`。
+- Linux novaPhy 环境（服务器 `/opt/novaphy` 或 WSL）：Python 3.11 venv，安装
+  `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` + `numpy matplotlib Pillow imageio imageio-ffmpeg`。
+  注意：WSL 中该 venv 若由 root 创建，需 `wsl -d <发行版> -u root -- bash -lc '/opt/novaphy/bin/pip install imageio imageio-ffmpeg'`。
+  缺失 `imageio-ffmpeg` 时视频自动跳过（`files.video=null`），不影响模拟结果。
+
+### 相关环境变量（均写入 `backend/.env` 或生产 `EnvironmentFile`）
+
+```dotenv
+GLIDER_PYTHON=python                      # 解释器（见上表三态）
+GLIDER_BACKEND=reference                  # auto / novaphy / reference
+GLIDER_MAX_ACTIVE=2                       # 同时运行模拟上限
+GLIDER_TIMEOUT=100                        # 单次最长仿真秒数（150m 稳定滑翔约 70s 才落地）
+GLIDER_VIDEO=1                            # 0 关闭 MP4 回放
+GLIDER_VIDEO_FPS=10                       # 回放帧率
+GLIDER_VIDEO_MAX=300                      # 回放时长上限秒（默认不截断，覆盖全程含着陆）
+```
+
+### 结果说明
+
+- 结果标签：`正常滑翔` / `成功着陆` / `横滚失控坠毁` / `失速下坠` 等，对应引擎结束原因（`landed`/`crashed(roll)`/`stalled/slow`…）。
+- 视频为**固定世界机位**（高度朝上、地面在下方、全程可见），飞机盒体为便于全景观察而放大示意；真实气动数据看 HUD、遥测曲线与 3D 航迹图。
+- 引擎默认关闭横滚/偏航自动保持（考察上反角/重心对被动稳定性的影响）；典型稳定组合例如上反角 6°、重心 +0.1 m、速度 36 m/s 可平稳着陆约 70 s。
 
 ## 已知限制
 
@@ -313,43 +398,211 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 
 ## 服务器部署
 
-1. 安装 better-sqlite3 本地编译所需依赖：
+部署分两档：**快速一键部署**（`deploy.sh`，适合测试/演示环境）与 **正式生产发布**（推荐：以 Git Release Tag 为基线，目录规范 + systemd + nginx + 独立数据目录 + 正式库初始化）。正式环境请遵循三条铁律：
 
-Alibaba Cloud Linux / RHEL 系（当前测试服务器）：
+1. **代码 / 数据 / 配置分离**：代码可删重建，用户文件与数据库必须持久在数据盘，配置含密钥不进仓库；
+2. **迁移 ≠ 重置**：正式库用 `db:provision` 幂等初始化，严禁 `db:reset` / `db:init`；
+3. **引擎与上传安全**：滑翔机引擎按上文三态配置解释器；所有上传文件与模拟结果都走鉴权 API，不需要对公网开放 `/uploads`。
 
-```bash
-sudo dnf install -y gcc gcc-c++ make python3
-```
+### 0. 服务器前置依赖（首次）
 
-Ubuntu / Debian 系：
-
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential python3
-```
-
-2. 配置后端环境变量，生产环境必须设置 `JWT_SECRET`：
+- Node.js 22 LTS（建议独立安装到 `/opt/node-v22`，避免覆盖系统 Node 12）；
+- `better-sqlite3` 需本地编译工具链：
 
 ```bash
-cd backend
-cp .env.example .env
+# Ubuntu / Debian 系
+sudo apt-get update && sudo apt-get install -y build-essential python3 nginx sqlite3
+# Alibaba Cloud Linux / RHEL 系
+sudo dnf install -y gcc gcc-c++ make python3 nginx
 ```
 
-3. 执行一键部署脚本（默认部署 main 分支）：
+- 滑翔机引擎 Python 环境（仅需要该功能时）：见“滑翔机模拟（学生科创）”章节，例如 `/opt/novaphy`（Python 3.11 + novaphy wheel + numpy/matplotlib/imageio-ffmpeg）。
+
+### 1. 快速一键部署（测试/演示环境）
 
 ```bash
-./deploy.sh main
+cd 项目根目录
+./deploy.sh main            # 部署 main 分支
+RESET_DB=1 ./deploy.sh main # 重置数据库并恢复默认测试账号（仅测试环境）
 ```
 
-如需重置数据库并恢复默认测试账号：
+脚本会依次完成：`git pull` → 后端 `npm ci` + `better-sqlite3` 本地编译 →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
+
+- 默认对应当前 ECS 测试环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`；
+- 可覆盖的环境变量：`NGINX_ROOT`、`SERVICE`、`SYNC_DELETE=1`（同步删除旧文件）、`HEALTH_URL`。
+
+### 2. 正式生产发布（推荐）
+
+#### 2.1 发布基线：用 Release Tag，不直接部署 main
 
 ```bash
-RESET_DB=1 ./deploy.sh main
+# 本地：测试通过后打正式版本号并推送
+git checkout main && git pull
+git tag -a v1.0.0 -m "PBL production v1.0.0"
+git push origin v1.0.0
 ```
 
-脚本会依次完成依赖安装、better-sqlite3 本地编译、前端构建、同步 `dist`、重启服务并做健康检查。nginx 需将 `/api` 代理到后端，并用 `try_files $uri $uri/ /index.html;` 支持 SPA 路由。
+生产服务器只部署固定 Tag，保证“现在跑的是哪一版”永远可回答。
 
-脚本默认对应当前 ECS 环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`。如需调整，可通过 `NGINX_ROOT`、`SERVICE` 环境变量覆盖；需要同步删除旧文件时设置 `SYNC_DELETE=1`。
+#### 2.2 首次服务器目录规范（示例，可按团队约定调整）
+
+```text
+代码：   /opt/pbl-platform/releases/<版本号>   # 每版本独立目录
+运行软链：/opt/pbl-platform/current           # -> releases/<版本号>，升级时指回新版本
+数据：   /datadisk/pbl-platform/{database,uploads,private_uploads/feedback,backups}
+配置：   /etc/pbl-platform/backend.env        # root:pbl 640
+```
+
+```bash
+sudo mkdir -p /opt/pbl-platform/releases /datadisk/pbl-platform/{database,uploads,backups} \
+             /datadisk/pbl-platform/private_uploads/feedback /etc/pbl-platform
+sudo useradd --system --create-home --home-dir /home/pbl --shell /usr/sbin/nologin pbl
+sudo chown -R pbl:pbl /opt/pbl-platform /datadisk/pbl-platform
+sudo chmod 750 /etc/pbl-platform
+```
+
+#### 2.3 拉取固定版本并构建
+
+```bash
+export PATH=/opt/node-v22/bin:$PATH
+cd /opt/pbl-platform/releases
+git clone --depth 1 --branch v1.0.0 <你的仓库地址> v1.0.0
+sudo ln -sfn /opt/pbl-platform/releases/v1.0.0 /opt/pbl-platform/current
+
+# 后端
+cd /opt/pbl-platform/current/backend
+npm ci --omit=dev
+npm rebuild better-sqlite3 --build-from-source
+npm test                       # 必须 PASS，失败即停止发布
+
+# 前端（API 走同源 /api，由 nginx 反代）
+cd /opt/pbl-platform/current/frontend
+npm ci
+VITE_API_BASE=/api npm run build
+test -f dist/index.html && echo "frontend build OK"
+```
+
+#### 2.4 生产配置 `/etc/pbl-platform/backend.env`
+
+```dotenv
+NODE_ENV=production
+HOST=127.0.0.1
+PORT=3000
+API_PREFIX=/api
+
+JWT_SECRET=<openssl rand -hex 64 生成，勿入库>
+CORS_ORIGIN=https://你的正式域名
+
+DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db
+UPLOAD_PATH=/datadisk/pbl-platform/uploads
+FEEDBACK_UPLOAD_PATH=/datadisk/pbl-platform/private_uploads/feedback
+
+# 滑翔机引擎（真 novaPhy）
+GLIDER_PYTHON=/opt/novaphy/bin/python
+GLIDER_BACKEND=auto
+
+# 登录安全
+LOGIN_RATE_LIMIT_IP=10
+LOGIN_RATE_LIMIT_USER=5
+ACCOUNT_LOCK_THRESHOLD=10
+ACCOUNT_LOCK_DURATION=15
+```
+
+> `UPLOAD_PATH` / `DB_PATH` / `FEEDBACK_UPLOAD_PATH` 支持绝对路径（平台按绝对路径直接使用），务必指向数据盘，避免用户文件随代码 Release 一起被删除。
+
+#### 2.5 正式库初始化（只执行一次；安全、幂等、无测试种子）
+
+```bash
+cd /opt/pbl-platform/current/backend
+DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db \
+ADMIN_USERNAME=admin \
+ADMIN_PASSWORD='<至少 12 位强密码>' \
+ADMIN_REAL_NAME=系统管理员 \
+npm run db:provision
+```
+
+- 只建表 + 创建正式管理员（首登强制改密），**不会**写入 `admin123` 等测试账号；
+- 之后学校的组织/课程通过平台界面导入维护；正式环境**严禁** `npm run db:reset` 与 `npm run db:init`。
+
+#### 2.6 systemd 服务（`/etc/systemd/system/pbl-backend.service`）
+
+```ini
+[Unit]
+Description=PBL Production Backend
+After=network.target
+
+[Service]
+Type=simple
+User=pbl
+Group=pbl
+WorkingDirectory=/opt/pbl-platform/current/backend
+EnvironmentFile=/etc/pbl-platform/backend.env
+ExecStart=/opt/node-v22/bin/node app.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/datadisk/pbl-platform
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### 2.7 Nginx（`/etc/nginx/sites-available/pbl-platform`）
+
+```nginx
+server {
+    listen 80;
+    server_name 你的正式域名;
+    root /opt/pbl-platform/current/frontend/dist;
+    index index.html;
+    client_max_body_size 110M;
+
+    location / {
+        try_files $uri $uri/ /index.html;   # SPA 路由
+    }
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+启用并检查：`ln -s /etc/nginx/sites-available/pbl-platform /etc/nginx/sites-enabled/`，`nginx -t`；按域名/入口决定 HTTPS（网关或本机 443 + 证书）。
+
+#### 2.8 上线检查与回滚
+
+```bash
+# 四层健康检查
+curl -fsS http://127.0.0.1:3000/api/health   # 直接访问后端
+curl -fsS http://127.0.0.1/api/health          # 经 nginx
+curl -I  http://127.0.0.1/                     # 前端静态
+curl -I  http://127.0.0.1/login                # SPA fallback
+```
+
+正式发布前完成业务冒烟（管理员/学生/教师登录、选课、作品上传/下载、批改、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
+
+**回滚**：`sudo ln -sfn /opt/pbl-platform/releases/<上一版本> /opt/pbl-platform/current && sudo systemctl restart pbl-backend`；数据库回滚需先停服、恢复 pre-deploy 备份、校验后再启动。
+
+#### 2.9 备份规划（建议）
+
+| 类型 | 策略 |
+| --- | --- |
+| 每日数据库备份 | 保留 7 天 |
+| 每周完整备份 | 保留 4 周 |
+| 每次部署前 | 强制备份 |
+| 数据盘 uploads/private_uploads | 与数据库一起备份，并另存异机/NAS/对象存储 |
+
+### 3. 服务器部署滑翔机引擎（如需该功能）
+
+- 创建 Linux Python 3.11 环境并安装 novaPhy wheel 与渲染依赖（命令同“滑翔机模拟（学生科创）”章节）；
+- `backend.env` 中 `GLIDER_PYTHON=/opt/novaphy/bin/python`（`GLIDER_BACKEND=auto` 即可）；
+- 模拟结果图/视频写入 `UPLOAD_PATH/glider/<id>/`（即数据盘），随备份一起持久化。
 
 ## License
 
