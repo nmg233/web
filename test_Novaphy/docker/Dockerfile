@@ -23,12 +23,12 @@ ENV PATH=/opt/venv/bin:$PATH
 # 3) novaPhy CPU wheel + 绘图/数值依赖（numpy/matplotlib 走清华 PyPI 源）
 COPY novaphy-0.4.0-cpu-cp311-linux-x86_64/novaphy-0.4.0-cp311-cp311-linux_x86_64.whl /tmp/
 RUN python -m pip install --upgrade pip \
- && python -m pip install /tmp/novaphy-0.4.0-cp311-cp311-linux_x86_64.whl numpy matplotlib Pillow \
+ && python -m pip install /tmp/novaphy-0.4.0-cp311-cp311-linux_x86_64.whl numpy matplotlib Pillow imageio imageio-ffmpeg \
  && rm -f /tmp/novaphy-*.whl
 
 # 4) 工程代码
 WORKDIR /glider_sim
 COPY glider_sim /glider_sim
 
-# 5) 默认：novaPhy 后端，盘旋 60s
-CMD ["python", "run_glider.py", "--backend", "novaphy", "--maneuver", "circuit", "--seconds", "60"]
+# 5) 默认：novaPhy 后端 headless 试飞 + 固定机位 MP4 回放（结果写 /glider_sim/output）
+CMD ["python", "sim_service.py", "--dihedral", "6", "--cg", "0.1", "--speed", "36", "--video", "--backend", "novaphy"]

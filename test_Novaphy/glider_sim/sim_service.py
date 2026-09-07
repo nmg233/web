@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """sim_service.py — 供 PBL 平台后端调用的滑翔机模拟服务（headless，进程内一次性）。
 
-与 run_glider / glider_interactive 复用同一套气动模型与积分后端
-（aircraft.py / aero.py / sim_core.py），学生提交
+复用 glider_sim 的气动模型与积分后端（aircraft / aero / sim_core），学生提交
   上反角(°)  +  重心前移量(m)  +  初始投放速度(m/s)
 后由平台后端 spawn 本脚本，在 --outdir 输出：
   summary.json          指标摘要（含 reason / glide_time / 距离 / 下沉率 / L/D 等）
