@@ -29,6 +29,7 @@ import FeedbackDetail from './pages/feedback/Detail';
 import FeedbackManage from './pages/feedback/Manage';
 import NotificationList from './pages/notifications/List';
 import NotificationDetail from './pages/notifications/Detail';
+import GliderSimulator from './pages/glider/Simulator';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="dashboard/schools/:id" element={<SchoolDetail />} />
                 <Route path="dashboard/ai" element={<AIAssistant />} />
+                <Route path="glider" element={<GliderSimulator />} />
                 <Route path="courses" element={<CourseList />} />
                 <Route path="courses/create" element={<CourseForm />} />
                 <Route path="courses/:id" element={<CourseDetail />} />

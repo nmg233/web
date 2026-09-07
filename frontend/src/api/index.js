@@ -126,3 +126,5 @@ export const notificationAPI = {
   hide: (id) => client.patch(`/notifications/${id}/hide`),
   hideRead: () => client.post('/notifications/hide-read'),
 };
+
+export { gliderAPI } from './glider';

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Card, Statistic, Table, Tag, List, Typography, Button, Space, Spin, Modal, Form, Input, message } from 'antd';
-import { BookOutlined, TeamOutlined, FileTextOutlined, BankOutlined, MessageOutlined, PlusOutlined } from '@ant-design/icons';
+import { BookOutlined, TeamOutlined, FileTextOutlined, BankOutlined, MessageOutlined, PlusOutlined, RocketOutlined } from '@ant-design/icons';
 import { dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
@@ -130,6 +130,29 @@ export default function Dashboard() {
                   <List.Item.Meta title={<a onClick={() => navigate(`/works/${w.id}`)}>{w.title}</a>} description={`${w.student_name} · ${w.course_title || '—'}`} />
                 </List.Item>
               )} />
+            </Card>
+          </Col>
+        )}
+
+        {/* 学生：滑翔机模拟实验室入口 */}
+        {user?.role === 'student' && (
+          <Col span={24} style={{ marginBottom: 16 }}>
+            <Card
+              hoverable
+              onClick={() => navigate('/glider')}
+              style={{ background: 'linear-gradient(135deg, #1a73e815, #00c2a315)', borderLeft: '4px solid #1a73e8' }}
+            >
+              <Space size="large" align="center" style={{ width: '100%', justifyContent: 'space-between' }}>
+                <Space>
+                  <span style={{ fontSize: 32 }}>🛩️</span>
+                  <div>
+                    <Text strong style={{ fontSize: 16 }}>滑翔机模拟实验室</Text>
+                    <br />
+                    <Text type="secondary">设计上反角、重心位置与初始速度，用物理引擎试飞你的滑翔机，看它能滑多远</Text>
+                  </div>
+                </Space>
+                <Button type="primary" icon={<RocketOutlined />}>进入试飞</Button>
+              </Space>
             </Card>
           </Col>
         )}
