@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Card, Statistic, Table, Tag, List, Typography, Button, Space, Spin, Modal, Form, Input, message } from 'antd';
 import { BookOutlined, TeamOutlined, FileTextOutlined, BankOutlined, MessageOutlined, PlusOutlined, RocketOutlined } from '@ant-design/icons';
 import { dashboardAPI } from '../../api';
@@ -89,7 +89,7 @@ export default function Dashboard() {
             <Card title="加盟学校" extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setAddSchoolOpen(true)}>添加学校</Button>}>
               <Table dataSource={data.schools} rowKey="id" pagination={false} size="small"
                 columns={[
-                  { title: '学校名称', dataIndex: 'name', key: 'name', render: (text, r) => <a onClick={() => navigate(`/dashboard/schools/${r.id}`)}>{text}</a> },
+                  { title: '学校名称', dataIndex: 'name', key: 'name', render: (text, r) => <Link to={`/dashboard/schools/${r.id}`}>{text}</Link> },
                   { title: '班级数', dataIndex: 'class_count', key: 'class_count' },
                   { title: '用户数', dataIndex: 'user_count', key: 'user_count' },
                   { title: '地区', dataIndex: 'region', key: 'region' },
@@ -117,7 +117,7 @@ export default function Dashboard() {
             <Card title="我的课程" style={{ marginBottom: 16 }}>
               <List dataSource={data.myCourses.slice(0, 5)} renderItem={(c) => (
                 <List.Item extra={<Tag color="blue">{c.student_count} 名学生</Tag>}>
-                  <a onClick={() => navigate(`/courses/${c.id}`)}>{c.title}</a>
+                  <Link to={`/courses/${c.id}`}>{c.title}</Link>
                 </List.Item>
               )} />
             </Card>
@@ -129,7 +129,7 @@ export default function Dashboard() {
             <Card title="最近作品" style={{ marginBottom: 16 }}>
               <List dataSource={data.recentWorks.slice(0, 5)} renderItem={(w) => (
                 <List.Item>
-                  <List.Item.Meta title={<a onClick={() => navigate(`/works/${w.id}`)}>{w.title}</a>} description={`${w.student_name} · ${w.course_title || '—'}`} />
+                  <List.Item.Meta title={<Link to={`/works/${w.id}`}>{w.title}</Link>} description={`${w.student_name} · ${w.course_title || '—'}`} />
                 </List.Item>
               )} />
             </Card>

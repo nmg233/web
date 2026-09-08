@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import PageLoading from '../../components/common/PageLoading';
 
 const { Title } = Typography;
 
@@ -214,7 +215,7 @@ export default function CourseDetail() {
     }
   };
 
-  if (!course) return null;
+  if (!course) return <PageLoading />;
 
   const isStudent = user?.role === 'student';
   const isEnrolled = isStudent && enrollments.some((e) => e.student_id === user.id);
@@ -240,7 +241,7 @@ export default function CourseDetail() {
                 {lesson.location && <Tag color="green">📍 {lesson.location}</Tag>}
                 {lesson.instructor_name && <Tag>👨‍🏫 {lesson.instructor_name}</Tag>}
               </Space>
-              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><a onClick={() => navigate(`/tasks/${task.id}`)}>{task.title}</a>{task.deadline && <Tag style={{ marginLeft: 8 }}>截止 {task.deadline}</Tag>}</div>)}
+              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Link to={`/tasks/${task.id}`}>{task.title}</Link>{task.deadline && <Tag style={{ marginLeft: 8 }}>截止 {task.deadline}</Tag>}</div>)}
             </Card>
           ))}
         </div>

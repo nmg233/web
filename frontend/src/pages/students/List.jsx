@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
@@ -256,7 +256,7 @@ export default function StudentList() {
 
   // Non-admin: table view
   const columns = [
-    { title: '姓名', dataIndex: 'real_name', render: (text, r) => <a onClick={() => navigate(`/students/${r.id}`)}>{text}</a> },
+    { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
     { title: '学校', dataIndex: 'school_name' },
     { title: '班级', dataIndex: 'class_name' },
     { title: '状态', dataIndex: 'is_active', render: (v) => <Tag color={v ? 'green' : 'red'}>{v ? '正常' : '禁用'}</Tag> },

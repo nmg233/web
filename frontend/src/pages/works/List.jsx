@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Table, Card, Button, Tag, Space, Input, Typography, List, Select } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import { workAPI } from '../../api';
@@ -27,7 +27,7 @@ export default function WorkList() {
   useEffect(() => { if (user?.role === 'student') workAPI.pendingTasks().then((res) => setTasks(res.tasks || [])); }, [user]);
 
   const columns = [
-    { title: '作品标题', dataIndex: 'title', render: (text, row) => <a onClick={() => navigate(`/works/${row.id}`)}>{text}</a> },
+    { title: '作品标题', dataIndex: 'title', render: (text, row) => <Link to={`/works/${row.id}`}>{text}</Link> },
     { title: '学生', dataIndex: 'student_name' }, { title: '课程', dataIndex: 'course_title' }, { title: '任务', dataIndex: 'task_title' },
     { title: '状态', dataIndex: 'review_status', render: (_, row) => <Tag color={getStatus(row)[0]}>{getStatus(row)[1]}</Tag> },
     { title: '提交时间', dataIndex: 'created_at', render: formatBeijingTime },

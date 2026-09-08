@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Table, Button, Tag, Space, Input, Card, Typography } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
@@ -29,7 +29,7 @@ export default function CourseList() {
   useEffect(() => { loadCourses(); }, []);
 
   const columns = [
-    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => <a onClick={() => navigate(`/courses/${r.id}`)}>{text}</a> },
+    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => <Link to={`/courses/${r.id}`}>{text}</Link> },
     { title: '主题', dataIndex: 'theme', key: 'theme' },
     { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level' },
     { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
