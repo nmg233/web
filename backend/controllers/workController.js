@@ -99,45 +99,9 @@ exports.list = (req, res) => {
 // 上传作品页面
 exports.showUpload = (req, res) => {
   try {
+    // 仅学生本人可进入上传页（路由已限 student）
     const userId = req.user.id;
-    let enrollments = [];
-
-    if (isTeacher(req.user.role)) {
-      return res.status(403).json({ error: '教师不参与作品上传' });
-    }
-
-    if (isStaff(req.user.role)) {
-      let students;
-      if (isTeacher(req.user.role)) {
-        const schoolId = req.user.school_id || 0;
-        enrollments = db.prepare(
-          `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title,
-                  u.real_name as student_name, u.id as student_id
-           FROM enrollments e
-           JOIN courses c ON e.course_id = c.id
-           JOIN users u ON e.student_id = u.id
-           WHERE u.school_id = ?
-           ORDER BY u.real_name`
-        ).all(schoolId);
-        students = db.prepare(
-          "SELECT id, real_name FROM users WHERE role = 'student' AND school_id = ? ORDER BY real_name"
-        ).all(schoolId);
-      } else {
-        enrollments = db.prepare(
-          `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title,
-                  u.real_name as student_name, u.id as student_id
-           FROM enrollments e
-           JOIN courses c ON e.course_id = c.id
-           JOIN users u ON e.student_id = u.id
-           ORDER BY u.real_name`
-        ).all();
-        students = db.prepare("SELECT id, real_name FROM users WHERE role = 'student' ORDER BY real_name").all();
-      }
-      const courseOptions = Array.from(new Map(enrollments.map((e) => [e.course_id, e])).values());
-      return res.json({ title: '上传作品', enrollments, courseOptions, students });
-    }
-
-    enrollments = db.prepare(
+    const enrollments = db.prepare(
       `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
        FROM enrollments e JOIN courses c ON e.course_id = c.id
        WHERE e.student_id = ?`
@@ -151,28 +115,17 @@ exports.showUpload = (req, res) => {
   }
 };
 
-// 处理作品上传
+// 处理作品上传（仅学生本人；教师/导师/管理员代录功能已下线）
 exports.upload = (req, res) => {
   try {
-    if (req.user.role === 'admin') {
-      removeUploadedFile(req.file);
-      return res.status(400).json({ error: '管理员不可上传作品' });
-    }
-
-    if (isTeacher(req.user.role)) {
-      removeUploadedFile(req.file);
-      return res.status(403).json({ error: '教师不参与作品上传' });
-    }
-
     if (!req.file && !req.body.description?.trim()) {
       return res.status(400).json({ error: '请填写成果内容或选择文件' });
     }
 
-    const { title, description, enrollment_id, task_id, student_id, parent_work_id } = req.body;
+    const { title, description, enrollment_id, task_id, parent_work_id } = req.body;
     const user = req.user;
-    const staff = isStaff(user.role);
 
-    if (user.role === 'student' && !task_id) {
+    if (!task_id) {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '请从课后任务进入提交作品' });
     }
@@ -182,12 +135,7 @@ exports.upload = (req, res) => {
       return res.status(400).json({ error: '请填写作品名称' });
     }
 
-    if (!staff && student_id && Number(student_id) !== user.id) {
-      removeUploadedFile(req.file);
-      return res.status(400).json({ error: '无权替其他学生上传作品' });
-    }
-
-    const actualStudentId = staff ? (student_id || user.id) : user.id;
+    const actualStudentId = user.id;
     const student = db.prepare(
       "SELECT id, school_id FROM users WHERE id = ? AND role = 'student'"
     ).get(actualStudentId);
@@ -195,11 +143,6 @@ exports.upload = (req, res) => {
     if (!student) {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '所选学生不存在' });
-    }
-
-    if (isTeacher(user.role) && student.school_id !== user.school_id) {
-      removeUploadedFile(req.file);
-      return res.status(400).json({ error: '教师只能为本校学生上传作品' });
     }
 
     let enrollmentCourseId = null;
