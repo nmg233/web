@@ -1,7 +1,8 @@
 const db = require('../config/database');
 const path = require('path');
 const fs = require('fs');
-const { spawn } = require('child_process');
+const crypto = require('crypto');
+const { spawn, execFile } = require('child_process');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 
 // ------------------------------------------------------------------
@@ -247,7 +248,23 @@ exports.file = (req, res) => {
     const { id, name } = req.params;
     if (!ALLOWED_FILES.has(name)) return res.status(400).json({ error: '不支持的文件' });
     const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
-    if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });
+
+    // 无 Bearer 时走签名校验（视频直挂 <video> 场景），权限仍以数据库为准
+    let user = req.user;
+    if (!user) {
+      const { exp, uid, sig } = req.query;
+      if (!exp || !uid || !sig) return res.status(401).json({ error: '未登录' });
+      const expMs = Number(exp) * 1000;
+      if (!Number.isFinite(expMs) || Date.now() > expMs) return res.status(401).json({ error: '播放链接已过期' });
+      const expected = crypto.createHmac('sha256', req.app.get('jwt_secret'))
+        .update(`${id}:${name}:${uid}:${exp}`).digest('hex');
+      if (sig !== expected) return res.status(401).json({ error: '播放链接无效' });
+      const urow = db.prepare('SELECT id, role FROM users WHERE id = ? AND is_active = 1').get(uid);
+      if (!urow) return res.status(401).json({ error: '账号不可用' });
+      user = urow;
+    }
+
+    if (!canRead(row, user)) return res.status(404).json({ error: '模拟记录不存在' });
 
     const simDir = path.join(UPLOAD_ROOT, 'glider', String(id));
     const filePath = path.resolve(simDir, name);
@@ -260,4 +277,55 @@ exports.file = (req, res) => {
     console.error('滑翔机模拟文件下载错误:', err);
     return res.status(500).json({ error: '下载失败' });
   }
+};
+
+// 生成短期签名播放地址（视频回放流式拖动，避免整段 blob 下载）
+exports.streamUrl = (req, res) => {
+  try {
+    const { id, name } = req.params;
+    if (name !== 'flight_replay.mp4') return res.status(400).json({ error: '不支持的文件' });
+    const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
+    if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });
+    const exp = Math.floor(Date.now() / 1000) + 600;
+    const sig = crypto.createHmac('sha256', req.app.get('jwt_secret'))
+      .update(`${id}:${name}:${req.user.id}:${exp}`).digest('hex');
+    res.json({
+      url: `/api/glider/simulations/${id}/files/${name}?exp=${exp}&uid=${req.user.id}&sig=${sig}`,
+      expires_in: 600,
+    });
+  } catch (err) {
+    console.error('生成滑翔机播放地址错误:', err);
+    res.status(500).json({ error: '生成播放地址失败' });
+  }
+};
+
+// 引擎能力探测（结果缓存 60s，避免每次请求都拉起解释器）
+let capabilityCache = { at: 0, payload: null };
+exports.capabilities = (req, res) => {
+  const now = Date.now();
+  if (capabilityCache.payload && now - capabilityCache.at < 60 * 1000) {
+    return res.json(capabilityCache.payload);
+  }
+  const payload = {
+    ready: false,
+    backend: GLIDER_BACKEND,
+    python: PY.mode === 'wsl' ? `wsl:${PY.distro}:${PY.python}` : PY.python,
+    video: GLIDER_VIDEO,
+    maxActive: GLIDER_MAX_ACTIVE,
+  };
+  const finish = (ready) => {
+    payload.ready = ready;
+    capabilityCache = { at: Date.now(), payload };
+    res.json(payload);
+  };
+  let child;
+  try {
+    child = PY.mode === 'wsl'
+      ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python, '-c', 'import numpy'], { timeout: 15000 })
+      : execFile(PY.python, ['-c', 'import numpy'], { timeout: 15000 });
+  } catch (err) {
+    return finish(false);
+  }
+  child.on('error', () => finish(false));
+  child.on('close', (code) => finish(code === 0));
 };

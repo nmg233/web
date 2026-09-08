@@ -44,6 +44,7 @@ export default function GliderSimulator() {
   const [waitSec, setWaitSec] = useState(0);
   const [pollFailed, setPollFailed] = useState(false);
   const [pollTimedOut, setPollTimedOut] = useState(false);
+  const [engineInfo, setEngineInfo] = useState(null);
 
   const loadHistory = async () => {
     try {
@@ -51,6 +52,15 @@ export default function GliderSimulator() {
       setHistory(res.items || []);
     } catch { message.error('加载试飞记录失败'); }
   };
+
+  // 进入页面检测引擎就绪状态（结果缓存于后端 60s）
+  useEffect(() => {
+    let alive = true;
+    gliderAPI.capabilities()
+      .then((res) => { if (alive) setEngineInfo(res); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   // 进入页面加载我的试飞记录（延迟一拍再发起，避免在 effect 内同步 setState）
   useEffect(() => {
@@ -119,12 +129,23 @@ export default function GliderSimulator() {
     }
     let alive = true;
     const mimeOf = (name) => (name.endsWith('.mp4') ? 'video/mp4' : name.endsWith('.png') ? 'image/png' : 'application/octet-stream');
+    const urls = [];
     const load = async (name) => {
       try {
         const res = await gliderAPI.file(viewing.id, name);
         if (!alive) return null;
         const blob = new Blob([res], { type: mimeOf(name) });
-        return URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
+        urls.push(url);
+        return url;
+      } catch { return null; }
+    };
+    // 视频改走签名流式地址：支持 Range 拖动，避免整段 blob 下载
+    const loadVideo = async () => {
+      try {
+        const res = await gliderAPI.streamUrl(viewing.id);
+        if (!alive || !res.url) return null;
+        return res.url;
       } catch { return null; }
     };
     const hasVideo = !!viewing.result?.files?.video;
@@ -132,11 +153,15 @@ export default function GliderSimulator() {
       const [trajectory, telemetry, video] = await Promise.all([
         load('trajectory3d.png'),
         load('flight_telemetry.png'),
-        hasVideo ? load('flight_replay.mp4') : Promise.resolve(null),
+        hasVideo ? loadVideo() : Promise.resolve(null),
       ]);
       if (alive) setImg({ trajectory, telemetry, video });
     })();
-    return () => { alive = false; };
+    // 卸载/切换记录时释放对象 URL，避免反复查看累积内存
+    return () => {
+      alive = false;
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
   }, [viewing]);
 
   const startSim = async (values) => {
@@ -187,6 +212,16 @@ export default function GliderSimulator() {
           ? '输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。'
           : '模拟提交仅面向学生。当前角色可查看全部试飞记录与结果回放。'}
       />
+
+      {isStudent && engineInfo && !engineInfo.ready && (
+        <Alert
+          style={{ marginBottom: 16 }}
+          type="warning"
+          showIcon
+          message="实验环境维护中"
+          description={`模拟引擎暂不可用（解释器：${engineInfo.python}）。请稍后再试或联系管理员检查引擎环境。`}
+        />
+      )}
 
       <Row gutter={16}>
         {/* 左侧：参数表单 + 结果 */}
