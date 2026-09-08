@@ -15,61 +15,16 @@ function getTableSql(tableName) {
   return row ? row.sql : '';
 }
 
-function rebuildCoursesStatusSchema() {
-  const sql = getTableSql('courses');
-  if (!sql || !sql.includes("DEFAULT 'draft'")) return;
-
-  const columns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
-  const columnList = columns.join(', ');
-  const rebuild = db.transaction(() => {
-    db.pragma('foreign_keys = OFF');
-    // 关键：开启 legacy_alter_table，RENAME 时才不会把其它表中指向 courses 的
-    // 外键自动改写为 courses_old_status，避免 DROP 旧表后外键悬空（no such table）。
-    db.pragma('legacy_alter_table = ON');
-    db.exec(`
-      ALTER TABLE courses RENAME TO courses_old_status;
-
-      CREATE TABLE courses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        theme TEXT,
-        description TEXT,
-        driving_question TEXT,
-        story_line TEXT,
-        grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
-        difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
-        total_hours INTEGER,
-        materials_needed TEXT,
-        cover_image TEXT,
-        status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
-        created_by INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      );
-
-      INSERT INTO courses (${columnList})
-      SELECT ${columnList} FROM courses_old_status;
-
-      DROP TABLE courses_old_status;
-    `);
-    db.pragma('legacy_alter_table = OFF');
-    db.pragma('foreign_keys = ON');
-  });
-  rebuild();
-  const fkViolations = db.prepare('PRAGMA foreign_key_check').all();
-  if (fkViolations.length) {
-    console.error('⚠️ 课程表迁移后外键校验失败：', fkViolations.slice(0, 5));
-  }
-}
+// 说明：早期曾在此用「重命名重建」迁移 courses 表默认状态（draft→published）。
+// 该迁移已废止：新建库 schema.sql 默认即为 draft，且课程创建/种子均显式写入
+// status，不再依赖表级默认值；重命名重建还会改写子表外键引用（legacy_alter_table
+// 在事务内被 SQLite 忽略），存在破坏外键的风险，故整体移除。
 
 function migrateLegacyMentorRole() {
   const sql = getTableSql('users');
   if (!sql) return;
   db.prepare("UPDATE users SET role = 'academic_mentor' WHERE role = 'executive_mentor'").run();
 }
-
-rebuildCoursesStatusSchema();
 migrateLegacyMentorRole();
 
 const workColumns = db.prepare('PRAGMA table_info(works)').all().map((c) => c.name);
