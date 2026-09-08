@@ -57,13 +57,15 @@ exports.index = (req, res) => {
   let viewData = { title: '工作台', prompt, today, user };
 
   try {
-    // 平台统计（前端统计卡片）
-    viewData.stats = {
-      schoolCount: db.prepare('SELECT COUNT(*) AS c FROM schools').get().c,
-      userCount: db.prepare('SELECT COUNT(*) AS c FROM users').get().c,
-      courseCount: db.prepare('SELECT COUNT(*) AS c FROM courses').get().c,
-      workCount: db.prepare('SELECT COUNT(*) AS c FROM works').get().c,
-    };
+    // 平台统计仅管理员/学术导师可见（学生/教师/新媒体首页展示个人相关数据）
+    if (['admin', 'academic_mentor'].includes(user.role)) {
+      viewData.stats = {
+        schoolCount: db.prepare('SELECT COUNT(*) AS c FROM schools').get().c,
+        userCount: db.prepare('SELECT COUNT(*) AS c FROM users').get().c,
+        courseCount: db.prepare('SELECT COUNT(*) AS c FROM courses').get().c,
+        workCount: db.prepare('SELECT COUNT(*) AS c FROM works').get().c,
+      };
+    }
 
     if (user.role === 'admin') {
       viewData.schools = db.prepare(`
@@ -155,9 +157,52 @@ exports.index = (req, res) => {
       `).get(user.id, todayStr);
       const canSubmitReflection = todayReflection.count === 0;
 
+      // 下一节课：已报名课程中最近的上课场次
+      const nextLesson = db.prepare(`
+        SELECT l.start_at, l.end_at, l.location, l.title AS lesson_title,
+               c.id AS course_id, c.title AS course_title, u.real_name AS instructor_name
+        FROM enrollments e
+        JOIN courses c ON e.course_id = c.id AND c.status = 'published'
+        JOIN lessons l ON l.course_id = c.id
+        LEFT JOIN users u ON u.id = l.instructor_id
+        WHERE e.student_id = ? AND l.start_at IS NOT NULL AND l.start_at >= datetime('now', 'localtime', '-1 hour')
+        ORDER BY l.start_at ASC LIMIT 1
+      `).get(user.id);
+
+      // 待办任务（要求提交附件且未提交或被退回）
+      const pendingTasks = db.prepare(`
+        SELECT t.id, t.title, c.title AS course_title
+        FROM enrollments e
+        JOIN courses c ON e.course_id = c.id AND c.status = 'published'
+        JOIN lessons l ON l.course_id = c.id
+        JOIN tasks t ON t.lesson_id = l.id AND t.require_upload = 1
+        WHERE e.student_id = ?
+          AND (NOT EXISTS (SELECT 1 FROM works w WHERE w.student_id = e.student_id AND w.task_id = t.id)
+               OR (SELECT w.review_status FROM works w
+                   WHERE w.student_id = e.student_id AND w.task_id = t.id
+                   ORDER BY w.version DESC, w.created_at DESC, w.id DESC LIMIT 1) = 'rejected')
+        ORDER BY t.created_at DESC
+      `).all(user.id);
+
+      // 需修改的作品（被打回且尚未重新提交）
+      const revisions = db.prepare(`
+        SELECT w.id, w.title, w.review_status, c.title AS course_title
+        FROM works w
+        LEFT JOIN enrollments e ON w.enrollment_id = e.id
+        LEFT JOIN courses c ON e.course_id = c.id
+        WHERE w.student_id = ? AND w.review_status = 'rejected'
+          AND NOT EXISTS (SELECT 1 FROM works newer
+                          WHERE newer.parent_work_id = COALESCE(w.parent_work_id, w.id)
+                            AND newer.version > w.version)
+        ORDER BY w.updated_at DESC
+      `).all(user.id);
+
       viewData.myCourses = myCourses;
       viewData.canSubmitReflection = canSubmitReflection;
       viewData.todayReflectionCount = todayReflection.count;
+      viewData.nextLesson = nextLesson || null;
+      viewData.pendingTasks = pendingTasks;
+      viewData.revisions = revisions;
     }
 
     res.json(viewData);

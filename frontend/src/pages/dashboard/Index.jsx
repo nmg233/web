@@ -136,6 +136,43 @@ export default function Dashboard() {
           </Col>
         )}
 
+        {/* 学生：下一节课 + 待办 */}
+        {user?.role === 'student' && (
+          <Col xs={24} lg={12}>
+            <Card title="📅 下一节课" style={{ marginBottom: 16 }}>
+              {data.nextLesson ? (
+                <div>
+                  <Text strong style={{ fontSize: 16 }}>{data.nextLesson.course_title} · {data.nextLesson.lesson_title}</Text>
+                  <br />
+                  <Text type="secondary">
+                    上课时间：{data.nextLesson.start_at.replace('T', ' ')}
+                    {data.nextLesson.location ? ` · 📍 ${data.nextLesson.location}` : ''}
+                    {data.nextLesson.instructor_name ? ` · 👨‍🏫 ${data.nextLesson.instructor_name}` : ''}
+                  </Text>
+                  <br />
+                  <Button size="small" type="link" style={{ paddingLeft: 0 }} onClick={() => navigate(`/courses/${data.nextLesson.course_id}`)}>查看课程</Button>
+                </div>
+              ) : (
+                <Text type="secondary">暂无排课安排</Text>
+              )}
+            </Card>
+            <Card title="📌 待办" style={{ marginBottom: 16 }}>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <div>
+                  <Text strong>{data.pendingTasks?.length ?? 0}</Text>
+                  <Text type="secondary"> 个待提交任务</Text>
+                  {data.pendingTasks?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/tasks')}>去完成</Button>}
+                </div>
+                <div>
+                  <Text strong>{data.revisions?.length ?? 0}</Text>
+                  <Text type="secondary"> 个作品需修改</Text>
+                  {data.revisions?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/works')}>去修改</Button>}
+                </div>
+              </Space>
+            </Card>
+          </Col>
+        )}
+
         {/* 学生：滑翔机模拟实验室入口 */}
         {user?.role === 'student' && (
           <Col span={24} style={{ marginBottom: 16 }}>
