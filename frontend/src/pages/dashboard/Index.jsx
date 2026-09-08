@@ -34,7 +34,7 @@ export default function Dashboard() {
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!data) return <Text type="danger">加载失败</Text>;
 
-  const { fortune, stats } = data;
+  const { prompt, stats } = data;
 
   return (
     <div>
@@ -53,17 +53,19 @@ export default function Dashboard() {
         </Row>
       )}
 
-      {/* 每日运势 */}
-      <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${fortune.color}15, ${fortune.color}05)`, borderLeft: `4px solid ${fortune.color}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 32 }}>{fortune.emoji}</span>
-          <div>
-            <Text strong style={{ fontSize: 16, color: fortune.color }}>今日运势：{fortune.level}</Text>
-            <br />
-            <Text type="secondary">{fortune.desc}</Text>
+      {/* 今日项目提示（按角色） */}
+      {prompt && (
+        <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${prompt.color}15, ${prompt.color}05)`, borderLeft: `4px solid ${prompt.color}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 32 }}>{prompt.emoji}</span>
+            <div>
+              <Text strong style={{ fontSize: 16, color: prompt.color }}>今日项目提示</Text>
+              <br />
+              <Text type="secondary">{prompt.desc}</Text>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       <Row gutter={16}>
         {user?.role === 'admin' && data.feedbackStats && (

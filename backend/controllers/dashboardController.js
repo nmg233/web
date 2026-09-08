@@ -1,22 +1,41 @@
 const db = require('../config/database');
 const { toFileDto } = require('../helpers/fileDto');
 
-// 每日运势数据
-const FORTUNES = [
-  { level:'大吉', emoji:'🌟', desc:'今天灵感爆棚，适合开启新项目或攻克难题！', color:'#ff6b35' },
-  { level:'中吉', emoji:'✨', desc:'状态不错，按部就班推进会有意外收获。', color:'#f9ab00' },
-  { level:'小吉', emoji:'🍀', desc:'保持好奇心，一个小发现可能带来大改变。', color:'#0d904f' },
-  { level:'吉',   emoji:'💪', desc:'稳扎稳打的一天，专注当下就是最好的策略。', color:'#1a73e8' },
-  { level:'末吉', emoji:'🌤️', desc:'可能需要多些耐心，好事多磨，别着急。', color:'#5f6368' },
-  { level:'凶',   emoji:'🌧️', desc:'今天适合反思和复盘，调整方向比埋头苦干更重要。', color:'#9334e6' },
-  { level:'大凶', emoji:'⚡', desc:'挑战日！但别忘了，最难的关卡往往经验值最高。', color:'#d93025' },
-];
+// 今日项目提示（按角色定制，替代原“每日运势”）
+const ROLE_PROMPTS = {
+  admin: [
+    { emoji: '🗂️', desc: '今天适合梳理课程与作品数据，关注待处理反馈与评审进度。', color: '#1a73e8' },
+    { emoji: '🔍', desc: '检查一遍学校与用户数据，及时清理测试账号与重复记录。', color: '#0d904f' },
+    { emoji: '🧭', desc: '平台稳定是教学的前提：先保障流程顺畅，再追求功能丰富。', color: '#9334e6' },
+  ],
+  academic_mentor: [
+    { emoji: '💡', desc: '先验证你的假设，再修改方案——引导学生在实验中寻找证据。', color: '#1a73e8' },
+    { emoji: '📋', desc: '及时批改待评审作品，学生对反馈的响应速度会明显提升。', color: '#f9ab00' },
+    { emoji: '🎯', desc: '把大问题拆成小问题，让学生逐一攻克，比直接给答案更有效。', color: '#0d904f' },
+  ],
+  teacher: [
+    { emoji: '📚', desc: '课前确认讲义、资料与实验器材都已就绪，线下课堂更从容。', color: '#0d904f' },
+    { emoji: '👀', desc: '留意学生的课后任务完成情况，及时提醒进度落后的同学。', color: '#1a73e8' },
+    { emoji: '🤝', desc: '和导师保持同步：学生的课堂表现是阶段评价的重要依据。', color: '#9334e6' },
+  ],
+  student: [
+    { emoji: '🧪', desc: '记录失败实验的数据，它也是项目成果的一部分。', color: '#1a73e8' },
+    { emoji: '✏️', desc: '完成任务前先读一遍任务书，明确要交付什么、截止到什么时候。', color: '#0d904f' },
+    { emoji: '💬', desc: '遇到困难别闷头硬扛：写进反思日志，或向老师、同学求助。', color: '#f9ab00' },
+    { emoji: '🔧', desc: '修改作品时对照导师的评语逐条落实，比推翻重做更高效。', color: '#9334e6' },
+  ],
+  media: [
+    { emoji: '📸', desc: '收集课堂与作品的真实素材，好的传播来自真实的项目过程。', color: '#1a73e8' },
+    { emoji: '🎬', desc: '整理素材时注意学生肖像与隐私，发布前先征得同意。', color: '#0d904f' },
+  ],
+};
 
-// 每日运势算法（基于日期+用户ID，同一天同一用户抽到同一运势）
-function getDailyFortune(userId) {
+// 每日项目提示算法（基于日期+用户ID，同一天同一用户抽到同一条）
+function getDailyPrompt(userId, role) {
+  const set = ROLE_PROMPTS[role] || ROLE_PROMPTS.student;
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const seed = hashCode(today + '-' + userId);
-  return FORTUNES[Math.abs(seed) % FORTUNES.length];
+  return set[Math.abs(seed) % set.length];
 }
 
 function hashCode(str) {
@@ -30,12 +49,12 @@ function hashCode(str) {
 
 exports.index = (req, res) => {
   const user = req.user;
-  const fortune = getDailyFortune(user.id);
+  const prompt = getDailyPrompt(user.id, user.role);
   const today = new Date().toLocaleDateString('zh-CN', {
     year:'numeric', month:'long', day:'numeric', weekday:'long'
   });
 
-  let viewData = { title: '工作台', fortune, today, user };
+  let viewData = { title: '工作台', prompt, today, user };
 
   try {
     // 平台统计（前端统计卡片）
@@ -144,7 +163,7 @@ exports.index = (req, res) => {
     res.json(viewData);
   } catch (err) {
     console.error('仪表盘错误:', err);
-    res.json({ title: '工作台', fortune, today, user, error: '加载数据失败' });
+    res.json({ title: '工作台', prompt, today, user, error: '加载数据失败' });
   }
 };
 
