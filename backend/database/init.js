@@ -59,7 +59,7 @@ console.log('✅ 测试班级已创建');
 
 // 用户
 db.prepare("INSERT INTO users (username, password_hash, real_name, role) VALUES (?, ?, ?, 'admin')").run('adminpbl', adminPwd, '管理员');
-db.prepare("INSERT INTO users (username, password_hash, real_name, role) VALUES (?, ?, ?, 'executive_mentor')").run('mentor_zhang', mentorPwd, '张导师');
+db.prepare("INSERT INTO users (username, password_hash, real_name, role) VALUES (?, ?, ?, 'academic_mentor')").run('mentor_zhang', mentorPwd, '张导师');
 db.prepare("INSERT INTO users (username, password_hash, real_name, role, school_id, class_id) VALUES (?, ?, ?, 'teacher', ?, ?)").run('teacher_li', teacherPwd, '李老师', 1, 1);
 db.prepare("INSERT INTO users (username, password_hash, real_name, role, school_id, class_id) VALUES (?, ?, ?, 'student', ?, ?)").run('student_wang', studentPwd, '王小明', 1, 1);
 db.prepare("INSERT INTO users (username, password_hash, real_name, role, school_id, class_id) VALUES (?, ?, ?, 'student', ?, ?)").run('student_chen', studentPwd, '陈小红', 1, 1);

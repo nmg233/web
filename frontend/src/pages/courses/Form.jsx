@@ -17,7 +17,7 @@ export default function CourseForm() {
     if (isEdit) {
       courseAPI.detail(id).then((res) => form.setFieldsValue(res.course)).catch(() => message.error('加载失败'));
     }
-  }, [id]);
+  }, [id, form, isEdit]);
 
   const onFinish = async (values) => {
     setLoading(true);

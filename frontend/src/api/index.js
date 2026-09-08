@@ -34,8 +34,15 @@ export const courseAPI = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
+  listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
+  uploadReplay: (courseId, formData) => client.post(`/courses/${courseId}/replays`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
+  deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
+  // 短期签名流式播放地址（<video> 直挂，支持拖动与 Range）
+  streamUrl: (replayId) => client.get(`/courses/replays/${replayId}/stream-url`),
   enroll: (courseId, studentIds) => client.post(`/courses/${courseId}/enroll`, { student_ids: studentIds }),
-  studentEnroll: (courseId) => client.post('/courses/enroll', { course_id: courseId }),
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),
 };
 

@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select } from 'antd';
-import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
 const { Title } = Typography;
 
-const canManage = (role) => ['admin', 'executive_mentor', 'academic_mentor'].includes(role);
+const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
+
+const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
+const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
+const STATUS_LABELS = { draft: '草稿', published: '已发布', archived: '已归档' };
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -16,14 +20,21 @@ export default function CourseDetail() {
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [resources, setResources] = useState([]);
+  const [replays, setReplays] = useState([]);
+  const [replayUrl, setReplayUrl] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [progress, setProgress] = useState(0);
   const [lessonModal, setLessonModal] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
+  const [replayModal, setReplayModal] = useState(false);
+  const [editingReplay, setEditingReplay] = useState(null);
+  const [replayFile, setReplayFile] = useState(null);
+  const [replayUploading, setReplayUploading] = useState(false);
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
+  const [replayForm] = Form.useForm();
 
   const loadData = async () => {
     try {
@@ -31,12 +42,15 @@ export default function CourseDetail() {
       setCourse(res.course);
       setLessons(res.lessons || []);
       setResources(res.resources || []);
+      courseAPI.listReplays(id).then((replayRes) => setReplays(replayRes.replays || [])).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
       setProgress(res.progress || 0);
     } catch { message.error('加载失败'); }
   };
 
+  // 页面首次进入时加载完整详情；loadData 会在异步回调中更新多个状态。
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { loadData(); }, [id]);
 
   const handleAddLesson = async (values) => {
@@ -59,14 +73,6 @@ export default function CourseDetail() {
     } catch { /* handled */ }
   };
 
-  const handleStudentEnroll = async () => {
-    try {
-      await courseAPI.studentEnroll(id);
-      message.success('选课成功');
-      loadData();
-    } catch { /* handled */ }
-  };
-
   const downloadResource = async (r) => {
     try {
       const blob = await courseAPI.downloadResource(r.id);
@@ -76,6 +82,71 @@ export default function CourseDetail() {
       anchor.download = r.title || '课程资源';
       anchor.click();
       URL.revokeObjectURL(url);
+    } catch { /* handled */ }
+  };
+
+  const playReplay = async (replayId) => {
+    try {
+      // 签名流式地址直挂 <video>：支持 Range 拖动，避免整段 blob 下载
+      const res = await courseAPI.streamUrl(replayId);
+      setReplayUrl(res.url);
+    } catch { /* handled */ }
+  };
+
+  const refreshReplays = () => {
+    courseAPI.listReplays(id).then((res) => setReplays(res.replays || [])).catch(() => {});
+  };
+
+  const openReplayModal = (replay = null) => {
+    setEditingReplay(replay);
+    setReplayFile(null);
+    replayForm.resetFields();
+    if (replay) {
+      replayForm.setFieldsValue({
+        title: replay.title,
+        description: replay.description,
+        duration_seconds: replay.duration_seconds,
+        recording_date: replay.recording_date,
+        sort_order: replay.sort_order,
+      });
+    }
+    setReplayModal(true);
+  };
+
+  const handleReplaySubmit = async (values) => {
+    if (!editingReplay && !replayFile) {
+      message.error('请选择回放视频文件（mp4/webm，≤500MB）');
+      return;
+    }
+    setReplayUploading(true);
+    try {
+      if (editingReplay) {
+        await courseAPI.updateReplay(editingReplay.id, values);
+        message.success('回放信息已更新');
+      } else {
+        const formData = new FormData();
+        formData.append('file', replayFile);
+        formData.append('title', values.title);
+        formData.append('description', values.description || '');
+        formData.append('duration_seconds', values.duration_seconds || '');
+        formData.append('recording_date', values.recording_date || '');
+        formData.append('sort_order', values.sort_order || '0');
+        await courseAPI.uploadReplay(id, formData);
+        message.success('回放上传成功');
+      }
+      setReplayModal(false);
+      refreshReplays();
+    } catch { /* handled */ } finally {
+      setReplayUploading(false);
+    }
+  };
+
+  const handleDeleteReplay = async (replayId) => {
+    try {
+      await courseAPI.deleteReplay(replayId);
+      message.success('回放已删除');
+      if (replayUrl) setReplayUrl(null);
+      refreshReplays();
     } catch { /* handled */ }
   };
 
@@ -107,6 +178,40 @@ export default function CourseDetail() {
       ),
     },
     {
+      key: 'replays', label: '课程回放',
+      children: (
+        <div>
+          {canManage(user?.role) && (
+            <Button type="dashed" icon={<UploadOutlined />} onClick={() => openReplayModal()} style={{ marginBottom: 16 }}>
+              上传回放
+            </Button>
+          )}
+          {replayUrl && <video controls src={replayUrl} style={{ width: '100%', maxHeight: 420, marginBottom: 16 }} />}
+          {replays.length === 0 ? (
+            <Typography.Text type="secondary">暂无课程回放</Typography.Text>
+          ) : replays.map((replay) => (
+            <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
+              extra={canManage(user?.role) && (
+                <Space size={4}>
+                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>编辑</Button>
+                  <Popconfirm title="确定删除该回放？" okText="删除" cancelText="取消" onConfirm={() => handleDeleteReplay(replay.id)}>
+                    <Button size="small" type="link" danger icon={<DeleteOutlined />}>删除</Button>
+                  </Popconfirm>
+                </Space>
+              )}
+            >
+              <Space>
+                <span>{replay.title}</span>
+                {replay.recording_date && <Tag>{replay.recording_date}</Tag>}
+                {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
+                <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
+              </Space>
+            </Card>
+          ))}
+        </div>
+      ),
+    },
+    {
       key: 'resources', label: '课程资源',
       children: (
         <div>
@@ -122,9 +227,13 @@ export default function CourseDetail() {
         </div>
       ),
     },
-    {
+  ];
+
+  // 选课学生页签仅管理者可见，避免学生/教师看到空页签
+  if (canManage(user?.role)) {
+    tabItems.push({
       key: 'students', label: `选课学生 (${enrollments.length})`,
-      children: canManage(user?.role) ? (
+      children: (
         <Table dataSource={enrollments} rowKey="id" pagination={false} size="small"
           columns={[
             { title: '姓名', dataIndex: 'student_name' },
@@ -132,16 +241,15 @@ export default function CourseDetail() {
             { title: '班级', dataIndex: 'class_name' },
           ]}
         />
-      ) : null,
-    },
-  ];
+      ),
+    });
+  }
 
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/courses')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
-        {isStudent && !isEnrolled && <Button type="primary" onClick={handleStudentEnroll}>📝 选修此课</Button>}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && <Button onClick={() => navigate(`/courses/${id}/learn`)}>开始学习</Button>}
       </Space>
@@ -149,9 +257,9 @@ export default function CourseDetail() {
       <Card style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
           <Descriptions.Item label="主题">{course.theme || '—'}</Descriptions.Item>
-          <Descriptions.Item label="适用学段">{course.grade_level}</Descriptions.Item>
-          <Descriptions.Item label="难度">{course.difficulty}</Descriptions.Item>
-          <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : 'orange'}>{course.status}</Tag></Descriptions.Item>
+          <Descriptions.Item label="适用学段">{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
+          <Descriptions.Item label="难度">{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
+          <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
           <Descriptions.Item label="创建者">{course.creator_name}</Descriptions.Item>
           <Descriptions.Item label="总课时">{course.total_hours || '—'}</Descriptions.Item>
         </Descriptions>
@@ -182,6 +290,37 @@ export default function CourseDetail() {
             <Checkbox>要求上传附件</Checkbox>
           </Form.Item>
           <Form.Item name="deadline" label="截止时间"><Input type="datetime-local" /></Form.Item>
+        </Form>
+      </Modal>
+      {/* 上传/编辑回放 Modal */}
+      <Modal
+        title={editingReplay ? '编辑回放' : '上传回放'}
+        open={replayModal}
+        onCancel={() => setReplayModal(false)}
+        onOk={() => replayForm.submit()}
+        confirmLoading={replayUploading}
+      >
+        <Form form={replayForm} layout="vertical" onFinish={handleReplaySubmit}>
+          <Form.Item name="title" label="回放标题" rules={[{ required: true, message: '请输入回放标题' }]}>
+            <Input placeholder="如：第 3 讲 机翼上反角实验" />
+          </Form.Item>
+          {!editingReplay && (
+            <Form.Item label="视频文件" required>
+              <Upload
+                accept=".mp4,.webm"
+                maxCount={1}
+                beforeUpload={(file) => { setReplayFile(file); return false; }}
+                onRemove={() => setReplayFile(null)}
+                fileList={replayFile ? [{ uid: '-1', name: replayFile.name }] : []}
+              >
+                <Button icon={<UploadOutlined />}>选择视频（mp4/webm，≤500MB）</Button>
+              </Upload>
+            </Form.Item>
+          )}
+          <Form.Item name="description" label="简介"><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="duration_seconds" label="时长（秒）"><Input type="number" min={1} /></Form.Item>
+          <Form.Item name="recording_date" label="录制日期"><Input type="date" /></Form.Item>
+          <Form.Item name="sort_order" label="排序（数字越小越靠前）"><Input type="number" min={0} /></Form.Item>
         </Form>
       </Modal>
     </div>

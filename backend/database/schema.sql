@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
   teacher_id INTEGER,
   mentor_id INTEGER,
   force_reset_password INTEGER NOT NULL DEFAULT 0,
-  role TEXT NOT NULL CHECK(role IN ('admin','academic_mentor','executive_mentor','teacher','student','media')),
+  role TEXT NOT NULL CHECK(role IN ('admin','academic_mentor','teacher','student','media')),
   school_id INTEGER,
   class_id INTEGER,
   avatar_url TEXT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS courses (
   total_hours INTEGER,
   materials_needed TEXT,
   cover_image TEXT,
-  status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
+  status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
   created_by INTEGER NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -152,6 +152,23 @@ CREATE TABLE IF NOT EXISTS resources (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
   FOREIGN KEY (upload_by) REFERENCES users(id)
+);
+
+-- 9.1 课程回放
+CREATE TABLE IF NOT EXISTS course_replays (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  video_path TEXT NOT NULL,
+  duration_seconds INTEGER,
+  recording_date DATE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- 9. 微课题

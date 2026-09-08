@@ -37,6 +37,14 @@ exports.index = (req, res) => {
   let viewData = { title: '工作台', fortune, today, user };
 
   try {
+    // 平台统计（前端统计卡片）
+    viewData.stats = {
+      schoolCount: db.prepare('SELECT COUNT(*) AS c FROM schools').get().c,
+      userCount: db.prepare('SELECT COUNT(*) AS c FROM users').get().c,
+      courseCount: db.prepare('SELECT COUNT(*) AS c FROM courses').get().c,
+      workCount: db.prepare('SELECT COUNT(*) AS c FROM works').get().c,
+    };
+
     if (user.role === 'admin') {
       viewData.schools = db.prepare(`
         SELECT s.*,
@@ -56,7 +64,7 @@ exports.index = (req, res) => {
     }
 
     // === 教师/导师端：显示负责的课程和学生进度 ===
-    if (['executive_mentor', 'academic_mentor', 'teacher', 'admin'].includes(user.role)) {
+    if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
       // 导师创建的课程
       const myCourses = db.prepare(`
         SELECT c.*,
@@ -67,16 +75,7 @@ exports.index = (req, res) => {
         ORDER BY c.updated_at DESC
       `).all(user.id);
 
-      // 所有课程（admin看全部）
-      const allCourses = user.role === 'admin' ? db.prepare(`
-        SELECT c.*, u.real_name as creator_name,
-          (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as student_count,
-          (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
-        FROM courses c
-        LEFT JOIN users u ON c.created_by = u.id
-        WHERE c.status != 'archived'
-        ORDER BY c.updated_at DESC
-      `).all() : [];
+      // 所有课程不再下发（前端未消费，避免冗余数据）；如需可按 status/created_by 查询
 
       // 最近学生动态
       const recentWorks = user.role === 'admin' ? db.prepare(`
@@ -105,7 +104,6 @@ exports.index = (req, res) => {
       `).all(user.id);
 
       viewData.myCourses = myCourses;
-      viewData.allCourses = allCourses;
       viewData.recentWorks = recentWorks;
     }
 
@@ -170,7 +168,7 @@ exports.addSchool = (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?)`
     ).run(name.trim(), description || null, tags || null, region || null,
           contact_person || null, contact_phone || null);
-    res.json({ message: '学校添加成功' });
+    res.json({ message: '学校添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加学校错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -230,9 +228,9 @@ exports.addClass = (req, res) => {
     if (!name || !name.trim()) {
       return res.status(400).json({ error: '班级名称不能为空' });
     }
-    db.prepare('INSERT INTO classes (name, school_id, grade) VALUES (?, ?, ?)')
+    const result = db.prepare('INSERT INTO classes (name, school_id, grade) VALUES (?, ?, ?)')
       .run(name.trim(), req.params.id, grade || null);
-    res.json({ message: '班级添加成功' });
+    res.json({ message: '班级添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加班级错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });

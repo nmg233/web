@@ -64,12 +64,16 @@ function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (!allowedExtensions.has(ext)) {
-    return cb(new Error('Unsupported file type: ' + (file.originalname || file.mimetype)), false);
+    const err = new Error('Unsupported file type: ' + (file.originalname || file.mimetype));
+    err.status = 400;
+    return cb(err, false);
   }
 
   const expected = expectedMimeTypes[ext];
   if (expected && file.mimetype !== expected && file.mimetype !== 'application/octet-stream') {
-    return cb(new Error('Unsupported MIME type for ' + ext + ': ' + file.mimetype), false);
+    const err = new Error('Unsupported MIME type for ' + ext + ': ' + file.mimetype);
+    err.status = 400;
+    return cb(err, false);
   }
 
   cb(null, true);
@@ -87,10 +91,16 @@ const uploadResource = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
+const uploadReplay = multer({
+  storage: makeStorage('replay', 'course-replays'),
+  fileFilter,
+  limits: { fileSize: 500 * 1024 * 1024 }
+});
+
 // 批量导入用：内存存储，接收 .csv / .xlsx / .xls
 const uploadImport = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-module.exports = { uploadWork, uploadResource, uploadImport, UPLOAD_ROOT };
+module.exports = { uploadWork, uploadResource, uploadReplay, uploadImport, UPLOAD_ROOT };

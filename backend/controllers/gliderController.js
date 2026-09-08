@@ -64,6 +64,11 @@ const STATE_LABEL = {
 
 const ALLOWED_FILES = new Set(['trajectory3d.png', 'flight_telemetry.png', 'flight_telemetry.csv', 'summary.json', 'flight_replay.mp4']);
 
+// 服务启动时清扫历史遗留的 running 任务，避免僵尸记录永久占满并发上限。
+db.prepare(
+  "UPDATE glider_simulations SET status = 'error', error = ?, updated_at = CURRENT_TIMESTAMP WHERE status = 'running'"
+).run('服务重启，未完成任务已终止');
+
 function clampNum(v, lo, hi, def) {
   const n = Number.parseFloat(v);
   if (!Number.isFinite(n)) return def;
@@ -142,6 +147,15 @@ exports.simulate = (req, res) => {
 
     let stderr = '';
     let child;
+    let settled = false;
+    const timeoutMs = (GLIDER_TIMEOUT + 120) * 1000;
+    const killTimer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { child?.kill('SIGKILL'); } catch (e) { /* 进程可能已退出 */ }
+      markError('模拟任务超时，已终止');
+    }, timeoutMs);
+
     if (PY.mode === 'wsl') {
       // 本地 Windows：经 wsl.exe 调用 WSL 内 Linux 版 novaPhy 解释器（/mnt/d 与 D: 同盘）
       child = spawn('wsl.exe',
@@ -158,8 +172,16 @@ exports.simulate = (req, res) => {
       stderr += d.toString();
       if (stderr.length > 4000) stderr = stderr.slice(-4000);
     });
-    child.on('error', (err) => markError('无法启动模拟引擎：' + err.message));
+    child.on('error', (err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(killTimer);
+      markError('无法启动模拟引擎：' + err.message);
+    });
     child.on('close', (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(killTimer);
       if (code !== 0) {
         markError(`模拟进程异常退出(code=${code})：${(stderr || '无输出').slice(-500)}`);
         return;

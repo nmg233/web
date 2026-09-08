@@ -7,6 +7,7 @@ import {
 import { ArrowLeftOutlined, RocketOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { gliderAPI } from '../../api/glider';
 import { formatBeijingTime } from '../../utils/date';
+import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
 
@@ -32,6 +33,7 @@ function stateMeta(state) {
 
 export default function GliderSimulator() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form] = Form.useForm();
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -41,6 +43,7 @@ export default function GliderSimulator() {
   const [submitting, setSubmitting] = useState(false);
   const [waitSec, setWaitSec] = useState(0);
   const [pollFailed, setPollFailed] = useState(false);
+  const [pollTimedOut, setPollTimedOut] = useState(false);
 
   const loadHistory = async () => {
     try {
@@ -62,11 +65,13 @@ export default function GliderSimulator() {
   }, []);
 
   // 轮询：记录处于 running 时每 2s 刷新，直到 success / error；完成后刷新右侧历史列表
+  // 总等待上限 300s：超过则视为任务卡住，停止轮询并提示刷新记录，避免无限转圈
   useEffect(() => {
     if (!viewingId) return undefined;
     let alive = true;
     let timer;
     let fail = 0;
+    let waited = 0;
     const tick = () => {
       gliderAPI.detail(viewingId)
         .then((d) => {
@@ -77,9 +82,17 @@ export default function GliderSimulator() {
           if (d.status !== 'running') {
             clearInterval(timer);
             setWaitSec(0);
+            setPollTimedOut(false);
             loadHistory(); // 同步右侧历史列表状态（不再停在“运行中”）
           } else {
-            setWaitSec((s) => s + 2);
+            waited += 2;
+            setWaitSec(waited);
+            if (waited >= 300) {
+              clearInterval(timer);
+              setPollTimedOut(true);
+              setWaitSec(0);
+              loadHistory();
+            }
           }
         })
         .catch(() => {
@@ -156,6 +169,7 @@ export default function GliderSimulator() {
   };
 
   const meta = useMemo(() => stateMeta(viewing?.state), [viewing]);
+  const isStudent = user?.role === 'student';
 
   return (
     <div>
@@ -168,13 +182,16 @@ export default function GliderSimulator() {
         style={{ marginBottom: 16 }}
         type="info"
         showIcon
-        message="设定你的滑翔机参数，让物理引擎帮你试飞"
-        description="输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。"
+        message={isStudent ? '设定你的滑翔机参数，让物理引擎帮你试飞' : '滑翔机试飞记录（只读视图）'}
+        description={isStudent
+          ? '输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。'
+          : '模拟提交仅面向学生。当前角色可查看全部试飞记录与结果回放。'}
       />
 
       <Row gutter={16}>
         {/* 左侧：参数表单 + 结果 */}
         <Col xs={24} lg={15}>
+          {isStudent ? (
           <Card title={<Space><RocketOutlined /> 试飞参数设计</Space>} style={{ marginBottom: 16 }}>
             <Form
               form={form}
@@ -211,6 +228,7 @@ export default function GliderSimulator() {
               </Button>
             </Form>
           </Card>
+          ) : null}
 
           {/* 模拟结果 */}
           {viewingId && (
@@ -219,7 +237,10 @@ export default function GliderSimulator() {
               style={{ marginBottom: 16 }}
               extra={viewing?.status === 'running' ? <Tag color="processing">模拟运行中…</Tag> : undefined}
             >
-              {pollFailed ? (
+              {pollTimedOut ? (
+                <Result status="warning" title="模拟疑似卡住"
+                  subTitle="已等待超过 5 分钟仍未完成。请点击右侧“刷新记录”查看最新状态，或稍后重新提交。" />
+              ) : pollFailed ? (
                 <Result status="warning" title="暂时读不到模拟状态"
                   subTitle="后端可能仍在计算或已停止。请稍候点击右侧“刷新记录”，或直接刷新页面重试。" />
               ) : !viewing ? (
@@ -280,11 +301,11 @@ export default function GliderSimulator() {
         {/* 右侧：试飞记录 */}
         <Col xs={24} lg={9}>
           <Card
-            title={<Space><RocketOutlined /> 我的试飞记录</Space>}
+            title={<Space><RocketOutlined /> {isStudent ? '我的试飞记录' : '试飞记录'}</Space>}
             extra={<Button size="small" onClick={loadHistory}>刷新记录</Button>}
           >
             {loadingHistory ? <Spin /> : (
-              history.length === 0 ? <Empty description="还没有试飞记录，先设计一架试试吧" /> : (
+              history.length === 0 ? <Empty description={isStudent ? '还没有试飞记录，先设计一架试试吧' : '暂无试飞记录'} /> : (
                 <List
                   size="small"
                   dataSource={history}

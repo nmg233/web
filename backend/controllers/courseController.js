@@ -1,12 +1,19 @@
 const db = require('../config/database');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 
+function removeUploadedFile(file) {
+  if (file?.path) {
+    try { fs.unlinkSync(file.path); } catch (err) { /* 文件可能已删除 */ }
+  }
+}
+
 function canManageCourse(user, courseId) {
-  if (user.role === 'admin') return true;
+  if (user.role === 'admin' || user.role === 'academic_mentor') return true;
   const course = db.prepare('SELECT created_by FROM courses WHERE id = ?').get(courseId);
   return !!course && course.created_by === user.id;
 }
@@ -226,11 +233,11 @@ exports.addLesson = (req, res) => {
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
     const sortOrder = (maxOrder.max_order || 0) + 1;
 
-    db.prepare(
+    const result = db.prepare(
       'INSERT INTO lessons (course_id, title, description, duration, sort_order) VALUES (?, ?, ?, ?, ?)'
     ).run(id, title, description || null, duration || null, sortOrder);
 
-    res.json({ message: '课时添加成功' });
+    res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加课时错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -253,12 +260,12 @@ exports.uploadResource = (req, res) => {
 
     const { resource_type, title } = req.body;
     const displayTitle = title || decodeOriginalName(req.file.originalname) || req.file.originalname;
-    db.prepare(
+    const result = db.prepare(
       'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?)'
     ).run(id, resource_type || 'other', displayTitle,
          req.file.path, req.file.size, req.user.id);
 
-    res.json({ message: '资源上传成功' });
+    res.json({ message: '资源上传成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('上传资源错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -275,8 +282,13 @@ exports.downloadResource = (req, res) => {
       WHERE r.id = ?
     `).get(req.params.resource_id);
     if (!resource || !resource.file_path) return res.status(404).json({ error: '附件不存在' });
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && resource.course_status !== 'published') {
-      return res.status(404).json({ error: '附件不存在' });
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
+      const enrolled = req.user.role === 'student' && db.prepare(
+        'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
+      ).get(req.user.id, resource.course_id);
+      if (resource.course_status !== 'published' || !enrolled) {
+        return res.status(404).json({ error: '附件不存在' });
+      }
     }
 
     const resolvedPath = path.resolve(resource.file_path);
@@ -311,7 +323,7 @@ exports.addTask = (req, res) => {
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM tasks WHERE lesson_id = ?').get(lesson_id);
 
-    db.prepare(
+    const result = db.prepare(
       `INSERT INTO tasks (lesson_id, title, description, task_type, require_upload, sort_order, deadline)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(lesson_id, title, description || null, task_type || 'inquiry',
@@ -320,7 +332,7 @@ exports.addTask = (req, res) => {
            : require_upload === true || require_upload === 'on' || require_upload === 1 || require_upload === '1' ? 1 : 0,
          (maxOrder.max_order || 0) + 1, deadline || null);
 
-    res.json({ message: '任务添加成功' });
+    res.json({ message: '任务添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加任务错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -349,6 +361,168 @@ exports.updateProgress = (req, res) => {
   } catch (err) {
     console.error('保存学习进度错误:', err);
     res.status(500).json({ error: '保存学习进度失败' });
+  }
+};
+
+function canAccessReplay(user, course) {
+  if (COURSE_MANAGER_ROLES.includes(user.role)) return true;
+  if (user.role === 'teacher') return course.status === 'published';
+  if (user.role !== 'student') return false;
+  if (course.status !== 'published') return false;
+  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(user.id, course.id);
+}
+
+exports.listReplays = (req, res) => {
+  try {
+    const course = db.prepare('SELECT id, status FROM courses WHERE id = ?').get(req.params.id);
+    if (!course || !canAccessReplay(req.user, course)) return res.status(404).json({ error: '课程回放不存在' });
+    const replays = db.prepare(
+      'SELECT id, course_id, title, description, duration_seconds, recording_date, sort_order, created_at FROM course_replays WHERE course_id = ? ORDER BY sort_order, recording_date, id'
+    ).all(course.id);
+    res.json({ replays });
+  } catch (err) {
+    console.error('获取课程回放错误:', err);
+    res.status(500).json({ error: '获取课程回放失败' });
+  }
+};
+
+exports.uploadReplay = (req, res) => {
+  try {
+    if (!canManageCourse(req.user, req.params.id)) {
+      removeUploadedFile(req.file);
+      return res.status(403).json({ error: '无权管理该课程' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: '请选择回放视频' });
+    }
+    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    if (!title || !title.trim()) {
+      removeUploadedFile(req.file);
+      return res.status(400).json({ error: '请填写回放标题' });
+    }
+    const result = db.prepare(
+      `INSERT INTO course_replays (course_id, title, description, video_path, duration_seconds, recording_date, sort_order, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      req.params.id,
+      title.trim(),
+      description || null,
+      req.file.path,
+      Number(duration_seconds) || null,
+      recording_date || null,
+      Number(sort_order) || 0,
+      req.user.id
+    );
+    res.json({ message: '课程回放上传成功', id: Number(result.lastInsertRowid) });
+  } catch (err) {
+    removeUploadedFile(req.file);
+    console.error('上传课程回放错误:', err);
+    res.status(500).json({ error: '上传课程回放失败' });
+  }
+};
+
+exports.updateReplay = (req, res) => {
+  try {
+    const replay = db.prepare('SELECT id, course_id FROM course_replays WHERE id = ?').get(req.params.replayId);
+    if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
+    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: '回放标题不能为空' });
+    db.prepare(
+      `UPDATE course_replays
+       SET title = COALESCE(?, title), description = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`
+    ).run(
+      title ? String(title).trim() : null,
+      description || null,
+      Number(duration_seconds) || null,
+      recording_date || null,
+      Number(sort_order) || 0,
+      replay.id
+    );
+    res.json({ message: '课程回放已更新' });
+  } catch (err) {
+    console.error('更新课程回放错误:', err);
+    res.status(500).json({ error: '更新课程回放失败' });
+  }
+};
+
+exports.deleteReplay = (req, res) => {
+  try {
+    const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
+    if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
+    if (replay.video_path) {
+      try { fs.unlinkSync(replay.video_path); } catch (err) { /* 文件可能已删除 */ }
+    }
+    db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
+    res.json({ message: '课程回放已删除' });
+  } catch (err) {
+    console.error('删除课程回放错误:', err);
+    res.status(500).json({ error: '删除课程回放失败' });
+  }
+};
+
+// 回放流式地址签名：HMAC-SHA256(secret, `${replayId}:${uid}:${exp}`)，10 分钟有效
+function signReplay(replayId, uid, exp, secret) {
+  return crypto.createHmac('sha256', secret).update(`${replayId}:${uid}:${exp}`).digest('hex');
+}
+
+// 生成短期签名播放地址（前端 <video> 直挂，无法携带 Authorization 头）
+exports.streamUrl = (req, res) => {
+  try {
+    const replay = db.prepare(
+      `SELECT r.id, r.course_id, c.status AS course_status
+       FROM course_replays r JOIN courses c ON c.id = r.course_id
+       WHERE r.id = ?`
+    ).get(req.params.replayId);
+    if (!replay || !canAccessReplay(req.user, { id: replay.course_id, status: replay.course_status })) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+    const exp = Math.floor(Date.now() / 1000) + 600;
+    const sig = signReplay(replay.id, req.user.id, exp, req.app.get('jwt_secret'));
+    res.json({ url: `/api/courses/replays/${replay.id}/stream?exp=${exp}&uid=${req.user.id}&sig=${sig}`, expires_in: 600 });
+  } catch (err) {
+    console.error('生成回放播放地址错误:', err);
+    res.status(500).json({ error: '生成播放地址失败' });
+  }
+};
+
+exports.streamReplay = (req, res) => {
+  try {
+    const replay = db.prepare(
+      `SELECT r.*, c.status AS course_status, c.id AS course_id
+       FROM course_replays r JOIN courses c ON c.id = r.course_id
+       WHERE r.id = ?`
+    ).get(req.params.replayId);
+    if (!replay) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+
+    // 无 Bearer 时走签名校验：exp 未过期 + sig 匹配 + 按签名 uid 实时查库，RBAC 仍以数据库为准
+    let user = req.user;
+    if (!user) {
+      const { exp, uid, sig } = req.query;
+      if (!exp || !uid || !sig) return res.status(401).json({ error: '未登录' });
+      const expMs = Number(exp) * 1000;
+      if (!Number.isFinite(expMs) || Date.now() > expMs) return res.status(401).json({ error: '播放链接已过期，请重新进入课程详情' });
+      const expected = signReplay(replay.id, uid, exp, req.app.get('jwt_secret'));
+      if (sig !== expected) return res.status(401).json({ error: '播放链接无效' });
+      const urow = db.prepare('SELECT id, role, school_id FROM users WHERE id = ? AND is_active = 1').get(uid);
+      if (!urow) return res.status(401).json({ error: '账号不可用' });
+      user = urow;
+    }
+
+    if (!canAccessReplay(user, { id: replay.course_id, status: replay.course_status })) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+    const resolvedPath = path.resolve(replay.video_path);
+    const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath) || !fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ error: '回放文件不存在' });
+    }
+    return res.sendFile(resolvedPath);
+  } catch (err) {
+    console.error('播放课程回放错误:', err);
+    res.status(500).json({ error: '播放课程回放失败' });
   }
 };
 

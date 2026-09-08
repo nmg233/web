@@ -80,8 +80,7 @@ exports.list = (req, res) => {
     }
 
     if (isTeacher(req.user.role)) {
-      sql += ' AND u.school_id = ?';
-      params.push(req.user.school_id || 0);
+      sql += " AND w.review_status = 'approved'";
     }
 
     sql += ' ORDER BY w.created_at DESC';
@@ -101,6 +100,10 @@ exports.showUpload = (req, res) => {
   try {
     const userId = req.user.id;
     let enrollments = [];
+
+    if (isTeacher(req.user.role)) {
+      return res.status(403).json({ error: '教师不参与作品上传' });
+    }
 
     if (isStaff(req.user.role)) {
       let students;
@@ -155,6 +158,11 @@ exports.upload = (req, res) => {
       return res.status(400).json({ error: '管理员不可上传作品' });
     }
 
+    if (isTeacher(req.user.role)) {
+      removeUploadedFile(req.file);
+      return res.status(403).json({ error: '教师不参与作品上传' });
+    }
+
     if (!req.file && !req.body.description?.trim()) {
       return res.status(400).json({ error: '请填写成果内容或选择文件' });
     }
@@ -162,6 +170,11 @@ exports.upload = (req, res) => {
     const { title, description, enrollment_id, task_id, student_id, parent_work_id } = req.body;
     const user = req.user;
     const staff = isStaff(user.role);
+
+    if (user.role === 'student' && !task_id) {
+      removeUploadedFile(req.file);
+      return res.status(400).json({ error: '请从课后任务进入提交作品' });
+    }
 
     if (!title) {
       removeUploadedFile(req.file);
@@ -321,8 +334,8 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '无权查看该作品' });
     }
 
-    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
-      return res.status(400).json({ error: '无权查看其他学校作品' });
+    if (isTeacher(req.user.role) && work.review_status !== 'approved') {
+      return res.status(400).json({ error: '教师只能查看公开发布的作品' });
     }
 
     const review = db.prepare(`SELECT r.*, u.real_name reviewer_name FROM work_reviews r JOIN users u ON u.id=r.reviewer_id WHERE r.work_id=?`).get(work.id);
@@ -348,8 +361,8 @@ exports.download = (req, res) => {
     `).get(req.params.id);
     if (!work || !work.file_path) return res.status(404).json({ error: '附件不存在' });
     if (!isStaff(req.user.role) && work.student_id !== req.user.id) return res.status(403).json({ error: '无权下载该附件' });
-    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
-      return res.status(403).json({ error: '无权下载该附件' });
+    if (isTeacher(req.user.role) && work.review_status !== 'approved') {
+      return res.status(403).json({ error: '教师只能下载公开发布的作品附件' });
     }
 
     const resolvedPath = path.resolve(work.file_path);
@@ -380,6 +393,10 @@ exports.delete = (req, res) => {
 
     if (!isStaff(req.user.role) && work.student_id !== req.user.id) {
       return res.status(400).json({ error: '无权删除该作品' });
+    }
+
+    if (isTeacher(req.user.role)) {
+      return res.status(403).json({ error: '教师不参与作品删除' });
     }
 
     if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {

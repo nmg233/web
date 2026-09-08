@@ -3,7 +3,10 @@ const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 
-const FEEDBACK_UPLOAD_ROOT = path.resolve(__dirname, '..', 'private_uploads', 'feedback');
+const configuredFeedbackPath = process.env.FEEDBACK_UPLOAD_PATH;
+const FEEDBACK_UPLOAD_ROOT = configuredFeedbackPath
+  ? path.resolve(configuredFeedbackPath)
+  : path.resolve(__dirname, '..', 'private_uploads', 'feedback');
 const allowedTypes = new Map([
   ['.png', 'image/png'],
   ['.jpg', 'image/jpeg'],

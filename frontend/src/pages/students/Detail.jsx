@@ -9,7 +9,6 @@ const { Title } = Typography;
 
 const roleMap = {
   admin: { label: '管理员', color: 'red' },
-  executive_mentor: { label: '执行导师', color: 'purple' },
   academic_mentor: { label: '学术导师', color: 'blue' },
   teacher: { label: '教师', color: 'green' },
   student: { label: '学生', color: 'cyan' },
@@ -37,6 +36,7 @@ export default function StudentDetail() {
     }).catch(() => {}).finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [id]);
 
   // 打开编辑分配弹窗：加载选项并回填当前值

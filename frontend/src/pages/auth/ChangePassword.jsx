@@ -64,7 +64,7 @@ export default function ChangePassword() {
             rules={[
               { required: true, message: '请输入新密码' },
               { min: 8, message: '密码至少 8 位' },
-              ({ getFieldValue }) => ({
+              () => ({
                 validator(_, value) {
                   if (!value) return Promise.resolve();
                   const classes = [

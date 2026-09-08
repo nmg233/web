@@ -48,12 +48,12 @@ before(async () => {
   db.prepare("INSERT INTO enrollments (id, student_id, course_id) VALUES (1, 4, 1)").run();
   db.prepare("INSERT INTO enrollments (id, student_id, course_id) VALUES (2, 5, 1)").run();
   db.prepare(`
-    INSERT INTO works (id, student_id, enrollment_id, title, file_path)
-    VALUES (1, 4, 1, '甲校作品', '/tmp/pbl-security-a.pdf')
+    INSERT INTO works (id, student_id, enrollment_id, title, file_path, review_status)
+    VALUES (1, 4, 1, '甲校作品', '/tmp/pbl-security-a.pdf', 'approved')
   `).run();
   db.prepare(`
-    INSERT INTO works (id, student_id, enrollment_id, title, file_path)
-    VALUES (2, 5, 2, '乙校作品', '/tmp/pbl-security-b.pdf')
+    INSERT INTO works (id, student_id, enrollment_id, title, file_path, review_status)
+    VALUES (2, 5, 2, '乙校作品', '/tmp/pbl-security-b.pdf', 'pending')
   `).run();
 
   await new Promise((resolve) => {
@@ -110,14 +110,14 @@ test('作品下载接口未登录返回 401', async () => {
   assert.equal(res.status, 401);
 });
 
-test('教师只能看到本校学生作品', async () => {
+test('教师只能看到公开发布作品', async () => {
   const { body: loginBody } = await login('甲老师', 'user123');
   const list = await getJson('/api/works', loginBody.token);
   assert.equal(list.status, 200);
   assert.deepEqual(list.body.works.map((w) => w.id), [1]);
 });
 
-test('教师不能查看或下载其他学校作品', async () => {
+test('教师不能查看或下载未公开发布作品', async () => {
   const { body: loginBody } = await login('甲老师', 'user123');
   const detail = await getJson('/api/works/2', loginBody.token);
   assert.equal(detail.status, 400);

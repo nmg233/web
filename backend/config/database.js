@@ -10,6 +10,68 @@ const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+function getTableSql(tableName) {
+  const row = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?").get(tableName);
+  return row ? row.sql : '';
+}
+
+function rebuildCoursesStatusSchema() {
+  const sql = getTableSql('courses');
+  if (!sql || !sql.includes("DEFAULT 'draft'")) return;
+
+  const columns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
+  const columnList = columns.join(', ');
+  const rebuild = db.transaction(() => {
+    db.pragma('foreign_keys = OFF');
+    // 关键：开启 legacy_alter_table，RENAME 时才不会把其它表中指向 courses 的
+    // 外键自动改写为 courses_old_status，避免 DROP 旧表后外键悬空（no such table）。
+    db.pragma('legacy_alter_table = ON');
+    db.exec(`
+      ALTER TABLE courses RENAME TO courses_old_status;
+
+      CREATE TABLE courses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        theme TEXT,
+        description TEXT,
+        driving_question TEXT,
+        story_line TEXT,
+        grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
+        difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
+        total_hours INTEGER,
+        materials_needed TEXT,
+        cover_image TEXT,
+        status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
+        created_by INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id)
+      );
+
+      INSERT INTO courses (${columnList})
+      SELECT ${columnList} FROM courses_old_status;
+
+      DROP TABLE courses_old_status;
+    `);
+    db.pragma('legacy_alter_table = OFF');
+    db.pragma('foreign_keys = ON');
+  });
+  rebuild();
+  const fkViolations = db.prepare('PRAGMA foreign_key_check').all();
+  if (fkViolations.length) {
+    console.error('⚠️ 课程表迁移后外键校验失败：', fkViolations.slice(0, 5));
+  }
+}
+
+function migrateLegacyMentorRole() {
+  const sql = getTableSql('users');
+  if (!sql) return;
+  db.prepare("UPDATE users SET role = 'academic_mentor' WHERE role = 'executive_mentor'").run();
+}
+
+rebuildCoursesStatusSchema();
+migrateLegacyMentorRole();
+
 const workColumns = db.prepare('PRAGMA table_info(works)').all().map((c) => c.name);
 if (!workColumns.includes('review_status')) {
   db.exec("ALTER TABLE works ADD COLUMN review_status TEXT DEFAULT 'pending'");
@@ -81,6 +143,22 @@ db.exec(`CREATE TABLE IF NOT EXISTS lesson_progress (
   FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY(lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
   UNIQUE(student_id, lesson_id)
+);`);
+
+db.exec(`CREATE TABLE IF NOT EXISTS course_replays (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  video_path TEXT NOT NULL,
+  duration_seconds INTEGER,
+  recording_date DATE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id)
 );`);
 
 // 反馈模块兼容迁移：应用启动时为已有数据库补齐表和索引。

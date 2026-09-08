@@ -9,7 +9,7 @@ const { sanitizeUser } = require('../helpers/userDto');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 
 const USERNAME_RE = /^[a-zA-Z0-9]+$/;
-const MANAGED_ROLES = ['student', 'teacher', 'executive_mentor'];
+const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 
 function isValidUsername(username) {
   return username && username.length >= 6 && USERNAME_RE.test(username);
@@ -118,13 +118,16 @@ exports.create = (req, res) => {
     const password_hash = bcrypt.hashSync(studentPassword, 10);
 
     // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
-    db.prepare(
+    const result = db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id, force_reset_password)
        VALUES (?, ?, ?, ?, ?, 'student', ?, ?, 1)`
     ).run(studentUsername, password_hash, real_name, email || null, phone || null,
           school_id || null, class_id || null);
 
-    res.json({ message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）` });
+    res.json({
+      message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）`,
+      id: Number(result.lastInsertRowid),
+    });
   } catch (err) {
     console.error('添加学生错误:', err);
     res.status(500).json({ error: '添加失败，请稍后重试' });
@@ -137,8 +140,8 @@ exports.showImport = (req, res) => {
 };
 
 // ============ 批量导入（支持 CSV / Excel 文件，也兼容 JSON） ============
-const IMPORT_ROLES = ['student', 'teacher', 'executive_mentor'];
-const ROLE_ALIAS = { '学生': 'student', '教师': 'teacher', '执行导师': 'executive_mentor' };
+const IMPORT_ROLES = ['student', 'teacher', 'academic_mentor'];
+const ROLE_ALIAS = { '学生': 'student', '教师': 'teacher', '学术导师': 'academic_mentor' };
 
 function normalizeRole(value) {
   const t = String(value || '').trim().toLowerCase();
@@ -269,7 +272,7 @@ exports.import = (req, res) => {
           errors.push(`第 ${seq} 行「${real_name}」：姓名已存在`);
           continue;
         }
-        const prefix = role === 'teacher' ? 'teacher' : role === 'executive_mentor' ? 'mentor' : 'student';
+        const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
         const username = `${prefix}${Date.now()}${imported}${seq}${Math.floor(Math.random() * 10000)}`;
         insert.run(username, password_hash, real_name,
                    row.email || null, row.phone || null, row.profile || null,
@@ -389,13 +392,13 @@ exports.createUser = (req, res) => {
       }
     }
 
-    const prefix = role === 'teacher' ? 'teacher' : role === 'executive_mentor' ? 'mentor' : 'student';
+    const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
     const finalUsername = `${prefix}${Date.now()}${Math.floor(Math.random() * 100000)}`;
 
     const finalPassword = password || 'pbl123456';
     const password_hash = bcrypt.hashSync(finalPassword, 10);
-    const finalSchoolId = role === 'executive_mentor' ? null : school_id;
-    const finalClassId = role === 'executive_mentor' ? null : class_id;
+    const finalSchoolId = role === 'academic_mentor' ? null : school_id;
+    const finalClassId = role === 'academic_mentor' ? null : class_id;
     // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
     db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
@@ -457,8 +460,8 @@ exports.updateUser = (req, res) => {
       });
     }
 
-    const finalSchoolId = role === 'executive_mentor' ? null : school_id;
-    const finalClassId = role === 'executive_mentor' ? null : class_id;
+    const finalSchoolId = role === 'academic_mentor' ? null : school_id;
+    const finalClassId = role === 'academic_mentor' ? null : class_id;
     const active = is_active === 'on' || is_active === '1' ? 1 : 0;
 
     if (password) {
@@ -545,7 +548,7 @@ exports.getAssignOptions = (req, res) => {
     const schools = db.prepare('SELECT id, name FROM schools ORDER BY name').all();
     const teachers = db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' ORDER BY real_name").all();
     const mentors = db.prepare(
-      "SELECT id, real_name FROM users WHERE role IN ('executive_mentor','academic_mentor') ORDER BY real_name"
+      "SELECT id, real_name FROM users WHERE role = 'academic_mentor' ORDER BY real_name"
     ).all();
     res.json({ schools, teachers, mentors });
   } catch (err) {
@@ -580,7 +583,7 @@ exports.assignStudent = (req, res) => {
     }
     if (mentor_id) {
       const mentor = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role IN ('executive_mentor','academic_mentor')"
+        "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor'"
       ).get(mentor_id);
       if (!mentor) return res.status(400).json({ error: '所选负责导师不存在' });
     }
@@ -708,7 +711,7 @@ exports.detail = (req, res) => {
        LEFT JOIN classes c ON u.class_id = c.id
        LEFT JOIN users t ON u.teacher_id = t.id
        LEFT JOIN users m ON u.mentor_id = m.id
-       WHERE u.id = ?`
+       WHERE u.id = ? AND u.role = 'student'`
     ).get(id);
 
     if (!student) {

@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 
-const STAFF_ROLES = ['admin', 'executive_mentor', 'academic_mentor', 'teacher'];
-const COURSE_MANAGER_ROLES = ['admin', 'executive_mentor', 'academic_mentor'];
+const STAFF_ROLES = ['admin', 'academic_mentor', 'teacher'];
+const COURSE_MANAGER_ROLES = ['admin', 'academic_mentor'];
 
 function isStaff(role) {
   return STAFF_ROLES.includes(role);

@@ -22,6 +22,7 @@ export default function SchoolDetail() {
     } catch { message.error('加载失败'); }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { loadData(); }, [id]);
 
   const handleAddClass = async (values) => {
