@@ -28,6 +28,7 @@ export default function CourseDetail() {
   const [replayUrl, setReplayUrl] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [progress, setProgress] = useState(0);
   const [lessonModal, setLessonModal] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
@@ -53,6 +54,7 @@ export default function CourseDetail() {
       courseAPI.listReplays(id).then((replayRes) => setReplays(replayRes.replays || [])).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
+      setTeachers(res.teachers || []);
       setProgress(res.progress || 0);
     } catch { message.error('加载失败'); }
   };
@@ -234,7 +236,12 @@ export default function CourseDetail() {
               )}
             >
               {lesson.description && <p>{lesson.description}</p>}
-              {lesson.duration && <Tag>{lesson.duration} 分钟</Tag>}
+              <Space wrap size={[4, 0]}>
+                {lesson.duration && <Tag>{lesson.duration} 分钟</Tag>}
+                {lesson.start_at && <Tag color="blue">上课 {lesson.start_at.replace('T', ' ')}</Tag>}
+                {lesson.location && <Tag color="green">📍 {lesson.location}</Tag>}
+                {lesson.instructor_name && <Tag>👨‍🏫 {lesson.instructor_name}</Tag>}
+              </Space>
               {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><a onClick={() => navigate(`/tasks/${task.id}`)}>{task.title}</a>{task.deadline && <Tag style={{ marginLeft: 8 }}>截止 {task.deadline}</Tag>}</div>)}
             </Card>
           ))}
@@ -355,6 +362,13 @@ export default function CourseDetail() {
           <Form.Item name="title" label="课时名称" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label="描述"><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="duration" label="时长（分钟）"><Input type="number" /></Form.Item>
+          <Form.Item name="start_at" label="上课时间"><Input type="datetime-local" /></Form.Item>
+          <Form.Item name="end_at" label="下课时间"><Input type="datetime-local" /></Form.Item>
+          <Form.Item name="location" label="上课地点"><Input placeholder="如：北航 XX 实验室" /></Form.Item>
+          <Form.Item name="instructor_id" label="授课教师">
+            <Select allowClear placeholder="选择授课教师"
+              options={teachers.map((t) => ({ value: t.id, label: t.real_name }))} />
+          </Form.Item>
         </Form>
       </Modal>
 

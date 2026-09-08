@@ -109,8 +109,10 @@ exports.detail = (req, res) => {
     }
 
     const lessons = db.prepare(`SELECT l.*, COALESCE(lp.progress, 0) AS progress,
-      COALESCE(lp.last_position, 0) AS last_position
-      FROM lessons l LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = ?
+      COALESCE(lp.last_position, 0) AS last_position, u.real_name AS instructor_name
+      FROM lessons l
+      LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = ?
+      LEFT JOIN users u ON u.id = l.instructor_id
       WHERE l.course_id = ? ORDER BY l.sort_order`).all(req.user.role === 'student' ? req.user.id : null, id);
     const tasks = db.prepare(`SELECT t.*, l.title AS lesson_title FROM tasks t
       JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ?
@@ -144,7 +146,11 @@ exports.detail = (req, res) => {
           ).all(id, req.user.id)
         : [];
 
-    res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments });
+    const teachers = COURSE_MANAGER_ROLES.includes(req.user.role)
+      ? db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' ORDER BY real_name").all()
+      : [];
+
+    res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments, teachers });
   } catch (err) {
     console.error('课程详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -222,7 +228,7 @@ exports.addLesson = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(400).json({ error: '无权管理该课程' });
     }
-    const { title, description, duration } = req.body;
+    const { title, description, duration, start_at, end_at, location, instructor_id } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: '课时名称不能为空' });
@@ -232,8 +238,10 @@ exports.addLesson = (req, res) => {
     const sortOrder = (maxOrder.max_order || 0) + 1;
 
     const result = db.prepare(
-      'INSERT INTO lessons (course_id, title, description, duration, sort_order) VALUES (?, ?, ?, ?, ?)'
-    ).run(id, title, description || null, duration || null, sortOrder);
+      `INSERT INTO lessons (course_id, title, description, duration, sort_order, start_at, end_at, location, instructor_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(id, title, description || null, duration || null, sortOrder,
+          start_at || null, end_at || null, location || null, instructor_id || null);
 
     res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {

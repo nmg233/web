@@ -107,8 +107,13 @@ CREATE TABLE IF NOT EXISTS lessons (
   description TEXT,
   sort_order INTEGER DEFAULT 0,
   duration INTEGER,
+  start_at TEXT,
+  end_at TEXT,
+  location TEXT,
+  instructor_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (instructor_id) REFERENCES users(id)
 );
 
 -- 7. 任务

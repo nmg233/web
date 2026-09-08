@@ -37,6 +37,13 @@ if (!workColumns.includes('reject_reason')) {
 if (!workColumns.includes('parent_work_id')) db.exec('ALTER TABLE works ADD COLUMN parent_work_id INTEGER');
 if (!workColumns.includes('version')) db.exec('ALTER TABLE works ADD COLUMN version INTEGER DEFAULT 1');
 if (!workColumns.includes('file_name')) db.exec('ALTER TABLE works ADD COLUMN file_name TEXT');
+
+// 课时线下场次字段（轻量迁移：老库补齐列）
+const lessonColumns = db.prepare('PRAGMA table_info(lessons)').all().map((c) => c.name);
+if (!lessonColumns.includes('start_at')) db.exec('ALTER TABLE lessons ADD COLUMN start_at TEXT');
+if (!lessonColumns.includes('end_at')) db.exec('ALTER TABLE lessons ADD COLUMN end_at TEXT');
+if (!lessonColumns.includes('location')) db.exec('ALTER TABLE lessons ADD COLUMN location TEXT');
+if (!lessonColumns.includes('instructor_id')) db.exec('ALTER TABLE lessons ADD COLUMN instructor_id INTEGER');
 db.exec(`CREATE TABLE IF NOT EXISTS work_reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, work_id INTEGER NOT NULL UNIQUE, reviewer_id INTEGER NOT NULL, comment TEXT, suggestion TEXT, problem_discovery INTEGER, solution_design INTEGER, hands_on INTEGER, data_analysis INTEGER, presentation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(work_id) REFERENCES works(id) ON DELETE CASCADE, FOREIGN KEY(reviewer_id) REFERENCES users(id)); CREATE TABLE IF NOT EXISTS growth_records (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, event_type TEXT NOT NULL DEFAULT 'teacher', description TEXT NOT NULL, recorded_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE, FOREIGN KEY(recorded_by) REFERENCES users(id));`);
 
 const reviewColumns = db.prepare('PRAGMA table_info(work_reviews)').all();
