@@ -64,12 +64,16 @@ function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (!allowedExtensions.has(ext)) {
-    return cb(new Error('Unsupported file type: ' + (file.originalname || file.mimetype)), false);
+    const err = new Error('Unsupported file type: ' + (file.originalname || file.mimetype));
+    err.status = 400;
+    return cb(err, false);
   }
 
   const expected = expectedMimeTypes[ext];
   if (expected && file.mimetype !== expected && file.mimetype !== 'application/octet-stream') {
-    return cb(new Error('Unsupported MIME type for ' + ext + ': ' + file.mimetype), false);
+    const err = new Error('Unsupported MIME type for ' + ext + ': ' + file.mimetype);
+    err.status = 400;
+    return cb(err, false);
   }
 
   cb(null, true);

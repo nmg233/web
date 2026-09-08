@@ -708,7 +708,7 @@ exports.detail = (req, res) => {
        LEFT JOIN classes c ON u.class_id = c.id
        LEFT JOIN users t ON u.teacher_id = t.id
        LEFT JOIN users m ON u.mentor_id = m.id
-       WHERE u.id = ?`
+       WHERE u.id = ? AND u.role = 'student'`
     ).get(id);
 
     if (!student) {

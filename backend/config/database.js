@@ -10,6 +10,57 @@ const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+function getTableSql(tableName) {
+  const row = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?").get(tableName);
+  return row ? row.sql : '';
+}
+
+function rebuildCoursesStatusSchema() {
+  const sql = getTableSql('courses');
+  if (!sql || !sql.includes("DEFAULT 'draft'")) return;
+
+  const columns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
+  const columnList = columns.join(', ');
+  db.pragma('foreign_keys = OFF');
+  db.exec(`
+    ALTER TABLE courses RENAME TO courses_old_status;
+
+    CREATE TABLE courses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      theme TEXT,
+      description TEXT,
+      driving_question TEXT,
+      story_line TEXT,
+      grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
+      difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
+      total_hours INTEGER,
+      materials_needed TEXT,
+      cover_image TEXT,
+      status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
+      created_by INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id)
+    );
+
+    INSERT INTO courses (${columnList})
+    SELECT ${columnList} FROM courses_old_status;
+
+    DROP TABLE courses_old_status;
+  `);
+  db.pragma('foreign_keys = ON');
+}
+
+function migrateLegacyMentorRole() {
+  const sql = getTableSql('users');
+  if (!sql) return;
+  db.prepare("UPDATE users SET role = 'academic_mentor' WHERE role = 'executive_mentor'").run();
+}
+
+rebuildCoursesStatusSchema();
+migrateLegacyMentorRole();
+
 const workColumns = db.prepare('PRAGMA table_info(works)').all().map((c) => c.name);
 if (!workColumns.includes('review_status')) {
   db.exec("ALTER TABLE works ADD COLUMN review_status TEXT DEFAULT 'pending'");

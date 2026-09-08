@@ -95,7 +95,7 @@ app.use((req, res) => {
 
 // 全局错误处理
 app.use((err, req, res, _next) => {
-  const status = err.status || err.statusCode || 500;
+  const status = err.code === 'LIMIT_FILE_SIZE' ? 400 : err.status || err.statusCode || 500;
   if (status >= 500) console.error('服务器错误:', err);
   res.status(status).json({
     error: status === 404 ? '文件不存在' : '服务器内部错误',
