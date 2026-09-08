@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Tabs, Popconfirm, Upload } from 'antd';
+import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -148,43 +148,37 @@ export default function StudentList() {
           </Space>
         </div>
         <Input.Search placeholder="搜索用户" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300, marginBottom: 16 }} />
-        <Tabs items={[
-          {
-            key: 'tree', label: '组织结构',
-            children: (
-              <>
-                {data.schools ? data.schools.map((school) => (
-                  <Card key={school.id} title={`🏫 ${school.name}`} style={{ marginBottom: 12 }} size="small">
-                    {school.classes?.map((cls) => (
-                      <div key={cls.id} style={{ marginBottom: 8 }}>
-                        <strong>📚 {cls.grade ? `${cls.grade} - ` : ''}{cls.name}</strong>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-                          {cls.roles?.student?.map((s) => renderUserTag(s, 'blue', null))}
-                          {cls.roles?.teacher?.map((t) => renderUserTag(t, 'green', '👨‍🏫'))}
-                        </div>
-                      </div>
-                    ))}
-                  </Card>
-                )) : null}
-                {data.academicMentors?.length > 0 && (
-                  <Card title="⭐ 学术导师" style={{ marginBottom: 12 }} size="small">
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {data.academicMentors.map((m) => renderUserTag(m, 'purple', '⭐'))}
-                    </div>
-                  </Card>
-                )}
-                {data.unassigned && (data.unassigned.teacher?.length > 0 || data.unassigned.student?.length > 0) && (
-                  <Card title="🚫 未分配（自行注册/无学校班级）" style={{ marginBottom: 12 }} size="small">
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {data.unassigned.teacher?.map((u) => renderUserTag(u, 'green', '👨‍🏫'))}
-                      {data.unassigned.student?.map((u) => renderUserTag(u, 'blue', null))}
-                    </div>
-                  </Card>
-                )}
-              </>
-            ),
-          },
-        ]} />
+        <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>组织结构</Typography.Text>
+        <>
+          {data.schools ? data.schools.map((school) => (
+            <Card key={school.id} title={`🏫 ${school.name}`} style={{ marginBottom: 12 }} size="small">
+              {school.classes?.map((cls) => (
+                <div key={cls.id} style={{ marginBottom: 8 }}>
+                  <strong>📚 {cls.grade ? `${cls.grade} - ` : ''}{cls.name}</strong>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+                    {cls.roles?.student?.map((s) => renderUserTag(s, 'blue', null))}
+                    {cls.roles?.teacher?.map((t) => renderUserTag(t, 'green', '👨‍🏫'))}
+                  </div>
+                </div>
+              ))}
+            </Card>
+          )) : null}
+          {data.academicMentors?.length > 0 && (
+            <Card title="⭐ 学术导师" style={{ marginBottom: 12 }} size="small">
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {data.academicMentors.map((m) => renderUserTag(m, 'purple', '⭐'))}
+              </div>
+            </Card>
+          )}
+          {data.unassigned && (data.unassigned.teacher?.length > 0 || data.unassigned.student?.length > 0) && (
+            <Card title="🚫 未分配（自行注册/无学校班级）" style={{ marginBottom: 12 }} size="small">
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {data.unassigned.teacher?.map((u) => renderUserTag(u, 'green', '👨‍🏫'))}
+                {data.unassigned.student?.map((u) => renderUserTag(u, 'blue', null))}
+              </div>
+            </Card>
+          )}
+        </>
 
         <Modal title="添加用户" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} width={500}>
           <Form form={form} layout="vertical" onFinish={handleAddUser}>
