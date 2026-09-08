@@ -148,9 +148,13 @@ export default function CourseDetail() {
         </div>
       ),
     },
-    {
+  ];
+
+  // 选课学生页签仅管理者可见，避免学生/教师看到空页签
+  if (canManage(user?.role)) {
+    tabItems.push({
       key: 'students', label: `选课学生 (${enrollments.length})`,
-      children: canManage(user?.role) ? (
+      children: (
         <Table dataSource={enrollments} rowKey="id" pagination={false} size="small"
           columns={[
             { title: '姓名', dataIndex: 'student_name' },
@@ -158,9 +162,9 @@ export default function CourseDetail() {
             { title: '班级', dataIndex: 'class_name' },
           ]}
         />
-      ) : null,
-    },
-  ];
+      ),
+    });
+  }
 
   return (
     <div>
