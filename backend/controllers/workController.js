@@ -330,7 +330,8 @@ exports.download = (req, res) => {
 exports.delete = (req, res) => {
   try {
     const work = db.prepare(`
-      SELECT w.id, w.student_id, w.title, w.file_path, u.school_id as student_school_id
+      SELECT w.id, w.student_id, w.title, w.file_path, w.review_status,
+             u.school_id as student_school_id
       FROM works w
       JOIN users u ON u.id = w.student_id
       WHERE w.id = ?
@@ -350,6 +351,11 @@ exports.delete = (req, res) => {
 
     if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
       return res.status(400).json({ error: '无权删除其他学校作品' });
+    }
+
+    // 已通过评审的作品承载评审证据与成长档案数据，禁止物理删除
+    if (work.review_status === 'approved') {
+      return res.status(403).json({ error: '已通过评审的作品不能删除' });
     }
 
     if (work.file_path) {
