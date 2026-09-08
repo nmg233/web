@@ -8,12 +8,25 @@ const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
+const { pinyin } = require('pinyin-pro');
 
 const USERNAME_RE = /^[a-zA-Z0-9]+$/;
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 
 function isValidUsername(username) {
   return username && username.length >= 6 && USERNAME_RE.test(username);
+}
+
+// 学生默认密码：姓名拼音 + @123（如 王小明 → wangxiaoming@123）。
+// 姓名不含中文或拼音提取异常时回退 pbl123456。
+function defaultStudentPassword(realName) {
+  try {
+    const py = pinyin(String(realName || '').trim(), { toneType: 'none', type: 'array' })
+      .join('')
+      .toLowerCase();
+    if (py && /^[a-z0-9]+$/.test(py)) return `${py}@123`;
+  } catch (e) { /* 回退默认 */ }
+  return 'pbl123456';
 }
 
 function deleteUserWithWorks(userId) {
@@ -109,7 +122,7 @@ exports.create = (req, res) => {
     }
 
     const studentUsername = `student${Date.now()}${Math.floor(Math.random() * 100000)}`;
-    const studentPassword = password || 'pbl123456';
+    const studentPassword = password || defaultStudentPassword(real_name);
     // AUTH-08：若管理员显式设置了自定义密码，则必须满足统一强密码策略
     if (password && !isStrongPassword(password)) {
       return res.status(400).json({
@@ -235,8 +248,7 @@ exports.import = (req, res) => {
       return res.status(400).json({ error: '请上传 .csv / .xlsx 文件或提供 data' });
     }
 
-    const password_hash = bcrypt.hashSync('pbl123456', 10);
-    // AUTH-06：批量导入默认密码统一 pbl123456，强制首次登录修改密码
+    // AUTH-06：批量导入默认密码按姓名拼音生成（姓名拼音@123），强制首次登录修改密码
     const insert = db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
@@ -275,6 +287,7 @@ exports.import = (req, res) => {
         }
         const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
         const username = `${prefix}${Date.now()}${imported}${seq}${Math.floor(Math.random() * 10000)}`;
+        const password_hash = bcrypt.hashSync(defaultStudentPassword(real_name), 10);
         insert.run(username, password_hash, real_name,
                    row.email || null, row.phone || null, row.profile || null,
                    role, school_id || null, class_id || null);
@@ -396,7 +409,7 @@ exports.createUser = (req, res) => {
     const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
     const finalUsername = `${prefix}${Date.now()}${Math.floor(Math.random() * 100000)}`;
 
-    const finalPassword = password || 'pbl123456';
+    const finalPassword = password || (role === 'student' ? defaultStudentPassword(real_name) : 'pbl123456');
     const password_hash = bcrypt.hashSync(finalPassword, 10);
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     const finalClassId = role === 'academic_mentor' ? null : class_id;
