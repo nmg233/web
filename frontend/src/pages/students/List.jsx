@@ -38,6 +38,7 @@ export default function StudentList() {
     finally { setLoading(false); }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { loadData(); }, [search]);
 
   // 非管理员：添加学生（无身份选择，固定为学生）
@@ -135,7 +136,7 @@ export default function StudentList() {
         dashboardAPI.getSchools().then((res) => setSchools(res.schools || [])).catch(() => {});
       });
     }
-  }, []);
+  }, [user?.role]);
 
   // Admin tree view
   if (user?.role === 'admin') {

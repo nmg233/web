@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Tag, Space, Input, Select, Card, Typography } from 'antd';
+import { Table, Button, Tag, Space, Input, Card, Typography } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -25,6 +25,7 @@ export default function CourseList() {
     finally { setLoading(false); }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadCourses(); }, []);
 
   const columns = [

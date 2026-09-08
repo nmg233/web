@@ -36,6 +36,7 @@ export default function StudentDetail() {
     }).catch(() => {}).finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [id]);
 
   // 打开编辑分配弹窗：加载选项并回填当前值

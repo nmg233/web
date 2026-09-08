@@ -40,6 +40,8 @@ export default function CourseDetail() {
     } catch { message.error('加载失败'); }
   };
 
+  // 页面首次进入时加载完整详情；loadData 会在异步回调中更新多个状态。
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { loadData(); }, [id]);
 
   const handleAddLesson = async (values) => {

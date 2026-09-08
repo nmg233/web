@@ -12,8 +12,15 @@ export default function Learning() {
   const [data, setData] = useState(null);
   const [active, setActive] = useState(0);
 
-  const load = async () => setData(await courseAPI.detail(id));
-  useEffect(() => { load().catch(() => message.error('加载学习内容失败')); }, [id]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const detail = await courseAPI.detail(id);
+      if (!cancelled) setData(detail);
+    };
+    load().catch(() => message.error('加载学习内容失败'));
+    return () => { cancelled = true; };
+  }, [id]);
   if (!data) return null;
   if (data.lessons.length === 0) {
     return <Card>
@@ -26,7 +33,8 @@ export default function Learning() {
   const lesson = data.lessons[active];
   const saveProgress = async (progress) => {
     await courseAPI.updateProgress(id, { lesson_id: lesson.id, progress, last_position: progress });
-    await load();
+    const detail = await courseAPI.detail(id);
+    setData(detail);
   };
 
   return <div>
