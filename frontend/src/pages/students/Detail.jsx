@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, message, Popconfirm, Alert } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, ReloadOutlined } from '@ant-design/icons';
-import { studentAPI, authAPI } from '../../api';
+import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm, Alert } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
+import { studentAPI, authAPI, archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
 const { Title } = Typography;
@@ -24,8 +24,12 @@ export default function StudentDetail() {
   const [options, setOptions] = useState({ schools: [], teachers: [], mentors: [] });
   const [classes, setClasses] = useState([]);
   const [resetResult, setResetResult] = useState(null);
+  const [evalOpen, setEvalOpen] = useState(false);
+  const [evalLoading, setEvalLoading] = useState(false);
   const [form] = Form.useForm();
+  const [evalForm] = Form.useForm();
   const isAdmin = user?.role === 'admin';
+  const canEvaluate = ['admin', 'academic_mentor'].includes(user?.role);
 
   const load = () => {
     setLoading(true);
@@ -85,6 +89,18 @@ export default function StudentDetail() {
     } catch { /* 错误已由拦截器提示 */ }
   };
 
+  const handleSubmitEvaluation = async (values) => {
+    setEvalLoading(true);
+    try {
+      await archiveAPI.submitEvaluation({ student_id: student.id, ...values });
+      message.success('评价提交成功');
+      evalForm.resetFields();
+      setEvalOpen(false);
+    } catch { /* handled */ } finally {
+      setEvalLoading(false);
+    }
+  };
+
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!student) return <p>用户不存在</p>;
 
@@ -107,6 +123,9 @@ export default function StudentDetail() {
               <Button icon={<ReloadOutlined />}>重置密码</Button>
             </Popconfirm>
           </>
+        )}
+        {canEvaluate && (
+          <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>提交评价</Button>
         )}
       </Space>
       <Card>
@@ -142,6 +161,26 @@ export default function StudentDetail() {
           <Form.Item name="mentor_id" label="负责导师">
             <Select allowClear placeholder="选择负责导师"
               options={options.mentors.map((m) => ({ label: m.real_name, value: m.id }))} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={`提交评价：${student.real_name}`} open={evalOpen} onCancel={() => setEvalOpen(false)}
+        onOk={() => evalForm.submit()} confirmLoading={evalLoading}>
+        <Form form={evalForm} layout="vertical" onFinish={handleSubmitEvaluation}>
+          <Form.Item name="eval_type" label="评价类型" initialValue="process">
+            <Select options={[
+              { value: 'process', label: '过程性评价' },
+              { value: 'outcome', label: '成果评价' },
+              { value: 'peer', label: '同伴评价' },
+              { value: 'self', label: '自我评价' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="score" label="评分（1-100）">
+            <InputNumber min={1} max={100} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="comment" label="评语">
+            <Input.TextArea rows={4} placeholder="记录该学生本阶段的表现、亮点与建议" />
           </Form.Item>
         </Form>
       </Modal>
