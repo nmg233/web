@@ -167,4 +167,7 @@ test('schema.sql 与运行时结构同步', () => {
   assert.match(schema, /mentor_id INTEGER/);
   assert.match(schema, /force_reset_password INTEGER NOT NULL DEFAULT 0/);
   assert.match(schema, /CREATE TABLE IF NOT EXISTS refresh_tokens/);
+  assert.match(schema, /CREATE TABLE IF NOT EXISTS glider_simulations/);
+  assert.match(schema, /CREATE TABLE IF NOT EXISTS course_replays/);
+  assert.match(schema, /start_at TEXT/);
 });

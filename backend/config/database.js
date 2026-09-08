@@ -10,6 +10,9 @@ const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+// 版本化迁移：新建库执行 schema.sql 基线，既有库仅记录基线并应用增量迁移
+require('../database/migrate').runMigrations(db);
+
 function getTableSql(tableName) {
   const row = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?").get(tableName);
   return row ? row.sql : '';
