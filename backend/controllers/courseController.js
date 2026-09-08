@@ -71,10 +71,7 @@ exports.create = (req, res) => {
             grade_level, difficulty, total_hours, materials_needed } = req.body;
 
     if (!title || !grade_level || !difficulty) {
-      return res.json({
-        title: '创建课程', course: req.body,
-        errors: ['课程名称、适用学段和难度等级为必填项']
-      });
+      return res.status(400).json({ error: '课程名称、适用学段和难度等级为必填项' });
     }
 
     const result = db.prepare(
@@ -88,7 +85,7 @@ exports.create = (req, res) => {
     res.json({ message: '课程创建成功（草稿），补充课时后即可发布', id: result.lastInsertRowid });
   } catch (err) {
     console.error('创建课程错误:', err);
-    res.json({ title: '创建课程', course: req.body, errors: ['创建失败，请稍后重试'] });
+    res.status(500).json({ error: '创建失败，请稍后重试' });
   }
 };
 
