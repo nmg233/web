@@ -218,15 +218,23 @@ CREATE TABLE IF NOT EXISTS project_team_members (
   UNIQUE(team_id, student_id)
 );
 
--- 11. 课程参与记录
+-- 11. 课程参与记录（选课由执行导师/教师/管理员统一导入；日常不可退课，
+--     仅管理员可经异常修正通道软删除，removed_* 字段保留审计信息）
 CREATE TABLE IF NOT EXISTS enrollments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   student_id INTEGER NOT NULL,
   course_id INTEGER NOT NULL,
   enrolled_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   completed_at DATETIME,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','removed')),
+  enrolled_by INTEGER,
+  removed_at DATETIME,
+  removed_by INTEGER,
+  remove_reason TEXT,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrolled_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (removed_by) REFERENCES users(id) ON DELETE SET NULL,
   UNIQUE(student_id, course_id)
 );
 
@@ -464,6 +472,7 @@ CREATE INDEX IF NOT EXISTS idx_courses_grade ON courses(grade_level);
 CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status);
 CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
 CREATE INDEX IF NOT EXISTS idx_works_student ON works(student_id);
 CREATE INDEX IF NOT EXISTS idx_reflections_student ON reflections(student_id);
 CREATE INDEX IF NOT EXISTS idx_evaluations_student ON evaluations(student_id);

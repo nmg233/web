@@ -13,22 +13,34 @@ function runMigrations(db) {
     applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );`);
 
-  const hasUsers = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
-  if (!hasUsers) {
-    const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-    db.exec(schema);
-  }
-
-  const applied = new Set(db.prepare('SELECT version FROM schema_migrations').all().map((r) => r.version));
-  if (!applied.has(1)) {
-    db.prepare('INSERT INTO schema_migrations (version, name) VALUES (1, ?)').run('baseline_schema');
-    applied.add(1);
-  }
-
   const dir = path.join(__dirname, 'migrations');
   const files = fs.readdirSync(dir)
     .filter((f) => /^\d+_.*\.sql$/.test(f))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  const applied = new Set(db.prepare('SELECT version FROM schema_migrations').all().map((r) => r.version));
+
+  const hasUsers = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
+  if (!hasUsers) {
+    const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+    db.exec(schema);
+    // 新库：schema.sql 已包含全部已发布迁移的结构变更，批量标记为已应用，避免重复执行 ALTER
+    const mark = db.prepare('INSERT INTO schema_migrations (version, name) VALUES (?, ?)');
+    if (!applied.has(1)) {
+      mark.run(1, 'baseline_schema');
+      applied.add(1);
+    }
+    for (const file of files) {
+      const version = parseInt(file.split('_')[0], 10);
+      if (version > 1 && !applied.has(version)) {
+        mark.run(version, file);
+        applied.add(version);
+      }
+    }
+  } else if (!applied.has(1)) {
+    db.prepare('INSERT INTO schema_migrations (version, name) VALUES (1, ?)').run('baseline_schema');
+    applied.add(1);
+  }
   for (const file of files) {
     const version = parseInt(file.split('_')[0], 10);
     if (!Number.isInteger(version) || version <= 1 || applied.has(version)) continue;
