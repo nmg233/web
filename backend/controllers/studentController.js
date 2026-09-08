@@ -664,6 +664,10 @@ exports.updateStudent = (req, res) => {
     }
 
     if (isTeacher(req.user.role)) {
+      // 原学校与新学校都必须属于教师本校，防止教师把外校学生“迁入”本校
+      if (student.school_id !== req.user.school_id) {
+        return res.status(400).json({ error: '无权编辑其他学校学生' });
+      }
       if (Number(school_id) !== req.user.school_id) {
         return res.status(400).json({ error: '教师只能编辑本校学生' });
       }
