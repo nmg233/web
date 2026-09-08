@@ -30,7 +30,7 @@ export default function WorkDetail() {
   if (!data?.work) return <p>作品不存在</p>;
   const { work, review, versions = [] } = data;
   const isOwner = work.student_id === user?.id;
-  const isStaff = ['admin', 'executive_mentor', 'academic_mentor', 'teacher'].includes(user?.role);
+  const canReview = ['admin', 'academic_mentor'].includes(user?.role);
   const statusText = work.review_status === 'rejected' && work.has_newer_version ? '已修改' : work.review_status === 'pending' ? '待批改' : work.review_status === 'approved' ? '通过' : '需修改';
   const download = async () => {
     try {
@@ -48,7 +48,7 @@ export default function WorkDetail() {
     {work.description && <p style={{ marginTop: 12 }}>{work.description}</p>}{work.file_path && <Card title="附件" size="small" style={{ marginTop: 12 }}><Descriptions size="small" column={3}><Descriptions.Item label="名称">{work.file_name || work.file_path.split(/[\\/]/).pop()}</Descriptions.Item><Descriptions.Item label="类型">{getFileType(work)}</Descriptions.Item><Descriptions.Item label="大小">{formatFileSize(work.file_size)}</Descriptions.Item></Descriptions><Button type="primary" icon={<DownloadOutlined />} onClick={download}>下载附件</Button></Card>}
     {review && <Card title="教师批改" size="small" style={{ marginTop: 16 }}><p>{review.comment || '暂无评语'}</p><p>修改建议：{review.suggestion || '无'}</p>{work.review_status === 'approved' && <Space wrap>{dimensions.map(([key, label]) => <Tag key={key} color="blue">{label} {review[key]} 分</Tag>)}</Space>}</Card>}
     {isOwner && work.review_status === 'rejected' && <Button type="primary" style={{ marginTop: 16 }} onClick={() => navigate(`/works/upload?parent_work_id=${work.id}&task_id=${work.task_id || ''}&enrollment_id=${work.enrollment_id || ''}`)}>修改后重新提交</Button>}
-    {isStaff && work.review_status === 'pending' && <ReviewForm id={id} setData={setData} />}
+    {canReview && work.review_status === 'pending' && <ReviewForm id={id} setData={setData} />}
   </Card></div>;
 }
 

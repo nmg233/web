@@ -7,7 +7,7 @@ import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
 
-const canManage = (role) => ['admin', 'executive_mentor', 'academic_mentor', 'teacher'].includes(role);
+const canManage = (role) => ['admin', 'academic_mentor', 'teacher'].includes(role);
 
 export default function StudentList() {
   const { user } = useAuth();
@@ -51,7 +51,7 @@ export default function StudentList() {
     } catch { /* handled */ }
   };
 
-  // 管理员：添加用户（支持学生/教师/执行导师）
+  // 管理员：添加用户（支持学生/教师/学术导师）
   const handleAddUser = async (values) => {
     try {
       await studentAPI.createUser(values);
@@ -111,7 +111,7 @@ export default function StudentList() {
     const csv = '\uFEFF姓名,身份,学校名称,班级名称,邮箱,手机号\n' +
       '示例学生,学生,北航附属实验学校,四年级1班,example@xx.com,13800000000\n' +
       '示例教师,教师,北航附属实验学校,四年级1班,,\n' +
-      '示例导师,执行导师,,,,';
+      '示例导师,学术导师,,,,';
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -165,7 +165,7 @@ export default function StudentList() {
                         </div>
                       </div>
                     ))}
-                    {data.executiveMentors?.map((m) => renderUserTag(m, 'purple', '⭐'))}
+                    {data.academicMentors?.map((m) => renderUserTag(m, 'purple', '⭐'))}
                   </Card>
                 )) : null}
                 {data.unassigned && (data.unassigned.teacher?.length > 0 || data.unassigned.student?.length > 0) && (
@@ -187,9 +187,9 @@ export default function StudentList() {
             <Form.Item name="role" label="身份" rules={[{ required: true, message: '请选择身份' }]}>
               <Select options={[
                 { label: '学生', value: 'student' }, { label: '教师', value: 'teacher' },
-                { label: '执行导师', value: 'executive_mentor' },
+                { label: '学术导师', value: 'academic_mentor' },
               ]} onChange={(v) => {
-                if (v === 'executive_mentor') {
+                if (v === 'academic_mentor') {
                   form.setFieldsValue({ school_id: undefined, class_id: undefined });
                   setClasses([]);
                 }
@@ -219,7 +219,7 @@ export default function StudentList() {
           <Space direction="vertical" style={{ width: '100%' }}>
             <Text type="secondary">
               支持 .csv / .xlsx / .xls 文件。表头：<Text code>姓名,身份,学校名称,班级名称,邮箱,手机号</Text>
-              ，身份可选：学生 / 教师 / 执行导师。
+              ，身份可选：学生 / 教师 / 学术导师。
             </Text>
             <Space>
               <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>下载模板</Button>

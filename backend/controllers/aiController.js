@@ -13,7 +13,7 @@ exports.getCourses = (req, res) => {
         FROM enrollments e JOIN courses c ON e.course_id = c.id
         WHERE e.student_id = ?
       `).all(user.id);
-    } else if (['executive_mentor', 'academic_mentor', 'teacher', 'admin'].includes(user.role)) {
+    } else if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
       courses = db.prepare(`
         SELECT id, title, description, driving_question, grade_level, difficulty
         FROM courses WHERE created_by = ? AND status != 'archived'

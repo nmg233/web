@@ -56,7 +56,7 @@ exports.index = (req, res) => {
     }
 
     // === 教师/导师端：显示负责的课程和学生进度 ===
-    if (['executive_mentor', 'academic_mentor', 'teacher', 'admin'].includes(user.role)) {
+    if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
       // 导师创建的课程
       const myCourses = db.prepare(`
         SELECT c.*,

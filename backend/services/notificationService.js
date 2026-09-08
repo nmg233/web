@@ -48,7 +48,7 @@ function activeUserIds(ids) {
 }
 
 function userIdsByRoles(roles = []) {
-  const allowedRoles = ['admin', 'academic_mentor', 'executive_mentor', 'teacher', 'student', 'media'];
+  const allowedRoles = ['admin', 'academic_mentor', 'teacher', 'student', 'media'];
   const normalized = [...new Set(roles.filter((role) => allowedRoles.includes(role)))];
   if (!normalized.length) return [];
   const placeholders = normalized.map(() => '?').join(',');

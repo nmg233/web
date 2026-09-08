@@ -9,7 +9,6 @@ const { Title } = Typography;
 
 const roleMap = {
   admin: { label: '管理员', color: 'red' },
-  executive_mentor: { label: '执行导师', color: 'purple' },
   academic_mentor: { label: '学术导师', color: 'blue' },
   teacher: { label: '教师', color: 'green' },
   student: { label: '学生', color: 'cyan' },

@@ -7,7 +7,7 @@ import { useAuth } from '../../store/AuthContext';
 
 const { Title } = Typography;
 
-const canManage = (role) => ['admin', 'executive_mentor', 'academic_mentor'].includes(role);
+const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -55,14 +55,6 @@ export default function CourseDetail() {
       message.success('任务添加成功');
       setTaskModal(false);
       taskForm.resetFields();
-      loadData();
-    } catch { /* handled */ }
-  };
-
-  const handleStudentEnroll = async () => {
-    try {
-      await courseAPI.studentEnroll(id);
-      message.success('选课成功');
       loadData();
     } catch { /* handled */ }
   };
@@ -141,7 +133,6 @@ export default function CourseDetail() {
       <Space style={{ marginBottom: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/courses')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
-        {isStudent && !isEnrolled && <Button type="primary" onClick={handleStudentEnroll}>📝 选修此课</Button>}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && <Button onClick={() => navigate(`/courses/${id}/learn`)}>开始学习</Button>}
       </Space>

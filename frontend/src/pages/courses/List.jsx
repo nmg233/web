@@ -7,7 +7,7 @@ import { useAuth } from '../../store/AuthContext';
 
 const { Title } = Typography;
 
-const canManage = (role) => ['admin', 'executive_mentor', 'academic_mentor'].includes(role);
+const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
 
 export default function CourseList() {
   const { user } = useAuth();
@@ -40,7 +40,7 @@ export default function CourseList() {
       title: '操作', key: 'actions', render: (_, r) => (
         <Space>
           <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>编辑</Button>
-          {['admin', 'executive_mentor'].includes(user?.role) && (
+          {['admin', 'academic_mentor'].includes(user?.role) && (
             <Button size="small" danger onClick={async () => {
               await courseAPI.delete(r.id);
               loadCourses();

@@ -6,7 +6,7 @@ const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 
 function canManageCourse(user, courseId) {
-  if (user.role === 'admin') return true;
+  if (user.role === 'admin' || user.role === 'academic_mentor') return true;
   const course = db.prepare('SELECT created_by FROM courses WHERE id = ?').get(courseId);
   return !!course && course.created_by === user.id;
 }
@@ -275,8 +275,13 @@ exports.downloadResource = (req, res) => {
       WHERE r.id = ?
     `).get(req.params.resource_id);
     if (!resource || !resource.file_path) return res.status(404).json({ error: '附件不存在' });
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && resource.course_status !== 'published') {
-      return res.status(404).json({ error: '附件不存在' });
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
+      const enrolled = req.user.role === 'student' && db.prepare(
+        'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
+      ).get(req.user.id, resource.course_id);
+      if (resource.course_status !== 'published' || !enrolled) {
+        return res.status(404).json({ error: '附件不存在' });
+      }
     }
 
     const resolvedPath = path.resolve(resource.file_path);

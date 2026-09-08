@@ -43,7 +43,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
         .map((cls) => ({ ...cls, roles: makeRoleGroups() }))
     })),
     unassigned: makeRoleGroups(),
-    executiveMentors: []
+    academicMentors: []
   };
 
   for (const user of users) {
@@ -89,7 +89,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
         FROM users u
         LEFT JOIN schools s ON u.school_id = s.id
         LEFT JOIN classes c ON u.class_id = c.id
-        WHERE u.role = 'executive_mentor'
+        WHERE u.role = 'academic_mentor'
       ) AS exec_users
     `;
     if (search) {
@@ -97,7 +97,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
       execParams.push(`%${search}%`, `%${search}%`);
     }
     execSql += ' ORDER BY real_name';
-    tree.executiveMentors = db.prepare(execSql).all(...execParams);
+    tree.academicMentors = db.prepare(execSql).all(...execParams);
   }
 
   return tree;
