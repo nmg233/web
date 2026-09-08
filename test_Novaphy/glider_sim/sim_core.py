@@ -182,6 +182,10 @@ def run_flight(backend, glider: Glider, cfg: SimConfig):
             reason = "stalled/slow"
             break
 
+    # 仿真时长用尽仍未落地/未触发其它终止条件 → 标记超时（此前会误报为 ok）
+    if reason == "ok":
+        reason = "timedout"
+
     out = {k: np.asarray(v) for k, v in tele.items()}
     out["reason"] = reason
     out["steps"] = len(out["t"])

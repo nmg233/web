@@ -41,6 +41,7 @@ export default function GliderSimulator() {
   const [submitting, setSubmitting] = useState(false);
   const [waitSec, setWaitSec] = useState(0);
   const [pollFailed, setPollFailed] = useState(false);
+  const [pollTimedOut, setPollTimedOut] = useState(false);
 
   const loadHistory = async () => {
     try {
@@ -62,11 +63,13 @@ export default function GliderSimulator() {
   }, []);
 
   // 轮询：记录处于 running 时每 2s 刷新，直到 success / error；完成后刷新右侧历史列表
+  // 总等待上限 300s：超过则视为任务卡住，停止轮询并提示刷新记录，避免无限转圈
   useEffect(() => {
     if (!viewingId) return undefined;
     let alive = true;
     let timer;
     let fail = 0;
+    let waited = 0;
     const tick = () => {
       gliderAPI.detail(viewingId)
         .then((d) => {
@@ -77,9 +80,17 @@ export default function GliderSimulator() {
           if (d.status !== 'running') {
             clearInterval(timer);
             setWaitSec(0);
+            setPollTimedOut(false);
             loadHistory(); // 同步右侧历史列表状态（不再停在“运行中”）
           } else {
-            setWaitSec((s) => s + 2);
+            waited += 2;
+            setWaitSec(waited);
+            if (waited >= 300) {
+              clearInterval(timer);
+              setPollTimedOut(true);
+              setWaitSec(0);
+              loadHistory();
+            }
           }
         })
         .catch(() => {
@@ -219,7 +230,10 @@ export default function GliderSimulator() {
               style={{ marginBottom: 16 }}
               extra={viewing?.status === 'running' ? <Tag color="processing">模拟运行中…</Tag> : undefined}
             >
-              {pollFailed ? (
+              {pollTimedOut ? (
+                <Result status="warning" title="模拟疑似卡住"
+                  subTitle="已等待超过 5 分钟仍未完成。请点击右侧“刷新记录”查看最新状态，或稍后重新提交。" />
+              ) : pollFailed ? (
                 <Result status="warning" title="暂时读不到模拟状态"
                   subTitle="后端可能仍在计算或已停止。请稍候点击右侧“刷新记录”，或直接刷新页面重试。" />
               ) : !viewing ? (
