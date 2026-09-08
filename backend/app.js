@@ -97,9 +97,14 @@ app.use((req, res) => {
 app.use((err, req, res, _next) => {
   const status = err.code === 'LIMIT_FILE_SIZE' ? 400 : err.status || err.statusCode || 500;
   if (status >= 500) console.error('服务器错误:', err);
+  // 4xx 由业务/中间件主动抛出，error 字段透出具体原因（如不支持的文件类型），
+  // 避免前端把客户端错误展示成「服务器内部错误」。
+  const isClientError = status < 500;
   res.status(status).json({
-    error: status === 404 ? '文件不存在' : '服务器内部错误',
-    message: status === 404 ? undefined : (process.env.NODE_ENV === 'development' ? err.message : '请稍后重试'),
+    error: status === 404 ? '文件不存在'
+      : isClientError ? (err.message || '请求参数错误')
+      : '服务器内部错误',
+    message: status === 404 ? undefined : (process.env.NODE_ENV === 'development' ? err.message : (isClientError ? (err.message || '请检查请求') : '请稍后重试')),
   });
 });
 
