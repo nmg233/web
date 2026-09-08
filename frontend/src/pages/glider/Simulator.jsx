@@ -7,6 +7,7 @@ import {
 import { ArrowLeftOutlined, RocketOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { gliderAPI } from '../../api/glider';
 import { formatBeijingTime } from '../../utils/date';
+import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
 
@@ -32,6 +33,7 @@ function stateMeta(state) {
 
 export default function GliderSimulator() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form] = Form.useForm();
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -167,6 +169,7 @@ export default function GliderSimulator() {
   };
 
   const meta = useMemo(() => stateMeta(viewing?.state), [viewing]);
+  const isStudent = user?.role === 'student';
 
   return (
     <div>
@@ -179,13 +182,16 @@ export default function GliderSimulator() {
         style={{ marginBottom: 16 }}
         type="info"
         showIcon
-        message="设定你的滑翔机参数，让物理引擎帮你试飞"
-        description="输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。"
+        message={isStudent ? '设定你的滑翔机参数，让物理引擎帮你试飞' : '滑翔机试飞记录（只读视图）'}
+        description={isStudent
+          ? '输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。'
+          : '模拟提交仅面向学生。当前角色可查看全部试飞记录与结果回放。'}
       />
 
       <Row gutter={16}>
         {/* 左侧：参数表单 + 结果 */}
         <Col xs={24} lg={15}>
+          {isStudent ? (
           <Card title={<Space><RocketOutlined /> 试飞参数设计</Space>} style={{ marginBottom: 16 }}>
             <Form
               form={form}
@@ -222,6 +228,7 @@ export default function GliderSimulator() {
               </Button>
             </Form>
           </Card>
+          ) : null}
 
           {/* 模拟结果 */}
           {viewingId && (
@@ -294,11 +301,11 @@ export default function GliderSimulator() {
         {/* 右侧：试飞记录 */}
         <Col xs={24} lg={9}>
           <Card
-            title={<Space><RocketOutlined /> 我的试飞记录</Space>}
+            title={<Space><RocketOutlined /> {isStudent ? '我的试飞记录' : '试飞记录'}</Space>}
             extra={<Button size="small" onClick={loadHistory}>刷新记录</Button>}
           >
             {loadingHistory ? <Spin /> : (
-              history.length === 0 ? <Empty description="还没有试飞记录，先设计一架试试吧" /> : (
+              history.length === 0 ? <Empty description={isStudent ? '还没有试飞记录，先设计一架试试吧' : '暂无试飞记录'} /> : (
                 <List
                   size="small"
                   dataSource={history}
