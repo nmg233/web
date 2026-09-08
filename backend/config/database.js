@@ -21,35 +21,46 @@ function rebuildCoursesStatusSchema() {
 
   const columns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
   const columnList = columns.join(', ');
-  db.pragma('foreign_keys = OFF');
-  db.exec(`
-    ALTER TABLE courses RENAME TO courses_old_status;
+  const rebuild = db.transaction(() => {
+    db.pragma('foreign_keys = OFF');
+    // 关键：开启 legacy_alter_table，RENAME 时才不会把其它表中指向 courses 的
+    // 外键自动改写为 courses_old_status，避免 DROP 旧表后外键悬空（no such table）。
+    db.pragma('legacy_alter_table = ON');
+    db.exec(`
+      ALTER TABLE courses RENAME TO courses_old_status;
 
-    CREATE TABLE courses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      theme TEXT,
-      description TEXT,
-      driving_question TEXT,
-      story_line TEXT,
-      grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
-      difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
-      total_hours INTEGER,
-      materials_needed TEXT,
-      cover_image TEXT,
-      status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
-      created_by INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (created_by) REFERENCES users(id)
-    );
+      CREATE TABLE courses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        theme TEXT,
+        description TEXT,
+        driving_question TEXT,
+        story_line TEXT,
+        grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
+        difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
+        total_hours INTEGER,
+        materials_needed TEXT,
+        cover_image TEXT,
+        status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
+        created_by INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (created_by) REFERENCES users(id)
+      );
 
-    INSERT INTO courses (${columnList})
-    SELECT ${columnList} FROM courses_old_status;
+      INSERT INTO courses (${columnList})
+      SELECT ${columnList} FROM courses_old_status;
 
-    DROP TABLE courses_old_status;
-  `);
-  db.pragma('foreign_keys = ON');
+      DROP TABLE courses_old_status;
+    `);
+    db.pragma('legacy_alter_table = OFF');
+    db.pragma('foreign_keys = ON');
+  });
+  rebuild();
+  const fkViolations = db.prepare('PRAGMA foreign_key_check').all();
+  if (fkViolations.length) {
+    console.error('⚠️ 课程表迁移后外键校验失败：', fkViolations.slice(0, 5));
+  }
 }
 
 function migrateLegacyMentorRole() {
