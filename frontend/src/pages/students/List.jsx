@@ -275,7 +275,7 @@ export default function StudentList() {
       </div>
       <Card>
         <Input.Search placeholder="搜索学生" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300, marginBottom: 16 }} />
-        <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+        <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />
       </Card>
 
       <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()}>

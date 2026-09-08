@@ -66,7 +66,7 @@ export default function CourseList() {
             onPressEnter={() => loadCourses({ search })} style={{ width: 250 }} />
           <Button onClick={() => { setSearch(''); loadCourses(); }}>重置</Button>
         </Space>
-        <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+        <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
       </Card>
     </div>
   );

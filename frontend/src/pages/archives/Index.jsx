@@ -85,11 +85,11 @@ export default function ArchiveIndex() {
   return (
     <div>
       <Title level={4}>📂 成长档案</Title>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <Card title="学生列表" style={{ width: 320, maxHeight: '70vh', overflow: 'auto' }}>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <Card title="学生列表" style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }}>
           <Tree treeData={treeData} onSelect={handleSelect} showIcon defaultExpandAll={false} />
         </Card>
-        <Card title="档案详情" style={{ flex: 1 }}>
+        <Card title="档案详情" style={{ flex: 1, minWidth: 320 }}>
           {detailLoading ? <Spin /> : archive ? <><Space style={{ marginBottom: 16 }}><Button onClick={() => window.print()}>导出 PDF</Button><Button type="primary" onClick={() => setRecordOpen(true)}>添加成长记录</Button></Space><ArchiveDetail archive={archive} /></> : <Text type="secondary">请从左侧选择学生查看档案</Text>}
         </Card>
       </div>

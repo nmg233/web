@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import {
@@ -67,6 +68,8 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  // 移动端基础适配：小屏自动折叠为图标栏
+  const [collapsed, setCollapsed] = useState(false);
 
   const items = menuItems[user?.role] || menuItems.student;
 
@@ -77,12 +80,20 @@ export default function Sidebar() {
       : '/' + location.pathname.split('/').slice(1, 3).join('/');
 
   return (
-    <Sider width={200} style={{ background: '#001529' }}>
+    <Sider
+      width={200}
+      collapsible
+      collapsed={collapsed}
+      collapsedWidth={64}
+      breakpoint="lg"
+      onBreakpoint={(broken) => setCollapsed(broken)}
+      style={{ background: '#001529' }}
+    >
       <div style={{
         height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: '#fff', fontSize: 18, fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.1)'
       }}>
-        🚀 PBL 科创平台
+        {collapsed ? '🚀' : '🚀 PBL 科创平台'}
       </div>
       <Menu
         theme="dark"
