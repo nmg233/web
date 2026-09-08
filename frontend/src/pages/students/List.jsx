@@ -194,7 +194,10 @@ export default function StudentList() {
                 }
               }} />
             </Form.Item>
-            <Form.Item name="password" label="密码"><Input.Password placeholder="默认 pbl123456" /></Form.Item>
+            <Form.Item name="password" label="密码"
+              extra="留空则自动生成：学生=姓名拼音@123（如 wangxiaoming@123），教师/导师=pbl123456；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
+              <Input.Password placeholder="留空使用默认密码" />
+            </Form.Item>
             <Form.Item name="school_id" label="学校" dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
@@ -278,7 +281,10 @@ export default function StudentList() {
       <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()}>
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="password" label="密码"><Input.Password placeholder="默认 pbl123456" /></Form.Item>
+          <Form.Item name="password" label="密码"
+            extra="留空则自动生成：姓名拼音@123（如 wangxiaoming@123）；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
+            <Input.Password placeholder="留空使用默认密码" />
+          </Form.Item>
           <Form.Item name="school_id" label="学校" rules={[{ required: true }]}>
             <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
           </Form.Item>
