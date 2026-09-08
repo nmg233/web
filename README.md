@@ -90,9 +90,11 @@ Copy-Item .env.example .env
 | `NODE_ENV` | 否 | 未设置 | 推荐本地设为 `development` |
 | `JWT_SECRET` | 生产环境必需 | 开发时随机生成 | JWT 签名密钥；本地也建议固定设置，避免重启后 Token 失效 |
 | `UPLOAD_PATH` | 否 | `uploads` | 相对于 `backend` 的上传目录 |
+| `FEEDBACK_UPLOAD_PATH` | 否 | `private_uploads/feedback` | 反馈附件根目录（生产建议指向数据盘绝对路径） |
 | `CORS_ORIGIN` | 否 | `http://localhost:5173` | 允许访问 API 的前端来源 |
 | `API_PREFIX` | 否 | `/api` | API 路由前缀 |
 | `DB_PATH` | 否 | `database/pbl_platform.db` | SQLite 路径；自动化测试会覆盖为临时数据库 |
+| `GLIDER_PYTHON` / `GLIDER_BACKEND` | 否 | 见滑翔机章节 | 滑翔机引擎解释器与后端选择（三态配置见下文） |
 
 本地 `.env` 示例：
 
@@ -160,14 +162,16 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 
 #### 启动滑翔机模拟（可选）
 
-滑翔机模拟是 Python 物理仿真，需要一套含 `numpy`、`matplotlib`、`imageio-ffmpeg` 的 Python 环境（推荐用 `web/.venv`）：
+滑翔机模拟是 Python 物理仿真，需要一套含 `numpy`、`matplotlib`、`imageio-ffmpeg` 的 Python 3 环境（Windows 直接使用系统 Python 即可，参考后端不依赖 novaPhy）：
+
+```powershell
+# 本机 Windows（无 WSL）：安装参考后端所需依赖
+pip install numpy matplotlib imageio imageio-ffmpeg
+```
 
 ```bash
-cd /d/html-source/PBLproject/jointproject/web
-export PATH="$PWD/.venv/Scripts:$PATH"     # Windows(Git Bash)；macOS/Linux 用 .venv/bin
-python -m venv .venv 2>/dev/null || true
-source .venv/Scripts/activate
-pip install numpy matplotlib imageio imageio-ffmpeg
+# Linux / WSL（真 novaPhy）：另需 Python 3.11 + novaPhy wheel，
+# 可执行 test_Novaphy/wsl_setup.sh 一键准备（wheel 路径见脚本头部注释，支持 WHEEL 变量覆盖）
 ```
 
 然后在 `backend/.env` 声明引擎并正常启动后端：
@@ -182,7 +186,7 @@ GLIDER_BACKEND=reference
 # GLIDER_BACKEND=novaphy
 ```
 
-学生登录后进入 `/glider`：填机翼上反角、重心、初始速度 → 开始试飞 → 等待约 30 秒~2 分钟（真 novaPhy 渲染全程回放较慢），可查看 3D 航迹、遥测曲线与固定机位的 MP4 飞行回放。结果文件保存在 `backend/uploads/glider/<id>/`。原理与环境变量详见“滑翔机模拟（学生科创）”章节。
+学生登录后进入 `/glider`：填机翼上反角、重心、初始速度 → 开始试飞 → 等待约 30 秒~2 分钟（真 novaPhy 渲染全程回放较慢），可查看 3D 航迹、遥测曲线与固定机位的 MP4 飞行回放。结果文件保存在 `backend/uploads/glider/<id>/`。非学生角色（管理员等）进入该页面为只读视图，可查看全部试飞记录。原理与环境变量详见“滑翔机模拟（学生科创）”章节。
 
 ## 常用命令
 
@@ -210,11 +214,13 @@ GLIDER_BACKEND=reference
 
 | 角色 | 主要能力 |
 | --- | --- |
-| 管理员 `admin` | 学校、班级和用户管理；课程与作品管理；成长档案 |
-| 学术导师 `academic_mentor` | 课程全流程管理；学生报名；作品批改；学生与成长档案管理 |
-| 教师 `teacher` | 本校学生管理；查看课程回放；查看公开发布作品；本校成长档案 |
-| 学生 `student` | 注册、查看已报名课程回放、完成课后任务并提交作品、反思日志、个人成长档案、滑翔机模拟试飞 |
-| 新媒体 `media` | 预留角色，暂无独立功能入口 |
+| 管理员 `admin` | 学校、班级和用户管理；课程与作品管理；成长档案；反馈管理；滑翔机试飞记录（只读） |
+| 学术导师 `academic_mentor` | 课程全流程管理；学生报名；课程回放上传与管理；任务总览；作品批改；学生与成长档案管理 |
+| 教师 `teacher` | 本校学生管理；任务总览；AI 助手；查看课程回放；查看公开发布作品；本校成长档案 |
+| 学生 `student` | 注册、课程浏览与学习、查看已报名课程回放、完成课后任务并提交作品、反思日志、个人成长档案、滑翔机模拟试飞 |
+| 新媒体 `media` | 课程浏览（只读）、帮助与反馈、通知中心 |
+
+> 学生选课统一由管理员/学术导师线下报名完成（前端已下线自助选课入口）；教师不参与作品上传与批改，仅能查看公开发布（已通过批改）的作品。
 
 所有已登录角色均可提交反馈、查看自己的反馈、追加说明和确认处理结果，也可以通过顶部铃铛和通知中心接收、筛选及管理站内通知。管理员可查看全部反馈、设置优先级和状态、填写处理结果，并添加仅管理员可见的内部备注。
 
@@ -224,17 +230,22 @@ GLIDER_BACKEND=reference
 | --- | --- |
 | `/login` | 登录 |
 | `/register` | 注册 |
+| `/change-password` | 修改密码（含强制改密） |
 | `/dashboard` | 工作台 |
 | `/dashboard/schools/:id` | 学校详情 |
 | `/dashboard/ai` | 规则式学习助手 |
-| `/glider` | 滑翔机模拟实验室（学生试飞） |
+| `/glider` | 滑翔机模拟实验室（学生试飞；其余角色只读查看记录） |
 | `/courses` | 课程列表 |
 | `/courses/create` | 创建课程 |
-| `/courses/:id` | 课程详情 |
+| `/courses/:id` | 课程详情（课时/课程回放/资源/选课学生） |
 | `/courses/:id/edit` | 编辑课程 |
+| `/courses/:id/learn` | 课程学习页 |
+| `/tasks` | 任务总览（学生/教师/导师） |
+| `/tasks/:id` | 任务详情 |
 | `/students` | 学生与用户管理 |
 | `/students/:id` | 学生详情 |
 | `/works` | 作品列表 |
+| `/works/upload` | 上传作品 |
 | `/works/:id` | 作品详情 |
 | `/archives` | 成长档案 |
 | `/archives/reflection` | 反思日志 |
@@ -245,7 +256,7 @@ GLIDER_BACKEND=reference
 | `/notifications` | 通知中心、筛选与批量操作 |
 | `/notifications/:id` | 通知详情 |
 
-前端目前存在指向 `/dashboard/schools/add` 和 `/students/import` 的按钮，但 `App.jsx` 尚未注册对应页面路由。这两项属于待完成的前端迁移功能，不应视为当前可用页面。
+学校添加与学生批量导入均以弹窗形式在对应管理页内完成，不设独立路由页面。
 
 ## API 概览
 
@@ -254,7 +265,7 @@ GLIDER_BACKEND=reference
 | 认证 | `/api/auth` | 登录、注册、当前用户、学校和班级 |
 | 工作台 | `/api/dashboard` | 统计、学校管理、学习助手 |
 | 课程 | `/api/courses` | 课程、课时、任务、资源、回放和导师报名 |
-| 课程回放 | `/api/courses/:id/replays` | 回放列表、上传、编辑、删除和鉴权播放 |
+| 课程回放 | `/api/courses/:id/replays` | 回放列表、上传、编辑、删除与鉴权播放（`/stream` 支持签名 URL + HTTP Range 流式拖动） |
 | 学生 | `/api/students` | 用户、学校、班级和批量导入 |
 | 作品 | `/api/works` | 上传、查看、批改和版本管理 |
 | 档案 | `/api/archives` | 成长档案、反思、评价和成长记录 |
@@ -320,7 +331,7 @@ GLIDER_BACKEND=reference
 | 管理员 | 管理员 | `admin123` |
 | 学术导师 | 张导师 | `mentor123` |
 | 教师 | 李老师 | `teacher123` |
-| 学生 | 王小明 | `student123` |
+| 学生 | 王小明 / 陈小红 / 刘小宇 | `student123` |
 
 这些账号用于本地开发和测试部署。测试环境可保留默认账号便于验收；公网正式发布前应修改或删除默认密码，并设置固定、强随机的 `JWT_SECRET`。
 
@@ -330,6 +341,7 @@ GLIDER_BACKEND=reference
 - SQLite WAL 文件：`backend/database/pbl_platform.db-wal`
 - SQLite 共享内存文件：`backend/database/pbl_platform.db-shm`
 - 作品与课程资源上传文件：`backend/uploads/`（不公开静态托管）
+- 课程回放视频：`backend/uploads/course-replays/`（经签名 URL 鉴权流式播放）
 - 滑翔机模拟结果（3D 航迹图 / 遥测图 / CSV / MP4 回放）：`backend/uploads/glider/`
 - 私有反馈附件：`backend/private_uploads/feedback/`
 - 环境变量：`backend/.env`
@@ -338,7 +350,7 @@ GLIDER_BACKEND=reference
 
 ## 滑翔机模拟（学生科创）
 
-学生可在 `/glider`（工作台卡片或侧边栏“滑翔机模拟”）提交三组参数，后端用**真实气动仿真**试飞：
+学生可在 `/glider`（工作台卡片或侧边栏“滑翔机模拟实验室”）提交三组参数，后端用**真实气动仿真**试飞：
 
 - 机翼上反角（°）—— 越大横向越稳；
 - 重心位置（沿机头方向前移量，m）—— 靠前更稳但滑翔差，靠后易失速翻滚；
@@ -347,6 +359,8 @@ GLIDER_BACKEND=reference
 数据链路：前端提交 → `POST /api/glider/simulate`（限学生）→ 后端 `spawn` 调用
 `test_Novaphy/glider_sim/sim_service.py` → 物理积分 → 输出 `backend/uploads/glider/<id>/`
 （`summary.json`、CSV、3D 航迹图、遥测图、`flight_replay.mp4` 回放）→ 前端轮询详情、经鉴权接口拉取结果图与视频播放。历史试飞记录仅本人（管理员可看全部）可见，结果文件也仅本人/管理员可下载，**无需** nginx 额外暴露 `/uploads`。
+
+任务可靠性：后端启动时会清扫历史遗留的 `running` 记录（服务中断不再永久占满并发）；单次模拟有硬超时（`GLIDER_TIMEOUT` + 120 秒缓冲，超时强制终止）；前端轮询超过 5 分钟未完成会提示疑似卡住并停止轮询。
 
 ### 引擎双后端（本地 = 服务器一致）
 
@@ -362,9 +376,10 @@ GLIDER_BACKEND=reference
 
 ### Python 依赖
 
-- 本机 `web/.venv`（Windows 参考后端）：`numpy matplotlib imageio imageio-ffmpeg`。
+- 本机 Python 3（Windows 参考后端）：`numpy matplotlib imageio imageio-ffmpeg`。
 - Linux novaPhy 环境（服务器 `/opt/novaphy` 或 WSL）：Python 3.11 venv，安装
-  `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` + `numpy matplotlib Pillow imageio imageio-ffmpeg`。
+  `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` + `numpy matplotlib Pillow imageio imageio-ffmpeg`；
+  可用 `test_Novaphy/wsl_setup.sh` 一键准备（wheel 默认取脚本目录下交付包目录，也可用 `WHEEL` 环境变量指定）。
   注意：WSL 中该 venv 若由 root 创建，需 `wsl -d <发行版> -u root -- bash -lc '/opt/novaphy/bin/pip install imageio imageio-ffmpeg'`。
   缺失 `imageio-ffmpeg` 时视频自动跳过（`files.video=null`），不影响模拟结果。
 
@@ -382,18 +397,17 @@ GLIDER_VIDEO_MAX=300                      # 回放时长上限秒（默认不截
 
 ### 结果说明
 
-- 结果标签：`正常滑翔` / `成功着陆` / `横滚失控坠毁` / `失速下坠` 等，对应引擎结束原因（`landed`/`crashed(roll)`/`stalled/slow`…）。
+- 结果标签：`正常滑翔` / `成功着陆` / `横滚失控坠毁` / `失速下坠` / `超时结束`，对应引擎结束原因（`ok`/`landed`/`crashed(roll)`/`stalled/slow`/`timedout`…）。
 - 视频为**固定世界机位**（高度朝上、地面在下方、全程可见），飞机盒体为便于全景观察而放大示意；真实气动数据看 HUD、遥测曲线与 3D 航迹图。
 - 引擎默认关闭横滚/偏航自动保持（考察上反角/重心对被动稳定性的影响）；典型稳定组合例如上反角 6°、重心 +0.1 m、速度 36 m/s 可平稳着陆约 70 s。
 
 ## 已知限制
 
-- `/dashboard/schools/add` 与 `/students/import` 前端路由尚未实现。
+- 学校添加与学生批量导入以弹窗实现，无独立路由页面。
 - 学习助手为关键词规则匹配，不是真实生成式 AI。
-- 前端 ESLint 当前仍有未处理的问题。
 - 通知目前仅支持站内消息和 60 秒轮询，不含管理员公告编辑、定时发布、邮件、短信、WebSocket/SSE 或移动端推送。
+- 课程学习页仅支持“标记章节完成”的二值进度，无部分进度与章节前后切换。
 - 反馈、通知与安全相关模块已有自动化测试；作品等部分业务模块仍缺少完整测试，项目尚无 CI。
-- 后端仍保留早期 EJS 页面、静态资源和部分未使用依赖。
 
 ## 服务器部署
 
@@ -556,7 +570,8 @@ server {
     server_name 你的正式域名;
     root /opt/pbl-platform/current/frontend/dist;
     index index.html;
-    client_max_body_size 110M;
+    # 课程回放视频单文件最大 500MB，上限需大于该值
+    client_max_body_size 520M;
 
     location / {
         try_files $uri $uri/ /index.html;   # SPA 路由
@@ -584,7 +599,7 @@ curl -I  http://127.0.0.1/                     # 前端静态
 curl -I  http://127.0.0.1/login                # SPA fallback
 ```
 
-正式发布前完成业务冒烟（管理员/学术导师/教师/学生登录、导师报名、课程回放、课后任务提交、作品上传/下载、批改、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
+正式发布前完成业务冒烟（管理员/学术导师/教师/学生登录、导师报名、课程回放上传与流式播放、课后任务提交、作品上传/下载、批改、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
 
 **回滚**：`sudo ln -sfn /opt/pbl-platform/releases/<上一版本> /opt/pbl-platform/current && sudo systemctl restart pbl-backend`；数据库回滚需先停服、恢复 pre-deploy 备份、校验后再启动。
 
