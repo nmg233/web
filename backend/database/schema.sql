@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS courses (
   total_hours INTEGER,
   materials_needed TEXT,
   cover_image TEXT,
-  status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
+  status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
   created_by INTEGER NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,

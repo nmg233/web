@@ -150,6 +150,36 @@ export default function CourseDetail() {
     } catch { /* handled */ }
   };
 
+  // 发布/撤回：不强制课程须有课时，仅在 0 课时时给提示
+  const handleChangeStatus = (targetStatus) => {
+    const apply = async () => {
+      try {
+        await courseAPI.update(id, { status: targetStatus });
+        message.success(targetStatus === 'published' ? '课程已发布' : '已撤回为草稿');
+        loadData();
+      } catch { /* handled */ }
+    };
+    if (targetStatus === 'published' && lessons.length === 0) {
+      Modal.confirm({
+        title: '课程还没有课时',
+        content: '发布后学生即可看到课程信息，但当前还没有课时内容。确认现在发布？',
+        okText: '确认发布', cancelText: '再准备一下',
+        onOk: apply,
+      });
+      return;
+    }
+    if (targetStatus === 'draft') {
+      Modal.confirm({
+        title: '撤回为草稿？',
+        content: '撤回后学生将无法再看到该课程。',
+        okText: '确认撤回', cancelText: '取消',
+        onOk: apply,
+      });
+      return;
+    }
+    apply();
+  };
+
   if (!course) return null;
 
   const isStudent = user?.role === 'student';
@@ -250,6 +280,12 @@ export default function CourseDetail() {
       <Space style={{ marginBottom: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/courses')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
+        {canManage(user?.role) && course.status !== 'published' && (
+          <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>发布课程</Button>
+        )}
+        {canManage(user?.role) && course.status === 'published' && (
+          <Button size="small" onClick={() => handleChangeStatus('draft')}>撤回为草稿</Button>
+        )}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && <Button onClick={() => navigate(`/courses/${id}/learn`)}>开始学习</Button>}
       </Space>

@@ -79,13 +79,13 @@ exports.create = (req, res) => {
 
     const result = db.prepare(
       `INSERT INTO courses (title, theme, description, driving_question, story_line,
-        grade_level, difficulty, total_hours, materials_needed, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        grade_level, difficulty, total_hours, materials_needed, status, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`
     ).run(title, theme || null, description || null, driving_question || null,
          story_line || null, grade_level, difficulty, total_hours || null,
          materials_needed || null, req.user.id);
 
-    res.json({ message: '课程创建成功！现在可以添加课时和上传资源', id: result.lastInsertRowid });
+    res.json({ message: '课程创建成功（草稿），补充课时后即可发布', id: result.lastInsertRowid });
   } catch (err) {
     console.error('创建课程错误:', err);
     res.json({ title: '创建课程', course: req.body, errors: ['创建失败，请稍后重试'] });
