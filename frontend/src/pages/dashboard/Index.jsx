@@ -114,7 +114,7 @@ export default function Dashboard() {
         {/* 教师/导师：我的课程和最近作品 */}
         {data.myCourses && data.myCourses.length > 0 && (
           <Col xs={24} lg={12}>
-            <Card title="我的课程" style={{ marginBottom: 16 }}>
+            <Card title={user?.role === 'teacher' ? '我授课的课程' : '我的课程'} style={{ marginBottom: 16 }}>
               <List dataSource={data.myCourses.slice(0, 5)} renderItem={(c) => (
                 <List.Item extra={<Tag color="blue">{c.student_count} 名学生</Tag>}>
                   <Link to={`/courses/${c.id}`}>{c.title}</Link>
