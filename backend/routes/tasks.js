@@ -6,7 +6,7 @@ const { requireAuth, requirePasswordChanged, requireRole } = require('../middlew
 router.use(requireAuth);
 // AUTH-04：强制改密守卫覆盖任务模块
 router.use(requirePasswordChanged);
-router.use(requireRole('student', 'admin', 'academic_mentor'));
+router.use(requireRole('student', 'admin', 'academic_mentor', 'teacher'));
 router.get('/', controller.list);
 router.get('/:id', controller.detail);
 

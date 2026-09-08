@@ -10,66 +10,24 @@ const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+// 版本化迁移：新建库执行 schema.sql 基线，既有库仅记录基线并应用增量迁移
+require('../database/migrate').runMigrations(db);
+
 function getTableSql(tableName) {
   const row = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?").get(tableName);
   return row ? row.sql : '';
 }
 
-function rebuildCoursesStatusSchema() {
-  const sql = getTableSql('courses');
-  if (!sql || !sql.includes("DEFAULT 'draft'")) return;
-
-  const columns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
-  const columnList = columns.join(', ');
-  const rebuild = db.transaction(() => {
-    db.pragma('foreign_keys = OFF');
-    // 关键：开启 legacy_alter_table，RENAME 时才不会把其它表中指向 courses 的
-    // 外键自动改写为 courses_old_status，避免 DROP 旧表后外键悬空（no such table）。
-    db.pragma('legacy_alter_table = ON');
-    db.exec(`
-      ALTER TABLE courses RENAME TO courses_old_status;
-
-      CREATE TABLE courses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        theme TEXT,
-        description TEXT,
-        driving_question TEXT,
-        story_line TEXT,
-        grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
-        difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
-        total_hours INTEGER,
-        materials_needed TEXT,
-        cover_image TEXT,
-        status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
-        created_by INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (created_by) REFERENCES users(id)
-      );
-
-      INSERT INTO courses (${columnList})
-      SELECT ${columnList} FROM courses_old_status;
-
-      DROP TABLE courses_old_status;
-    `);
-    db.pragma('legacy_alter_table = OFF');
-    db.pragma('foreign_keys = ON');
-  });
-  rebuild();
-  const fkViolations = db.prepare('PRAGMA foreign_key_check').all();
-  if (fkViolations.length) {
-    console.error('⚠️ 课程表迁移后外键校验失败：', fkViolations.slice(0, 5));
-  }
-}
+// 说明：早期曾在此用「重命名重建」迁移 courses 表默认状态（draft→published）。
+// 该迁移已废止：新建库 schema.sql 默认即为 draft，且课程创建/种子均显式写入
+// status，不再依赖表级默认值；重命名重建还会改写子表外键引用（legacy_alter_table
+// 在事务内被 SQLite 忽略），存在破坏外键的风险，故整体移除。
 
 function migrateLegacyMentorRole() {
   const sql = getTableSql('users');
   if (!sql) return;
   db.prepare("UPDATE users SET role = 'academic_mentor' WHERE role = 'executive_mentor'").run();
 }
-
-rebuildCoursesStatusSchema();
 migrateLegacyMentorRole();
 
 const workColumns = db.prepare('PRAGMA table_info(works)').all().map((c) => c.name);
@@ -82,6 +40,13 @@ if (!workColumns.includes('reject_reason')) {
 if (!workColumns.includes('parent_work_id')) db.exec('ALTER TABLE works ADD COLUMN parent_work_id INTEGER');
 if (!workColumns.includes('version')) db.exec('ALTER TABLE works ADD COLUMN version INTEGER DEFAULT 1');
 if (!workColumns.includes('file_name')) db.exec('ALTER TABLE works ADD COLUMN file_name TEXT');
+
+// 课时线下场次字段（轻量迁移：老库补齐列）
+const lessonColumns = db.prepare('PRAGMA table_info(lessons)').all().map((c) => c.name);
+if (!lessonColumns.includes('start_at')) db.exec('ALTER TABLE lessons ADD COLUMN start_at TEXT');
+if (!lessonColumns.includes('end_at')) db.exec('ALTER TABLE lessons ADD COLUMN end_at TEXT');
+if (!lessonColumns.includes('location')) db.exec('ALTER TABLE lessons ADD COLUMN location TEXT');
+if (!lessonColumns.includes('instructor_id')) db.exec('ALTER TABLE lessons ADD COLUMN instructor_id INTEGER');
 db.exec(`CREATE TABLE IF NOT EXISTS work_reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, work_id INTEGER NOT NULL UNIQUE, reviewer_id INTEGER NOT NULL, comment TEXT, suggestion TEXT, problem_discovery INTEGER, solution_design INTEGER, hands_on INTEGER, data_analysis INTEGER, presentation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(work_id) REFERENCES works(id) ON DELETE CASCADE, FOREIGN KEY(reviewer_id) REFERENCES users(id)); CREATE TABLE IF NOT EXISTS growth_records (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, event_type TEXT NOT NULL DEFAULT 'teacher', description TEXT NOT NULL, recorded_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE, FOREIGN KEY(recorded_by) REFERENCES users(id));`);
 
 const reviewColumns = db.prepare('PRAGMA table_info(work_reviews)').all();

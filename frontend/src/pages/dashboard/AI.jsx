@@ -27,7 +27,7 @@ export default function AIAssistant() {
       const res = await aiAPI.ask(question, courseId);
       setChat((prev) => [...prev, { role: 'ai', content: res.answer }]);
     } catch {
-      setChat((prev) => [...prev, { role: 'ai', content: '抱歉，AI 助教暂时遇到了问题。' }]);
+      setChat((prev) => [...prev, { role: 'ai', content: '抱歉，灵境小智暂时遇到了问题。' }]);
     } finally {
       setLoading(false);
       setQuestion('');
@@ -36,14 +36,14 @@ export default function AIAssistant() {
 
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
-      <Title level={4}>🤖 AI 学习助手</Title>
+      <Title level={4}>🤖 灵境小智</Title>
       <Text type="secondary">基于课程知识库的智能问答，选择课程可获得更精准的回答</Text>
 
       <Card style={{ marginTop: 16, height: 400, overflow: 'auto' }}>
         {chat.length === 0 && (
           <div style={{ textAlign: 'center', color: '#999', marginTop: 120 }}>
             <RobotOutlined style={{ fontSize: 48 }} />
-            <p>你好！我是 AI 学习助手，有什么问题尽管问我～</p>
+            <p>你好！我是灵境小智，有什么问题尽管问我～</p>
           </div>
         )}
         {chat.map((msg, i) => (

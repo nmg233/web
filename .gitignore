@@ -18,6 +18,6 @@ dist/
 build/
 
 # 滑翔机模拟：只跟踪引擎源码，忽略第三方 novaPhy 交付包与本地产物
-test_Novaphy/novaphy-0.4.0-cpu-cp311-linux-x86_64/
-test_Novaphy/glider_sim/output/
-test_Novaphy/glider_sim/imgui.ini
+simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/
+simulation/glider/output/
+simulation/glider/imgui.ini

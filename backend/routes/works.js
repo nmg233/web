@@ -8,9 +8,10 @@ router.use(requireAuth);
 router.use(requirePasswordChanged);
 
 router.get('/', controller.list);
-router.get('/upload-options', controller.showUpload);
+// 作品上传仅限学生本人：教师/导师/管理员不参与上传（代录功能已下线）
+router.get('/upload-options', requireRole('student'), controller.showUpload);
 router.get('/pending-tasks', controller.pendingTasks);
-router.post('/', uploadWork.single('file'), controller.upload);
+router.post('/', requireRole('student'), uploadWork.single('file'), controller.upload);
 router.get('/:id/download', controller.download);
 router.get('/:id', controller.detail);
 router.delete('/:id', controller.delete);

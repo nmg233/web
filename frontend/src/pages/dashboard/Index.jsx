@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Card, Statistic, Table, Tag, List, Typography, Button, Space, Spin, Modal, Form, Input, message } from 'antd';
 import { BookOutlined, TeamOutlined, FileTextOutlined, BankOutlined, MessageOutlined, PlusOutlined, RocketOutlined } from '@ant-design/icons';
 import { dashboardAPI } from '../../api';
@@ -34,7 +34,7 @@ export default function Dashboard() {
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!data) return <Text type="danger">加载失败</Text>;
 
-  const { fortune, stats } = data;
+  const { prompt, stats } = data;
 
   return (
     <div>
@@ -53,17 +53,19 @@ export default function Dashboard() {
         </Row>
       )}
 
-      {/* 每日运势 */}
-      <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${fortune.color}15, ${fortune.color}05)`, borderLeft: `4px solid ${fortune.color}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 32 }}>{fortune.emoji}</span>
-          <div>
-            <Text strong style={{ fontSize: 16, color: fortune.color }}>今日运势：{fortune.level}</Text>
-            <br />
-            <Text type="secondary">{fortune.desc}</Text>
+      {/* 今日项目提示（按角色） */}
+      {prompt && (
+        <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${prompt.color}15, ${prompt.color}05)`, borderLeft: `4px solid ${prompt.color}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 32 }}>{prompt.emoji}</span>
+            <div>
+              <Text strong style={{ fontSize: 16, color: prompt.color }}>今日项目提示</Text>
+              <br />
+              <Text type="secondary">{prompt.desc}</Text>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       <Row gutter={16}>
         {user?.role === 'admin' && data.feedbackStats && (
@@ -87,7 +89,7 @@ export default function Dashboard() {
             <Card title="加盟学校" extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setAddSchoolOpen(true)}>添加学校</Button>}>
               <Table dataSource={data.schools} rowKey="id" pagination={false} size="small"
                 columns={[
-                  { title: '学校名称', dataIndex: 'name', key: 'name', render: (text, r) => <a onClick={() => navigate(`/dashboard/schools/${r.id}`)}>{text}</a> },
+                  { title: '学校名称', dataIndex: 'name', key: 'name', render: (text, r) => <Link to={`/dashboard/schools/${r.id}`}>{text}</Link> },
                   { title: '班级数', dataIndex: 'class_count', key: 'class_count' },
                   { title: '用户数', dataIndex: 'user_count', key: 'user_count' },
                   { title: '地区', dataIndex: 'region', key: 'region' },
@@ -112,10 +114,10 @@ export default function Dashboard() {
         {/* 教师/导师：我的课程和最近作品 */}
         {data.myCourses && data.myCourses.length > 0 && (
           <Col xs={24} lg={12}>
-            <Card title="我的课程" style={{ marginBottom: 16 }}>
+            <Card title={user?.role === 'teacher' ? '我授课的课程' : '我的课程'} style={{ marginBottom: 16 }}>
               <List dataSource={data.myCourses.slice(0, 5)} renderItem={(c) => (
                 <List.Item extra={<Tag color="blue">{c.student_count} 名学生</Tag>}>
-                  <a onClick={() => navigate(`/courses/${c.id}`)}>{c.title}</a>
+                  <Link to={`/courses/${c.id}`}>{c.title}</Link>
                 </List.Item>
               )} />
             </Card>
@@ -127,9 +129,46 @@ export default function Dashboard() {
             <Card title="最近作品" style={{ marginBottom: 16 }}>
               <List dataSource={data.recentWorks.slice(0, 5)} renderItem={(w) => (
                 <List.Item>
-                  <List.Item.Meta title={<a onClick={() => navigate(`/works/${w.id}`)}>{w.title}</a>} description={`${w.student_name} · ${w.course_title || '—'}`} />
+                  <List.Item.Meta title={<Link to={`/works/${w.id}`}>{w.title}</Link>} description={`${w.student_name} · ${w.course_title || '—'}`} />
                 </List.Item>
               )} />
+            </Card>
+          </Col>
+        )}
+
+        {/* 学生：下一节课 + 待办 */}
+        {user?.role === 'student' && (
+          <Col xs={24} lg={12}>
+            <Card title="📅 下一节课" style={{ marginBottom: 16 }}>
+              {data.nextLesson ? (
+                <div>
+                  <Text strong style={{ fontSize: 16 }}>{data.nextLesson.course_title} · {data.nextLesson.lesson_title}</Text>
+                  <br />
+                  <Text type="secondary">
+                    上课时间：{data.nextLesson.start_at.replace('T', ' ')}
+                    {data.nextLesson.location ? ` · 📍 ${data.nextLesson.location}` : ''}
+                    {data.nextLesson.instructor_name ? ` · 👨‍🏫 ${data.nextLesson.instructor_name}` : ''}
+                  </Text>
+                  <br />
+                  <Button size="small" type="link" style={{ paddingLeft: 0 }} onClick={() => navigate(`/courses/${data.nextLesson.course_id}`)}>查看课程</Button>
+                </div>
+              ) : (
+                <Text type="secondary">暂无排课安排</Text>
+              )}
+            </Card>
+            <Card title="📌 待办" style={{ marginBottom: 16 }}>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <div>
+                  <Text strong>{data.pendingTasks?.length ?? 0}</Text>
+                  <Text type="secondary"> 个待提交任务</Text>
+                  {data.pendingTasks?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/tasks')}>去完成</Button>}
+                </div>
+                <div>
+                  <Text strong>{data.revisions?.length ?? 0}</Text>
+                  <Text type="secondary"> 个作品需修改</Text>
+                  {data.revisions?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/works')}>去修改</Button>}
+                </div>
+              </Space>
             </Card>
           </Col>
         )}

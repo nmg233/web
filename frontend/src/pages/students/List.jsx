@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
@@ -194,7 +194,10 @@ export default function StudentList() {
                 }
               }} />
             </Form.Item>
-            <Form.Item name="password" label="密码"><Input.Password placeholder="默认 pbl123456" /></Form.Item>
+            <Form.Item name="password" label="密码"
+              extra="留空则自动生成：学生=姓名拼音@123（如 wangxiaoming@123），教师/导师=pbl123456；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
+              <Input.Password placeholder="留空使用默认密码" />
+            </Form.Item>
             <Form.Item name="school_id" label="学校" dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
@@ -253,7 +256,7 @@ export default function StudentList() {
 
   // Non-admin: table view
   const columns = [
-    { title: '姓名', dataIndex: 'real_name', render: (text, r) => <a onClick={() => navigate(`/students/${r.id}`)}>{text}</a> },
+    { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
     { title: '学校', dataIndex: 'school_name' },
     { title: '班级', dataIndex: 'class_name' },
     { title: '状态', dataIndex: 'is_active', render: (v) => <Tag color={v ? 'green' : 'red'}>{v ? '正常' : '禁用'}</Tag> },
@@ -272,13 +275,16 @@ export default function StudentList() {
       </div>
       <Card>
         <Input.Search placeholder="搜索学生" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300, marginBottom: 16 }} />
-        <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+        <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />
       </Card>
 
       <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()}>
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="password" label="密码"><Input.Password placeholder="默认 pbl123456" /></Form.Item>
+          <Form.Item name="password" label="密码"
+            extra="留空则自动生成：姓名拼音@123（如 wangxiaoming@123）；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
+            <Input.Password placeholder="留空使用默认密码" />
+          </Form.Item>
           <Form.Item name="school_id" label="学校" rules={[{ required: true }]}>
             <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
           </Form.Item>

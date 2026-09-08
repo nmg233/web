@@ -13,6 +13,7 @@ const NOTIFICATION_EVENTS = {
   WORK_RESUBMITTED: 'work.resubmitted',
   WORK_REVIEWED: 'work.reviewed',
   WORK_DELETED: 'work.deleted',
+  ENROLLMENT_REMOVED: 'course.enrollment_removed',
 };
 
 const NOTIFICATION_LABELS = {

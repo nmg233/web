@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../../store/AuthContext';
@@ -81,8 +81,7 @@ export default function Login() {
           </Form.Item>
         </Form>
         <div style={{ textAlign: 'center' }}>
-          <Text type="secondary">还没有账号？</Text>
-          <Link to="/register" style={{ marginLeft: 8 }}>立即注册</Link>
+          <Text type="secondary">还没有账号？请联系管理员创建。</Text>
         </div>
       </Card>
     </div>

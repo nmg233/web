@@ -15,14 +15,47 @@ RESET_DB="${RESET_DB:-0}"
 SYNC_DELETE="${SYNC_DELETE:-0}"
 
 cd "$APP_DIR"
+
+# 部署前环境预检与数据库备份（失败即停止）
+echo "== deploy: 环境预检 =="
+bash scripts/doctor.sh
+echo "== deploy: 数据库备份 =="
+bash scripts/backup-db.sh || echo "[WARN] 数据库备份失败（本地开发可忽略），是否继续由 set -e 决定"
+
 git fetch origin
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
 
 cd backend
 npm ci
-# better-sqlite3 预编译包可能不兼容服务器 glibc，统一在服务器本地编译
-npm rebuild better-sqlite3 --build-from-source
+# better-sqlite3 v13 会优先加载 npm 包内的 linux-x64 prebuild，旧 glibc 测试机运行会失败。
+# 因此部署时强制在本机编译 native addon，并将不兼容的 prebuild 移出加载路径。
+BETTER_DIR="node_modules/better-sqlite3"
+PYTHON_BIN="${PYTHON:-/usr/bin/python3.11}"
+NODE_GYP="${NODE_GYP:-$(command -v node-gyp || true)}"
+if [ -z "$NODE_GYP" ]; then
+  NODE_GYP="/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js"
+fi
+
+if [ ! -f "$NODE_GYP" ]; then
+  echo "error: node-gyp not found at $NODE_GYP" >&2
+  exit 1
+fi
+
+(
+  cd "$BETTER_DIR"
+  PYTHON="$PYTHON_BIN" node "$NODE_GYP" rebuild --release --force_build=1
+  if [ -f prebuilds/linux-x64.node ]; then
+    mv prebuilds/linux-x64.node prebuilds/linux-x64.node.incompatible
+  fi
+)
+
+node -e "
+const Database = require('better-sqlite3');
+const db = new Database(':memory:');
+db.close();
+console.log('better-sqlite3 native binding OK');
+"
 if [ "$RESET_DB" = "1" ]; then
   npm run db:reset
 fi

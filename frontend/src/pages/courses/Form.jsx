@@ -61,11 +61,6 @@ export default function CourseForm() {
           </Form.Item>
           <Form.Item name="total_hours" label="总课时"><Input type="number" placeholder="小时" /></Form.Item>
           <Form.Item name="materials_needed" label="所需材料"><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="status" label="状态">
-            <Select options={[
-              { label: '草稿', value: 'draft' }, { label: '已发布', value: 'published' }, { label: '已归档', value: 'archived' },
-            ]} />
-          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>{isEdit ? '保存修改' : '创建课程'}</Button>
           </Form.Item>

@@ -1,7 +1,8 @@
 const db = require('../config/database');
 const path = require('path');
 const fs = require('fs');
-const { spawn } = require('child_process');
+const crypto = require('crypto');
+const { spawn, execFile } = require('child_process');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 
 // ------------------------------------------------------------------
@@ -35,7 +36,7 @@ function parsePython() {
 
 const PY = parsePython();
 const GLIDER_BACKEND = process.env.GLIDER_BACKEND || 'auto';
-const GLIDER_DIR = path.resolve(__dirname, '..', '..', 'test_Novaphy', 'glider_sim');
+const GLIDER_DIR = path.resolve(__dirname, '..', '..', 'simulation', 'glider');
 const GLIDER_MAX_ACTIVE = Math.max(1, parseInt(process.env.GLIDER_MAX_ACTIVE || '2', 10) || 2);
 const GLIDER_ALT = 150;            // 投放高度固定 (m)，避免变量过多
 // 单次最长仿真时间(s)：读环境变量 GLIDER_TIMEOUT 可调，默认 100。
@@ -105,8 +106,14 @@ function canRead(row, user) {
 }
 
 // 学生提交三参数，启动一次模拟（异步）
-exports.simulate = (req, res) => {
+exports.simulate = async (req, res) => {
   try {
+    // 引擎不可用时快速失败，避免先落库再必然失败
+    const engineReady = await probeEngine();
+    if (!engineReady) {
+      return res.status(503).json({ error: '模拟引擎不可用，请稍后再试或联系管理员检查引擎环境' });
+    }
+
     const active = db.prepare("SELECT COUNT(*) AS c FROM glider_simulations WHERE status = 'running'").get().c;
     if (active >= GLIDER_MAX_ACTIVE) {
       return res.status(429).json({ error: `当前有 ${active} 个模拟任务正在运行，请稍后再试` });
@@ -247,7 +254,23 @@ exports.file = (req, res) => {
     const { id, name } = req.params;
     if (!ALLOWED_FILES.has(name)) return res.status(400).json({ error: '不支持的文件' });
     const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
-    if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });
+
+    // 无 Bearer 时走签名校验（视频直挂 <video> 场景），权限仍以数据库为准
+    let user = req.user;
+    if (!user) {
+      const { exp, uid, sig } = req.query;
+      if (!exp || !uid || !sig) return res.status(401).json({ error: '未登录' });
+      const expMs = Number(exp) * 1000;
+      if (!Number.isFinite(expMs) || Date.now() > expMs) return res.status(401).json({ error: '播放链接已过期' });
+      const expected = crypto.createHmac('sha256', req.app.get('jwt_secret'))
+        .update(`${id}:${name}:${uid}:${exp}`).digest('hex');
+      if (sig !== expected) return res.status(401).json({ error: '播放链接无效' });
+      const urow = db.prepare('SELECT id, role FROM users WHERE id = ? AND is_active = 1').get(uid);
+      if (!urow) return res.status(401).json({ error: '账号不可用' });
+      user = urow;
+    }
+
+    if (!canRead(row, user)) return res.status(404).json({ error: '模拟记录不存在' });
 
     const simDir = path.join(UPLOAD_ROOT, 'glider', String(id));
     const filePath = path.resolve(simDir, name);
@@ -260,4 +283,68 @@ exports.file = (req, res) => {
     console.error('滑翔机模拟文件下载错误:', err);
     return res.status(500).json({ error: '下载失败' });
   }
+};
+
+// 生成短期签名播放地址（视频回放流式拖动，避免整段 blob 下载）
+exports.streamUrl = (req, res) => {
+  try {
+    const { id, name } = req.params;
+    if (name !== 'flight_replay.mp4') return res.status(400).json({ error: '不支持的文件' });
+    const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
+    if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });
+    const exp = Math.floor(Date.now() / 1000) + 600;
+    const sig = crypto.createHmac('sha256', req.app.get('jwt_secret'))
+      .update(`${id}:${name}:${req.user.id}:${exp}`).digest('hex');
+    res.json({
+      url: `/api/glider/simulations/${id}/files/${name}?exp=${exp}&uid=${req.user.id}&sig=${sig}`,
+      expires_in: 600,
+    });
+  } catch (err) {
+    console.error('生成滑翔机播放地址错误:', err);
+    res.status(500).json({ error: '生成播放地址失败' });
+  }
+};
+
+// 引擎能力探测缓存（60s）+ 统一探测函数（供 capabilities 与 simulate fail-fast 复用）
+let capabilityCache = { at: 0, payload: null };
+
+function probeEngine() {
+  if (capabilityCache.payload && Date.now() - capabilityCache.at < 60 * 1000) {
+    return Promise.resolve(capabilityCache.payload.ready);
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (ready) => {
+      if (settled) return; // error 与 close 可能先后触发，只结算一次
+      settled = true;
+      resolve(ready);
+    };
+    try {
+      const child = PY.mode === 'wsl'
+        ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python, '-c', 'import numpy'], { timeout: 15000 })
+        : execFile(PY.python, ['-c', 'import numpy'], { timeout: 15000 });
+      child.on('error', () => finish(false));
+      child.on('close', (code) => finish(code === 0));
+    } catch (err) {
+      finish(false);
+    }
+  });
+}
+
+exports.capabilities = async (req, res) => {
+  const now = Date.now();
+  if (capabilityCache.payload && now - capabilityCache.at < 60 * 1000) {
+    return res.json(capabilityCache.payload);
+  }
+  const payload = {
+    ready: false,
+    backend: GLIDER_BACKEND,
+    python: PY.mode === 'wsl' ? `wsl:${PY.distro}:${PY.python}` : PY.python,
+    video: GLIDER_VIDEO,
+    maxActive: GLIDER_MAX_ACTIVE,
+  };
+  const ready = await probeEngine();
+  payload.ready = ready;
+  capabilityCache = { at: Date.now(), payload };
+  res.json(payload);
 };

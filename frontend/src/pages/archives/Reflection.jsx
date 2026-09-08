@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Button, Typography, message, Space } from 'antd';
+import { Card, Form, Input, Button, Typography, message, Space, Select } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { archiveAPI } from '../../api';
+import { archiveAPI, courseAPI } from '../../api';
 
 const { Title, Text } = Typography;
 
@@ -10,6 +10,26 @@ export default function Reflection() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [enrollments, setEnrollments] = useState([]);
+  const [lessons, setLessons] = useState([]);
+
+  useEffect(() => {
+    archiveAPI.getReflections().then((res) => {
+      setEnrollments(res.enrollments || []);
+    }).catch(() => {});
+  }, []);
+
+  const handleCourseChange = async (enrollmentId) => {
+    const enrollment = enrollments.find((e) => e.enrollment_id === enrollmentId);
+    form.setFieldValue('lesson_id', undefined);
+    if (!enrollment) { setLessons([]); return; }
+    try {
+      const res = await courseAPI.detail(enrollment.course_id);
+      setLessons(res.lessons || []);
+    } catch {
+      setLessons([]);
+    }
+  };
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -30,9 +50,20 @@ export default function Reflection() {
       </Space>
       <Card>
         <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-          记录今天的学习收获、遇到的困难和下一步计划。每天可提交一次。
+          记录今天的学习收获、遇到的困难和下一步计划。每天可提交一次。选择课程与课时后，反思将关联到对应成长档案。
         </Text>
         <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form.Item name="enrollment_id" label="本次课程" rules={[{ required: true, message: '请选择课程' }]}>
+            <Select
+              placeholder="选择课程"
+              onChange={handleCourseChange}
+              options={enrollments.map((e) => ({ value: e.enrollment_id, label: e.course_title }))}
+            />
+          </Form.Item>
+          <Form.Item name="lesson_id" label="本次课时">
+            <Select allowClear placeholder="选择课时（可选）"
+              options={lessons.map((l) => ({ value: l.id, label: l.title }))} />
+          </Form.Item>
           <Form.Item name="difficulty" label="遇到的困难" rules={[{ required: true, message: '请填写遇到的困难' }]}>
             <Input.TextArea rows={3} placeholder="今天学习中最难理解或完成的部分" />
           </Form.Item>

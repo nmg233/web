@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS courses (
   total_hours INTEGER,
   materials_needed TEXT,
   cover_image TEXT,
-  status TEXT DEFAULT 'published' CHECK(status IN ('draft','published','archived')),
+  status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
   created_by INTEGER NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -107,8 +107,13 @@ CREATE TABLE IF NOT EXISTS lessons (
   description TEXT,
   sort_order INTEGER DEFAULT 0,
   duration INTEGER,
+  start_at TEXT,
+  end_at TEXT,
+  location TEXT,
+  instructor_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (instructor_id) REFERENCES users(id)
 );
 
 -- 7. 任务
@@ -213,15 +218,23 @@ CREATE TABLE IF NOT EXISTS project_team_members (
   UNIQUE(team_id, student_id)
 );
 
--- 11. 课程参与记录
+-- 11. 课程参与记录（选课由执行导师/教师/管理员统一导入；日常不可退课，
+--     仅管理员可经异常修正通道软删除，removed_* 字段保留审计信息）
 CREATE TABLE IF NOT EXISTS enrollments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   student_id INTEGER NOT NULL,
   course_id INTEGER NOT NULL,
   enrolled_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   completed_at DATETIME,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','removed')),
+  enrolled_by INTEGER,
+  removed_at DATETIME,
+  removed_by INTEGER,
+  remove_reason TEXT,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrolled_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (removed_by) REFERENCES users(id) ON DELETE SET NULL,
   UNIQUE(student_id, course_id)
 );
 
@@ -433,6 +446,24 @@ CREATE TABLE IF NOT EXISTS user_notifications (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- 滑翔机模拟记录（学生提交参数 -> 后端运行 -> 落库结果）
+CREATE TABLE IF NOT EXISTS glider_simulations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  dihedral_deg REAL NOT NULL DEFAULT 0,
+  cg_x REAL NOT NULL DEFAULT 0,
+  speed REAL NOT NULL DEFAULT 36,
+  alt REAL NOT NULL DEFAULT 150,
+  status TEXT NOT NULL DEFAULT 'running' CHECK(status IN ('running','success','error')),
+  state TEXT,
+  glide_time REAL,
+  summary_json TEXT,
+  error TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_school ON users(school_id);
@@ -441,12 +472,14 @@ CREATE INDEX IF NOT EXISTS idx_courses_grade ON courses(grade_level);
 CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status);
 CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
 CREATE INDEX IF NOT EXISTS idx_works_student ON works(student_id);
 CREATE INDEX IF NOT EXISTS idx_reflections_student ON reflections(student_id);
 CREATE INDEX IF NOT EXISTS idx_evaluations_student ON evaluations(student_id);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status, priority, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedback_messages_feedback ON feedback_messages(feedback_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_glider_sims_student ON glider_simulations(student_id, id DESC);
 CREATE INDEX IF NOT EXISTS idx_feedback_attachments_feedback ON feedback_attachments(feedback_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_event ON notifications(event_key, business_type, business_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_published ON notifications(status, published_at DESC);

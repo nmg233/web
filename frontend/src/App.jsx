@@ -6,7 +6,6 @@ import { AuthProvider } from './store/AuthContext';
 import NotificationProvider from './store/NotificationProvider';
 import AppLayout from './components/AppLayout';
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
 
 // 路由级代码分割：按需加载各业务页面，降低首包体积
 const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
@@ -57,7 +56,6 @@ function App() {
               <Suspense fallback={<PageFallback />}>
               <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
                 <Route index element={<Navigate to="/dashboard" replace />} />

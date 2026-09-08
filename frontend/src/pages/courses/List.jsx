@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Table, Button, Tag, Space, Input, Card, Typography } from 'antd';
+import { useNavigate, Link } from 'react-router-dom';
+import { Table, Button, Tag, Space, Input, Card, Typography, Popconfirm } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import StatusTag from '../../components/common/StatusTag';
 
 const { Title } = Typography;
 
@@ -29,23 +30,29 @@ export default function CourseList() {
   useEffect(() => { loadCourses(); }, []);
 
   const columns = [
-    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => <a onClick={() => navigate(`/courses/${r.id}`)}>{text}</a> },
+    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => <Link to={`/courses/${r.id}`}>{text}</Link> },
     { title: '主题', dataIndex: 'theme', key: 'theme' },
     { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level' },
     { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <Tag color={v === 'published' ? 'green' : 'orange'}>{v === 'published' ? '已发布' : v}</Tag> },
-    { title: '学习进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` },
-    { title: '学生数', dataIndex: 'student_count', key: 'student_count' },
-    { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
+    ...(user?.role !== 'student' ? [{ title: '学习进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
+    ...(user?.role !== 'student' ? [{ title: '学生数', dataIndex: 'student_count', key: 'student_count' }, { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' }] : []),
     ...(canManage(user?.role) ? [{
       title: '操作', key: 'actions', render: (_, r) => (
         <Space>
           <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>编辑</Button>
-          {['admin', 'academic_mentor'].includes(user?.role) && (
-            <Button size="small" danger onClick={async () => {
-              await courseAPI.delete(r.id);
-              loadCourses();
-            }}>删除</Button>
+          {r.status === 'draft' && (
+            <Popconfirm
+              title="确定删除该草稿课程？"
+              description="有报名记录或历史作品的课程将无法删除。"
+              okText="删除" cancelText="取消"
+              onConfirm={async () => {
+                await courseAPI.delete(r.id);
+                loadCourses();
+              }}
+            >
+              <Button size="small" danger>删除</Button>
+            </Popconfirm>
           )}
         </Space>
       )
@@ -66,7 +73,7 @@ export default function CourseList() {
             onPressEnter={() => loadCourses({ search })} style={{ width: 250 }} />
           <Button onClick={() => { setSearch(''); loadCourses(); }}>重置</Button>
         </Space>
-        <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
+        <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
       </Card>
     </div>
   );

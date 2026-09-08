@@ -5,6 +5,10 @@ const crypto = require('crypto');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
+const { toFileDto } = require('../helpers/fileDto');
+const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
+const notificationService = require('../services/notificationService');
+const { NOTIFICATION_EVENTS } = require('../constants/notification');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -30,7 +34,14 @@ exports.list = (req, res) => {
     `;
     const params = [];
 
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
+    if (req.user.role === 'student') {
+      // 选课由执行导师/教师/管理员统一导入：学生仅可看到自己已报名的已发布课程
+      sql += ` AND c.status = 'published' AND EXISTS (
+        SELECT 1 FROM enrollments e
+        WHERE e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
+      )`;
+      params.push(req.user.id);
+    } else if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
       sql += " AND c.status = 'published'";
     }
 
@@ -41,14 +52,7 @@ exports.list = (req, res) => {
 
     sql += ' ORDER BY c.updated_at DESC';
 
-    const courses = db.prepare(sql).all(...params).map((course) => {
-      if (req.user.role !== 'student') return { ...course, progress: 0 };
-      const progress = db.prepare(`SELECT COALESCE(ROUND(AVG(COALESCE(lp.progress, 0))), 0) AS progress
-        FROM lessons l LEFT JOIN lesson_progress lp
-          ON lp.lesson_id = l.id AND lp.student_id = ?
-        WHERE l.course_id = ?`).get(req.user.id, course.id).progress;
-      return { ...course, progress };
-    });
+    const courses = db.prepare(sql).all(...params).map((course) => ({ ...course, progress: 0 }));
     const themes = db.prepare('SELECT DISTINCT theme FROM courses WHERE theme IS NOT NULL').all();
 
     res.json({ title: '课程管理', courses, themes, filters: req.query });
@@ -70,24 +74,21 @@ exports.create = (req, res) => {
             grade_level, difficulty, total_hours, materials_needed } = req.body;
 
     if (!title || !grade_level || !difficulty) {
-      return res.json({
-        title: '创建课程', course: req.body,
-        errors: ['课程名称、适用学段和难度等级为必填项']
-      });
+      return res.status(400).json({ error: '课程名称、适用学段和难度等级为必填项' });
     }
 
     const result = db.prepare(
       `INSERT INTO courses (title, theme, description, driving_question, story_line,
-        grade_level, difficulty, total_hours, materials_needed, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        grade_level, difficulty, total_hours, materials_needed, status, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`
     ).run(title, theme || null, description || null, driving_question || null,
          story_line || null, grade_level, difficulty, total_hours || null,
          materials_needed || null, req.user.id);
 
-    res.json({ message: '课程创建成功！现在可以添加课时和上传资源', id: result.lastInsertRowid });
+    res.json({ message: '课程创建成功（草稿），补充课时后即可发布', id: result.lastInsertRowid });
   } catch (err) {
     console.error('创建课程错误:', err);
-    res.json({ title: '创建课程', course: req.body, errors: ['创建失败，请稍后重试'] });
+    res.status(500).json({ error: '创建失败，请稍后重试' });
   }
 };
 
@@ -106,13 +107,19 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '课程不存在' });
     }
 
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && course.status !== 'published') {
+    // 授课教师可查看自己授课的课程（含未发布课程，便于线下导入学生）
+    const viewerIsInstructor = req.user.role === 'teacher' && !!db.prepare(
+      'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
+    ).get(id, req.user.id);
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && course.status !== 'published' && !viewerIsInstructor) {
       return res.status(400).json({ error: '课程不存在' });
     }
 
     const lessons = db.prepare(`SELECT l.*, COALESCE(lp.progress, 0) AS progress,
-      COALESCE(lp.last_position, 0) AS last_position
-      FROM lessons l LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = ?
+      COALESCE(lp.last_position, 0) AS last_position, u.real_name AS instructor_name
+      FROM lessons l
+      LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = ?
+      LEFT JOIN users u ON u.id = l.instructor_id
       WHERE l.course_id = ? ORDER BY l.sort_order`).all(req.user.role === 'student' ? req.user.id : null, id);
     const tasks = db.prepare(`SELECT t.*, l.title AS lesson_title FROM tasks t
       JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ?
@@ -123,30 +130,41 @@ exports.detail = (req, res) => {
             ON lp.lesson_id = l.id AND lp.student_id = ?
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
-    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id);
-    const enrollments = COURSE_MANAGER_ROLES.includes(req.user.role)
-      ? db.prepare(
+    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
+    const isInstructorTeacher = viewerIsInstructor;
+    const enrollments = (() => {
+      if (COURSE_MANAGER_ROLES.includes(req.user.role) || isInstructorTeacher) {
+        return db.prepare(
+          `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name,
+                  u2.real_name AS enrolled_by_name
+           FROM enrollments e
+           JOIN users u ON e.student_id = u.id
+           LEFT JOIN schools s ON u.school_id = s.id
+           LEFT JOIN classes c2 ON u.class_id = c2.id
+           LEFT JOIN users u2 ON e.enrolled_by = u2.id
+           WHERE e.course_id = ? AND e.status = 'active'
+           ORDER BY e.enrolled_at DESC`
+        ).all(id);
+      }
+      if (req.user.role === 'student') {
+        return db.prepare(
           `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
            FROM enrollments e
            JOIN users u ON e.student_id = u.id
            LEFT JOIN schools s ON u.school_id = s.id
            LEFT JOIN classes c2 ON u.class_id = c2.id
-           WHERE e.course_id = ?
+           WHERE e.course_id = ? AND e.student_id = ? AND e.status = 'active'
            ORDER BY e.enrolled_at DESC`
-        ).all(id)
-      : req.user.role === 'student'
-        ? db.prepare(
-            `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
-             FROM enrollments e
-             JOIN users u ON e.student_id = u.id
-             LEFT JOIN schools s ON u.school_id = s.id
-             LEFT JOIN classes c2 ON u.class_id = c2.id
-             WHERE e.course_id = ? AND e.student_id = ?
-             ORDER BY e.enrolled_at DESC`
-          ).all(id, req.user.id)
-        : [];
+        ).all(id, req.user.id);
+      }
+      return [];
+    })();
 
-    res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments });
+    const teachers = COURSE_MANAGER_ROLES.includes(req.user.role)
+      ? db.prepare("SELECT id, real_name, role, school_id FROM users WHERE role IN ('teacher','academic_mentor') ORDER BY real_name").all()
+      : [];
+
+    res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments, teachers });
   } catch (err) {
     console.error('课程详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -194,7 +212,7 @@ exports.update = (req, res) => {
     }
 
     values.push(id);
-    db.prepare(`UPDATE courses SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+    db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
 
     res.json({ message: '课程更新成功' });
   } catch (err) {
@@ -203,13 +221,38 @@ exports.update = (req, res) => {
   }
 };
 
-// 删除课程
+// 删除课程：仅允许「草稿 + 无报名历史 + 无作品」物理删除；资源/回放文件走 FileLifecycle
 exports.delete = (req, res) => {
   try {
-    if (!canManageCourse(req.user, req.params.id)) {
+    const { id } = req.params;
+    if (!canManageCourse(req.user, id)) {
       return res.status(400).json({ error: '无权管理该课程' });
     }
-    db.prepare('DELETE FROM courses WHERE id = ?').run(req.params.id);
+    const course = db.prepare('SELECT id, title, status FROM courses WHERE id = ?').get(id);
+    if (!course) {
+      return res.status(400).json({ error: '课程不存在' });
+    }
+    if (course.status !== 'draft') {
+      return res.status(403).json({ error: '已发布/已归档课程不能删除，请先撤回为草稿' });
+    }
+    const enrollmentCount = db.prepare('SELECT COUNT(*) c FROM enrollments WHERE course_id = ?').get(id).c;
+    if (enrollmentCount > 0) {
+      return res.status(400).json({ error: `该课程已有 ${enrollmentCount} 条报名记录（含已移除），不可删除，请归档保留` });
+    }
+    const workCount = db.prepare(
+      'SELECT COUNT(*) c FROM works WHERE enrollment_id IN (SELECT id FROM enrollments WHERE course_id = ?)'
+    ).get(id).c;
+    if (workCount > 0) {
+      return res.status(400).json({ error: '该课程存在历史作品记录，不可删除' });
+    }
+
+    const filePaths = [
+      ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
+      ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),
+    ].filter(Boolean);
+
+    db.prepare('DELETE FROM courses WHERE id = ?').run(id);
+    removeFilesAfterCommit(filePaths, UPLOAD_ROOT);
     res.json({ message: '课程已删除' });
   } catch (err) {
     console.error('删除课程错误:', err);
@@ -224,18 +267,30 @@ exports.addLesson = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(400).json({ error: '无权管理该课程' });
     }
-    const { title, description, duration } = req.body;
+    const { title, description, duration, start_at, end_at, location, instructor_id } = req.body;
 
     if (!title) {
       return res.status(400).json({ error: '课时名称不能为空' });
+    }
+
+    // 授课人须为启用中的教师或执行导师
+    if (instructor_id) {
+      const instructor = db.prepare(
+        "SELECT id FROM users WHERE id = ? AND role IN ('teacher','academic_mentor') AND is_active = 1"
+      ).get(instructor_id);
+      if (!instructor) {
+        return res.status(400).json({ error: '授课人不存在或不可用（仅教师/执行导师可授课）' });
+      }
     }
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
     const sortOrder = (maxOrder.max_order || 0) + 1;
 
     const result = db.prepare(
-      'INSERT INTO lessons (course_id, title, description, duration, sort_order) VALUES (?, ?, ?, ?, ?)'
-    ).run(id, title, description || null, duration || null, sortOrder);
+      `INSERT INTO lessons (course_id, title, description, duration, sort_order, start_at, end_at, location, instructor_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(id, title, description || null, duration || null, sortOrder,
+          start_at || null, end_at || null, location || null, instructor_id || null);
 
     res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
@@ -283,10 +338,12 @@ exports.downloadResource = (req, res) => {
     `).get(req.params.resource_id);
     if (!resource || !resource.file_path) return res.status(404).json({ error: '附件不存在' });
     if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
+      // 教师可下载已发布课程的课堂资料（线下备课需要）；学生须已报名；其余角色不可下载
+      const isTeacher = req.user.role === 'teacher';
       const enrolled = req.user.role === 'student' && db.prepare(
         'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
       ).get(req.user.id, resource.course_id);
-      if (resource.course_status !== 'published' || !enrolled) {
+      if (resource.course_status !== 'published' || (!isTeacher && !enrolled)) {
         return res.status(404).json({ error: '附件不存在' });
       }
     }
@@ -346,7 +403,7 @@ exports.updateProgress = (req, res) => {
     const position = Math.max(0, Number(req.body.last_position) || 0);
     const enrollment = db.prepare(`
       SELECT c.id FROM courses c
-      JOIN enrollments e ON e.course_id = c.id AND e.student_id = ?
+      JOIN enrollments e ON e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
       WHERE c.id = ? AND c.status = 'published'
     `).get(req.user.id, req.params.id);
     if (!enrollment) return res.status(403).json({ error: '请先选课后再学习' });
@@ -369,7 +426,7 @@ function canAccessReplay(user, course) {
   if (user.role === 'teacher') return course.status === 'published';
   if (user.role !== 'student') return false;
   if (course.status !== 'published') return false;
-  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(user.id, course.id);
+  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(user.id, course.id, 'active');
 }
 
 exports.listReplays = (req, res) => {
@@ -450,10 +507,9 @@ exports.deleteReplay = (req, res) => {
   try {
     const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
-    if (replay.video_path) {
-      try { fs.unlinkSync(replay.video_path); } catch (err) { /* 文件可能已删除 */ }
-    }
+    // 先删记录，提交后再删物理文件（失败进清理队列）
     db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
+    removeFilesAfterCommit([replay.video_path], UPLOAD_ROOT);
     res.json({ message: '课程回放已删除' });
   } catch (err) {
     console.error('删除课程回放错误:', err);
@@ -526,84 +582,215 @@ exports.streamReplay = (req, res) => {
   }
 };
 
-// 学生报名课程
+// 选课导入权限：执行导师/管理员为课程管理者；教师须是该课程某一课时的授课人
+function canEnrollCourse(user, courseId) {
+  if (COURSE_MANAGER_ROLES.includes(user.role)) return canManageCourse(user, courseId);
+  if (user.role !== 'teacher') return false;
+  return !!db.prepare(
+    'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
+  ).get(courseId, user.id);
+}
+
+// 学生由执行导师/教师/管理员统一导入（一经选课不可退课；学生不自助选课）
 exports.enroll = (req, res) => {
   try {
     const { id } = req.params;
-    if (!canManageCourse(req.user, id)) {
-      return res.status(400).json({ error: '无权管理该课程' });
-    }
-    const { student_ids } = req.body;
-
-    if (!student_ids || student_ids.length === 0) {
-      return res.status(400).json({ error: '请选择学生' });
-    }
-
-    const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(id);
+    const course = db.prepare('SELECT id, title, status FROM courses WHERE id = ?').get(id);
     if (!course) {
       return res.status(400).json({ error: '课程不存在' });
     }
-
-    const ids = Array.isArray(student_ids) ? student_ids : [student_ids];
-    let added = 0;
-    const stmt = db.prepare('INSERT OR IGNORE INTO enrollments (student_id, course_id) VALUES (?, ?)');
-    for (const sid of ids) {
-      const student = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role = 'student'"
-      ).get(sid);
-      if (!student) continue;
-      const result = stmt.run(sid, id);
-      if (result.changes > 0) added++;
+    if (course.status === 'archived') {
+      return res.status(400).json({ error: '已归档课程不能导入学生' });
+    }
+    if (!canEnrollCourse(req.user, id)) {
+      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
     }
 
-    res.json({ message: `已添加 ${added} 名学生到课程` });
+    const { student_ids } = req.body;
+    const ids = Array.isArray(student_ids) ? student_ids : [student_ids];
+    if (ids.length === 0) {
+      return res.status(400).json({ error: '请选择学生' });
+    }
+
+    // 预取全部学生：无效/禁用 ID 逐条跳过；教师跨校学生整体拒绝（保证原子性）
+    const placeholders = ids.map(() => '?').join(',');
+    const students = db.prepare(
+      `SELECT id, real_name, school_id FROM users
+       WHERE id IN (${placeholders}) AND role = 'student' AND is_active = 1`
+    ).all(...ids);
+    const studentMap = new Map(students.map((s) => [s.id, s]));
+
+    if (req.user.role === 'teacher') {
+      const crossSchool = students.filter((s) => s.school_id !== req.user.school_id);
+      if (crossSchool.length > 0) {
+        return res.status(400).json({
+          error: `以下学生与您不同校，无法导入：${crossSchool.map((s) => s.real_name).join('、')}`,
+        });
+      }
+    }
+
+    const added = [];
+    const skipped = [];
+    const insert = db.prepare(`
+      INSERT INTO enrollments (student_id, course_id, enrolled_by)
+      VALUES (?, ?, ?)
+      ON CONFLICT(student_id, course_id) DO UPDATE SET
+        status = 'active',
+        enrolled_by = excluded.enrolled_by,
+        enrolled_at = CURRENT_TIMESTAMP,
+        completed_at = NULL,
+        removed_at = NULL,
+        removed_by = NULL,
+        remove_reason = NULL
+    `);
+
+    db.transaction(() => {
+      for (const raw of ids) {
+        const num = Number(raw);
+        if (!Number.isInteger(num) || num <= 0) {
+          skipped.push({ name: String(raw), reason: '无效的学生ID' });
+          continue;
+        }
+        const student = studentMap.get(num);
+        if (!student) {
+          skipped.push({ name: String(raw), reason: '学生不存在或已禁用' });
+          continue;
+        }
+        insert.run(num, Number(id), req.user.id);
+        added.push(student.real_name);
+      }
+    })();
+
+    const skippedText = skipped.length
+      ? `，跳过 ${skipped.length} 名（${skipped.slice(0, 5).map((s) => `${s.name}:${s.reason}`).join('；')}${skipped.length > 5 ? '…' : ''}）`
+      : '';
+    res.json({
+      message: `已导入 ${added.length} 名学生${skippedText}`,
+      added: added.length,
+      skipped,
+    });
   } catch (err) {
     console.error('报名错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
 
-// 学生自主选课 API（限3门，返回JSON）
-exports.studentEnroll = (req, res) => {
+// 导入候选学生：已启用且未在该课程（有效报名）的学生；教师强制本校
+exports.enrollCandidates = (req, res) => {
   try {
-    const studentId = req.user.id;
-    const { course_id } = req.body;
-
-    if (!course_id) {
-      return res.json({ success: false, message: '请选择课程' });
+    const { id } = req.params;
+    const course = db.prepare('SELECT id, status FROM courses WHERE id = ?').get(id);
+    if (!course) {
+      return res.status(400).json({ error: '课程不存在' });
+    }
+    if (course.status === 'archived') {
+      return res.status(400).json({ error: '已归档课程不能导入学生' });
+    }
+    if (!canEnrollCourse(req.user, id)) {
+      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
     }
 
-    const enroll = db.transaction((studentId, courseId) => {
-      const myCount = db.prepare(
-        'SELECT COUNT(*) as count FROM enrollments WHERE student_id = ?'
-      ).get(studentId);
+    const conditions = [
+      "u.role = 'student'",
+      'u.is_active = 1',
+      `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
+    ];
+    const params = [];
+    if (req.user.role === 'teacher') {
+      conditions.push('u.school_id = ?');
+      params.push(req.user.school_id || 0);
+    } else {
+      if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
+      if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
+    }
+    if (req.query.search) {
+      conditions.push('(u.real_name LIKE ? OR u.username LIKE ?)');
+      params.push(`%${req.query.search}%`, `%${req.query.search}%`);
+    }
 
-      if (myCount.count >= 3) {
-        return { success: false, message: '最多选择3门课程，请先退选其他课程' };
-      }
+    const students = db.prepare(`
+      SELECT u.id, u.real_name, u.username, s.name AS school_name, c2.name AS class_name, c2.grade
+      FROM users u
+      LEFT JOIN schools s ON u.school_id = s.id
+      LEFT JOIN classes c2 ON u.class_id = c2.id
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY u.real_name
+      LIMIT 200
+    `).all(...params);
 
-      const course = db.prepare(
-        "SELECT id, title FROM courses WHERE id = ? AND status = 'published'"
-      ).get(courseId);
-
-      if (!course) {
-        return { success: false, message: '课程不存在或未发布' };
-      }
-
-      const result = db.prepare(
-        'INSERT OR IGNORE INTO enrollments (student_id, course_id) VALUES (?, ?)'
-      ).run(studentId, courseId);
-
-      if (result.changes === 0) {
-        return { success: false, message: '已经选择过该课程' };
-      }
-
-      return { success: true, message: '成功选择课程《' + course.title + '》' };
+    res.json({
+      students,
+      lockedSchoolId: req.user.role === 'teacher' ? req.user.school_id || 0 : null,
     });
-
-    res.json(enroll(studentId, course_id));
   } catch (err) {
-    console.error('学生选课错误:', err);
-    res.json({ success: false, message: '选课失败，请稍后重试' });
+    console.error('加载导入候选学生错误:', err);
+    res.status(500).json({ error: '加载失败' });
+  }
+};
+
+// 管理员异常修正：移除报名（软删除 + 审计）。日常任何角色均不可退课。
+exports.removeEnrollment = (req, res) => {
+  try {
+    const { courseId, enrollmentId } = req.params;
+    const enrollment = db.prepare(`
+      SELECT e.*, c.title AS course_title, u.real_name AS student_name
+      FROM enrollments e
+      JOIN courses c ON c.id = e.course_id
+      JOIN users u ON u.id = e.student_id
+      WHERE e.id = ? AND e.course_id = ?
+    `).get(enrollmentId, courseId);
+    if (!enrollment) {
+      return res.status(404).json({ error: '报名记录不存在' });
+    }
+    if (enrollment.status === 'removed') {
+      return res.status(400).json({ error: '该报名已被移除' });
+    }
+
+    const reason = (req.body.reason || '').trim();
+    if (!reason) {
+      return res.status(400).json({ error: '请填写移除原因（将记录在审计中）' });
+    }
+
+    // 已产生业务数据（作品/评价/反思）的报名不可移除
+    const blockers = [
+      { label: '作品', count: db.prepare('SELECT COUNT(*) c FROM works WHERE enrollment_id = ?').get(enrollment.id).c },
+      { label: '评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE enrollment_id = ?').get(enrollment.id).c },
+      { label: '反思日志', count: db.prepare('SELECT COUNT(*) c FROM reflections WHERE enrollment_id = ?').get(enrollment.id).c },
+    ].filter((b) => b.count > 0);
+    if (blockers.length > 0) {
+      return res.status(400).json({
+        error: `该报名已产生${blockers.map((b) => `${b.label} ${b.count} 条`).join('、')}，不可移除`,
+      });
+    }
+
+    db.transaction(() => {
+      db.prepare(`
+        UPDATE enrollments
+        SET status = 'removed', removed_at = CURRENT_TIMESTAMP, removed_by = ?, remove_reason = ?
+        WHERE id = ?
+      `).run(req.user.id, reason.slice(0, 500), enrollment.id);
+      db.prepare(
+        "INSERT INTO growth_records (student_id, event_type, description, recorded_by) VALUES (?, 'system', ?, ?)"
+      ).run(enrollment.student_id, `已移除课程《${enrollment.course_title}》报名（原因：${reason.slice(0, 200)}）`, req.user.id);
+    })();
+
+    notificationService.safeCreateForUsers({
+      eventKey: NOTIFICATION_EVENTS.ENROLLMENT_REMOVED,
+      dedupeKey: `course.enrollment_removed:${enrollment.id}`,
+      title: '报名已移除',
+      summary: `《${enrollment.course_title}》`,
+      content: `您在课程《${enrollment.course_title}》的报名已被管理员移除。原因：${reason.slice(0, 200)}`,
+      category: 'course',
+      level: 'important',
+      actionUrl: null,
+      businessType: 'enrollment',
+      businessId: enrollment.id,
+      createdBy: req.user.id,
+    }, [enrollment.student_id]);
+
+    res.json({ message: `已移除 ${enrollment.student_name} 的报名（审计已记录）` });
+  } catch (err) {
+    console.error('移除报名错误:', err);
+    res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };

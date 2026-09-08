@@ -5,13 +5,17 @@ const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 exports.getCourses = (req, res) => {
   try {
     const user = req.user;
+    // 教师端灵境小智已下线（教师不参与课程建设，无课程上下文）
+    if (user.role === 'teacher') {
+      return res.status(403).json({ error: '灵境小智暂不对教师开放' });
+    }
     let courses = [];
 
     if (user.role === 'student') {
       courses = db.prepare(`
         SELECT c.id, c.title, c.description, c.driving_question, c.grade_level, c.difficulty
         FROM enrollments e JOIN courses c ON e.course_id = c.id
-        WHERE e.student_id = ?
+        WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published'
       `).all(user.id);
     } else if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
       courses = db.prepare(`
@@ -20,16 +24,20 @@ exports.getCourses = (req, res) => {
       `).all(user.id);
     }
 
-    res.json({ title: 'AI 学习助手', courses });
+    res.json({ title: '灵境小智', courses });
   } catch (err) {
     console.error('AI助手页错误:', err);
-    res.json({ title: 'AI 学习助手', courses: [] });
+    res.json({ title: '灵境小智', courses: [] });
   }
 };
 
 // AI 回答（基于课程知识库的规则匹配 + 通用回复）
 exports.ask = (req, res) => {
   try {
+    // 教师端灵境小智已下线
+    if (req.user.role === 'teacher') {
+      return res.status(403).json({ error: '灵境小智暂不对教师开放' });
+    }
     const { question, course_id } = req.body;
 
     if (!question || question.trim().length === 0) {
@@ -47,7 +55,7 @@ exports.ask = (req, res) => {
           SELECT c.title, c.description, c.driving_question, c.story_line
           FROM courses c
           JOIN enrollments e ON e.course_id = c.id
-          WHERE c.id = ? AND e.student_id = ? AND c.status = 'published'
+          WHERE c.id = ? AND e.student_id = ? AND e.status = 'active' AND c.status = 'published'
         `).get(course_id, user.id);
       } else if (COURSE_MANAGER_ROLES.includes(user.role) || user.role === 'teacher') {
         course = db.prepare(`
@@ -67,7 +75,7 @@ exports.ask = (req, res) => {
     res.json({ answer });
   } catch (err) {
     console.error('AI回答错误:', err);
-    res.json({ answer: '抱歉，AI 助教暂时遇到了问题。请稍后再试。' });
+    res.json({ answer: '抱歉，灵境小智暂时遇到了问题。请稍后再试。' });
   }
 };
 
@@ -150,5 +158,5 @@ function generateAnswer(question, context) {
     '试试问："VR在课程中有什么用？"',
   ];
 
-  return `你好！我是 AI 学习助手 🤖\n\n${context ? context + '\n\n' : ''}关于你的问题"${question}"，我建议从以下几个方面思考：\n\n1. 回顾课程中的驱动问题，这是项目的核心目标\n2. 把大问题分解成小步骤，一步步解决\n3. 和同学讨论，不同的视角可能带来新灵感\n4. 在反思日志中记录你的思考过程\n\n💡 ${tips[Math.floor(Math.random() * tips.length)]}`;
+  return `你好！我是灵境小智 🤖\n\n${context ? context + '\n\n' : ''}关于你的问题"${question}"，我建议从以下几个方面思考：\n\n1. 回顾课程中的驱动问题，这是项目的核心目标\n2. 把大问题分解成小步骤，一步步解决\n3. 和同学讨论，不同的视角可能带来新灵感\n4. 在反思日志中记录你的思考过程\n\n💡 ${tips[Math.floor(Math.random() * tips.length)]}`;
 }
