@@ -88,15 +88,26 @@ exports.index = (req, res) => {
 
     // === 教师/导师端：显示负责的课程和学生进度 ===
     if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
-      // 导师创建的课程
-      const myCourses = db.prepare(`
-        SELECT c.*,
-          (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as student_count,
-          (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
-        FROM courses c
-        WHERE c.created_by = ? AND c.status != 'archived'
-        ORDER BY c.updated_at DESC
-      `).all(user.id);
+      // 导师/管理员：自己创建的课程；教师：自己授课的课程
+      const myCourses = user.role === 'teacher'
+        ? db.prepare(`
+            SELECT c.*,
+              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') as student_count,
+              (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
+            FROM courses c
+            WHERE c.status != 'archived' AND EXISTS (
+              SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
+            )
+            ORDER BY c.updated_at DESC
+          `).all(user.id)
+        : db.prepare(`
+            SELECT c.*,
+              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') as student_count,
+              (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
+            FROM courses c
+            WHERE c.created_by = ? AND c.status != 'archived'
+            ORDER BY c.updated_at DESC
+          `).all(user.id);
 
       // 所有课程不再下发（前端未消费，避免冗余数据）；如需可按 status/created_by 查询
 

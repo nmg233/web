@@ -9,7 +9,23 @@ function taskStatus(task, userId) {
   return 'submitted';
 }
 
-function taskQuery(userId) {
+function taskQuery(user) {
+  const userId = user.role === 'student' ? user.id : null;
+  // 任务可见范围：学生=已报名课程；教师=自己授课课时；执行导师=自己管理课程；管理员=全部
+  const scopeConditions = [];
+  const scopeParams = [];
+  if (user.role === 'student') {
+    scopeConditions.push('EXISTS (SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = ?)');
+    scopeParams.push(user.id, 'active');
+  } else if (user.role === 'teacher') {
+    scopeConditions.push('EXISTS (SELECT 1 FROM lessons l2 WHERE l2.id = t.lesson_id AND l2.instructor_id = ?)');
+    scopeParams.push(user.id);
+  } else if (user.role === 'academic_mentor') {
+    scopeConditions.push('c.created_by = ?');
+    scopeParams.push(user.id);
+  }
+  const scopeSql = scopeConditions.length ? ` AND ${scopeConditions.join(' AND ')}` : '';
+
   const tasks = db.prepare(`
     SELECT t.*, l.title AS lesson_title, l.course_id, c.title AS course_title,
       (SELECT review_status FROM works WHERE task_id = t.id AND student_id = ? ORDER BY version DESC, created_at DESC, id DESC LIMIT 1) AS review_status,
@@ -17,18 +33,15 @@ function taskQuery(userId) {
     FROM tasks t
     JOIN lessons l ON l.id = t.lesson_id
     JOIN courses c ON c.id = l.course_id
-    WHERE c.status = 'published'
-      AND (? IS NULL OR EXISTS (
-        SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
-      ))
+    WHERE c.status = 'published'${scopeSql}
     ORDER BY c.title, l.sort_order, t.sort_order, t.created_at
-  `).all(userId || null, userId || null, userId || null, userId || null);
+  `).all(userId || null, userId || null, ...scopeParams);
   return tasks.map((task) => ({ ...task, status: taskStatus(task, userId) }));
 }
 
 exports.list = (req, res) => {
   try {
-    let tasks = taskQuery(req.user.role === 'student' ? req.user.id : null);
+    let tasks = taskQuery(req.user);
     if (req.query.status) tasks = tasks.filter((task) => task.status === req.query.status);
     res.json({ tasks });
   } catch (err) {
