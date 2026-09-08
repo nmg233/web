@@ -22,7 +22,7 @@ function loadStudentArchive(studentId) {
     `SELECT c.title, c.theme, c.grade_level, c.difficulty,
             e.enrolled_at, e.completed_at
      FROM enrollments e JOIN courses c ON e.course_id = c.id
-     WHERE e.student_id = ? ORDER BY e.enrolled_at DESC`
+     WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
   ).all(studentId);
 
   const works = db.prepare('SELECT * FROM works WHERE student_id = ? ORDER BY created_at DESC').all(studentId).map(toFileDto);
@@ -210,6 +210,7 @@ exports.showReflection = (req, res) => {
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id
         JOIN users u ON e.student_id = u.id
+        WHERE e.status = 'active'
       `;
       const params = [];
       if (isTeacher(req.user.role)) {
@@ -222,7 +223,7 @@ exports.showReflection = (req, res) => {
       enrollments = db.prepare(
         `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
          FROM enrollments e JOIN courses c ON e.course_id = c.id
-         WHERE e.student_id = ?`
+         WHERE e.student_id = ? AND e.status = 'active'`
       ).all(userId);
     }
 
@@ -264,8 +265,8 @@ exports.submitReflection = (req, res) => {
     let enrollmentCourseId = null;
     if (enrollment_id) {
       const enrollment = db.prepare(
-        'SELECT id, course_id FROM enrollments WHERE id = ? AND student_id = ?'
-      ).get(enrollment_id, actualStudentId);
+        'SELECT id, course_id FROM enrollments WHERE id = ? AND student_id = ? AND status = ?'
+      ).get(enrollment_id, actualStudentId, 'active');
       if (!enrollment) {
         return res.status(400).json({ error: '所选课程报名记录不属于该学生' });
       }

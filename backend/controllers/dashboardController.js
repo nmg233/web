@@ -132,14 +132,14 @@ exports.index = (req, res) => {
 
     // === 学生端：显示参与的课程、进度、反思入口 ===
     if (user.role === 'student') {
-      // 参与的课程
+      // 参与的课程（仅有效报名且已发布的课程；选课由执行导师/教师/管理员统一导入）
       const myCourses = db.prepare(`
         SELECT c.*, e.id as enrollment_id, e.enrolled_at,
           (SELECT COUNT(*) FROM works w2 WHERE w2.student_id = ? AND w2.enrollment_id = e.id) as my_work_count,
           (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as total_lessons
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id
-        WHERE e.student_id = ?
+        WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published'
         ORDER BY e.enrolled_at DESC
       `).all(user.id, user.id);
 
@@ -166,7 +166,8 @@ exports.index = (req, res) => {
         JOIN courses c ON e.course_id = c.id AND c.status = 'published'
         JOIN lessons l ON l.course_id = c.id
         LEFT JOIN users u ON u.id = l.instructor_id
-        WHERE e.student_id = ? AND l.start_at IS NOT NULL AND l.start_at >= datetime('now', 'localtime', '-1 hour')
+        WHERE e.student_id = ? AND e.status = 'active'
+          AND l.start_at IS NOT NULL AND l.start_at >= datetime('now', 'localtime', '-1 hour')
         ORDER BY l.start_at ASC LIMIT 1
       `).get(user.id);
 
@@ -177,7 +178,7 @@ exports.index = (req, res) => {
         JOIN courses c ON e.course_id = c.id AND c.status = 'published'
         JOIN lessons l ON l.course_id = c.id
         JOIN tasks t ON t.lesson_id = l.id AND t.require_upload = 1
-        WHERE e.student_id = ?
+        WHERE e.student_id = ? AND e.status = 'active'
           AND (NOT EXISTS (SELECT 1 FROM works w WHERE w.student_id = e.student_id AND w.task_id = t.id)
                OR (SELECT w.review_status FROM works w
                    WHERE w.student_id = e.student_id AND w.task_id = t.id

@@ -746,7 +746,7 @@ exports.detail = (req, res) => {
     const courses = db.prepare(
       `SELECT c.title, c.theme, e.enrolled_at, e.completed_at
        FROM enrollments e JOIN courses c ON e.course_id = c.id
-       WHERE e.student_id = ? ORDER BY e.enrolled_at DESC`
+       WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
     ).all(id);
 
     const works = db.prepare(

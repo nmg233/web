@@ -105,7 +105,7 @@ exports.showUpload = (req, res) => {
     const enrollments = db.prepare(
       `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
        FROM enrollments e JOIN courses c ON e.course_id = c.id
-       WHERE e.student_id = ?`
+       WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published'`
     ).all(userId);
 
     const courseOptions = Array.from(new Map(enrollments.map((e) => [e.course_id, e])).values());
@@ -176,7 +176,9 @@ exports.upload = (req, res) => {
         return res.status(400).json({ error: '该任务要求上传附件，请选择文件后再提交' });
       }
       const taskEnrollment = db.prepare(
-        'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
+        `SELECT e.id FROM enrollments e
+         JOIN courses c ON c.id = e.course_id
+         WHERE e.student_id = ? AND e.course_id = ? AND e.status = 'active' AND c.status = 'published'`
       ).get(actualStudentId, task.course_id);
       if (!taskEnrollment) {
         removeUploadedFile(req.file);

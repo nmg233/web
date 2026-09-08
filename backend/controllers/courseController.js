@@ -34,7 +34,14 @@ exports.list = (req, res) => {
     `;
     const params = [];
 
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
+    if (req.user.role === 'student') {
+      // 选课由执行导师/教师/管理员统一导入：学生仅可看到自己已报名的已发布课程
+      sql += ` AND c.status = 'published' AND EXISTS (
+        SELECT 1 FROM enrollments e
+        WHERE e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
+      )`;
+      params.push(req.user.id);
+    } else if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
       sql += " AND c.status = 'published'";
     }
 
@@ -45,14 +52,7 @@ exports.list = (req, res) => {
 
     sql += ' ORDER BY c.updated_at DESC';
 
-    const courses = db.prepare(sql).all(...params).map((course) => {
-      if (req.user.role !== 'student') return { ...course, progress: 0 };
-      const progress = db.prepare(`SELECT COALESCE(ROUND(AVG(COALESCE(lp.progress, 0))), 0) AS progress
-        FROM lessons l LEFT JOIN lesson_progress lp
-          ON lp.lesson_id = l.id AND lp.student_id = ?
-        WHERE l.course_id = ?`).get(req.user.id, course.id).progress;
-      return { ...course, progress };
-    });
+    const courses = db.prepare(sql).all(...params).map((course) => ({ ...course, progress: 0 }));
     const themes = db.prepare('SELECT DISTINCT theme FROM courses WHERE theme IS NOT NULL').all();
 
     res.json({ title: '课程管理', courses, themes, filters: req.query });
@@ -127,27 +127,36 @@ exports.detail = (req, res) => {
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
     const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
-    const enrollments = COURSE_MANAGER_ROLES.includes(req.user.role)
-      ? db.prepare(
+    const isInstructorTeacher = req.user.role === 'teacher' && !!db.prepare(
+      'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
+    ).get(id, req.user.id);
+    const enrollments = (() => {
+      if (COURSE_MANAGER_ROLES.includes(req.user.role) || isInstructorTeacher) {
+        return db.prepare(
+          `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name,
+                  u2.real_name AS enrolled_by_name
+           FROM enrollments e
+           JOIN users u ON e.student_id = u.id
+           LEFT JOIN schools s ON u.school_id = s.id
+           LEFT JOIN classes c2 ON u.class_id = c2.id
+           LEFT JOIN users u2 ON e.enrolled_by = u2.id
+           WHERE e.course_id = ? AND e.status = 'active'
+           ORDER BY e.enrolled_at DESC`
+        ).all(id);
+      }
+      if (req.user.role === 'student') {
+        return db.prepare(
           `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
            FROM enrollments e
            JOIN users u ON e.student_id = u.id
            LEFT JOIN schools s ON u.school_id = s.id
            LEFT JOIN classes c2 ON u.class_id = c2.id
-           WHERE e.course_id = ?
+           WHERE e.course_id = ? AND e.student_id = ? AND e.status = 'active'
            ORDER BY e.enrolled_at DESC`
-        ).all(id)
-      : req.user.role === 'student'
-        ? db.prepare(
-            `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
-             FROM enrollments e
-             JOIN users u ON e.student_id = u.id
-             LEFT JOIN schools s ON u.school_id = s.id
-             LEFT JOIN classes c2 ON u.class_id = c2.id
-             WHERE e.course_id = ? AND e.student_id = ?
-             ORDER BY e.enrolled_at DESC`
-          ).all(id, req.user.id)
-        : [];
+        ).all(id, req.user.id);
+      }
+      return [];
+    })();
 
     const teachers = COURSE_MANAGER_ROLES.includes(req.user.role)
       ? db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' ORDER BY real_name").all()
@@ -357,7 +366,7 @@ exports.updateProgress = (req, res) => {
     const position = Math.max(0, Number(req.body.last_position) || 0);
     const enrollment = db.prepare(`
       SELECT c.id FROM courses c
-      JOIN enrollments e ON e.course_id = c.id AND e.student_id = ?
+      JOIN enrollments e ON e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
       WHERE c.id = ? AND c.status = 'published'
     `).get(req.user.id, req.params.id);
     if (!enrollment) return res.status(403).json({ error: '请先选课后再学习' });
@@ -380,7 +389,7 @@ function canAccessReplay(user, course) {
   if (user.role === 'teacher') return course.status === 'published';
   if (user.role !== 'student') return false;
   if (course.status !== 'published') return false;
-  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(user.id, course.id);
+  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(user.id, course.id, 'active');
 }
 
 exports.listReplays = (req, res) => {

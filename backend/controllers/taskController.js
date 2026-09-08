@@ -19,7 +19,7 @@ function taskQuery(userId) {
     JOIN courses c ON c.id = l.course_id
     WHERE c.status = 'published'
       AND (? IS NULL OR EXISTS (
-        SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ?
+        SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
       ))
     ORDER BY c.title, l.sort_order, t.sort_order, t.created_at
   `).all(userId || null, userId || null, userId || null, userId || null);
@@ -49,7 +49,7 @@ exports.detail = (req, res) => {
 
     const userId = req.user.role === 'student' ? req.user.id : null;
     const enrollment = userId
-      ? db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(userId, task.course_id)
+      ? db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(userId, task.course_id, 'active')
       : null;
     if (userId && !enrollment) return res.status(404).json({ error: '任务不存在' });
     const works = userId ? db.prepare(`

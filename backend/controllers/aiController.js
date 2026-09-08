@@ -15,7 +15,7 @@ exports.getCourses = (req, res) => {
       courses = db.prepare(`
         SELECT c.id, c.title, c.description, c.driving_question, c.grade_level, c.difficulty
         FROM enrollments e JOIN courses c ON e.course_id = c.id
-        WHERE e.student_id = ?
+        WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published'
       `).all(user.id);
     } else if (['academic_mentor', 'teacher', 'admin'].includes(user.role)) {
       courses = db.prepare(`
@@ -55,7 +55,7 @@ exports.ask = (req, res) => {
           SELECT c.title, c.description, c.driving_question, c.story_line
           FROM courses c
           JOIN enrollments e ON e.course_id = c.id
-          WHERE c.id = ? AND e.student_id = ? AND c.status = 'published'
+          WHERE c.id = ? AND e.student_id = ? AND e.status = 'active' AND c.status = 'published'
         `).get(course_id, user.id);
       } else if (COURSE_MANAGER_ROLES.includes(user.role) || user.role === 'teacher') {
         course = db.prepare(`
