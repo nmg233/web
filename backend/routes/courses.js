@@ -38,5 +38,9 @@ router.post('/lessons/:lesson_id/tasks', requireRole('admin', 'academic_mentor')
 
 // 选课导入：执行导师/教师/管理员（教师仅限自己授课课程与本校学生，控制器内校验）
 router.post('/:id/enroll', requireRole('admin', 'academic_mentor', 'teacher'), controller.enroll);
+// 导入候选学生查询（同上权限）
+router.get('/:id/enroll/candidates', controller.enrollCandidates);
+// 管理员异常修正：移除报名（软删除 + 审计，日常不可退课）
+router.delete('/:courseId/enrollments/:enrollmentId', requireRole('admin'), controller.removeEnrollment);
 
 module.exports = router;

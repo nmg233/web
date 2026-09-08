@@ -7,6 +7,8 @@ const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 const { toFileDto } = require('../helpers/fileDto');
 const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
+const notificationService = require('../services/notificationService');
+const { NOTIFICATION_EVENTS } = require('../constants/notification');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -623,6 +625,126 @@ exports.enroll = (req, res) => {
     });
   } catch (err) {
     console.error('报名错误:', err);
+    res.status(500).json({ error: '操作失败，请稍后重试' });
+  }
+};
+
+// 导入候选学生：已启用且未在该课程（有效报名）的学生；教师强制本校
+exports.enrollCandidates = (req, res) => {
+  try {
+    const { id } = req.params;
+    const course = db.prepare('SELECT id, status FROM courses WHERE id = ?').get(id);
+    if (!course) {
+      return res.status(400).json({ error: '课程不存在' });
+    }
+    if (course.status === 'archived') {
+      return res.status(400).json({ error: '已归档课程不能导入学生' });
+    }
+    if (!canEnrollCourse(req.user, id)) {
+      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
+    }
+
+    const conditions = [
+      "u.role = 'student'",
+      'u.is_active = 1',
+      `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
+    ];
+    const params = [];
+    if (req.user.role === 'teacher') {
+      conditions.push('u.school_id = ?');
+      params.push(req.user.school_id || 0);
+    } else {
+      if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
+      if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
+    }
+    if (req.query.search) {
+      conditions.push('(u.real_name LIKE ? OR u.username LIKE ?)');
+      params.push(`%${req.query.search}%`, `%${req.query.search}%`);
+    }
+
+    const students = db.prepare(`
+      SELECT u.id, u.real_name, u.username, s.name AS school_name, c2.name AS class_name, c2.grade
+      FROM users u
+      LEFT JOIN schools s ON u.school_id = s.id
+      LEFT JOIN classes c2 ON u.class_id = c2.id
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY u.real_name
+      LIMIT 200
+    `).all(...params);
+
+    res.json({
+      students,
+      lockedSchoolId: req.user.role === 'teacher' ? req.user.school_id || 0 : null,
+    });
+  } catch (err) {
+    console.error('加载导入候选学生错误:', err);
+    res.status(500).json({ error: '加载失败' });
+  }
+};
+
+// 管理员异常修正：移除报名（软删除 + 审计）。日常任何角色均不可退课。
+exports.removeEnrollment = (req, res) => {
+  try {
+    const { courseId, enrollmentId } = req.params;
+    const enrollment = db.prepare(`
+      SELECT e.*, c.title AS course_title, u.real_name AS student_name
+      FROM enrollments e
+      JOIN courses c ON c.id = e.course_id
+      JOIN users u ON u.id = e.student_id
+      WHERE e.id = ? AND e.course_id = ?
+    `).get(enrollmentId, courseId);
+    if (!enrollment) {
+      return res.status(404).json({ error: '报名记录不存在' });
+    }
+    if (enrollment.status === 'removed') {
+      return res.status(400).json({ error: '该报名已被移除' });
+    }
+
+    const reason = (req.body.reason || '').trim();
+    if (!reason) {
+      return res.status(400).json({ error: '请填写移除原因（将记录在审计中）' });
+    }
+
+    // 已产生业务数据（作品/评价/反思）的报名不可移除
+    const blockers = [
+      { label: '作品', count: db.prepare('SELECT COUNT(*) c FROM works WHERE enrollment_id = ?').get(enrollment.id).c },
+      { label: '评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE enrollment_id = ?').get(enrollment.id).c },
+      { label: '反思日志', count: db.prepare('SELECT COUNT(*) c FROM reflections WHERE enrollment_id = ?').get(enrollment.id).c },
+    ].filter((b) => b.count > 0);
+    if (blockers.length > 0) {
+      return res.status(400).json({
+        error: `该报名已产生${blockers.map((b) => `${b.label} ${b.count} 条`).join('、')}，不可移除`,
+      });
+    }
+
+    db.transaction(() => {
+      db.prepare(`
+        UPDATE enrollments
+        SET status = 'removed', removed_at = CURRENT_TIMESTAMP, removed_by = ?, remove_reason = ?
+        WHERE id = ?
+      `).run(req.user.id, reason.slice(0, 500), enrollment.id);
+      db.prepare(
+        "INSERT INTO growth_records (student_id, event_type, description, recorded_by) VALUES (?, 'system', ?, ?)"
+      ).run(enrollment.student_id, `已移除课程《${enrollment.course_title}》报名（原因：${reason.slice(0, 200)}）`, req.user.id);
+    })();
+
+    notificationService.safeCreateForUsers({
+      eventKey: NOTIFICATION_EVENTS.ENROLLMENT_REMOVED,
+      dedupeKey: `course.enrollment_removed:${enrollment.id}`,
+      title: '报名已移除',
+      summary: `《${enrollment.course_title}》`,
+      content: `您在课程《${enrollment.course_title}》的报名已被管理员移除。原因：${reason.slice(0, 200)}`,
+      category: 'course',
+      level: 'important',
+      actionUrl: null,
+      businessType: 'enrollment',
+      businessId: enrollment.id,
+      createdBy: req.user.id,
+    }, [enrollment.student_id]);
+
+    res.json({ message: `已移除 ${enrollment.student_name} 的报名（审计已记录）` });
+  } catch (err) {
+    console.error('移除报名错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
