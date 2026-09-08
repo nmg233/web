@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select } from 'antd';
-import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
@@ -24,8 +24,13 @@ export default function CourseDetail() {
   const [lessonModal, setLessonModal] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
+  const [replayModal, setReplayModal] = useState(false);
+  const [editingReplay, setEditingReplay] = useState(null);
+  const [replayFile, setReplayFile] = useState(null);
+  const [replayUploading, setReplayUploading] = useState(false);
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
+  const [replayForm] = Form.useForm();
 
   const loadData = async () => {
     try {
@@ -87,6 +92,63 @@ export default function CourseDetail() {
     } catch { /* handled */ }
   };
 
+  const refreshReplays = () => {
+    courseAPI.listReplays(id).then((res) => setReplays(res.replays || [])).catch(() => {});
+  };
+
+  const openReplayModal = (replay = null) => {
+    setEditingReplay(replay);
+    setReplayFile(null);
+    replayForm.resetFields();
+    if (replay) {
+      replayForm.setFieldsValue({
+        title: replay.title,
+        description: replay.description,
+        duration_seconds: replay.duration_seconds,
+        recording_date: replay.recording_date,
+        sort_order: replay.sort_order,
+      });
+    }
+    setReplayModal(true);
+  };
+
+  const handleReplaySubmit = async (values) => {
+    if (!editingReplay && !replayFile) {
+      message.error('请选择回放视频文件（mp4/webm，≤500MB）');
+      return;
+    }
+    setReplayUploading(true);
+    try {
+      if (editingReplay) {
+        await courseAPI.updateReplay(editingReplay.id, values);
+        message.success('回放信息已更新');
+      } else {
+        const formData = new FormData();
+        formData.append('file', replayFile);
+        formData.append('title', values.title);
+        formData.append('description', values.description || '');
+        formData.append('duration_seconds', values.duration_seconds || '');
+        formData.append('recording_date', values.recording_date || '');
+        formData.append('sort_order', values.sort_order || '0');
+        await courseAPI.uploadReplay(id, formData);
+        message.success('回放上传成功');
+      }
+      setReplayModal(false);
+      refreshReplays();
+    } catch { /* handled */ } finally {
+      setReplayUploading(false);
+    }
+  };
+
+  const handleDeleteReplay = async (replayId) => {
+    try {
+      await courseAPI.deleteReplay(replayId);
+      message.success('回放已删除');
+      if (replayUrl) setReplayUrl(null);
+      refreshReplays();
+    } catch { /* handled */ }
+  };
+
   if (!course) return null;
 
   const isStudent = user?.role === 'student';
@@ -118,9 +180,25 @@ export default function CourseDetail() {
       key: 'replays', label: '课程回放',
       children: (
         <div>
+          {canManage(user?.role) && (
+            <Button type="dashed" icon={<UploadOutlined />} onClick={() => openReplayModal()} style={{ marginBottom: 16 }}>
+              上传回放
+            </Button>
+          )}
           {replayUrl && <video controls src={replayUrl} style={{ width: '100%', maxHeight: 420, marginBottom: 16 }} />}
-          {replays.map((replay) => (
-            <Card key={replay.id} size="small" style={{ marginBottom: 8 }}>
+          {replays.length === 0 ? (
+            <Typography.Text type="secondary">暂无课程回放</Typography.Text>
+          ) : replays.map((replay) => (
+            <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
+              extra={canManage(user?.role) && (
+                <Space size={4}>
+                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>编辑</Button>
+                  <Popconfirm title="确定删除该回放？" okText="删除" cancelText="取消" onConfirm={() => handleDeleteReplay(replay.id)}>
+                    <Button size="small" type="link" danger icon={<DeleteOutlined />}>删除</Button>
+                  </Popconfirm>
+                </Space>
+              )}
+            >
               <Space>
                 <span>{replay.title}</span>
                 {replay.recording_date && <Tag>{replay.recording_date}</Tag>}
@@ -211,6 +289,37 @@ export default function CourseDetail() {
             <Checkbox>要求上传附件</Checkbox>
           </Form.Item>
           <Form.Item name="deadline" label="截止时间"><Input type="datetime-local" /></Form.Item>
+        </Form>
+      </Modal>
+      {/* 上传/编辑回放 Modal */}
+      <Modal
+        title={editingReplay ? '编辑回放' : '上传回放'}
+        open={replayModal}
+        onCancel={() => setReplayModal(false)}
+        onOk={() => replayForm.submit()}
+        confirmLoading={replayUploading}
+      >
+        <Form form={replayForm} layout="vertical" onFinish={handleReplaySubmit}>
+          <Form.Item name="title" label="回放标题" rules={[{ required: true, message: '请输入回放标题' }]}>
+            <Input placeholder="如：第 3 讲 机翼上反角实验" />
+          </Form.Item>
+          {!editingReplay && (
+            <Form.Item label="视频文件" required>
+              <Upload
+                accept=".mp4,.webm"
+                maxCount={1}
+                beforeUpload={(file) => { setReplayFile(file); return false; }}
+                onRemove={() => setReplayFile(null)}
+                fileList={replayFile ? [{ uid: '-1', name: replayFile.name }] : []}
+              >
+                <Button icon={<UploadOutlined />}>选择视频（mp4/webm，≤500MB）</Button>
+              </Upload>
+            </Form.Item>
+          )}
+          <Form.Item name="description" label="简介"><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="duration_seconds" label="时长（秒）"><Input type="number" min={1} /></Form.Item>
+          <Form.Item name="recording_date" label="录制日期"><Input type="date" /></Form.Item>
+          <Form.Item name="sort_order" label="排序（数字越小越靠前）"><Input type="number" min={0} /></Form.Item>
         </Form>
       </Modal>
     </div>
