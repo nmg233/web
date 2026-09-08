@@ -107,7 +107,11 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '课程不存在' });
     }
 
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && course.status !== 'published') {
+    // 授课教师可查看自己授课的课程（含未发布课程，便于线下导入学生）
+    const viewerIsInstructor = req.user.role === 'teacher' && !!db.prepare(
+      'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
+    ).get(id, req.user.id);
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && course.status !== 'published' && !viewerIsInstructor) {
       return res.status(400).json({ error: '课程不存在' });
     }
 
@@ -127,9 +131,7 @@ exports.detail = (req, res) => {
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
     const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
-    const isInstructorTeacher = req.user.role === 'teacher' && !!db.prepare(
-      'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
-    ).get(id, req.user.id);
+    const isInstructorTeacher = viewerIsInstructor;
     const enrollments = (() => {
       if (COURSE_MANAGER_ROLES.includes(req.user.role) || isInstructorTeacher) {
         return db.prepare(
