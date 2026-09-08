@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm, Alert } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
 import { studentAPI, authAPI, archiveAPI } from '../../api';
@@ -19,6 +19,7 @@ export default function StudentDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [student, setStudent] = useState(null);
+  const [detail, setDetail] = useState({});
   const [loading, setLoading] = useState(true);
   const [assignOpen, setAssignOpen] = useState(false);
   const [options, setOptions] = useState({ schools: [], teachers: [], mentors: [] });
@@ -34,6 +35,7 @@ export default function StudentDetail() {
   const load = () => {
     setLoading(true);
     studentAPI.detail(id).then((res) => {
+      setDetail(res);
       if (res.user) setStudent(res.user);
       else if (res.student) setStudent(res.student);
       else setStudent(res);
@@ -105,6 +107,7 @@ export default function StudentDetail() {
   if (!student) return <p>用户不存在</p>;
 
   const roleInfo = roleMap[student.role] || { label: student.role, color: 'default' };
+  const isStudentTarget = student.role === 'student';
 
   return (
     <div>
@@ -112,7 +115,7 @@ export default function StudentDetail() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/students')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{student.real_name} 的详细信息</Title>
         <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
-        {isAdmin && (
+        {isAdmin && isStudentTarget && (
           <>
             <Button type="primary" icon={<EditOutlined />} onClick={openAssign}>编辑分配</Button>
             <Popconfirm
@@ -124,7 +127,7 @@ export default function StudentDetail() {
             </Popconfirm>
           </>
         )}
-        {canEvaluate && (
+        {canEvaluate && isStudentTarget && (
           <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>提交评价</Button>
         )}
       </Space>
@@ -143,6 +146,18 @@ export default function StudentDetail() {
           </Descriptions.Item>
         </Descriptions>
       </Card>
+
+      {!isStudentTarget && ((detail.taughtCourses?.length > 0) || (detail.managedCourses?.length > 0)) && (
+        <Card title={student.role === 'teacher' ? '授课课程' : '管理课程'} style={{ marginTop: 16 }}>
+          <Space wrap>
+            {(detail.taughtCourses || detail.managedCourses || []).map((c) => (
+              <Link key={c.id} to={`/courses/${c.id}`}>
+                <Tag color={c.status === 'published' ? 'green' : 'orange'}>{c.title}</Tag>
+              </Link>
+            ))}
+          </Space>
+        </Card>
+      )}
 
       <Modal title="编辑分配" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} width={500}>
         <Form form={form} layout="vertical" onFinish={handleAssign}>
