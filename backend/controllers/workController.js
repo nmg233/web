@@ -169,6 +169,11 @@ exports.upload = (req, res) => {
         removeUploadedFile(req.file);
         return res.status(400).json({ error: '所选任务不属于当前课程' });
       }
+      // AUTH-07：任务要求上传附件时，纯文字提交必须在服务端拒绝（业务规则以后端为准）
+      if (task.require_upload && !req.file) {
+        removeUploadedFile(req.file);
+        return res.status(400).json({ error: '该任务要求上传附件，请选择文件后再提交' });
+      }
       const taskEnrollment = db.prepare(
         'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
       ).get(actualStudentId, task.course_id);
