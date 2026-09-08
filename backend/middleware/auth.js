@@ -96,28 +96,10 @@ function requirePasswordChanged(req, res, next) {
   next();
 }
 
-// 禁止管理员提交反思日志
-function requireNotAdmin(req, res, next) {
-  if (req.user && req.user.role === 'admin') {
-    return res.status(403).json({ error: '无权限', message: '管理员不提交反思日志' });
-  }
-  next();
-}
-
-// 只允许学生和导师提交反思日志（排除管理员和教师）
-function requireReflectionSubmittable(req, res, next) {
-  if (req.user && ['admin', 'teacher'].includes(req.user.role)) {
-    return res.status(403).json({ error: '无权限', message: '教师和管理员不提交反思日志' });
-  }
-  next();
-}
-
 module.exports = {
   requireAuth,
   requireRole,
   requirePasswordChanged,
-  requireNotAdmin,
-  requireReflectionSubmittable,
   isStaff,
   isTeacher,
   STAFF_ROLES,

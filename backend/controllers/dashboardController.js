@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const { toFileDto } = require('../helpers/fileDto');
 const orgService = require('../services/organizationService');
+const { todayInBeijing } = require('../helpers/date');
 
 // 今日项目提示（按角色定制，替代原“每日运势”）
 const ROLE_PROMPTS = {
@@ -34,7 +35,7 @@ const ROLE_PROMPTS = {
 // 每日项目提示算法（基于日期+用户ID，同一天同一用户抽到同一条）
 function getDailyPrompt(userId, role) {
   const set = ROLE_PROMPTS[role] || ROLE_PROMPTS.student;
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = todayInBeijing(); // 日期边界按北京时间
   const seed = hashCode(today + '-' + userId);
   return set[Math.abs(seed) % set.length];
 }
@@ -161,11 +162,11 @@ exports.index = (req, res) => {
         `).all(user.id, course.enrollment_id);
       }
 
-      // 今日是否已提交反思日志
-      const todayStr = new Date().toISOString().slice(0, 10);
+      // 今日是否已提交反思日志（日期边界按北京时间：created_at 为 UTC，+8 小时后取日期）
+      const todayStr = todayInBeijing();
       const todayReflection = db.prepare(`
         SELECT COUNT(*) as count FROM reflections
-        WHERE student_id = ? AND date(created_at) = ?
+        WHERE student_id = ? AND date(created_at, '+8 hours') = ?
       `).get(user.id, todayStr);
       const canSubmitReflection = todayReflection.count === 0;
 

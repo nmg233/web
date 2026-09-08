@@ -3,6 +3,7 @@ const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
+const { todayInBeijing } = require('../helpers/date');
 
 function loadStudentArchive(studentId) {
   const student = db.prepare(
@@ -191,76 +192,27 @@ exports.generateBatch = (req, res) => {
   }
 };
 
-// 反思日志页面
+// 反思日志页面（路由已限定 student：反思只允许学生本人提交）
 exports.showReflection = (req, res) => {
   try {
-    if (['admin', 'teacher'].includes(req.user.role)) {
-      return res.status(400).json({ error: '教师不提交反思日志' });
-    }
+    const enrollments = db.prepare(
+      `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
+       FROM enrollments e JOIN courses c ON e.course_id = c.id
+       WHERE e.student_id = ? AND e.status = 'active'`
+    ).all(req.user.id);
 
-    const userId = req.user.id;
-    let enrollments = [];
-    let isMentor = false;
-
-    if (isStaff(req.user.role)) {
-      isMentor = true;
-      let sql = `
-        SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title,
-               u.real_name as student_name, u.id as student_id
-        FROM enrollments e
-        JOIN courses c ON e.course_id = c.id
-        JOIN users u ON e.student_id = u.id
-        WHERE e.status = 'active'
-      `;
-      const params = [];
-      if (isTeacher(req.user.role)) {
-        sql += ' WHERE u.school_id = ?';
-        params.push(req.user.school_id || 0);
-      }
-      sql += ' ORDER BY u.real_name';
-      enrollments = db.prepare(sql).all(...params);
-    } else {
-      enrollments = db.prepare(
-        `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
-         FROM enrollments e JOIN courses c ON e.course_id = c.id
-         WHERE e.student_id = ? AND e.status = 'active'`
-      ).all(userId);
-    }
-
-    res.json({ title: '填写反思日志', enrollments, isMentor });
+    res.json({ title: '填写反思日志', enrollments, isMentor: false });
   } catch (err) {
     console.error('加载反思页错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
 
-// 提交反思日志（每人每日限量1篇）
+// 提交反思日志（仅学生本人；每人每日限量1篇，日期边界按北京时间）
 exports.submitReflection = (req, res) => {
   try {
-    if (['admin', 'teacher'].includes(req.user.role)) {
-      return res.status(400).json({ error: '教师不提交反思日志' });
-    }
-
-    const { enrollment_id, lesson_id, difficulty, solution, improvement, new_question, student_id } = req.body;
-    const user = req.user;
-    const staff = isStaff(user.role);
-
-    if (staff && !student_id) {
-      return res.status(400).json({ error: '请选择学生' });
-    }
-
-    const actualStudentId = staff ? student_id : user.id;
-    const student = db.prepare(
-      "SELECT id, school_id FROM users WHERE id = ? AND role = 'student'"
-    ).get(actualStudentId);
-
-    if (!student) {
-      return res.status(400).json({ error: '所选学生不存在' });
-    }
-
-    if (isTeacher(user.role) && student.school_id !== user.school_id) {
-      return res.status(400).json({ error: '教师只能为本校学生提交反思日志' });
-    }
+    const { enrollment_id, lesson_id, difficulty, solution, improvement, new_question } = req.body;
+    const actualStudentId = req.user.id;
 
     let enrollmentCourseId = null;
     if (enrollment_id) {
@@ -281,9 +233,10 @@ exports.submitReflection = (req, res) => {
     }
 
     const submit = db.transaction((studentId) => {
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = todayInBeijing();
+      // created_at 存储为 UTC：+8 小时后取日期即为北京时间日期，保证“每日限1篇”边界是北京零点
       const todayCount = db.prepare(
-        'SELECT COUNT(*) as count FROM reflections WHERE student_id = ? AND date(created_at) = ?'
+        "SELECT COUNT(*) as count FROM reflections WHERE student_id = ? AND date(created_at, '+8 hours') = ?"
       ).get(studentId, todayStr);
 
       if (todayCount.count >= 1) {
