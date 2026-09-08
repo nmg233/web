@@ -6,6 +6,7 @@ const XLSX = require('xlsx');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
+const { toFileDto } = require('../helpers/fileDto');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 
 const USERNAME_RE = /^[a-zA-Z0-9]+$/;
@@ -738,7 +739,7 @@ exports.detail = (req, res) => {
        LEFT JOIN courses c ON e.course_id = c.id
        LEFT JOIN tasks t ON w.task_id = t.id
        WHERE w.student_id = ? ORDER BY w.created_at DESC`
-    ).all(id);
+    ).all(id).map(toFileDto);
 
     const reflections = db.prepare(
       `SELECT r.*, l.title as lesson_title, c2.title as course_title

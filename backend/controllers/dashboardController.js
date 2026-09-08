@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { toFileDto } = require('../helpers/fileDto');
 
 // 每日运势数据
 const FORTUNES = [
@@ -104,7 +105,7 @@ exports.index = (req, res) => {
       `).all(user.id);
 
       viewData.myCourses = myCourses;
-      viewData.recentWorks = recentWorks;
+      viewData.recentWorks = recentWorks.map(toFileDto);
     }
 
     // === 学生端：显示参与的课程、进度、反思入口 ===

@@ -2,6 +2,7 @@ const db = require('../config/database');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
+const { toFileDto } = require('../helpers/fileDto');
 
 function loadStudentArchive(studentId) {
   const student = db.prepare(
@@ -24,7 +25,7 @@ function loadStudentArchive(studentId) {
      WHERE e.student_id = ? ORDER BY e.enrolled_at DESC`
   ).all(studentId);
 
-  const works = db.prepare('SELECT * FROM works WHERE student_id = ? ORDER BY created_at DESC').all(studentId);
+  const works = db.prepare('SELECT * FROM works WHERE student_id = ? ORDER BY created_at DESC').all(studentId).map(toFileDto);
 
   const reflections = db.prepare(
     `SELECT r.*, l.title as lesson_title

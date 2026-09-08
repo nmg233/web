@@ -53,7 +53,9 @@ exports.detail = (req, res) => {
       : null;
     if (userId && !enrollment) return res.status(404).json({ error: '任务不存在' });
     const works = userId ? db.prepare(`
-      SELECT w.id, w.title, w.description, w.file_path, w.file_type, w.review_status, w.reject_reason,
+      SELECT w.id, w.title, w.description, w.file_type,
+        CASE WHEN w.file_path IS NOT NULL THEN 1 ELSE 0 END AS has_file,
+        w.review_status, w.reject_reason,
         w.version, w.created_at, r.comment AS review_comment, r.suggestion AS review_suggestion
       FROM works w LEFT JOIN work_reviews r ON r.work_id = w.id
       WHERE w.task_id = ? AND w.student_id = ? ORDER BY w.version DESC

@@ -4,6 +4,7 @@ const path = require('path');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
+const { toFileDto } = require('../helpers/fileDto');
 const notificationService = require('../services/notificationService');
 
 const { NOTIFICATION_EVENTS } = notificationService;
@@ -85,7 +86,7 @@ exports.list = (req, res) => {
 
     sql += ' ORDER BY w.created_at DESC';
 
-    const works = db.prepare(sql).all(...params);
+    const works = db.prepare(sql).all(...params).map(toFileDto);
     const courses = db.prepare('SELECT id, title FROM courses ORDER BY title').all();
 
     res.json({ title: '作品管理', works, courses, filters: req.query });
@@ -342,7 +343,7 @@ exports.detail = (req, res) => {
     work.file_name = decodeOriginalName(work.file_name);
     const rootId = work.parent_work_id || work.id;
     const versions = db.prepare(`SELECT id, version, title, review_status, created_at FROM works WHERE id=? OR parent_work_id=? ORDER BY version DESC`).all(rootId, rootId);
-    res.json({ title: work.title, work, review, versions });
+    res.json({ title: work.title, work: toFileDto(work), review, versions });
   } catch (err) {
     console.error('作品详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });

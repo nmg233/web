@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
+const { toFileDto } = require('../helpers/fileDto');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -123,7 +124,7 @@ exports.detail = (req, res) => {
             ON lp.lesson_id = l.id AND lp.student_id = ?
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
-    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id);
+    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
     const enrollments = COURSE_MANAGER_ROLES.includes(req.user.role)
       ? db.prepare(
           `SELECT e.*, u.real_name as student_name, u.username, s.name as school_name, c2.name as class_name
