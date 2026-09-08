@@ -118,13 +118,16 @@ exports.create = (req, res) => {
     const password_hash = bcrypt.hashSync(studentPassword, 10);
 
     // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
-    db.prepare(
+    const result = db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id, force_reset_password)
        VALUES (?, ?, ?, ?, ?, 'student', ?, ?, 1)`
     ).run(studentUsername, password_hash, real_name, email || null, phone || null,
           school_id || null, class_id || null);
 
-    res.json({ message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）` });
+    res.json({
+      message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）`,
+      id: Number(result.lastInsertRowid),
+    });
   } catch (err) {
     console.error('添加学生错误:', err);
     res.status(500).json({ error: '添加失败，请稍后重试' });

@@ -232,11 +232,11 @@ exports.addLesson = (req, res) => {
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
     const sortOrder = (maxOrder.max_order || 0) + 1;
 
-    db.prepare(
+    const result = db.prepare(
       'INSERT INTO lessons (course_id, title, description, duration, sort_order) VALUES (?, ?, ?, ?, ?)'
     ).run(id, title, description || null, duration || null, sortOrder);
 
-    res.json({ message: '课时添加成功' });
+    res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加课时错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -259,12 +259,12 @@ exports.uploadResource = (req, res) => {
 
     const { resource_type, title } = req.body;
     const displayTitle = title || decodeOriginalName(req.file.originalname) || req.file.originalname;
-    db.prepare(
+    const result = db.prepare(
       'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?)'
     ).run(id, resource_type || 'other', displayTitle,
          req.file.path, req.file.size, req.user.id);
 
-    res.json({ message: '资源上传成功' });
+    res.json({ message: '资源上传成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('上传资源错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -322,7 +322,7 @@ exports.addTask = (req, res) => {
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM tasks WHERE lesson_id = ?').get(lesson_id);
 
-    db.prepare(
+    const result = db.prepare(
       `INSERT INTO tasks (lesson_id, title, description, task_type, require_upload, sort_order, deadline)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(lesson_id, title, description || null, task_type || 'inquiry',
@@ -331,7 +331,7 @@ exports.addTask = (req, res) => {
            : require_upload === true || require_upload === 'on' || require_upload === 1 || require_upload === '1' ? 1 : 0,
          (maxOrder.max_order || 0) + 1, deadline || null);
 
-    res.json({ message: '任务添加成功' });
+    res.json({ message: '任务添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加任务错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });

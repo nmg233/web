@@ -170,7 +170,7 @@ exports.addSchool = (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?)`
     ).run(name.trim(), description || null, tags || null, region || null,
           contact_person || null, contact_phone || null);
-    res.json({ message: '学校添加成功' });
+    res.json({ message: '学校添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加学校错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -230,9 +230,9 @@ exports.addClass = (req, res) => {
     if (!name || !name.trim()) {
       return res.status(400).json({ error: '班级名称不能为空' });
     }
-    db.prepare('INSERT INTO classes (name, school_id, grade) VALUES (?, ?, ?)')
+    const result = db.prepare('INSERT INTO classes (name, school_id, grade) VALUES (?, ?, ?)')
       .run(name.trim(), req.params.id, grade || null);
-    res.json({ message: '班级添加成功' });
+    res.json({ message: '班级添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     console.error('添加班级错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
