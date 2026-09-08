@@ -575,25 +575,36 @@ exports.getAssignOptions = (req, res) => {
 exports.assignStudent = (req, res) => {
   try {
     const { school_id, class_id, teacher_id, mentor_id } = req.body;
-    const student = db.prepare('SELECT id, real_name FROM users WHERE id = ?').get(req.params.id);
+    const student = db.prepare(
+      "SELECT id, real_name, school_id FROM users WHERE id = ? AND role = 'student'"
+    ).get(req.params.id);
     if (!student) {
-      return res.status(400).json({ error: '用户不存在' });
+      return res.status(400).json({ error: '学生不存在' });
     }
 
+    // 目标学校以「请求 school_id」或「学生当前学校」为准，保证约束一致
+    const targetSchoolId = school_id ? Number(school_id) : student.school_id;
     if (school_id) {
       const school = db.prepare('SELECT id FROM schools WHERE id = ?').get(school_id);
       if (!school) return res.status(400).json({ error: '所选学校不存在' });
     }
     if (class_id) {
+      // class 非空时 school 必须非空且归属一致，避免「有班级无学校」的不一致组合
+      if (!targetSchoolId) return res.status(400).json({ error: '选择班级前请先选择学校' });
       const cls = db.prepare('SELECT id, school_id FROM classes WHERE id = ?').get(class_id);
       if (!cls) return res.status(400).json({ error: '所选班级不存在' });
-      if (school_id && cls.school_id !== Number(school_id)) {
+      if (cls.school_id !== targetSchoolId) {
         return res.status(400).json({ error: '所选班级不属于所选学校' });
       }
     }
     if (teacher_id) {
-      const teacher = db.prepare("SELECT id FROM users WHERE id = ? AND role = 'teacher'").get(teacher_id);
+      const teacher = db.prepare(
+        "SELECT id, school_id FROM users WHERE id = ? AND role = 'teacher'"
+      ).get(teacher_id);
       if (!teacher) return res.status(400).json({ error: '所选负责教师不存在' });
+      if (targetSchoolId && teacher.school_id !== targetSchoolId) {
+        return res.status(400).json({ error: '负责教师必须与学生同校' });
+      }
     }
     if (mentor_id) {
       const mentor = db.prepare(
