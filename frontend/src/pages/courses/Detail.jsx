@@ -9,6 +9,10 @@ const { Title } = Typography;
 
 const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
 
+const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
+const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
+const STATUS_LABELS = { draft: '草稿', published: '已发布', archived: '已归档' };
+
 export default function CourseDetail() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -253,9 +257,9 @@ export default function CourseDetail() {
       <Card style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
           <Descriptions.Item label="主题">{course.theme || '—'}</Descriptions.Item>
-          <Descriptions.Item label="适用学段">{course.grade_level}</Descriptions.Item>
-          <Descriptions.Item label="难度">{course.difficulty}</Descriptions.Item>
-          <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : 'orange'}>{course.status}</Tag></Descriptions.Item>
+          <Descriptions.Item label="适用学段">{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
+          <Descriptions.Item label="难度">{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
+          <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
           <Descriptions.Item label="创建者">{course.creator_name}</Descriptions.Item>
           <Descriptions.Item label="总课时">{course.total_hours || '—'}</Descriptions.Item>
         </Descriptions>
