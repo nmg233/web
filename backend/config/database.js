@@ -134,6 +134,22 @@ db.exec(`CREATE TABLE IF NOT EXISTS lesson_progress (
   UNIQUE(student_id, lesson_id)
 );`);
 
+db.exec(`CREATE TABLE IF NOT EXISTS course_replays (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  video_path TEXT NOT NULL,
+  duration_seconds INTEGER,
+  recording_date DATE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);`);
+
 // 反馈模块兼容迁移：应用启动时为已有数据库补齐表和索引。
 db.exec(`
   CREATE TABLE IF NOT EXISTS feedbacks (

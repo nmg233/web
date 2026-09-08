@@ -5,6 +5,12 @@ const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 
+function removeUploadedFile(file) {
+  if (file?.path) {
+    try { fs.unlinkSync(file.path); } catch (err) { /* 文件可能已删除 */ }
+  }
+}
+
 function canManageCourse(user, courseId) {
   if (user.role === 'admin' || user.role === 'academic_mentor') return true;
   const course = db.prepare('SELECT created_by FROM courses WHERE id = ?').get(courseId);
@@ -354,6 +360,125 @@ exports.updateProgress = (req, res) => {
   } catch (err) {
     console.error('保存学习进度错误:', err);
     res.status(500).json({ error: '保存学习进度失败' });
+  }
+};
+
+function canAccessReplay(user, course) {
+  if (COURSE_MANAGER_ROLES.includes(user.role)) return true;
+  if (user.role === 'teacher') return course.status === 'published';
+  if (user.role !== 'student') return false;
+  if (course.status !== 'published') return false;
+  return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?').get(user.id, course.id);
+}
+
+exports.listReplays = (req, res) => {
+  try {
+    const course = db.prepare('SELECT id, status FROM courses WHERE id = ?').get(req.params.id);
+    if (!course || !canAccessReplay(req.user, course)) return res.status(404).json({ error: '课程回放不存在' });
+    const replays = db.prepare(
+      'SELECT id, course_id, title, description, duration_seconds, recording_date, sort_order, created_at FROM course_replays WHERE course_id = ? ORDER BY sort_order, recording_date, id'
+    ).all(course.id);
+    res.json({ replays });
+  } catch (err) {
+    console.error('获取课程回放错误:', err);
+    res.status(500).json({ error: '获取课程回放失败' });
+  }
+};
+
+exports.uploadReplay = (req, res) => {
+  try {
+    if (!canManageCourse(req.user, req.params.id)) {
+      removeUploadedFile(req.file);
+      return res.status(403).json({ error: '无权管理该课程' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: '请选择回放视频' });
+    }
+    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    if (!title || !title.trim()) {
+      removeUploadedFile(req.file);
+      return res.status(400).json({ error: '请填写回放标题' });
+    }
+    const result = db.prepare(
+      `INSERT INTO course_replays (course_id, title, description, video_path, duration_seconds, recording_date, sort_order, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      req.params.id,
+      title.trim(),
+      description || null,
+      req.file.path,
+      Number(duration_seconds) || null,
+      recording_date || null,
+      Number(sort_order) || 0,
+      req.user.id
+    );
+    res.json({ message: '课程回放上传成功', id: Number(result.lastInsertRowid) });
+  } catch (err) {
+    removeUploadedFile(req.file);
+    console.error('上传课程回放错误:', err);
+    res.status(500).json({ error: '上传课程回放失败' });
+  }
+};
+
+exports.updateReplay = (req, res) => {
+  try {
+    const replay = db.prepare('SELECT id, course_id FROM course_replays WHERE id = ?').get(req.params.replayId);
+    if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
+    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: '回放标题不能为空' });
+    db.prepare(
+      `UPDATE course_replays
+       SET title = COALESCE(?, title), description = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`
+    ).run(
+      title ? String(title).trim() : null,
+      description || null,
+      Number(duration_seconds) || null,
+      recording_date || null,
+      Number(sort_order) || 0,
+      replay.id
+    );
+    res.json({ message: '课程回放已更新' });
+  } catch (err) {
+    console.error('更新课程回放错误:', err);
+    res.status(500).json({ error: '更新课程回放失败' });
+  }
+};
+
+exports.deleteReplay = (req, res) => {
+  try {
+    const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
+    if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
+    if (replay.video_path) {
+      try { fs.unlinkSync(replay.video_path); } catch (err) { /* 文件可能已删除 */ }
+    }
+    db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
+    res.json({ message: '课程回放已删除' });
+  } catch (err) {
+    console.error('删除课程回放错误:', err);
+    res.status(500).json({ error: '删除课程回放失败' });
+  }
+};
+
+exports.streamReplay = (req, res) => {
+  try {
+    const replay = db.prepare(
+      `SELECT r.*, c.status AS course_status, c.id AS course_id
+       FROM course_replays r JOIN courses c ON c.id = r.course_id
+       WHERE r.id = ?`
+    ).get(req.params.replayId);
+    if (!replay || !canAccessReplay(req.user, { id: replay.course_id, status: replay.course_status })) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+    const resolvedPath = path.resolve(replay.video_path);
+    const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath) || !fs.existsSync(resolvedPath)) {
+      return res.status(404).json({ error: '回放文件不存在' });
+    }
+    return res.sendFile(resolvedPath);
+  } catch (err) {
+    console.error('播放课程回放错误:', err);
+    res.status(500).json({ error: '播放课程回放失败' });
   }
 };
 

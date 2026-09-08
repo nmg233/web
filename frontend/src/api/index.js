@@ -34,6 +34,14 @@ export const courseAPI = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
+  listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
+  uploadReplay: (courseId, formData) => client.post(`/courses/${courseId}/replays`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
+  deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
+  replayStreamUrl: (replayId) => `/api/courses/replays/${replayId}/stream`,
+  streamReplay: (replayId) => client.get(`/courses/replays/${replayId}/stream`, { responseType: 'blob' }),
   enroll: (courseId, studentIds) => client.post(`/courses/${courseId}/enroll`, { student_ids: studentIds }),
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),
 };

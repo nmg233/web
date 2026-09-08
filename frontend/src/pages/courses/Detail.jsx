@@ -16,6 +16,8 @@ export default function CourseDetail() {
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [resources, setResources] = useState([]);
+  const [replays, setReplays] = useState([]);
+  const [replayUrl, setReplayUrl] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [progress, setProgress] = useState(0);
@@ -31,6 +33,7 @@ export default function CourseDetail() {
       setCourse(res.course);
       setLessons(res.lessons || []);
       setResources(res.resources || []);
+      courseAPI.listReplays(id).then((replayRes) => setReplays(replayRes.replays || [])).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
       setProgress(res.progress || 0);
@@ -71,6 +74,17 @@ export default function CourseDetail() {
     } catch { /* handled */ }
   };
 
+  const playReplay = async (replayId) => {
+    try {
+      const blob = await courseAPI.streamReplay(replayId);
+      const url = URL.createObjectURL(blob);
+      setReplayUrl((oldUrl) => {
+        if (oldUrl) URL.revokeObjectURL(oldUrl);
+        return url;
+      });
+    } catch { /* handled */ }
+  };
+
   if (!course) return null;
 
   const isStudent = user?.role === 'student';
@@ -93,6 +107,24 @@ export default function CourseDetail() {
               {lesson.description && <p>{lesson.description}</p>}
               {lesson.duration && <Tag>{lesson.duration} 分钟</Tag>}
               {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><a onClick={() => navigate(`/tasks/${task.id}`)}>{task.title}</a>{task.deadline && <Tag style={{ marginLeft: 8 }}>截止 {task.deadline}</Tag>}</div>)}
+            </Card>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'replays', label: '课程回放',
+      children: (
+        <div>
+          {replayUrl && <video controls src={replayUrl} style={{ width: '100%', maxHeight: 420, marginBottom: 16 }} />}
+          {replays.map((replay) => (
+            <Card key={replay.id} size="small" style={{ marginBottom: 8 }}>
+              <Space>
+                <span>{replay.title}</span>
+                {replay.recording_date && <Tag>{replay.recording_date}</Tag>}
+                {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
+                <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
+              </Space>
             </Card>
           ))}
         </div>

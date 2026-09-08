@@ -91,10 +91,16 @@ const uploadResource = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
+const uploadReplay = multer({
+  storage: makeStorage('replay', 'course-replays'),
+  fileFilter,
+  limits: { fileSize: 500 * 1024 * 1024 }
+});
+
 // 批量导入用：内存存储，接收 .csv / .xlsx / .xls
 const uploadImport = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-module.exports = { uploadWork, uploadResource, uploadImport, UPLOAD_ROOT };
+module.exports = { uploadWork, uploadResource, uploadReplay, uploadImport, UPLOAD_ROOT };
