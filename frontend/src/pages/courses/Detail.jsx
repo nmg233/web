@@ -12,6 +12,10 @@ const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
 const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
 const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
 const STATUS_LABELS = { draft: '草稿', published: '已发布', archived: '已归档' };
+const RESOURCE_TYPE_LABELS = {
+  lesson_plan: '教案', guide_card: '指导卡', template: '模板',
+  courseware: '课件', video: '视频', other: '其他',
+};
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -32,9 +36,13 @@ export default function CourseDetail() {
   const [editingReplay, setEditingReplay] = useState(null);
   const [replayFile, setReplayFile] = useState(null);
   const [replayUploading, setReplayUploading] = useState(false);
+  const [resourceModal, setResourceModal] = useState(false);
+  const [resourceFile, setResourceFile] = useState(null);
+  const [resourceUploading, setResourceUploading] = useState(false);
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
   const [replayForm] = Form.useForm();
+  const [resourceForm] = Form.useForm();
 
   const loadData = async () => {
     try {
@@ -180,6 +188,32 @@ export default function CourseDetail() {
     apply();
   };
 
+  const openResourceModal = () => {
+    setResourceFile(null);
+    resourceForm.resetFields();
+    setResourceModal(true);
+  };
+
+  const handleResourceSubmit = async (values) => {
+    if (!resourceFile) {
+      message.error('请选择资料文件（≤50MB）');
+      return;
+    }
+    setResourceUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', resourceFile);
+      formData.append('title', values.title || '');
+      formData.append('resource_type', values.resource_type || 'courseware');
+      await courseAPI.uploadResource(id, formData);
+      message.success('资料上传成功');
+      setResourceModal(false);
+      loadData();
+    } catch { /* handled */ } finally {
+      setResourceUploading(false);
+    }
+  };
+
   if (!course) return null;
 
   const isStudent = user?.role === 'student';
@@ -245,12 +279,21 @@ export default function CourseDetail() {
       key: 'resources', label: '课程资源',
       children: (
         <div>
-          {resources.map((r) => (
+          {canManage(user?.role) && (
+            <Button type="dashed" icon={<UploadOutlined />} onClick={openResourceModal} style={{ marginBottom: 16 }}>
+              上传资料
+            </Button>
+          )}
+          {resources.length === 0 ? (
+            <Typography.Text type="secondary">暂无课程资源</Typography.Text>
+          ) : resources.map((r) => (
             <Card key={r.id} size="small" style={{ marginBottom: 8 }}>
               <Space>
-                <Tag>{r.resource_type}</Tag>
+                <Tag>{RESOURCE_TYPE_LABELS[r.resource_type] || r.resource_type}</Tag>
                 <span>{r.title}</span>
-                <Button size="small" type="link" icon={<DownloadOutlined />} onClick={() => downloadResource(r)}>下载</Button>
+                {r.has_file && (
+                  <Button size="small" type="link" icon={<DownloadOutlined />} onClick={() => downloadResource(r)}>下载</Button>
+                )}
               </Space>
             </Card>
           ))}
@@ -357,6 +400,33 @@ export default function CourseDetail() {
           <Form.Item name="duration_seconds" label="时长（秒）"><Input type="number" min={1} /></Form.Item>
           <Form.Item name="recording_date" label="录制日期"><Input type="date" /></Form.Item>
           <Form.Item name="sort_order" label="排序（数字越小越靠前）"><Input type="number" min={0} /></Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 上传课程资料 Modal */}
+      <Modal
+        title="上传课程资料"
+        open={resourceModal}
+        onCancel={() => setResourceModal(false)}
+        onOk={() => resourceForm.submit()}
+        confirmLoading={resourceUploading}
+      >
+        <Form form={resourceForm} layout="vertical" onFinish={handleResourceSubmit}>
+          <Form.Item name="title" label="资料名称"><Input placeholder="如：第 1 讲讲义" /></Form.Item>
+          <Form.Item name="resource_type" label="资料类型" initialValue="courseware">
+            <Select options={Object.entries(RESOURCE_TYPE_LABELS).map(([value, label]) => ({ value, label }))} />
+          </Form.Item>
+          <Form.Item label="文件" required>
+            <Upload
+              accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.pdf,.doc,.docx,.ppt,.pptx,.zip,.obj,.glb,.gltf,.stl"
+              maxCount={1}
+              beforeUpload={(file) => { setResourceFile(file); return false; }}
+              onRemove={() => setResourceFile(null)}
+              fileList={resourceFile ? [{ uid: '-1', name: resourceFile.name }] : []}
+            >
+              <Button icon={<UploadOutlined />}>选择文件（≤50MB）</Button>
+            </Upload>
+          </Form.Item>
         </Form>
       </Modal>
     </div>
