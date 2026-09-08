@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { toFileDto } = require('../helpers/fileDto');
+const orgService = require('../services/organizationService');
 
 // 今日项目提示（按角色定制，替代原“每日运势”）
 const ROLE_PROMPTS = {
@@ -224,16 +225,12 @@ exports.showAddSchool = (req, res) => {
 
 exports.addSchool = (req, res) => {
   try {
-    const { name, description, tags, region, contact_person, contact_phone } = req.body;
+    const { name } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ error: '学校名称不能为空' });
     }
-    const result = db.prepare(
-      `INSERT INTO schools (name, description, tags, region, contact_person, contact_phone)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(name.trim(), description || null, tags || null, region || null,
-          contact_person || null, contact_phone || null);
-    res.json({ message: '学校添加成功', id: Number(result.lastInsertRowid) });
+    const { id } = orgService.createSchool(req.body);
+    res.json({ message: '学校添加成功', id });
   } catch (err) {
     console.error('添加学校错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -242,11 +239,9 @@ exports.addSchool = (req, res) => {
 
 exports.deleteSchool = (req, res) => {
   try {
-    const school = db.prepare('SELECT id FROM schools WHERE id = ?').get(req.params.id);
-    if (!school) {
+    if (!orgService.deleteSchool(req.params.id)) {
       return res.status(400).json({ error: '学校不存在' });
     }
-    db.prepare('DELETE FROM schools WHERE id = ?').run(req.params.id);
     res.json({ message: '学校已删除' });
   } catch (err) {
     console.error('删除学校错误:', err);
@@ -285,17 +280,15 @@ exports.showSchool = (req, res) => {
 
 exports.addClass = (req, res) => {
   try {
-    const { name, grade } = req.body;
-    const school = db.prepare('SELECT id FROM schools WHERE id = ?').get(req.params.id);
-    if (!school) {
-      return res.status(400).json({ error: '学校不存在' });
-    }
+    const { name } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ error: '班级名称不能为空' });
     }
-    const result = db.prepare('INSERT INTO classes (name, school_id, grade) VALUES (?, ?, ?)')
-      .run(name.trim(), req.params.id, grade || null);
-    res.json({ message: '班级添加成功', id: Number(result.lastInsertRowid) });
+    const cls = orgService.createClass({ ...req.body, school_id: req.params.id });
+    if (!cls) {
+      return res.status(400).json({ error: '学校不存在' });
+    }
+    res.json({ message: '班级添加成功', id: cls.id });
   } catch (err) {
     console.error('添加班级错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -304,12 +297,9 @@ exports.addClass = (req, res) => {
 
 exports.deleteClass = (req, res) => {
   try {
-    const cls = db.prepare('SELECT id FROM classes WHERE id = ? AND school_id = ?')
-      .get(req.params.classId, req.params.id);
-    if (!cls) {
+    if (!orgService.deleteClass(req.params.classId)) {
       return res.status(400).json({ error: '班级不存在' });
     }
-    db.prepare('DELETE FROM classes WHERE id = ?').run(req.params.classId);
     res.json({ message: '班级已删除' });
   } catch (err) {
     console.error('删除班级错误:', err);
