@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Table, Button, Tag, Space, Input, Card, Typography } from 'antd';
+import { Table, Button, Tag, Space, Input, Card, Typography, Popconfirm } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -41,11 +41,18 @@ export default function CourseList() {
       title: '操作', key: 'actions', render: (_, r) => (
         <Space>
           <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>编辑</Button>
-          {['admin', 'academic_mentor'].includes(user?.role) && (
-            <Button size="small" danger onClick={async () => {
-              await courseAPI.delete(r.id);
-              loadCourses();
-            }}>删除</Button>
+          {r.status === 'draft' && (
+            <Popconfirm
+              title="确定删除该草稿课程？"
+              description="有报名记录或历史作品的课程将无法删除。"
+              okText="删除" cancelText="取消"
+              onConfirm={async () => {
+                await courseAPI.delete(r.id);
+                loadCourses();
+              }}
+            >
+              <Button size="small" danger>删除</Button>
+            </Popconfirm>
           )}
         </Space>
       )

@@ -221,13 +221,38 @@ exports.update = (req, res) => {
   }
 };
 
-// 删除课程
+// 删除课程：仅允许「草稿 + 无报名历史 + 无作品」物理删除；资源/回放文件走 FileLifecycle
 exports.delete = (req, res) => {
   try {
-    if (!canManageCourse(req.user, req.params.id)) {
+    const { id } = req.params;
+    if (!canManageCourse(req.user, id)) {
       return res.status(400).json({ error: '无权管理该课程' });
     }
-    db.prepare('DELETE FROM courses WHERE id = ?').run(req.params.id);
+    const course = db.prepare('SELECT id, title, status FROM courses WHERE id = ?').get(id);
+    if (!course) {
+      return res.status(400).json({ error: '课程不存在' });
+    }
+    if (course.status !== 'draft') {
+      return res.status(403).json({ error: '已发布/已归档课程不能删除，请先撤回为草稿' });
+    }
+    const enrollmentCount = db.prepare('SELECT COUNT(*) c FROM enrollments WHERE course_id = ?').get(id).c;
+    if (enrollmentCount > 0) {
+      return res.status(400).json({ error: `该课程已有 ${enrollmentCount} 条报名记录（含已移除），不可删除，请归档保留` });
+    }
+    const workCount = db.prepare(
+      'SELECT COUNT(*) c FROM works WHERE enrollment_id IN (SELECT id FROM enrollments WHERE course_id = ?)'
+    ).get(id).c;
+    if (workCount > 0) {
+      return res.status(400).json({ error: '该课程存在历史作品记录，不可删除' });
+    }
+
+    const filePaths = [
+      ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
+      ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),
+    ].filter(Boolean);
+
+    db.prepare('DELETE FROM courses WHERE id = ?').run(id);
+    removeFilesAfterCommit(filePaths, UPLOAD_ROOT);
     res.json({ message: '课程已删除' });
   } catch (err) {
     console.error('删除课程错误:', err);
