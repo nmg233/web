@@ -707,21 +707,13 @@ exports.deleteStudent = (req, res) => {
   }
 };
 
-// 学生详情
+// 用户详情：学生=成长档案；教师/执行导师/管理员=角色资料与关联课程
 exports.detail = (req, res) => {
   try {
     const { id } = req.params;
-    const user = req.user;
+    const viewer = req.user;
 
-    if (user.role === 'student' && Number(id) !== user.id) {
-      return res.status(400).json({ error: '无权查看该学生档案' });
-    }
-
-    if (!isStaff(user.role) && user.role !== 'student') {
-      return res.status(400).json({ error: '无权查看学生档案' });
-    }
-
-    const student = db.prepare(
+    const target = db.prepare(
       `SELECT u.*, s.name as school_name, c.name as class_name, c.grade,
               t.real_name as teacher_name, m.real_name as mentor_name
        FROM users u
@@ -729,19 +721,60 @@ exports.detail = (req, res) => {
        LEFT JOIN classes c ON u.class_id = c.id
        LEFT JOIN users t ON u.teacher_id = t.id
        LEFT JOIN users m ON u.mentor_id = m.id
-       WHERE u.id = ? AND u.role = 'student'`
+       WHERE u.id = ?`
     ).get(id);
 
-    if (!student) {
+    if (!target) {
       return res.status(404).json({ error: '用户不存在' });
     }
 
-    if (isTeacher(user.role) && student.school_id !== user.school_id) {
-      return res.status(400).json({ error: '无权查看其他学校学生' });
+    if (target.role === 'student') {
+      // 学生目标：本人或教职工可查看（教师限本校）
+      if (viewer.role === 'student' && Number(id) !== viewer.id) {
+        return res.status(400).json({ error: '无权查看该学生档案' });
+      }
+      if (!isStaff(viewer.role) && viewer.role !== 'student') {
+        return res.status(400).json({ error: '无权查看学生档案' });
+      }
+      if (isTeacher(viewer.role) && target.school_id !== viewer.school_id) {
+        return res.status(400).json({ error: '无权查看其他学校学生' });
+      }
+    } else {
+      // 非学生目标（教师/执行导师/管理员）：仅教职工可查看
+      if (!isStaff(viewer.role)) {
+        return res.status(400).json({ error: '无权查看该用户' });
+      }
+      if (isTeacher(viewer.role) && target.role !== 'academic_mentor' && target.school_id !== viewer.school_id) {
+        return res.status(400).json({ error: '无权查看其他学校用户' });
+      }
     }
 
     // AUTH-01：返回前用 DTO 脱敏，剔除 password_hash 等敏感字段
-    const safeStudent = sanitizeUser(student);
+    const safeTarget = sanitizeUser(target);
+
+    // 非学生目标：按角色返回关联课程
+    if (target.role !== 'student') {
+      let taughtCourses = [];
+      let managedCourses = [];
+      if (target.role === 'teacher') {
+        taughtCourses = db.prepare(`
+          SELECT c.id, c.title, c.status
+          FROM courses c
+          JOIN lessons l ON l.course_id = c.id AND l.instructor_id = ?
+          GROUP BY c.id ORDER BY c.title
+        `).all(target.id);
+      } else if (target.role === 'academic_mentor') {
+        managedCourses = db.prepare(
+          'SELECT id, title, status FROM courses WHERE created_by = ? ORDER BY updated_at DESC'
+        ).all(target.id);
+      }
+      return res.json({
+        title: `${safeTarget.real_name} - 用户详情`,
+        user: safeTarget,
+        taughtCourses,
+        managedCourses,
+      });
+    }
 
     const courses = db.prepare(
       `SELECT c.title, c.theme, e.enrolled_at, e.completed_at
@@ -774,11 +807,11 @@ exports.detail = (req, res) => {
     ).all(id);
 
     res.json({
-      title: `${safeStudent.real_name} - 成长档案`,
-      student: safeStudent, courses, works, reflections, evaluations
+      title: `${safeTarget.real_name} - 成长档案`,
+      student: safeTarget, courses, works, reflections, evaluations
     });
   } catch (err) {
-    console.error('学生详情错误:', err);
+    console.error('用户详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
