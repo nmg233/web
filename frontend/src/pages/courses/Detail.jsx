@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Progress, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -29,7 +29,6 @@ export default function CourseDetail() {
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [teachers, setTeachers] = useState([]);
-  const [progress, setProgress] = useState(0);
   const [lessonModal, setLessonModal] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
@@ -55,7 +54,6 @@ export default function CourseDetail() {
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
       setTeachers(res.teachers || []);
-      setProgress(res.progress || 0);
     } catch { message.error('加载失败'); }
   };
 
@@ -341,18 +339,58 @@ export default function CourseDetail() {
         {isStudent && isEnrolled && <Button type="link" onClick={() => navigate('/dashboard/ai')}>AI 助手</Button>}
       </Space>
 
-      <Card style={{ marginBottom: 16 }}>
-        <Descriptions column={2} size="small">
-          <Descriptions.Item label="主题">{course.theme || '—'}</Descriptions.Item>
-          <Descriptions.Item label="适用学段">{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
-          <Descriptions.Item label="难度">{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
-          <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
-          <Descriptions.Item label="创建者">{course.creator_name}</Descriptions.Item>
-          <Descriptions.Item label="总课时">{course.total_hours || '—'}</Descriptions.Item>
-        </Descriptions>
-        {course.description && <p style={{ marginTop: 12 }}>{course.description}</p>}
-        {isStudent && <Progress percent={Number(progress)} status={progress === 100 ? 'success' : 'active'} />}
-      </Card>
+      {isStudent ? (
+        <Card style={{ marginBottom: 16 }}>
+          {/* 学生视角：线下课程主页 */}
+          {(() => {
+            const upcoming = lessons
+              .filter((l) => l.start_at && new Date(l.start_at) >= Date.now() - 3600 * 1000)
+              .sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)))[0];
+            return (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                  <div>
+                    {upcoming ? (
+                      <>
+                        <Text strong style={{ fontSize: 16 }}>📅 下一次上课：{upcoming.start_at.replace('T', ' ')}</Text>
+                        <br />
+                        <Text type="secondary">
+                          {upcoming.title}{upcoming.location ? ` · 📍 ${upcoming.location}` : ''}{upcoming.instructor_name ? ` · 👨‍🏫 ${upcoming.instructor_name}` : ''}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text type="secondary">暂无排课安排</Text>
+                    )}
+                  </div>
+                  <Space wrap>
+                    <Tag>{lessons.length} 次线下课</Tag>
+                    <Tag>{tasks.length} 个课后任务</Tag>
+                    <Tag>{resources.length} 份课堂资料</Tag>
+                  </Space>
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  <Space wrap>
+                    <Button type="primary" onClick={() => navigate(`/courses/${id}/learn`)}>📖 进入课程回顾</Button>
+                    <Button onClick={() => navigate('/dashboard/ai')}>AI 助手</Button>
+                  </Space>
+                </div>
+              </div>
+            );
+          })()}
+        </Card>
+      ) : (
+        <Card style={{ marginBottom: 16 }}>
+          <Descriptions column={2} size="small">
+            <Descriptions.Item label="主题">{course.theme || '—'}</Descriptions.Item>
+            <Descriptions.Item label="适用学段">{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
+            <Descriptions.Item label="难度">{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
+            <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label="创建者">{course.creator_name}</Descriptions.Item>
+            <Descriptions.Item label="总课时">{course.total_hours || '—'}</Descriptions.Item>
+          </Descriptions>
+          {course.description && <p style={{ marginTop: 12 }}>{course.description}</p>}
+        </Card>
+      )}
 
       <Tabs items={tabItems} />
 
