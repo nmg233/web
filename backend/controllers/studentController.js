@@ -15,6 +15,11 @@ const { pinyin } = require('pinyin-pro');
 const USERNAME_RE = /^[a-zA-Z0-9]+$/;
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 
+// 统一布尔解析：兼容前端 true/1/'1'/'on'/'true' 等形态，其余一律视为 false
+function toBooleanInt(value) {
+  return [true, 1, '1', 'on', 'true'].includes(value) ? 1 : 0;
+}
+
 function isValidUsername(username) {
   return username && username.length >= 6 && USERNAME_RE.test(username);
 }
@@ -465,7 +470,7 @@ exports.updateUser = (req, res) => {
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     const finalClassId = role === 'academic_mentor' ? null : class_id;
-    const active = is_active === 'on' || is_active === '1' ? 1 : 0;
+    const active = toBooleanInt(is_active);
 
     if (password) {
       const password_hash = bcrypt.hashSync(password, 10);
@@ -606,48 +611,11 @@ exports.assignStudent = (req, res) => {
       `UPDATE users
        SET school_id = ?, class_id = ?, teacher_id = ?, mentor_id = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
-    ).run(school_id || null, class_id || null, teacher_id || null, mentor_id || null, req.params.id);
+    ).run(targetSchoolId, class_id || null, teacher_id || null, mentor_id || null, req.params.id);
 
     res.json({ message: `已更新 ${student.real_name} 的分配信息` });
   } catch (err) {
     console.error('分配学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
-};
-
-exports.showEditStudent = (req, res) => {
-  try {
-    const student = db.prepare(
-      `SELECT u.*, s.name as school_name, c.name as class_name, c.grade
-       FROM users u
-       LEFT JOIN schools s ON u.school_id = s.id
-       LEFT JOIN classes c ON u.class_id = c.id
-       WHERE u.id = ? AND u.role = 'student'`
-    ).get(req.params.id);
-
-    if (!student) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    if (isTeacher(req.user.role) && student.school_id !== req.user.school_id) {
-      return res.status(400).json({ error: '无权编辑其他学校学生' });
-    }
-
-    const schoolId = student.school_id;
-    // AUTH-01：返回前用 DTO 脱敏，剔除 password_hash 等敏感字段
-    const safeStudent = sanitizeUser(student);
-
-    const schools = isTeacher(req.user.role)
-      ? db.prepare('SELECT id, name FROM schools WHERE id = ?').all(req.user.school_id || 0)
-      : db.prepare('SELECT id, name FROM schools ORDER BY name').all();
-    const classes = db.prepare('SELECT id, name, grade FROM classes WHERE school_id = ? ORDER BY grade, name')
-      .all(schoolId);
-
-    res.json({ title: '编辑学生', student: safeStudent, schools, classes, errors: [] });
-
-    res.json({ title: '编辑学生', student, schools, classes, errors: [] });
-  } catch (err) {
-    console.error('加载编辑学生错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
