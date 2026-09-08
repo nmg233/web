@@ -4,6 +4,7 @@ import { Table, Button, Tag, Space, Input, Card, Typography } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import StatusTag from '../../components/common/StatusTag';
 
 const { Title } = Typography;
 
@@ -33,7 +34,7 @@ export default function CourseList() {
     { title: '主题', dataIndex: 'theme', key: 'theme' },
     { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level' },
     { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <Tag color={v === 'published' ? 'green' : v === 'archived' ? 'default' : 'orange'}>{({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v}</Tag> },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
     { title: '学习进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` },
     { title: '学生数', dataIndex: 'student_count', key: 'student_count' },
     { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' },
