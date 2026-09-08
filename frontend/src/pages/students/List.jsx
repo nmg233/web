@@ -166,9 +166,15 @@ export default function StudentList() {
                         </div>
                       </div>
                     ))}
-                    {data.academicMentors?.map((m) => renderUserTag(m, 'purple', '⭐'))}
                   </Card>
                 )) : null}
+                {data.academicMentors?.length > 0 && (
+                  <Card title="⭐ 学术导师" style={{ marginBottom: 12 }} size="small">
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {data.academicMentors.map((m) => renderUserTag(m, 'purple', '⭐'))}
+                    </div>
+                  </Card>
+                )}
                 {data.unassigned && (data.unassigned.teacher?.length > 0 || data.unassigned.student?.length > 0) && (
                   <Card title="🚫 未分配（自行注册/无学校班级）" style={{ marginBottom: 12 }} size="small">
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
