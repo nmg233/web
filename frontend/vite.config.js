@@ -15,6 +15,7 @@ import react from '@vitejs/plugin-react'
 const DEV_CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: http://localhost:3000",
   "media-src 'self' data: blob: http://localhost:3000",
@@ -29,6 +30,7 @@ const DEV_CSP = [
 const PROD_CSP = [
   "default-src 'self'",
   "script-src 'self'",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "media-src 'self' data: blob:",
