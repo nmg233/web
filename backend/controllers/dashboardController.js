@@ -37,6 +37,14 @@ exports.index = (req, res) => {
   let viewData = { title: '工作台', fortune, today, user };
 
   try {
+    // 平台统计（前端统计卡片）
+    viewData.stats = {
+      schoolCount: db.prepare('SELECT COUNT(*) AS c FROM schools').get().c,
+      userCount: db.prepare('SELECT COUNT(*) AS c FROM users').get().c,
+      courseCount: db.prepare('SELECT COUNT(*) AS c FROM courses').get().c,
+      workCount: db.prepare('SELECT COUNT(*) AS c FROM works').get().c,
+    };
+
     if (user.role === 'admin') {
       viewData.schools = db.prepare(`
         SELECT s.*,
@@ -67,16 +75,7 @@ exports.index = (req, res) => {
         ORDER BY c.updated_at DESC
       `).all(user.id);
 
-      // 所有课程（admin看全部）
-      const allCourses = user.role === 'admin' ? db.prepare(`
-        SELECT c.*, u.real_name as creator_name,
-          (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as student_count,
-          (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
-        FROM courses c
-        LEFT JOIN users u ON c.created_by = u.id
-        WHERE c.status != 'archived'
-        ORDER BY c.updated_at DESC
-      `).all() : [];
+      // 所有课程不再下发（前端未消费，避免冗余数据）；如需可按 status/created_by 查询
 
       // 最近学生动态
       const recentWorks = user.role === 'admin' ? db.prepare(`
@@ -105,7 +104,6 @@ exports.index = (req, res) => {
       `).all(user.id);
 
       viewData.myCourses = myCourses;
-      viewData.allCourses = allCourses;
       viewData.recentWorks = recentWorks;
     }
 
