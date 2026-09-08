@@ -7,6 +7,7 @@ const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
+const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 const { pinyin } = require('pinyin-pro');
 
@@ -31,12 +32,10 @@ function defaultStudentPassword(realName) {
 
 function deleteUserWithWorks(userId) {
   const works = db.prepare('SELECT file_path FROM works WHERE student_id = ?').all(userId);
-  for (const work of works) {
-    if (work.file_path) {
-      try { fs.unlinkSync(work.file_path); } catch (e) { /* 文件可能已删除 */ }
-    }
-  }
+  const filePaths = works.map((w) => w.file_path).filter(Boolean);
+  // 先事务删除用户（作品/档案/反思等经外键级联清理），提交后再删物理文件
   db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  removeFilesAfterCommit(filePaths, require('../middleware/upload').UPLOAD_ROOT);
 }
 
 // 学生列表

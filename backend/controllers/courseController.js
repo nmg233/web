@@ -6,6 +6,7 @@ const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 const { toFileDto } = require('../helpers/fileDto');
+const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -458,10 +459,9 @@ exports.deleteReplay = (req, res) => {
   try {
     const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
-    if (replay.video_path) {
-      try { fs.unlinkSync(replay.video_path); } catch (err) { /* 文件可能已删除 */ }
-    }
+    // 先删记录，提交后再删物理文件（失败进清理队列）
     db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
+    removeFilesAfterCommit([replay.video_path], UPLOAD_ROOT);
     res.json({ message: '课程回放已删除' });
   } catch (err) {
     console.error('删除课程回放错误:', err);

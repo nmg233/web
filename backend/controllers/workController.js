@@ -5,6 +5,7 @@ const { isStaff, isTeacher } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
 const { toFileDto } = require('../helpers/fileDto');
+const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
 const notificationService = require('../services/notificationService');
 
 const { NOTIFICATION_EVENTS } = notificationService;
@@ -358,9 +359,7 @@ exports.delete = (req, res) => {
       return res.status(403).json({ error: '已通过评审的作品不能删除' });
     }
 
-    if (work.file_path) {
-      try { fs.unlinkSync(work.file_path); } catch (e) { /* 文件可能已删除 */ }
-    }
+    // 先删数据库记录（评审关联经外键级联清理），提交后再删物理文件
     db.prepare('DELETE FROM works WHERE id = ?').run(req.params.id);
     notifyWorkRecipients(work, {
       eventKey: NOTIFICATION_EVENTS.WORK_DELETED,
@@ -372,6 +371,7 @@ exports.delete = (req, res) => {
       actionUrl: null,
       createdBy: req.user.id,
     }, [work.student_id]);
+    removeFilesAfterCommit([work.file_path], UPLOAD_ROOT);
     res.json({ message: '作品已删除' });
   } catch (err) {
     console.error('删除作品错误:', err);
