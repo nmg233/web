@@ -212,7 +212,7 @@ exports.update = (req, res) => {
     }
 
     values.push(id);
-    db.prepare(`UPDATE courses SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+    db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
 
     res.json({ message: '课程更新成功' });
   } catch (err) {

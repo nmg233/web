@@ -178,8 +178,8 @@ exports.index = (req, res) => {
         JOIN lessons l ON l.course_id = c.id
         LEFT JOIN users u ON u.id = l.instructor_id
         WHERE e.student_id = ? AND e.status = 'active'
-          AND l.start_at IS NOT NULL AND l.start_at >= datetime('now', 'localtime', '-1 hour')
-        ORDER BY l.start_at ASC LIMIT 1
+          AND l.start_at IS NOT NULL AND datetime(l.start_at) >= datetime('now', 'localtime', '-1 hour')
+        ORDER BY datetime(l.start_at) ASC LIMIT 1
       `).get(user.id);
 
       // 待办任务（要求提交附件且未提交或被退回）
