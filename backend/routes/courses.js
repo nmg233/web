@@ -36,7 +36,7 @@ router.post('/:id/replays', requireRole('admin', 'academic_mentor'), uploadRepla
 // 任务
 router.post('/lessons/:lesson_id/tasks', requireRole('admin', 'academic_mentor'), controller.addTask);
 
-// 导师为学生报名
-router.post('/:id/enroll', requireRole('admin', 'academic_mentor'), controller.enroll);
+// 选课导入：执行导师/教师/管理员（教师仅限自己授课课程与本校学生，控制器内校验）
+router.post('/:id/enroll', requireRole('admin', 'academic_mentor', 'teacher'), controller.enroll);
 
 module.exports = router;

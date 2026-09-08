@@ -534,84 +534,95 @@ exports.streamReplay = (req, res) => {
   }
 };
 
-// 学生报名课程
+// 选课导入权限：执行导师/管理员为课程管理者；教师须是该课程某一课时的授课人
+function canEnrollCourse(user, courseId) {
+  if (COURSE_MANAGER_ROLES.includes(user.role)) return canManageCourse(user, courseId);
+  if (user.role !== 'teacher') return false;
+  return !!db.prepare(
+    'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
+  ).get(courseId, user.id);
+}
+
+// 学生由执行导师/教师/管理员统一导入（一经选课不可退课；学生不自助选课）
 exports.enroll = (req, res) => {
   try {
     const { id } = req.params;
-    if (!canManageCourse(req.user, id)) {
-      return res.status(400).json({ error: '无权管理该课程' });
-    }
-    const { student_ids } = req.body;
-
-    if (!student_ids || student_ids.length === 0) {
-      return res.status(400).json({ error: '请选择学生' });
-    }
-
-    const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(id);
+    const course = db.prepare('SELECT id, title, status FROM courses WHERE id = ?').get(id);
     if (!course) {
       return res.status(400).json({ error: '课程不存在' });
     }
-
-    const ids = Array.isArray(student_ids) ? student_ids : [student_ids];
-    let added = 0;
-    const stmt = db.prepare('INSERT OR IGNORE INTO enrollments (student_id, course_id) VALUES (?, ?)');
-    for (const sid of ids) {
-      const student = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role = 'student'"
-      ).get(sid);
-      if (!student) continue;
-      const result = stmt.run(sid, id);
-      if (result.changes > 0) added++;
+    if (course.status === 'archived') {
+      return res.status(400).json({ error: '已归档课程不能导入学生' });
+    }
+    if (!canEnrollCourse(req.user, id)) {
+      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
     }
 
-    res.json({ message: `已添加 ${added} 名学生到课程` });
+    const { student_ids } = req.body;
+    const ids = Array.isArray(student_ids) ? student_ids : [student_ids];
+    if (ids.length === 0) {
+      return res.status(400).json({ error: '请选择学生' });
+    }
+
+    // 预取全部学生：无效/禁用 ID 逐条跳过；教师跨校学生整体拒绝（保证原子性）
+    const placeholders = ids.map(() => '?').join(',');
+    const students = db.prepare(
+      `SELECT id, real_name, school_id FROM users
+       WHERE id IN (${placeholders}) AND role = 'student' AND is_active = 1`
+    ).all(...ids);
+    const studentMap = new Map(students.map((s) => [s.id, s]));
+
+    if (req.user.role === 'teacher') {
+      const crossSchool = students.filter((s) => s.school_id !== req.user.school_id);
+      if (crossSchool.length > 0) {
+        return res.status(400).json({
+          error: `以下学生与您不同校，无法导入：${crossSchool.map((s) => s.real_name).join('、')}`,
+        });
+      }
+    }
+
+    const added = [];
+    const skipped = [];
+    const insert = db.prepare(`
+      INSERT INTO enrollments (student_id, course_id, enrolled_by)
+      VALUES (?, ?, ?)
+      ON CONFLICT(student_id, course_id) DO UPDATE SET
+        status = 'active',
+        enrolled_by = excluded.enrolled_by,
+        enrolled_at = CURRENT_TIMESTAMP,
+        completed_at = NULL,
+        removed_at = NULL,
+        removed_by = NULL,
+        remove_reason = NULL
+    `);
+
+    db.transaction(() => {
+      for (const raw of ids) {
+        const num = Number(raw);
+        if (!Number.isInteger(num) || num <= 0) {
+          skipped.push({ name: String(raw), reason: '无效的学生ID' });
+          continue;
+        }
+        const student = studentMap.get(num);
+        if (!student) {
+          skipped.push({ name: String(raw), reason: '学生不存在或已禁用' });
+          continue;
+        }
+        insert.run(num, Number(id), req.user.id);
+        added.push(student.real_name);
+      }
+    })();
+
+    const skippedText = skipped.length
+      ? `，跳过 ${skipped.length} 名（${skipped.slice(0, 5).map((s) => `${s.name}:${s.reason}`).join('；')}${skipped.length > 5 ? '…' : ''}）`
+      : '';
+    res.json({
+      message: `已导入 ${added.length} 名学生${skippedText}`,
+      added: added.length,
+      skipped,
+    });
   } catch (err) {
     console.error('报名错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
-};
-
-// 学生自主选课 API（限3门，返回JSON）
-exports.studentEnroll = (req, res) => {
-  try {
-    const studentId = req.user.id;
-    const { course_id } = req.body;
-
-    if (!course_id) {
-      return res.json({ success: false, message: '请选择课程' });
-    }
-
-    const enroll = db.transaction((studentId, courseId) => {
-      const myCount = db.prepare(
-        'SELECT COUNT(*) as count FROM enrollments WHERE student_id = ?'
-      ).get(studentId);
-
-      if (myCount.count >= 3) {
-        return { success: false, message: '最多选择3门课程，请先退选其他课程' };
-      }
-
-      const course = db.prepare(
-        "SELECT id, title FROM courses WHERE id = ? AND status = 'published'"
-      ).get(courseId);
-
-      if (!course) {
-        return { success: false, message: '课程不存在或未发布' };
-      }
-
-      const result = db.prepare(
-        'INSERT OR IGNORE INTO enrollments (student_id, course_id) VALUES (?, ?)'
-      ).run(studentId, courseId);
-
-      if (result.changes === 0) {
-        return { success: false, message: '已经选择过该课程' };
-      }
-
-      return { success: true, message: '成功选择课程《' + course.title + '》' };
-    });
-
-    res.json(enroll(studentId, course_id));
-  } catch (err) {
-    console.error('学生选课错误:', err);
-    res.json({ success: false, message: '选课失败，请稍后重试' });
   }
 };
