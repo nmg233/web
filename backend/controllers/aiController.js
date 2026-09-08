@@ -5,6 +5,10 @@ const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 exports.getCourses = (req, res) => {
   try {
     const user = req.user;
+    // 教师端 AI 助手已下线（教师不参与课程建设，无课程上下文）
+    if (user.role === 'teacher') {
+      return res.status(403).json({ error: 'AI 助手暂不对教师开放' });
+    }
     let courses = [];
 
     if (user.role === 'student') {
@@ -30,6 +34,10 @@ exports.getCourses = (req, res) => {
 // AI 回答（基于课程知识库的规则匹配 + 通用回复）
 exports.ask = (req, res) => {
   try {
+    // 教师端 AI 助手已下线
+    if (req.user.role === 'teacher') {
+      return res.status(403).json({ error: 'AI 助手暂不对教师开放' });
+    }
     const { question, course_id } = req.body;
 
     if (!question || question.trim().length === 0) {
