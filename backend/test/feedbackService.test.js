@@ -7,7 +7,7 @@ const Database = require('better-sqlite3');
 
 const testDbPath = path.join(os.tmpdir(), `pbl-feedback-${process.pid}-${Date.now()}.db`);
 const bootstrapDb = new Database(testDbPath);
-bootstrapDb.exec(fs.readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8'));
+bootstrapDb.close();
 bootstrapDb.close();
 
 process.env.DB_PATH = testDbPath;
