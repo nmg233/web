@@ -1,6 +1,6 @@
 # PBL 科创育人平台
 
-面向“大中小贯通科创育人”项目的 PBL（项目式学习）本地数字化管理平台。平台围绕学校、班级、用户、课程、作品与成长档案，提供学生选课和作品提交、教师与导师管理、成长记录、反思日志、规则式学习助手、用户反馈闭环及站内通知等功能。
+面向“大中小贯通科创育人”项目的 PBL（项目式学习）本地数字化管理平台。平台围绕学校、班级、用户、课程、课程回放、课后任务、作品与成长档案，提供管理员/导师线下报名、学生查看课程回放并提交课后任务、教师与导师管理、成长记录、反思日志、规则式学习助手、用户反馈闭环及站内通知等功能。
 
 > 支持本地开发与服务器部署，部署步骤见文末“服务器部署”章节。
 
@@ -14,7 +14,7 @@
 | 认证 | JWT、bcryptjs |
 | 文件上传 | Multer、本地文件系统 |
 
-前端使用 JavaScript/JSX；后端使用 CommonJS。`backend/views` 与 `backend/public` 是早期 EJS 版本遗留目录，不属于当前 React SPA 的主要运行链路。
+前端使用 JavaScript/JSX；后端使用 CommonJS。项目已移除早期 EJS 版本的 `backend/views` 与 `backend/public` 遗留目录，当前只运行 React SPA 与 Express API。
 
 ## 环境要求
 
@@ -40,7 +40,7 @@ project/
 │   ├── database/
 │   │   ├── schema.sql          # 数据库表结构
 │   │   └── init.js             # 数据库初始化脚本
-│   ├── uploads/                # 作品与课程资源上传目录（不公开静态托管）
+│   ├── uploads/                # 作品、课程资源与课程回放上传目录（不公开静态托管）
 │   ├── private_uploads/        # 反馈附件等需要鉴权下载的文件
 │   └── test/                   # Node.js 自动化测试
 ├── frontend/
@@ -211,10 +211,9 @@ GLIDER_BACKEND=reference
 | 角色 | 主要能力 |
 | --- | --- |
 | 管理员 `admin` | 学校、班级和用户管理；课程与作品管理；成长档案 |
-| 执行导师 `executive_mentor` | 学生管理；本人创建课程的管理 |
-| 学术导师 `academic_mentor` | 学生查看与评价；本人创建课程的管理 |
-| 教师 `teacher` | 本校学生管理；作品查看和批改；成长记录 |
-| 学生 `student` | 注册、选课、上传作品、反思日志、个人成长档案、滑翔机模拟试飞 |
+| 学术导师 `academic_mentor` | 课程全流程管理；学生报名；作品批改；学生与成长档案管理 |
+| 教师 `teacher` | 本校学生管理；查看课程回放；查看公开发布作品；本校成长档案 |
+| 学生 `student` | 注册、查看已报名课程回放、完成课后任务并提交作品、反思日志、个人成长档案、滑翔机模拟试飞 |
 | 新媒体 `media` | 预留角色，暂无独立功能入口 |
 
 所有已登录角色均可提交反馈、查看自己的反馈、追加说明和确认处理结果，也可以通过顶部铃铛和通知中心接收、筛选及管理站内通知。管理员可查看全部反馈、设置优先级和状态、填写处理结果，并添加仅管理员可见的内部备注。
@@ -236,7 +235,6 @@ GLIDER_BACKEND=reference
 | `/students` | 学生与用户管理 |
 | `/students/:id` | 学生详情 |
 | `/works` | 作品列表 |
-| `/works/upload` | 上传作品 |
 | `/works/:id` | 作品详情 |
 | `/archives` | 成长档案 |
 | `/archives/reflection` | 反思日志 |
@@ -255,7 +253,8 @@ GLIDER_BACKEND=reference
 | --- | --- | --- |
 | 认证 | `/api/auth` | 登录、注册、当前用户、学校和班级 |
 | 工作台 | `/api/dashboard` | 统计、学校管理、学习助手 |
-| 课程 | `/api/courses` | 课程、课时、任务、资源和选课 |
+| 课程 | `/api/courses` | 课程、课时、任务、资源、回放和导师报名 |
+| 课程回放 | `/api/courses/:id/replays` | 回放列表、上传、编辑、删除和鉴权播放 |
 | 学生 | `/api/students` | 用户、学校、班级和批量导入 |
 | 作品 | `/api/works` | 上传、查看、批改和版本管理 |
 | 档案 | `/api/archives` | 成长档案、反思、评价和成长记录 |
@@ -319,7 +318,7 @@ GLIDER_BACKEND=reference
 | 身份 | 姓名 | 密码 |
 | --- | --- | --- |
 | 管理员 | 管理员 | `admin123` |
-| 执行导师 | 张导师 | `mentor123` |
+| 学术导师 | 张导师 | `mentor123` |
 | 教师 | 李老师 | `teacher123` |
 | 学生 | 王小明 | `student123` |
 
@@ -585,7 +584,7 @@ curl -I  http://127.0.0.1/                     # 前端静态
 curl -I  http://127.0.0.1/login                # SPA fallback
 ```
 
-正式发布前完成业务冒烟（管理员/学生/教师登录、选课、作品上传/下载、批改、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
+正式发布前完成业务冒烟（管理员/学术导师/教师/学生登录、导师报名、课程回放、课后任务提交、作品上传/下载、批改、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
 
 **回滚**：`sudo ln -sfn /opt/pbl-platform/releases/<上一版本> /opt/pbl-platform/current && sudo systemctl restart pbl-backend`；数据库回滚需先停服、恢复 pre-deploy 备份、校验后再启动。
 
