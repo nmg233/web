@@ -159,7 +159,7 @@ exports.detail = (req, res) => {
     })();
 
     const teachers = COURSE_MANAGER_ROLES.includes(req.user.role)
-      ? db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' ORDER BY real_name").all()
+      ? db.prepare("SELECT id, real_name, role, school_id FROM users WHERE role IN ('teacher','academic_mentor') ORDER BY real_name").all()
       : [];
 
     res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments, teachers });
@@ -244,6 +244,16 @@ exports.addLesson = (req, res) => {
 
     if (!title) {
       return res.status(400).json({ error: '课时名称不能为空' });
+    }
+
+    // 授课人须为启用中的教师或执行导师
+    if (instructor_id) {
+      const instructor = db.prepare(
+        "SELECT id FROM users WHERE id = ? AND role IN ('teacher','academic_mentor') AND is_active = 1"
+      ).get(instructor_id);
+      if (!instructor) {
+        return res.status(400).json({ error: '授课人不存在或不可用（仅教师/执行导师可授课）' });
+      }
     }
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
