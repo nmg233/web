@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # wsl_setup.sh — 在 WSL Ubuntu 24.04 里准备 novaPhy 运行环境
-# 用法(Windows):  wsl -d Ubuntu-24.04 -u root -- bash /mnt/<盘符>/.../test_Novaphy/wsl_setup.sh
+# 用法(Windows):  wsl -d Ubuntu-24.04 -u root -- bash /mnt/<盘符>/.../simulation/wsl_setup.sh
 #
-# novaPhy wheel 为第三方交付包，不在本仓库内。请先将其目录放到 test_Novaphy/ 下
-# （如 test_Novaphy/novaphy-0.4.0-cpu-cp311-linux-x86_64/），或用 WHEEL 环境变量
+# novaPhy wheel 为第三方交付包，不在本仓库内。请先将其目录放到 simulation/ 下
+# （如 simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/），或用 WHEEL 环境变量
 # 指定 wheel 的 WSL 路径（/mnt/... 形式）：
 #   wsl -d Ubuntu-24.04 -u root -- env WHEEL=/mnt/c/path/to/novaphy.whl bash .../wsl_setup.sh
 set -euxo pipefail
@@ -31,7 +31,7 @@ DEFAULT_WHEEL="$SCRIPT_DIR/novaphy-0.4.0-cpu-cp311-linux-x86_64/novaphy-0.4.0-cp
 WHEEL="${WHEEL:-$DEFAULT_WHEEL}"
 if [ ! -f "$WHEEL" ]; then
   echo "ERROR: 未找到 novaPhy wheel：$WHEEL"
-  echo "请将交付包目录放到 test_Novaphy/ 下，或用 WHEEL 环境变量指定路径（用法见本脚本头部注释）。"
+  echo "请将交付包目录放到 simulation/ 下，或用 WHEEL 环境变量指定路径（用法见本脚本头部注释）。"
   exit 1
 fi
 /opt/novaphy/bin/pip install "$WHEEL" numpy matplotlib Pillow glfw PyOpenGL moderngl imgui imgui_bundle

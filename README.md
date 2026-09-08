@@ -54,10 +54,13 @@ project/
 │       ├── pages/              # 页面组件（含 glider/ 滑翔机模拟实验室）
 │       ├── hooks/              # 通知等共享状态 Hooks
 │       └── store/              # 认证与通知状态
-├── test_Novaphy/
-│   └── glider_sim/             # 滑翔机气动仿真（Python）：aircraft/aero/sim_core/render/plot_flight
-│       └── sim_service.py      # 供平台后端 spawn 调用的 headless 服务（结果图 + MP4 回放）
-├── deploy.sh                   # 一键部署脚本（测试/演示环境）
+├── simulation/                  # 滑翔机仿真（生产依赖，不再使用 test_ 前缀目录）
+│   ├── glider/                  # 滑翔机气动仿真（Python）：aircraft/aero/sim_core/render/plot_flight
+│   │   └── sim_service.py       # 供平台后端 spawn 调用的 headless 服务（结果图 + MP4 回放）
+│   ├── docker/                  # novaPhy Docker 运行环境
+│   └── wsl_setup.sh             # WSL novaPhy 环境准备脚本
+├── scripts/                     # 部署辅助脚本（doctor/backup-db/health-check）
+├── deploy.sh                    # 一键部署脚本（测试/演示环境）
 ├── 网站使用手册.docx
 └── README.md
 ```
@@ -171,7 +174,7 @@ pip install numpy matplotlib imageio imageio-ffmpeg
 
 ```bash
 # Linux / WSL（真 novaPhy）：另需 Python 3.11 + novaPhy wheel，
-# 可执行 test_Novaphy/wsl_setup.sh 一键准备（wheel 路径见脚本头部注释，支持 WHEEL 变量覆盖）
+# 可执行 simulation/wsl_setup.sh 一键准备（wheel 路径见脚本头部注释，支持 WHEEL 变量覆盖）
 ```
 
 然后在 `backend/.env` 声明引擎并正常启动后端：
@@ -360,7 +363,7 @@ GLIDER_BACKEND=reference
 - 初始投放速度（m/s）—— 需高于失速（约 20 m/s）。
 
 数据链路：前端提交 → `POST /api/glider/simulate`（限学生）→ 后端 `spawn` 调用
-`test_Novaphy/glider_sim/sim_service.py` → 物理积分 → 输出 `backend/uploads/glider/<id>/`
+`simulation/glider/sim_service.py` → 物理积分 → 输出 `backend/uploads/glider/<id>/`
 （`summary.json`、CSV、3D 航迹图、遥测图、`flight_replay.mp4` 回放）→ 前端轮询详情、经鉴权接口拉取结果图与视频播放。历史试飞记录仅本人（管理员可看全部）可见，结果文件也仅本人/管理员可下载，**无需** nginx 额外暴露 `/uploads`。
 
 任务可靠性：后端启动时会清扫历史遗留的 `running` 记录（服务中断不再永久占满并发）；单次模拟有硬超时（`GLIDER_TIMEOUT` + 120 秒缓冲，超时强制终止）；前端轮询超过 5 分钟未完成会提示疑似卡住并停止轮询。
@@ -382,7 +385,7 @@ GLIDER_BACKEND=reference
 - 本机 Python 3（Windows 参考后端）：`numpy matplotlib imageio imageio-ffmpeg`。
 - Linux novaPhy 环境（服务器 `/opt/novaphy` 或 WSL）：Python 3.11 venv，安装
   `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` + `numpy matplotlib Pillow imageio imageio-ffmpeg`；
-  可用 `test_Novaphy/wsl_setup.sh` 一键准备（wheel 默认取脚本目录下交付包目录，也可用 `WHEEL` 环境变量指定）。
+  可用 `simulation/wsl_setup.sh` 一键准备（wheel 默认取脚本目录下交付包目录，也可用 `WHEEL` 环境变量指定）。
   注意：WSL 中该 venv 若由 root 创建，需 `wsl -d <发行版> -u root -- bash -lc '/opt/novaphy/bin/pip install imageio imageio-ffmpeg'`。
   缺失 `imageio-ffmpeg` 时视频自动跳过（`files.video=null`），不影响模拟结果。
 

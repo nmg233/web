@@ -36,7 +36,7 @@ function parsePython() {
 
 const PY = parsePython();
 const GLIDER_BACKEND = process.env.GLIDER_BACKEND || 'auto';
-const GLIDER_DIR = path.resolve(__dirname, '..', '..', 'test_Novaphy', 'glider_sim');
+const GLIDER_DIR = path.resolve(__dirname, '..', '..', 'simulation', 'glider');
 const GLIDER_MAX_ACTIVE = Math.max(1, parseInt(process.env.GLIDER_MAX_ACTIVE || '2', 10) || 2);
 const GLIDER_ALT = 150;            // 投放高度固定 (m)，避免变量过多
 // 单次最长仿真时间(s)：读环境变量 GLIDER_TIMEOUT 可调，默认 100。

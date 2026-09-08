@@ -1,7 +1,7 @@
 # novaPhy 滑翔机运行镜像
 # 基础：Ubuntu 24.04 (glibc 2.39，满足 novaPhy CPU wheel 的 GLIBC_2.38 要求)
 # Python：deadsnakes PPA 安装 CPython 3.11（wheel 为 cp311-cp311）
-# 构建上下文：test_Novaphy 根目录（内含 wheel 交付包与 glider_sim/）
+# 构建上下文：simulation 根目录（内含 wheel 交付包与 glider/）
 
 FROM ubuntu:24.04
 
@@ -28,7 +28,7 @@ RUN python -m pip install --upgrade pip \
 
 # 4) 工程代码
 WORKDIR /glider_sim
-COPY glider_sim /glider_sim
+COPY glider /glider_sim
 
 # 5) 默认：novaPhy 后端 headless 试飞 + 固定机位 MP4 回放（结果写 /glider_sim/output）
 CMD ["python", "sim_service.py", "--dihedral", "6", "--cg", "0.1", "--speed", "36", "--video", "--backend", "novaphy"]
