@@ -40,8 +40,8 @@ export const courseAPI = {
   }),
   updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
   deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
-  replayStreamUrl: (replayId) => `/api/courses/replays/${replayId}/stream`,
-  streamReplay: (replayId) => client.get(`/courses/replays/${replayId}/stream`, { responseType: 'blob' }),
+  // 短期签名流式播放地址（<video> 直挂，支持拖动与 Range）
+  streamUrl: (replayId) => client.get(`/courses/replays/${replayId}/stream-url`),
   enroll: (courseId, studentIds) => client.post(`/courses/${courseId}/enroll`, { student_ids: studentIds }),
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),
 };

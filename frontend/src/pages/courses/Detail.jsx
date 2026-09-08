@@ -83,12 +83,9 @@ export default function CourseDetail() {
 
   const playReplay = async (replayId) => {
     try {
-      const blob = await courseAPI.streamReplay(replayId);
-      const url = URL.createObjectURL(blob);
-      setReplayUrl((oldUrl) => {
-        if (oldUrl) URL.revokeObjectURL(oldUrl);
-        return url;
-      });
+      // 签名流式地址直挂 <video>：支持 Range 拖动，避免整段 blob 下载
+      const res = await courseAPI.streamUrl(replayId);
+      setReplayUrl(res.url);
     } catch { /* handled */ }
   };
 

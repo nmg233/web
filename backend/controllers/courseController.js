@@ -1,6 +1,7 @@
 const db = require('../config/database');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { COURSE_MANAGER_ROLES } = require('../middleware/auth');
 const { UPLOAD_ROOT } = require('../middleware/upload');
 const { decodeOriginalName } = require('../helpers/fileName');
@@ -460,6 +461,31 @@ exports.deleteReplay = (req, res) => {
   }
 };
 
+// 回放流式地址签名：HMAC-SHA256(secret, `${replayId}:${uid}:${exp}`)，10 分钟有效
+function signReplay(replayId, uid, exp, secret) {
+  return crypto.createHmac('sha256', secret).update(`${replayId}:${uid}:${exp}`).digest('hex');
+}
+
+// 生成短期签名播放地址（前端 <video> 直挂，无法携带 Authorization 头）
+exports.streamUrl = (req, res) => {
+  try {
+    const replay = db.prepare(
+      `SELECT r.id, r.course_id, c.status AS course_status
+       FROM course_replays r JOIN courses c ON c.id = r.course_id
+       WHERE r.id = ?`
+    ).get(req.params.replayId);
+    if (!replay || !canAccessReplay(req.user, { id: replay.course_id, status: replay.course_status })) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+    const exp = Math.floor(Date.now() / 1000) + 600;
+    const sig = signReplay(replay.id, req.user.id, exp, req.app.get('jwt_secret'));
+    res.json({ url: `/api/courses/replays/${replay.id}/stream?exp=${exp}&uid=${req.user.id}&sig=${sig}`, expires_in: 600 });
+  } catch (err) {
+    console.error('生成回放播放地址错误:', err);
+    res.status(500).json({ error: '生成播放地址失败' });
+  }
+};
+
 exports.streamReplay = (req, res) => {
   try {
     const replay = db.prepare(
@@ -467,7 +493,25 @@ exports.streamReplay = (req, res) => {
        FROM course_replays r JOIN courses c ON c.id = r.course_id
        WHERE r.id = ?`
     ).get(req.params.replayId);
-    if (!replay || !canAccessReplay(req.user, { id: replay.course_id, status: replay.course_status })) {
+    if (!replay) {
+      return res.status(404).json({ error: '课程回放不存在' });
+    }
+
+    // 无 Bearer 时走签名校验：exp 未过期 + sig 匹配 + 按签名 uid 实时查库，RBAC 仍以数据库为准
+    let user = req.user;
+    if (!user) {
+      const { exp, uid, sig } = req.query;
+      if (!exp || !uid || !sig) return res.status(401).json({ error: '未登录' });
+      const expMs = Number(exp) * 1000;
+      if (!Number.isFinite(expMs) || Date.now() > expMs) return res.status(401).json({ error: '播放链接已过期，请重新进入课程详情' });
+      const expected = signReplay(replay.id, uid, exp, req.app.get('jwt_secret'));
+      if (sig !== expected) return res.status(401).json({ error: '播放链接无效' });
+      const urow = db.prepare('SELECT id, role, school_id FROM users WHERE id = ? AND is_active = 1').get(uid);
+      if (!urow) return res.status(401).json({ error: '账号不可用' });
+      user = urow;
+    }
+
+    if (!canAccessReplay(user, { id: replay.course_id, status: replay.course_status })) {
       return res.status(404).json({ error: '课程回放不存在' });
     }
     const resolvedPath = path.resolve(replay.video_path);
