@@ -9,20 +9,8 @@ function cleanupQueueFile(uploadRoot) {
   return path.join(uploadRoot, '.cleanup-queue.json');
 }
 
-// 在 DB 事务提交后调用：尽力删除文件，失败进入清理队列
-function removeFilesAfterCommit(filePaths, uploadRoot) {
-  if (!Array.isArray(filePaths) || filePaths.length === 0) return;
-  const failed = [];
-  for (const p of filePaths) {
-    if (!p) continue;
-    try {
-      fs.unlinkSync(p);
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        failed.push({ path: p, error: err.message, at: new Date().toISOString() });
-      }
-    }
-  }
+// 失败项写入清理队列（目录项带 type='dir'）
+function enqueueCleanup(uploadRoot, failed) {
   if (failed.length === 0) return;
   console.warn('文件清理失败（已进入清理队列）:', failed.length);
   const queuePath = cleanupQueueFile(uploadRoot);
@@ -38,6 +26,40 @@ function removeFilesAfterCommit(filePaths, uploadRoot) {
   }
 }
 
+// 在 DB 事务提交后调用：尽力删除文件，失败进入清理队列
+function removeFilesAfterCommit(filePaths, uploadRoot) {
+  if (!Array.isArray(filePaths) || filePaths.length === 0) return;
+  const failed = [];
+  for (const p of filePaths) {
+    if (!p) continue;
+    try {
+      fs.unlinkSync(p);
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        failed.push({ path: p, error: err.message, at: new Date().toISOString() });
+      }
+    }
+  }
+  enqueueCleanup(uploadRoot, failed);
+}
+
+// 在 DB 事务提交后调用：尽力删除目录（递归），失败进入清理队列
+function removeDirectoriesAfterCommit(dirPaths, uploadRoot) {
+  if (!Array.isArray(dirPaths) || dirPaths.length === 0) return;
+  const failed = [];
+  for (const p of dirPaths) {
+    if (!p) continue;
+    try {
+      fs.rmSync(p, { recursive: true, force: true });
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        failed.push({ path: p, type: 'dir', error: err.message, at: new Date().toISOString() });
+      }
+    }
+  }
+  enqueueCleanup(uploadRoot, failed);
+}
+
 // 手动重试清理队列（部署/运维可调用）
 function retryCleanupQueue(uploadRoot) {
   const queuePath = cleanupQueueFile(uploadRoot);
@@ -50,7 +72,11 @@ function retryCleanupQueue(uploadRoot) {
   const remaining = [];
   for (const item of queue) {
     try {
-      fs.unlinkSync(item.path);
+      if (item.type === 'dir') {
+        fs.rmSync(item.path, { recursive: true, force: true });
+      } else {
+        fs.unlinkSync(item.path);
+      }
     } catch (err) {
       if (err.code !== 'ENOENT') remaining.push(item);
     }
@@ -59,4 +85,4 @@ function retryCleanupQueue(uploadRoot) {
   return { retried: queue.length - remaining.length, failed: remaining.length };
 }
 
-module.exports = { removeFilesAfterCommit, retryCleanupQueue };
+module.exports = { removeFilesAfterCommit, removeDirectoriesAfterCommit, retryCleanupQueue };

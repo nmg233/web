@@ -7,7 +7,7 @@ const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
-const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
+const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 const orgService = require('../services/organizationService');
 const { pinyin } = require('pinyin-pro');
@@ -18,6 +18,24 @@ const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 // 统一布尔解析：兼容前端 true/1/'1'/'on'/'true' 等形态，其余一律视为 false
 function toBooleanInt(value) {
   return [true, 1, '1', 'on', 'true'].includes(value) ? 1 : 0;
+}
+
+// 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
+function userDeletionBlockers(userId) {
+  const checks = [
+    { label: '创建的课程', count: db.prepare('SELECT COUNT(*) c FROM courses WHERE created_by = ?').get(userId).c, hint: '请先转移或删除课程' },
+    { label: '授课课时', count: db.prepare('SELECT COUNT(*) c FROM lessons WHERE instructor_id = ?').get(userId).c, hint: '请先调整授课教师' },
+    { label: '上传的课程资源', count: db.prepare('SELECT COUNT(*) c FROM resources WHERE upload_by = ?').get(userId).c, hint: '请先转移或删除资源' },
+    { label: '上传的课程回放', count: db.prepare('SELECT COUNT(*) c FROM course_replays WHERE created_by = ?').get(userId).c, hint: '请先转移或删除回放' },
+    { label: '作品评审记录', count: db.prepare('SELECT COUNT(*) c FROM work_reviews WHERE reviewer_id = ?').get(userId).c, hint: '评审记录将随删除丢失' },
+    { label: '成长记录', count: db.prepare('SELECT COUNT(*) c FROM growth_records WHERE recorded_by = ?').get(userId).c, hint: '成长记录将随删除丢失' },
+    { label: '历史评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE evaluator_id = ?').get(userId).c, hint: '评价记录将被级联删除' },
+  ];
+  return checks.filter((c) => c.count > 0);
+}
+
+function formatBlockers(blockers) {
+  return blockers.map((b) => `${b.label} ${b.count} 条（${b.hint}）`).join('；');
 }
 
 function isValidUsername(username) {
@@ -39,9 +57,13 @@ function defaultStudentPassword(realName) {
 function deleteUserWithWorks(userId) {
   const works = db.prepare('SELECT file_path FROM works WHERE student_id = ?').all(userId);
   const filePaths = works.map((w) => w.file_path).filter(Boolean);
+  // 滑翔机模拟结果目录：数据库级联删除后，物理目录一并清理
+  const sims = db.prepare('SELECT id FROM glider_simulations WHERE student_id = ?').all(userId);
+  const simDirs = sims.map((s) => path.join(require('../middleware/upload').UPLOAD_ROOT, 'glider', String(s.id)));
   // 先事务删除用户（作品/档案/反思等经外键级联清理），提交后再删物理文件
   db.prepare('DELETE FROM users WHERE id = ?').run(userId);
   removeFilesAfterCommit(filePaths, require('../middleware/upload').UPLOAD_ROOT);
+  removeDirectoriesAfterCommit(simDirs, require('../middleware/upload').UPLOAD_ROOT);
 }
 
 // 学生列表
@@ -502,9 +524,9 @@ exports.deleteUser = (req, res) => {
     if (user.role === 'admin') {
       return res.status(400).json({ error: '不能删除管理员账号' });
     }
-    const courseCount = db.prepare('SELECT COUNT(*) as c FROM courses WHERE created_by = ?').get(user.id).c;
-    if (courseCount > 0) {
-      return res.status(400).json({ error: `该用户已创建 ${courseCount} 门课程，请先转移或删除课程后再删除` });
+    const blockers = userDeletionBlockers(user.id);
+    if (blockers.length > 0) {
+      return res.status(400).json({ error: `该用户仍有关联数据，无法删除：${formatBlockers(blockers)}` });
     }
     deleteUserWithWorks(req.params.id);
     res.json({ message: `用户 ${user.real_name} 已删除` });
@@ -528,22 +550,30 @@ exports.batchDeleteUsers = (req, res) => {
       return res.status(400).json({ error: '请选择要删除的用户' });
     }
 
-    const placeholders = ids.map(() => '?').join(',');
-    const blockedRows = db.prepare(
-      `SELECT u.id, u.real_name FROM users u
-       WHERE u.id IN (${placeholders}) AND (u.role = 'admin' OR EXISTS (
-         SELECT 1 FROM courses c WHERE c.created_by = u.id
-       ))`
-    ).all(...ids);
-    const blockedIds = new Set(blockedRows.map((row) => row.id));
-    const safeIds = ids.filter((id) => !blockedIds.has(id));
-
-    for (const id of safeIds) {
+    const deleted = [];
+    const blockedMsgs = [];
+    for (const id of ids) {
+      const user = db.prepare('SELECT id, real_name, role FROM users WHERE id = ?').get(id);
+      if (!user) continue;
+      if (user.role === 'admin') {
+        blockedMsgs.push(`${user.real_name}（管理员不可删除）`);
+        continue;
+      }
+      const blockers = userDeletionBlockers(id);
+      if (blockers.length > 0) {
+        blockedMsgs.push(`${user.real_name}（${blockers.map((b) => `${b.label} ${b.count} 条`).join('、')}）`);
+        continue;
+      }
       deleteUserWithWorks(id);
+      deleted.push(user.real_name);
     }
 
-    const msg = `已删除 ${safeIds.length} 名用户`;
-    res.json({ message: blockedRows.length ? `${msg}；${blockedRows.length} 名为管理员或已创建课程，未删除` : msg });
+    const msg = `已删除 ${deleted.length} 名用户`;
+    res.json({
+      message: blockedMsgs.length ? `${msg}；${blockedMsgs.length} 名存在关联数据，未删除` : msg,
+      deleted,
+      blocked: blockedMsgs,
+    });
   } catch (err) {
     console.error('批量删除用户错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
