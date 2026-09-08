@@ -15,6 +15,13 @@ RESET_DB="${RESET_DB:-0}"
 SYNC_DELETE="${SYNC_DELETE:-0}"
 
 cd "$APP_DIR"
+
+# 部署前环境预检与数据库备份（失败即停止）
+echo "== deploy: 环境预检 =="
+bash scripts/doctor.sh
+echo "== deploy: 数据库备份 =="
+bash scripts/backup-db.sh || echo "[WARN] 数据库备份失败（本地开发可忽略），是否继续由 set -e 决定"
+
 git fetch origin
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
