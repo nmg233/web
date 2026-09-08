@@ -183,12 +183,13 @@ exports.index = (req, res) => {
       `).get(user.id);
 
       // 待办任务（要求提交附件且未提交或被退回）
+      // 待办任务：以「是否存在有效提交」为准，不再要求附件（纯文字任务同样进入待办）
       const pendingTasks = db.prepare(`
         SELECT t.id, t.title, c.title AS course_title
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id AND c.status = 'published'
         JOIN lessons l ON l.course_id = c.id
-        JOIN tasks t ON t.lesson_id = l.id AND t.require_upload = 1
+        JOIN tasks t ON t.lesson_id = l.id
         WHERE e.student_id = ? AND e.status = 'active'
           AND (NOT EXISTS (SELECT 1 FROM works w WHERE w.student_id = e.student_id AND w.task_id = t.id)
                OR (SELECT w.review_status FROM works w
