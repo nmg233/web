@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message } from 'antd';
+import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message, Row, Col, Statistic, Timeline } from 'antd';
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons';
 import { archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import { formatBeijingTime } from '../../utils/date';
 
 const { Title, Text } = Typography;
 
@@ -100,6 +101,20 @@ export default function ArchiveIndex() {
 
 function ArchiveDetail({ archive }) {
   if (!archive) return null;
+  // 概览统计：参与课程 / 任务提交作品 / 反思 / 评价
+  const overview = [
+    { label: '参与课程', value: archive.courses?.length ?? 0 },
+    { label: '项目作品', value: archive.works?.length ?? 0 },
+    { label: '反思日志', value: archive.reflections?.length ?? 0 },
+    { label: '教师评价', value: archive.evaluations?.length ?? 0 },
+  ];
+  // 时间轴：成长记录 + 作品提交 + 反思，按时间倒序
+  const timeline = [
+    ...(archive.growthRecords || []).map((g) => ({ at: g.created_at, text: g.description, kind: g.event_type })),
+    ...(archive.works || []).map((w) => ({ at: w.created_at, text: `提交作品《${w.title}》`, kind: 'work' })),
+    ...(archive.reflections || []).map((r) => ({ at: r.created_at, text: `提交反思：${r.lesson_title || '课程反思'}`, kind: 'reflection' })),
+  ].filter((t) => t.at).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  const kindColor = (kind) => (kind === 'work' ? 'blue' : kind === 'reflection' ? 'green' : 'gray');
   return (
     <div>
       <Descriptions column={2} size="small" bordered style={{ marginBottom: 16 }}>
@@ -109,11 +124,35 @@ function ArchiveDetail({ archive }) {
         <Descriptions.Item label="生成时间">{archive.generatedAt}</Descriptions.Item>
       </Descriptions>
 
+      {/* 概览统计 */}
+      <Title level={5}>成长概览</Title>
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        {overview.map((o) => (
+          <Col xs={12} sm={6} key={o.label}><Card size="small"><Statistic title={o.label} value={o.value} /></Card></Col>
+        ))}
+      </Row>
+
       <Title level={5}>能力评分</Title>
       <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>{[['problem_discovery','问题发现'],['solution_design','方案设计'],['hands_on','动手操作'],['data_analysis','数据分析'],['presentation','表达展示']].map(([key,label]) => <div key={key}><Text>{label}：{archive.ability?.[key] || 0} / 5</Text><Progress percent={(archive.ability?.[key] || 0) * 20} showInfo={false} /></div>)}</Space>
 
-      <Title level={5}>成长轨迹</Title>
-      <List dataSource={archive.growthRecords || []} locale={{ emptyText: '暂无成长记录' }} renderItem={(item) => <List.Item><List.Item.Meta title={<Space><span>{item.description}</span><Tag color={item.event_type === 'teacher' ? 'blue' : 'default'}>{item.event_type === 'teacher' ? '教师标记' : '系统记录'}</Tag></Space>} description={item.created_at} /></List.Item>} />
+      {/* 成长时间轴 */}
+      <Title level={5}>成长时间轴</Title>
+      {timeline.length > 0 ? (
+        <Timeline style={{ marginBottom: 16 }}
+          items={timeline.map((t) => ({
+            color: kindColor(t.kind),
+            children: (
+              <div>
+                <Text>{t.text}</Text>
+                <br />
+                <Text type="secondary" style={{ fontSize: 12 }}>{formatBeijingTime(t.at)}</Text>
+              </div>
+            ),
+          }))}
+        />
+      ) : (
+        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>暂无成长记录</Text>
+      )}
 
       <Title level={5}>参与课程</Title>
       <List dataSource={archive.courses || []} renderItem={(c) => (
