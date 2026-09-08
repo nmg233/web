@@ -42,6 +42,7 @@ const menuItems = {
     { key: '/dashboard', icon: <DashboardOutlined />, label: '工作台' },
     { key: '/students', icon: <TeamOutlined />, label: '学生管理' },
     { key: '/archives', icon: <FolderOpenOutlined />, label: '成长档案' },
+    { key: '/dashboard/ai', icon: <RobotOutlined />, label: 'AI 助手' },
     { key: '/feedback', icon: <MessageOutlined />, label: '帮助与反馈' },
     { key: '/notifications', icon: <BellOutlined />, label: '通知中心' },
   ],
