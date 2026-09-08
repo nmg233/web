@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Tabs, Popconfirm, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
-import { studentAPI } from '../../api';
+import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
@@ -132,9 +132,7 @@ export default function StudentList() {
   useEffect(() => {
     // Load schools for admin
     if (user?.role === 'admin') {
-      import('../../api').then(({ dashboardAPI }) => {
-        dashboardAPI.getSchools().then((res) => setSchools(res.schools || [])).catch(() => {});
-      });
+      dashboardAPI.getSchools().then((res) => setSchools(res.schools || [])).catch(() => {});
     }
   }, [user?.role]);
 

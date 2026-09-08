@@ -1,35 +1,46 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider, App as AntApp } from 'antd';
+import { ConfigProvider, App as AntApp, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AuthProvider } from './store/AuthContext';
 import NotificationProvider from './store/NotificationProvider';
 import AppLayout from './components/AppLayout';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import ChangePassword from './pages/auth/ChangePassword';
-import Dashboard from './pages/dashboard/Index';
-import SchoolDetail from './pages/dashboard/School';
-import CourseList from './pages/courses/List';
-import CourseDetail from './pages/courses/Detail';
-import CourseForm from './pages/courses/Form';
-import Learning from './pages/courses/Learning';
-import TaskList from './pages/tasks/List';
-import TaskDetail from './pages/tasks/Detail';
-import StudentList from './pages/students/List';
-import StudentDetail from './pages/students/Detail';
-import WorkList from './pages/works/List';
-import WorkDetail from './pages/works/Detail';
-import WorkUpload from './pages/works/Upload';
-import ArchiveIndex from './pages/archives/Index';
-import Reflection from './pages/archives/Reflection';
-import AIAssistant from './pages/dashboard/AI';
-import FeedbackList from './pages/feedback/List';
-import FeedbackForm from './pages/feedback/Form';
-import FeedbackDetail from './pages/feedback/Detail';
-import FeedbackManage from './pages/feedback/Manage';
-import NotificationList from './pages/notifications/List';
-import NotificationDetail from './pages/notifications/Detail';
-import GliderSimulator from './pages/glider/Simulator';
+
+// 路由级代码分割：按需加载各业务页面，降低首包体积
+const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
+const Dashboard = lazy(() => import('./pages/dashboard/Index'));
+const SchoolDetail = lazy(() => import('./pages/dashboard/School'));
+const AIAssistant = lazy(() => import('./pages/dashboard/AI'));
+const CourseList = lazy(() => import('./pages/courses/List'));
+const CourseDetail = lazy(() => import('./pages/courses/Detail'));
+const CourseForm = lazy(() => import('./pages/courses/Form'));
+const Learning = lazy(() => import('./pages/courses/Learning'));
+const TaskList = lazy(() => import('./pages/tasks/List'));
+const TaskDetail = lazy(() => import('./pages/tasks/Detail'));
+const StudentList = lazy(() => import('./pages/students/List'));
+const StudentDetail = lazy(() => import('./pages/students/Detail'));
+const WorkList = lazy(() => import('./pages/works/List'));
+const WorkDetail = lazy(() => import('./pages/works/Detail'));
+const WorkUpload = lazy(() => import('./pages/works/Upload'));
+const ArchiveIndex = lazy(() => import('./pages/archives/Index'));
+const Reflection = lazy(() => import('./pages/archives/Reflection'));
+const FeedbackList = lazy(() => import('./pages/feedback/List'));
+const FeedbackForm = lazy(() => import('./pages/feedback/Form'));
+const FeedbackDetail = lazy(() => import('./pages/feedback/Detail'));
+const FeedbackManage = lazy(() => import('./pages/feedback/Manage'));
+const NotificationList = lazy(() => import('./pages/notifications/List'));
+const NotificationDetail = lazy(() => import('./pages/notifications/Detail'));
+const GliderSimulator = lazy(() => import('./pages/glider/Simulator'));
+
+function PageFallback() {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 320 }}>
+      <Spin size="large" />
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -43,6 +54,7 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <NotificationProvider>
+              <Suspense fallback={<PageFallback />}>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -75,6 +87,7 @@ function App() {
                 <Route path="notifications/:id" element={<NotificationDetail />} />
               </Route>
               </Routes>
+              </Suspense>
             </NotificationProvider>
           </BrowserRouter>
         </AuthProvider>
