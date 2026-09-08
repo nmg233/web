@@ -7,8 +7,8 @@ const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 
 const testDbPath = path.join(os.tmpdir(), `pbl-security-${process.pid}-${Date.now()}.db`);
+// 建空库即可：由 config/database 的迁移器执行 schema.sql 并批量标记已应用迁移
 const bootstrapDb = new Database(testDbPath);
-bootstrapDb.exec(fs.readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8'));
 bootstrapDb.close();
 
 process.env.DB_PATH = testDbPath;
