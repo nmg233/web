@@ -331,6 +331,7 @@ export default function CourseDetail() {
         )}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && <Button onClick={() => navigate(`/courses/${id}/learn`)}>开始学习</Button>}
+        {isStudent && isEnrolled && <Button type="link" onClick={() => navigate('/dashboard/ai')}>AI 助手</Button>}
       </Space>
 
       <Card style={{ marginBottom: 16 }}>

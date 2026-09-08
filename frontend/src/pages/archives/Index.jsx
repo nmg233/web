@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message } from 'antd';
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons';
 import { archiveAPI } from '../../api';
@@ -7,6 +8,7 @@ import { useAuth } from '../../store/AuthContext';
 const { Title, Text } = Typography;
 
 export default function ArchiveIndex() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [treeData, setTreeData] = useState([]);
   const [archive, setArchive] = useState(null);
@@ -59,7 +61,10 @@ export default function ArchiveIndex() {
   if (user?.role === 'student') {
     return (
       <div>
-        <Title level={4}>📂 我的成长档案</Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <Title level={4} style={{ margin: 0 }}>📂 我的成长档案</Title>
+          <Button type="primary" onClick={() => navigate('/archives/reflection')}>✏️ 写反思日志</Button>
+        </div>
         {detailLoading ? <Spin /> : archive ? (
           <ArchiveDetail archive={archive} />
         ) : (
