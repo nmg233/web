@@ -106,8 +106,14 @@ function canRead(row, user) {
 }
 
 // 学生提交三参数，启动一次模拟（异步）
-exports.simulate = (req, res) => {
+exports.simulate = async (req, res) => {
   try {
+    // 引擎不可用时快速失败，避免先落库再必然失败
+    const engineReady = await probeEngine();
+    if (!engineReady) {
+      return res.status(503).json({ error: '模拟引擎不可用，请稍后再试或联系管理员检查引擎环境' });
+    }
+
     const active = db.prepare("SELECT COUNT(*) AS c FROM glider_simulations WHERE status = 'running'").get().c;
     if (active >= GLIDER_MAX_ACTIVE) {
       return res.status(429).json({ error: `当前有 ${active} 个模拟任务正在运行，请稍后再试` });
@@ -299,9 +305,33 @@ exports.streamUrl = (req, res) => {
   }
 };
 
-// 引擎能力探测（结果缓存 60s，避免每次请求都拉起解释器）
+// 引擎能力探测缓存（60s）+ 统一探测函数（供 capabilities 与 simulate fail-fast 复用）
 let capabilityCache = { at: 0, payload: null };
-exports.capabilities = (req, res) => {
+
+function probeEngine() {
+  if (capabilityCache.payload && Date.now() - capabilityCache.at < 60 * 1000) {
+    return Promise.resolve(capabilityCache.payload.ready);
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (ready) => {
+      if (settled) return; // error 与 close 可能先后触发，只结算一次
+      settled = true;
+      resolve(ready);
+    };
+    try {
+      const child = PY.mode === 'wsl'
+        ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python, '-c', 'import numpy'], { timeout: 15000 })
+        : execFile(PY.python, ['-c', 'import numpy'], { timeout: 15000 });
+      child.on('error', () => finish(false));
+      child.on('close', (code) => finish(code === 0));
+    } catch (err) {
+      finish(false);
+    }
+  });
+}
+
+exports.capabilities = async (req, res) => {
   const now = Date.now();
   if (capabilityCache.payload && now - capabilityCache.at < 60 * 1000) {
     return res.json(capabilityCache.payload);
@@ -313,19 +343,8 @@ exports.capabilities = (req, res) => {
     video: GLIDER_VIDEO,
     maxActive: GLIDER_MAX_ACTIVE,
   };
-  const finish = (ready) => {
-    payload.ready = ready;
-    capabilityCache = { at: Date.now(), payload };
-    res.json(payload);
-  };
-  let child;
-  try {
-    child = PY.mode === 'wsl'
-      ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python, '-c', 'import numpy'], { timeout: 15000 })
-      : execFile(PY.python, ['-c', 'import numpy'], { timeout: 15000 });
-  } catch (err) {
-    return finish(false);
-  }
-  child.on('error', () => finish(false));
-  child.on('close', (code) => finish(code === 0));
+  const ready = await probeEngine();
+  payload.ready = ready;
+  capabilityCache = { at: Date.now(), payload };
+  res.json(payload);
 };

@@ -258,7 +258,8 @@ export default function GliderSimulator() {
               >
                 <InputNumber min={15} max={60} step={1} style={{ width: '100%' }} addonAfter="米/秒" />
               </Form.Item>
-              <Button type="primary" htmlType="submit" icon={<ThunderboltOutlined />} loading={submitting} block>
+              <Button type="primary" htmlType="submit" icon={<ThunderboltOutlined />} loading={submitting} block
+                disabled={engineInfo && !engineInfo.ready}>
                 开始试飞
               </Button>
             </Form>
