@@ -439,7 +439,7 @@ cd 项目根目录
 RESET_DB=1 ./deploy.sh main # 重置数据库并恢复默认测试账号（仅测试环境）
 ```
 
-脚本会依次完成：`git pull` → 后端 `npm ci` + `better-sqlite3` 本地编译 →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
+脚本会依次完成：`git pull` → 后端 `npm ci` + 强制本机编译 `better-sqlite3` 并移除不兼容的 linux-x64 prebuild →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
 
 - 默认对应当前 ECS 测试环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`；
 - 可覆盖的环境变量：`NGINX_ROOT`、`SERVICE`、`SYNC_DELETE=1`（同步删除旧文件）、`HEALTH_URL`。
@@ -485,7 +485,19 @@ sudo ln -sfn /opt/pbl-platform/releases/v1.0.0 /opt/pbl-platform/current
 # 后端
 cd /opt/pbl-platform/current/backend
 npm ci --omit=dev
-npm rebuild better-sqlite3 --build-from-source
+BETTER_DIR="node_modules/better-sqlite3"
+PYTHON_BIN="${PYTHON:-/usr/bin/python3.11}"
+NODE_GYP="${NODE_GYP:-$(command -v node-gyp || true)}"
+if [ -z "$NODE_GYP" ]; then
+  NODE_GYP="/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js"
+fi
+(
+  cd "$BETTER_DIR"
+  PYTHON="$PYTHON_BIN" node "$NODE_GYP" rebuild --release --force_build=1
+  if [ -f prebuilds/linux-x64.node ]; then
+    mv prebuilds/linux-x64.node prebuilds/linux-x64.node.incompatible
+  fi
+)
 npm test                       # 必须 PASS，失败即停止发布
 
 # 前端（API 走同源 /api，由 nginx 反代）
