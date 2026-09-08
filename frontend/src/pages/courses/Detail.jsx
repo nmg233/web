@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Space, Typography, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { courseAPI } from '../../api';
+import { courseAPI, studentAPI, authAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import PageLoading from '../../components/common/PageLoading';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
+const canImport = (role) => ['admin', 'academic_mentor', 'teacher'].includes(role);
 
 const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
 const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
@@ -44,6 +45,21 @@ export default function CourseDetail() {
   const [taskForm] = Form.useForm();
   const [replayForm] = Form.useForm();
   const [resourceForm] = Form.useForm();
+  // 选课导入（执行导师/教师/管理员；教师限本校）
+  const [importOpen, setImportOpen] = useState(false);
+  const [candidates, setCandidates] = useState([]);
+  const [candidateLoading, setCandidateLoading] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [importing, setImporting] = useState(false);
+  const [lockedSchoolId, setLockedSchoolId] = useState(null);
+  const [schoolOptions, setSchoolOptions] = useState([]);
+  const [candidateSchool, setCandidateSchool] = useState(undefined);
+  const [candidateClasses, setCandidateClasses] = useState([]);
+  const [candidateClass, setCandidateClass] = useState(undefined);
+  // 管理员异常修正：移除报名
+  const [removeTarget, setRemoveTarget] = useState(null);
+  const [removeReason, setRemoveReason] = useState('');
+  const [removeLoading, setRemoveLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -195,6 +211,83 @@ export default function CourseDetail() {
     setResourceModal(true);
   };
 
+  // ==== 选课导入 ====
+  const loadCandidates = async (query = {}) => {
+    setCandidateLoading(true);
+    try {
+      const res = await courseAPI.enrollCandidates(id, query);
+      setCandidates(res.students || []);
+      setLockedSchoolId(res.lockedSchoolId);
+    } catch { /* handled */ } finally {
+      setCandidateLoading(false);
+    }
+  };
+
+  const openImportModal = async () => {
+    setSelectedKeys([]);
+    setCandidateSchool(undefined);
+    setCandidateClass(undefined);
+    setCandidateClasses([]);
+    setCandidates([]);
+    setImportOpen(true);
+    if (user?.role !== 'teacher') {
+      authAPI.getSchools()
+        .then((res) => setSchoolOptions(Array.isArray(res) ? res : (res.schools || [])))
+        .catch(() => {});
+    }
+    await loadCandidates({});
+  };
+
+  const handleCandidateSchoolChange = async (sid) => {
+    setCandidateSchool(sid);
+    setCandidateClass(undefined);
+    if (sid) {
+      try {
+        const res = await studentAPI.getClasses(sid);
+        setCandidateClasses(res.classes || []);
+      } catch { setCandidateClasses([]); }
+    } else {
+      setCandidateClasses([]);
+    }
+  };
+
+  const handleImportSubmit = async () => {
+    if (selectedKeys.length === 0) {
+      message.warning('请先选择要导入的学生');
+      return;
+    }
+    setImporting(true);
+    try {
+      const res = await courseAPI.enroll(id, selectedKeys);
+      message.success(res.message || `已导入 ${res.added} 名学生`);
+      setImportOpen(false);
+      loadData();
+    } catch { /* handled */ } finally {
+      setImporting(false);
+    }
+  };
+
+  const openRemoveModal = (row) => {
+    setRemoveTarget(row);
+    setRemoveReason('');
+  };
+
+  const handleRemoveSubmit = async () => {
+    if (!removeReason.trim()) {
+      message.warning('请填写移除原因（将记录在审计中）');
+      return;
+    }
+    setRemoveLoading(true);
+    try {
+      await courseAPI.removeEnrollment(id, removeTarget.id, removeReason.trim());
+      message.success('报名已移除');
+      setRemoveTarget(null);
+      loadData();
+    } catch { /* handled */ } finally {
+      setRemoveLoading(false);
+    }
+  };
+
   const handleResourceSubmit = async (values) => {
     if (!resourceFile) {
       message.error('请选择资料文件（≤50MB）');
@@ -308,18 +401,31 @@ export default function CourseDetail() {
     },
   ];
 
-  // 选课学生页签仅管理者可见，避免学生/教师看到空页签
-  if (canManage(user?.role)) {
+  // 选课学生页签：执行导师/教师/管理员可见（学生由统一导入，日常不可退课）
+  if (canImport(user?.role)) {
     tabItems.push({
-      key: 'students', label: `选课学生 (${enrollments.length})`,
+      key: 'students',
+      label: `选课学生 (${enrollments.length})`,
       children: (
-        <Table dataSource={enrollments} rowKey="id" pagination={false} size="small"
-          columns={[
-            { title: '姓名', dataIndex: 'student_name' },
-            { title: '学校', dataIndex: 'school_name' },
-            { title: '班级', dataIndex: 'class_name' },
-          ]}
-        />
+        <div>
+          <Button type="dashed" icon={<PlusOutlined />} onClick={openImportModal} style={{ marginBottom: 16 }}>
+            导入学生
+          </Button>
+          <Table dataSource={enrollments} rowKey="id" pagination={false} size="small"
+            columns={[
+              { title: '姓名', dataIndex: 'student_name' },
+              { title: '学校', dataIndex: 'school_name' },
+              { title: '班级', dataIndex: 'class_name' },
+              { title: '导入人', dataIndex: 'enrolled_by_name', render: (v) => v || '—' },
+              ...(user?.role === 'admin' ? [{
+                title: '操作', key: 'actions',
+                render: (_, r) => (
+                  <Button size="small" type="link" danger onClick={() => openRemoveModal(r)}>移除报名</Button>
+                ),
+              }] : []),
+            ]}
+          />
+        </div>
       ),
     });
   }
@@ -405,8 +511,8 @@ export default function CourseDetail() {
           <Form.Item name="end_at" label="下课时间"><Input type="datetime-local" /></Form.Item>
           <Form.Item name="location" label="上课地点"><Input placeholder="如：北航 XX 实验室" /></Form.Item>
           <Form.Item name="instructor_id" label="授课教师">
-            <Select allowClear placeholder="选择授课教师"
-              options={teachers.map((t) => ({ value: t.id, label: t.real_name }))} />
+            <Select allowClear placeholder="选择授课教师（教师/执行导师）"
+              options={teachers.map((t) => ({ value: t.id, label: `${t.real_name}${t.role === 'academic_mentor' ? '（执行导师）' : ''}` }))} />
           </Form.Item>
         </Form>
       </Modal>
@@ -482,6 +588,74 @@ export default function CourseDetail() {
             </Upload>
           </Form.Item>
         </Form>
+      </Modal>
+      {/* 导入学生 Modal（执行导师/教师/管理员） */}
+      <Modal
+        title="导入学生"
+        open={importOpen}
+        onCancel={() => setImportOpen(false)}
+        onOk={handleImportSubmit}
+        okText={`导入（已选 ${selectedKeys.length} 人）`}
+        okButtonProps={{ disabled: selectedKeys.length === 0 }}
+        confirmLoading={importing}
+        width={680}
+      >
+        <Space style={{ marginBottom: 12 }} wrap>
+          <Input.Search
+            placeholder="搜索姓名/用户名" allowClear style={{ width: 200 }}
+            onSearch={(v) => loadCandidates({ search: v || undefined, school_id: candidateSchool, class_id: candidateClass })}
+          />
+          {user?.role === 'teacher' ? (
+            <Tag color="blue">仅本校学生{lockedSchoolId ? '（已锁定学校范围）' : ''}</Tag>
+          ) : (
+            <>
+              <Select
+                placeholder="按学校筛选" allowClear style={{ width: 180 }} value={candidateSchool}
+                onChange={handleCandidateSchoolChange}
+                options={schoolOptions.map((s) => ({ value: s.id, label: s.name }))}
+              />
+              <Select
+                placeholder="按班级筛选" allowClear style={{ width: 160 }} value={candidateClass}
+                onChange={(v) => { setCandidateClass(v); loadCandidates({ search: undefined, school_id: candidateSchool, class_id: v }); }}
+                options={candidateClasses.map((c) => ({ value: c.id, label: `${c.grade || ''} ${c.name}` }))}
+              />
+            </>
+          )}
+          {user?.role !== 'teacher' && (
+            <Button size="small" onClick={() => loadCandidates({ school_id: candidateSchool, class_id: candidateClass })}>查询</Button>
+          )}
+        </Space>
+        <Table
+          rowKey="id" size="small" loading={candidateLoading} dataSource={candidates}
+          pagination={{ pageSize: 8 }} scroll={{ y: 320 }}
+          rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
+          columns={[
+            { title: '姓名', dataIndex: 'real_name' },
+            { title: '学校', dataIndex: 'school_name', render: (v) => v || '—' },
+            { title: '班级', dataIndex: 'class_name', render: (v) => v || '—' },
+          ]}
+        />
+      </Modal>
+
+      {/* 管理员异常修正：移除报名 Modal */}
+      <Modal
+        title={`移除报名：${removeTarget?.student_name || ''}`}
+        open={!!removeTarget}
+        onCancel={() => setRemoveTarget(null)}
+        onOk={handleRemoveSubmit}
+        okText="确认移除"
+        okButtonProps={{ danger: true }}
+        confirmLoading={removeLoading}
+      >
+        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+          移除后该生将无法再访问课程与任务。该操作会记录在成长档案审计中；若该生已产生作品/评价/反思，系统将拒绝移除。
+        </Text>
+        <Input.TextArea
+          rows={3}
+          placeholder="请填写移除原因（必填，将随审计记录保存）"
+          value={removeReason}
+          onChange={(e) => setRemoveReason(e.target.value)}
+        />
       </Modal>
     </div>
   );

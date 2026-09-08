@@ -42,6 +42,8 @@ export const courseAPI = {
   // 短期签名流式播放地址（<video> 直挂，支持拖动与 Range）
   streamUrl: (replayId) => client.get(`/courses/replays/${replayId}/stream-url`),
   enroll: (courseId, studentIds) => client.post(`/courses/${courseId}/enroll`, { student_ids: studentIds }),
+  enrollCandidates: (courseId, params) => client.get(`/courses/${courseId}/enroll/candidates`, { params }),
+  removeEnrollment: (courseId, enrollmentId, reason) => client.delete(`/courses/${courseId}/enrollments/${enrollmentId}`, { data: { reason } }),
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),
 };
 
