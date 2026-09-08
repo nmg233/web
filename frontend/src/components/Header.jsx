@@ -37,7 +37,7 @@ export default function HeaderBar() {
         <Button
           type="text"
           icon={<MessageOutlined />}
-          onClick={() => navigate('/feedback/new', { state: { from: location.pathname } })}
+          onClick={() => navigate(user?.role === 'admin' ? '/feedback/manage' : '/feedback/new', { state: { from: location.pathname } })}
         >
           意见反馈
         </Button>
