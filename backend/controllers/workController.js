@@ -79,8 +79,8 @@ exports.list = (req, res) => {
     }
 
     if (isTeacher(req.user.role)) {
-      // 教师仅可见本校已通过评审的作品（决策 D-1）
-      sql += " AND w.review_status = 'approved' AND u.school_id = ?";
+      // 教师仅可见本校已通过评审的作品（决策 D-1）；无报名关联的遗留作品按 D-2 不可见
+      sql += " AND w.review_status = 'approved' AND u.school_id = ? AND w.enrollment_id IS NOT NULL";
       params.push(req.user.school_id || 0);
     } else if (req.user.role === 'academic_mentor') {
       // 导师仅可见自己课程的作品（创建者或授课人，决策 D-1）；

@@ -11,14 +11,15 @@ function canReviewWork(user, work) {
   return courseBelongsToMentor(user.id, work.course_id);
 }
 
-// 查看：admin 全部；导师=可评审范围；学生=本人；教师=本校+已通过
+// 查看：admin 全部；导师=可评审范围；学生=本人；教师=本校+已通过（无报名关联的遗留作品按 D-2 不可见）
 function canViewWork(user, work) {
   if (user.role === 'admin') return true;
   if (user.role === 'academic_mentor') return canReviewWork(user, work);
   if (user.role === 'student') return work.student_id === user.id;
   return user.role === 'teacher' && !!user.school_id
     && work.student_school_id === user.school_id
-    && work.review_status === 'approved';
+    && work.review_status === 'approved'
+    && !!work.enrollment_id;
 }
 
 // 删除（决策 D-6）：学生可删 pending 或被打回的最新版本；
