@@ -107,6 +107,15 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '课程不存在' });
     }
 
+    if (req.user.role === 'student') {
+      const enrollment = db.prepare(
+        "SELECT 1 FROM enrollments WHERE course_id = ? AND student_id = ? AND status = 'active'"
+      ).get(id, req.user.id);
+      if (course.status !== 'published' || !enrollment) {
+        return res.status(404).json({ error: '课程不存在' });
+      }
+    }
+
     // 授课教师可查看自己授课的课程（含未发布课程，便于线下导入学生）
     const viewerIsInstructor = req.user.role === 'teacher' && !!db.prepare(
       'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
