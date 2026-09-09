@@ -313,9 +313,7 @@ exports.uploadResource = (req, res) => {
   try {
     const { id } = req.params;
     if (!canManageCourse(req.user, id)) {
-      if (req.file) {
-        try { fs.unlinkSync(req.file.path); } catch (e) { /* 文件可能已删除 */ }
-      }
+      removeUploadedFile(req.file);
       return res.status(400).json({ error: '无权管理该课程' });
     }
     if (!req.file) {
@@ -331,6 +329,7 @@ exports.uploadResource = (req, res) => {
 
     res.json({ message: '资源上传成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
+    removeUploadedFile(req.file);
     console.error('上传资源错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
