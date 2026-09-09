@@ -82,7 +82,9 @@ exports.list = (req, res) => {
     }
 
     if (isTeacher(req.user.role)) {
-      sql += " AND w.review_status = 'approved'";
+      // 教师仅可见本校已通过评审的作品（决策 D-1）
+      sql += " AND w.review_status = 'approved' AND u.school_id = ?";
+      params.push(req.user.school_id || 0);
     }
 
     sql += ' ORDER BY w.created_at DESC';
@@ -286,15 +288,16 @@ exports.detail = (req, res) => {
       return res.status(400).json({ error: '无权查看该作品' });
     }
 
-    if (isTeacher(req.user.role) && work.review_status !== 'approved') {
-      return res.status(400).json({ error: '教师只能查看公开发布的作品' });
+    if (isTeacher(req.user.role) && (work.review_status !== 'approved' || work.student_school_id !== req.user.school_id)) {
+      return res.status(403).json({ error: '教师只能查看本校公开发布的作品' });
     }
 
     const review = db.prepare(`SELECT r.*, u.real_name reviewer_name FROM work_reviews r JOIN users u ON u.id=r.reviewer_id WHERE r.work_id=?`).get(work.id);
     work.file_name = decodeOriginalName(work.file_name);
     const rootId = work.parent_work_id || work.id;
     const versions = db.prepare(`SELECT id, version, title, review_status, created_at FROM works WHERE id=? OR parent_work_id=? ORDER BY version DESC`).all(rootId, rootId);
-    res.json({ title: work.title, work: toFileDto(work), review, versions });
+    res.json({ title: work.title, work: toFileDto(work), review,
+      versions: isTeacher(req.user.role) ? versions.filter((v) => v.review_status === 'approved') : versions });
   } catch (err) {
     console.error('作品详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -313,8 +316,8 @@ exports.download = (req, res) => {
     `).get(req.params.id);
     if (!work || !work.file_path) return res.status(404).json({ error: '附件不存在' });
     if (!isStaff(req.user.role) && work.student_id !== req.user.id) return res.status(403).json({ error: '无权下载该附件' });
-    if (isTeacher(req.user.role) && work.review_status !== 'approved') {
-      return res.status(403).json({ error: '教师只能下载公开发布的作品附件' });
+    if (isTeacher(req.user.role) && (work.review_status !== 'approved' || work.student_school_id !== req.user.school_id)) {
+      return res.status(403).json({ error: '教师只能下载本校公开发布的作品附件' });
     }
 
     const resolvedPath = path.resolve(work.file_path);
