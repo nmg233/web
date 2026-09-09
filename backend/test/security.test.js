@@ -120,7 +120,7 @@ test('教师只能看到公开发布作品', async () => {
 test('教师不能查看或下载未公开发布作品', async () => {
   const { body: loginBody } = await login('甲老师', 'user123');
   const detail = await getJson('/api/works/2', loginBody.token);
-  assert.equal(detail.status, 400);
+  assert.equal(detail.status, 403);
   const download = await fetch(`${baseUrl}/api/works/2/download`, {
     headers: { Authorization: `Bearer ${loginBody.token}` },
   });
