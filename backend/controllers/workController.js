@@ -227,20 +227,31 @@ exports.upload = (req, res) => {
       parentId = rootId;
       version = db.prepare('SELECT COALESCE(MAX(version), 1) + 1 AS version FROM works WHERE id = ? OR parent_work_id = ?').get(parentId, parentId).version;
     }
-    const insertResult = db.prepare(
-      `INSERT INTO works (student_id, enrollment_id, task_id, title, description,
-        file_path, file_name, file_type, file_size, parent_work_id, version)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(actualStudentId, resolvedEnrollmentId, task_id || null, title,
-          description || null, req.file?.path || null, decodeOriginalName(req.file?.originalname) || null,
-          displayType, req.file?.size || null, parentId, version);
+    // 唯一根索引（idx_works_root）兜底：并发双请求同时通过预检时，由约束拒绝第二个
+    let insertResult;
+    try {
+      insertResult = db.prepare(
+        `INSERT INTO works (student_id, enrollment_id, task_id, title, description,
+          file_path, file_name, file_type, file_size, parent_work_id, version)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).run(actualStudentId, resolvedEnrollmentId, task_id || null, title,
+            description || null, req.file?.path || null, decodeOriginalName(req.file?.originalname) || null,
+            displayType, req.file?.size || null, parentId, version);
+    } catch (err) {
+      if (String(err.code).startsWith('SQLITE_CONSTRAINT')) {
+        removeUploadedFile(req.file);
+        return res.status(409).json({ error: '该任务已有作品，请通过重新提交创建新版本' });
+      }
+      throw err;
+    }
 
-    db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `提交作品《${title}》`);
+    const workId = Number(insertResult.lastInsertRowid);
+    // 成长事件关联 work_id（时间轴按 work_id 去重，见决策 D-3）
+    db.prepare("INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)").run(actualStudentId, `提交作品《${title}》`, workId);
     // 作品数按版本根去重（v2/v3 不计入新作品）；仅首次提交触发里程碑
     const workCount = db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) count FROM works WHERE student_id=?').get(actualStudentId).count;
     if (!parentId && workCount % 3 === 0) db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `累计完成 ${workCount} 个作品`);
 
-    const workId = Number(insertResult.lastInsertRowid);
     const courseOwner = resolvedEnrollmentId ? db.prepare(`
       SELECT c.created_by
       FROM enrollments e
@@ -390,8 +401,8 @@ exports.reject = (req, res) => {
         "UPDATE works SET review_status = 'rejected', reject_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
       ).run(reason, req.params.id);
       const growth = db.prepare(
-        "INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)"
-      ).run(work.student_id, `作品《${work.title}》被打回修改`);
+        "INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)"
+      ).run(work.student_id, `作品《${work.title}》被打回修改`, req.params.id);
       return Number(growth.lastInsertRowid);
     })();
 
@@ -433,7 +444,7 @@ exports.review = (req, res) => {
         VALUES (?,?,?,?,?,?,?,?,?)`)
         .run(work.id, req.user.id, req.body.comment || null, req.body.suggestion || null, ...scores);
       db.prepare('UPDATE works SET review_status=?, reject_reason=?, updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status, status === 'rejected' ? (req.body.suggestion || '请修改后重新提交') : null, work.id);
-      const growth = db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(work.student_id, `作品《${work.title}》获得教师批改`);
+      const growth = db.prepare("INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)").run(work.student_id, `作品《${work.title}》获得教师批改`, work.id);
       return Number(growth.lastInsertRowid);
     })();
     notifyWorkRecipients(work, {

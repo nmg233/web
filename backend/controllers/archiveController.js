@@ -5,7 +5,7 @@ const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
 const { todayInBeijing } = require('../helpers/date');
 
-function loadStudentArchive(studentId) {
+function loadStudentArchive(studentId, user) {
   const student = db.prepare(
     `SELECT u.*, s.name as school_name, c2.name as class_name, c2.grade
      FROM users u
@@ -26,7 +26,14 @@ function loadStudentArchive(studentId) {
      WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
   ).all(studentId);
 
-  const works = db.prepare('SELECT * FROM works WHERE student_id = ? ORDER BY created_at DESC').all(studentId).map(toFileDto);
+  const works = db.prepare(`
+      SELECT w.*, u.school_id AS student_school_id
+      FROM works w JOIN users u ON u.id = w.student_id
+      WHERE w.student_id = ? ORDER BY w.created_at DESC`
+  ).all(studentId)
+    // 教师档案仅含本校已通过作品（决策 D-1/D-4）；学生本人与管理员仍为全量
+    .filter((work) => !isTeacher(user.role) || (work.review_status === 'approved' && work.student_school_id === user.school_id))
+    .map(toFileDto);
 
   const reflections = db.prepare(
     `SELECT r.*, l.title as lesson_title
@@ -41,7 +48,8 @@ function loadStudentArchive(studentId) {
      WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
   ).all(studentId);
 
-  const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=?`).get(studentId);
+  // 能力评分口径与作品可见性一致：教师仅统计其可见（approved）作品，其余角色全量
+  const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=? AND w.id IN (SELECT value FROM json_each(?))`).get(studentId, JSON.stringify(works.map((w) => w.id)));
   const growthRecords = db.prepare(`SELECT g.*, u.real_name recorder_name FROM growth_records g LEFT JOIN users u ON u.id=g.recorded_by WHERE g.student_id=? ORDER BY g.created_at DESC`).all(studentId);
   if (!growthRecords.length) {
     works.forEach((work) => growthRecords.push({ event_type: 'system', description: `提交作品《${work.title}》`, created_at: work.created_at }));
@@ -88,7 +96,7 @@ exports.generate = (req, res) => {
       return res.status(400).json({ error: '无权查看成长档案' });
     }
 
-    const archive = loadStudentArchive(studentId);
+    const archive = loadStudentArchive(studentId, user);
 
     if (!archive) {
       return res.status(400).json({ error: '学生不存在' });
@@ -165,7 +173,7 @@ exports.generateBatch = (req, res) => {
     sql += ' ORDER BY real_name';
 
     const studentRows = db.prepare(sql).all(...params);
-    const archives = studentRows.map((row) => loadStudentArchive(row.id)).filter(Boolean);
+    const archives = studentRows.map((row) => loadStudentArchive(row.id, user)).filter(Boolean);
 
     let scopeName = '批量成长档案';
     if (class_id) {
