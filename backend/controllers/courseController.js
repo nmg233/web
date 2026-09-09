@@ -161,7 +161,7 @@ exports.detail = (req, res) => {
     })();
 
     const teachers = COURSE_MANAGER_ROLES.includes(req.user.role)
-      ? db.prepare("SELECT id, real_name, role, school_id FROM users WHERE role IN ('teacher','academic_mentor') ORDER BY real_name").all()
+      ? db.prepare("SELECT id, real_name, role, school_id FROM users WHERE role = 'academic_mentor' AND is_active = 1 ORDER BY real_name").all()
       : [];
 
     res.json({ title: course.title, course, lessons, tasks, progress, resources, enrollments, teachers });
