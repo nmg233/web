@@ -43,7 +43,7 @@ function taskQuery(user) {
     FROM tasks t
     JOIN lessons l ON l.id = t.lesson_id
     JOIN courses c ON c.id = l.course_id
-    WHERE c.status = 'published'${scopeSql}
+    WHERE c.status = 'published' AND t.status = 'active'${scopeSql}
     ORDER BY c.title, l.sort_order, t.sort_order, t.created_at
   `).all(userId || null, userId || null, ...scopeParams);
   return tasks.map((task) => ({ ...task, status: taskStatus(task, userId) }));
@@ -66,7 +66,7 @@ exports.detail = (req, res) => {
       SELECT t.*, l.title AS lesson_title, l.course_id, c.title AS course_title,
         c.description AS course_description
       FROM tasks t JOIN lessons l ON l.id = t.lesson_id JOIN courses c ON c.id = l.course_id
-      WHERE t.id = ? AND c.status = 'published'
+      WHERE t.id = ? AND c.status = 'published' AND t.status = 'active'
     `).get(req.params.id);
     if (!task) return res.status(404).json({ error: '任务不存在' });
 
@@ -113,6 +113,23 @@ exports.update = (req, res) => {
   } catch (err) {
     console.error('更新任务错误:', err);
     res.status(500).json({ error: '更新任务失败' });
+  }
+};
+
+exports.cancel = (req, res) => {
+  try {
+    if (!canManageTask(req.user, req.params.id)) {
+      return res.status(403).json({ error: '无权管理该任务' });
+    }
+    const task = db.prepare('SELECT id, status FROM tasks WHERE id = ?').get(req.params.id);
+    if (!task || task.status === 'cancelled') return res.status(400).json({ error: '任务不存在或已取消' });
+    const work = db.prepare('SELECT 1 FROM works WHERE task_id = ? LIMIT 1').get(task.id);
+    if (work) return res.status(400).json({ error: '已有作品提交的任务不能取消' });
+    db.prepare("UPDATE tasks SET status = 'cancelled' WHERE id = ?").run(task.id);
+    res.json({ message: '任务已取消' });
+  } catch (err) {
+    console.error('取消任务错误:', err);
+    res.status(500).json({ error: '取消任务失败' });
   }
 };
 

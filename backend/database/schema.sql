@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   sort_order INTEGER DEFAULT 0,
   require_upload INTEGER DEFAULT 1,
   deadline DATETIME,
+  status TEXT NOT NULL DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
 );
