@@ -356,6 +356,25 @@ exports.updateLesson = (req, res) => {
   }
 };
 
+exports.cancelLesson = (req, res) => {
+  try {
+    const lesson = db.prepare('SELECT id, course_id, status FROM lessons WHERE id = ?').get(req.params.lessonId);
+    if (!lesson || !canManageCourse(req.user, lesson.course_id)) {
+      return res.status(404).json({ error: '课时不存在' });
+    }
+    const reason = String(req.body.reason || '').trim();
+    if (!reason) return res.status(400).json({ error: '请填写取消原因' });
+    if (lesson.status === 'cancelled') return res.status(400).json({ error: '课时已取消' });
+    db.prepare(
+      "UPDATE lessons SET status = 'cancelled', cancel_reason = ?, cancelled_at = CURRENT_TIMESTAMP WHERE id = ?"
+    ).run(reason, lesson.id);
+    res.json({ message: '课时已取消' });
+  } catch (err) {
+    console.error('取消课时错误:', err);
+    res.status(500).json({ error: '取消课时失败' });
+  }
+};
+
 // 上传资源
 exports.uploadResource = (req, res) => {
   try {

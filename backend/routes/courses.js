@@ -27,6 +27,7 @@ router.delete('/:id', requireRole('admin', 'academic_mentor'), controller.delete
 // 课时
 router.post('/:id/lessons', requireRole('admin', 'academic_mentor'), controller.addLesson);
 router.put('/lessons/:lessonId', requireRole('admin', 'academic_mentor'), controller.updateLesson);
+router.post('/lessons/:lessonId/cancel', requireRole('admin', 'academic_mentor'), controller.cancelLesson);
 
 // 资源
 router.post('/:id/resources', requireRole('admin', 'academic_mentor'), uploadResource.single('file'), controller.uploadResource);
