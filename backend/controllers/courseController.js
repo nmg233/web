@@ -305,7 +305,7 @@ exports.addLesson = (req, res) => {
           "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor' AND is_active = 1"
       ).get(instructor_id);
       if (!instructor) {
-        return res.status(400).json({ error: '授课人不存在或不可用（仅教师/执行导师可授课）' });
+        return res.status(400).json({ error: '授课人不存在或不可用（仅启用中的执行导师可授课）' });
       }
     }
 
