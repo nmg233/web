@@ -350,7 +350,7 @@ exports.downloadResource = (req, res) => {
       // 教师可下载已发布课程的课堂资料（线下备课需要）；学生须已报名；其余角色不可下载
       const isTeacher = req.user.role === 'teacher';
       const enrolled = req.user.role === 'student' && db.prepare(
-        'SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?'
+        "SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = 'active'"
       ).get(req.user.id, resource.course_id);
       if (resource.course_status !== 'published' || (!isTeacher && !enrolled)) {
         return res.status(404).json({ error: '附件不存在' });
