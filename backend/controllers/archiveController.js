@@ -79,6 +79,9 @@ function loadStudentArchive(studentId, user) {
   return { student: safeStudent, courses, works, reflections, evaluations, ability, growthRecords };
 }
 
+// 供 studentController 等复用（统一档案数据组装与角色过滤）
+exports.loadStudentArchive = loadStudentArchive;
+
 // 档案导出页面
 exports.showExport = (req, res) => {
   try {
