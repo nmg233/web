@@ -121,28 +121,23 @@ test('新库迁移标记到最新版本', () => {
   }
 });
 
-test('教师可导入自己授课课程的本校学生并记录导入人', async () => {
+test('教师不可导入选课', async () => {
   const token = await tokenFor('甲老师');
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [4] });
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.equal(body.added, 1);
-  const row = db.prepare("SELECT * FROM enrollments WHERE student_id = 4 AND course_id = 1").get();
-  assert.equal(row.status, 'active');
-  assert.equal(row.enrolled_by, 2);
-});
-
-test('教师不能导入非自己授课的课程', async () => {
-  const token = await tokenFor('甲老师');
-  const res = await authed(token, 'POST', '/api/courses/2/enroll', { student_ids: [7] });
   assert.equal(res.status, 403);
 });
 
-test('教师不能导入外校学生（整体拒绝）', async () => {
+test('教师不能查询导入候选学生', async () => {
+  const token = await tokenFor('甲老师');
+  const res = await authed(token, 'GET', '/api/courses/1/enroll/candidates', null);
+  assert.equal(res.status, 403);
+});
+
+test('教师不能导入外校学生', async () => {
   const token = await tokenFor('甲老师');
   const before = enrollmentRows().length;
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [5] });
-  assert.equal(res.status, 400);
+  assert.equal(res.status, 403);
   assert.equal(enrollmentRows().length, before);
 });
 
@@ -161,23 +156,11 @@ test('归档课程不能导入学生', async () => {
 });
 
 test('重复导入幂等且不产生重复行', async () => {
-  const token = await tokenFor('甲老师');
+  const token = await tokenFor('执行导师');
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [4] });
   assert.equal(res.status, 200);
   const count = db.prepare('SELECT COUNT(*) c FROM enrollments WHERE student_id = 4 AND course_id = 1').get().c;
   assert.equal(count, 1);
-});
-
-test('候选学生：教师仅本校且不含已报名', async () => {
-  const token = await tokenFor('甲老师');
-  const res = await authed(token, 'GET', '/api/courses/1/enroll/candidates', null);
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.equal(body.lockedSchoolId, 1);
-  const ids = body.students.map((s) => s.id);
-  assert.ok(ids.includes(7), '本校未报名学生应在候选内');
-  assert.ok(!ids.includes(5), '外校学生不应出现');
-  assert.ok(!ids.includes(4), '已报名学生不应出现');
 });
 
 test('日常不可退课：学生/教师/导师调用移除均被拒绝', async () => {

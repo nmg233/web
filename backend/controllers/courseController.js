@@ -582,13 +582,9 @@ exports.streamReplay = (req, res) => {
   }
 };
 
-// 选课导入权限：执行导师/管理员为课程管理者；教师须是该课程某一课时的授课人
+// 选课导入权限：仅执行导师和管理员为课程管理者
 function canEnrollCourse(user, courseId) {
-  if (COURSE_MANAGER_ROLES.includes(user.role)) return canManageCourse(user, courseId);
-  if (user.role !== 'teacher') return false;
-  return !!db.prepare(
-    'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
-  ).get(courseId, user.id);
+  return COURSE_MANAGER_ROLES.includes(user.role) && canManageCourse(user, courseId);
 }
 
 // 学生由执行导师/教师/管理员统一导入（一经选课不可退课；学生不自助选课）
@@ -603,7 +599,7 @@ exports.enroll = (req, res) => {
       return res.status(400).json({ error: '已归档课程不能导入学生' });
     }
     if (!canEnrollCourse(req.user, id)) {
-      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
+      return res.status(403).json({ error: '仅执行导师或管理员可导入学生' });
     }
 
     const { student_ids } = req.body;
@@ -619,15 +615,6 @@ exports.enroll = (req, res) => {
        WHERE id IN (${placeholders}) AND role = 'student' AND is_active = 1`
     ).all(...ids);
     const studentMap = new Map(students.map((s) => [s.id, s]));
-
-    if (req.user.role === 'teacher') {
-      const crossSchool = students.filter((s) => s.school_id !== req.user.school_id);
-      if (crossSchool.length > 0) {
-        return res.status(400).json({
-          error: `以下学生与您不同校，无法导入：${crossSchool.map((s) => s.real_name).join('、')}`,
-        });
-      }
-    }
 
     const added = [];
     const skipped = [];
@@ -687,7 +674,7 @@ exports.enrollCandidates = (req, res) => {
       return res.status(400).json({ error: '已归档课程不能导入学生' });
     }
     if (!canEnrollCourse(req.user, id)) {
-      return res.status(403).json({ error: '仅授课教师、执行导师或管理员可导入学生' });
+      return res.status(403).json({ error: '仅执行导师或管理员可导入学生' });
     }
 
     const conditions = [
@@ -696,13 +683,8 @@ exports.enrollCandidates = (req, res) => {
       `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
     ];
     const params = [];
-    if (req.user.role === 'teacher') {
-      conditions.push('u.school_id = ?');
-      params.push(req.user.school_id || 0);
-    } else {
-      if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
-      if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
-    }
+    if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
+    if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
     if (req.query.search) {
       conditions.push('(u.real_name LIKE ? OR u.username LIKE ?)');
       params.push(`%${req.query.search}%`, `%${req.query.search}%`);
@@ -720,7 +702,7 @@ exports.enrollCandidates = (req, res) => {
 
     res.json({
       students,
-      lockedSchoolId: req.user.role === 'teacher' ? req.user.school_id || 0 : null,
+      lockedSchoolId: null,
     });
   } catch (err) {
     console.error('加载导入候选学生错误:', err);
