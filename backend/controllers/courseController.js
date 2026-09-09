@@ -49,6 +49,11 @@ exports.list = (req, res) => {
     if (req.query.grade_level) { sql += ' AND c.grade_level = ?'; params.push(req.query.grade_level); }
     if (req.query.difficulty) { sql += ' AND c.difficulty = ?'; params.push(req.query.difficulty); }
     if (req.query.status) { sql += ' AND c.status = ?'; params.push(req.query.status); }
+    if (req.query.search?.trim()) {
+      const keyword = `%${req.query.search.trim()}%`;
+      sql += ' AND (c.title LIKE ? OR c.theme LIKE ? OR c.description LIKE ?)';
+      params.push(keyword, keyword, keyword);
+    }
 
     sql += ' ORDER BY c.updated_at DESC';
 
