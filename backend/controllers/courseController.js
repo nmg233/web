@@ -276,7 +276,7 @@ exports.addLesson = (req, res) => {
     // 授课人须为启用中的教师或执行导师
     if (instructor_id) {
       const instructor = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role IN ('teacher','academic_mentor') AND is_active = 1"
+          "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor' AND is_active = 1"
       ).get(instructor_id);
       if (!instructor) {
         return res.status(400).json({ error: '授课人不存在或不可用（仅教师/执行导师可授课）' });
