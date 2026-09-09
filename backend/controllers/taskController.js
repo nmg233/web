@@ -1,5 +1,15 @@
 const db = require('../config/database');
 
+function canManageTask(user, taskId) {
+  if (user.role === 'admin') return true;
+  return !!db.prepare(`
+    SELECT 1 FROM tasks t
+    JOIN lessons l ON l.id = t.lesson_id
+    JOIN courses c ON c.id = l.course_id
+    WHERE t.id = ? AND c.created_by = ?
+  `).get(taskId, user.id);
+}
+
 function taskStatus(task, userId) {
   if (!userId) return 'pending';
   const work = db.prepare('SELECT review_status FROM works WHERE student_id = ? AND task_id = ? ORDER BY version DESC, created_at DESC, id DESC LIMIT 1').get(userId, task.id);
@@ -77,6 +87,32 @@ exports.detail = (req, res) => {
   } catch (err) {
     console.error('任务详情错误:', err);
     res.status(500).json({ error: '加载任务详情失败' });
+  }
+};
+
+exports.update = (req, res) => {
+  try {
+    if (!canManageTask(req.user, req.params.id)) {
+      return res.status(403).json({ error: '无权管理该任务' });
+    }
+    const fields = ['title', 'description', 'task_type', 'require_upload', 'deadline'];
+    const sets = [];
+    const values = [];
+    for (const field of fields) {
+      if (req.body[field] !== undefined) {
+        sets.push(`${field} = ?`);
+        values.push(field === 'require_upload'
+          ? (req.body[field] === true || req.body[field] === '1' || req.body[field] === 1 ? 1 : 0)
+          : req.body[field] || null);
+      }
+    }
+    if (sets.length === 0) return res.status(400).json({ error: '没有需要更新的内容' });
+    values.push(req.params.id);
+    db.prepare(`UPDATE tasks SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+    res.json({ message: '任务更新成功' });
+  } catch (err) {
+    console.error('更新任务错误:', err);
+    res.status(500).json({ error: '更新任务失败' });
   }
 };
 

@@ -9,5 +9,6 @@ router.use(requirePasswordChanged);
 router.use(requireRole('student', 'admin', 'academic_mentor', 'teacher'));
 router.get('/', controller.list);
 router.get('/:id', controller.detail);
+router.put('/:id', requireRole('admin', 'academic_mentor'), controller.update);
 
 module.exports = router;
