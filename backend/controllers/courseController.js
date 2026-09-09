@@ -41,6 +41,16 @@ exports.list = (req, res) => {
         WHERE e.course_id = c.id AND e.student_id = ? AND e.status = 'active'
       )`;
       params.push(req.user.id);
+    } else if (req.user.role === 'teacher') {
+      sql += ` AND c.status = 'published' AND EXISTS (
+        SELECT 1
+        FROM enrollments e
+        JOIN users s ON s.id = e.student_id
+        WHERE e.course_id = c.id
+          AND e.status = 'active'
+          AND s.school_id = ?
+      )`;
+      params.push(req.user.school_id || 0);
     } else if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
       sql += " AND c.status = 'published'";
     }
@@ -121,11 +131,13 @@ exports.detail = (req, res) => {
       }
     }
 
-    // 授课教师可查看自己授课的课程（含未发布课程，便于线下导入学生）
-    const viewerIsInstructor = req.user.role === 'teacher' && !!db.prepare(
-      'SELECT 1 FROM lessons WHERE course_id = ? AND instructor_id = ? LIMIT 1'
-    ).get(id, req.user.id);
-    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && course.status !== 'published' && !viewerIsInstructor) {
+    const teacherCourse = req.user.role === 'teacher' && course.status === 'published' && !!db.prepare(
+      `SELECT 1 FROM enrollments e
+       JOIN users s ON s.id = e.student_id
+       WHERE e.course_id = ? AND e.status = 'active' AND s.school_id = ? LIMIT 1`
+    ).get(id, req.user.school_id || 0);
+    if (!COURSE_MANAGER_ROLES.includes(req.user.role) && !teacherCourse &&
+        !(req.user.role === 'student' && course.status === 'published')) {
       return res.status(400).json({ error: '课程不存在' });
     }
 
@@ -145,7 +157,7 @@ exports.detail = (req, res) => {
           WHERE l.course_id = ?`).get(req.user.id, id).progress
       : 0;
     const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
-    const isInstructorTeacher = viewerIsInstructor;
+    const isInstructorTeacher = teacherCourse;
     const enrollments = (() => {
       if (COURSE_MANAGER_ROLES.includes(req.user.role) || isInstructorTeacher) {
         return db.prepare(
