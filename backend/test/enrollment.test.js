@@ -221,7 +221,7 @@ test('课时授课人必须是启用的教师或执行导师', async () => {
   assert.equal(okRes.status, 200);
 });
 
-test('教师任务列表只含自己授课课时的任务', async () => {
+test('教师任务列表包含本校学生参与课程的任务', async () => {
   const tokenA = await tokenFor('甲老师');
   const resA = await authed(tokenA, 'GET', '/api/tasks', null);
   const bodyA = await resA.json();
@@ -230,7 +230,7 @@ test('教师任务列表只含自己授课课时的任务', async () => {
   const tokenB = await tokenFor('乙老师');
   const resB = await authed(tokenB, 'GET', '/api/tasks', null);
   const bodyB = await resB.json();
-  assert.ok(!bodyB.tasks.some((t) => t.id === 1), '非授课教师不应看到任务');
+  assert.ok(bodyB.tasks.some((t) => t.id === 1), '本校学生参与的课程任务应可见');
 });
 
 test('教师 Dashboard 展示授课课程，学生列表仅含已报名课程', async () => {
