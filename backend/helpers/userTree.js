@@ -4,7 +4,7 @@ function makeRoleGroups() {
   return { teacher: [], student: [] };
 }
 
-function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExecutive = false, classId = null, schoolId = null } = {}) {
+function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExecutive = false, classId = null, schoolId = null, mentorId = null } = {}) {
   const placeholders = roles.map(() => '?').join(',');
   const params = roles.slice();
   let sql = `
@@ -27,6 +27,17 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
   if (schoolId) {
     sql += ' AND u.school_id = ?';
     params.push(schoolId);
+  }
+  if (mentorId) {
+    // 导师仅见历史/当前参加过自己课程的学生（决策 D-1，含授课归属）
+    sql += ` AND EXISTS (
+      SELECT 1 FROM enrollments e JOIN courses c2 ON c2.id = e.course_id
+      WHERE e.student_id = u.id
+        AND (c2.created_by = ? OR EXISTS (
+          SELECT 1 FROM lessons l WHERE l.course_id = c2.id AND l.instructor_id = ?
+        ))
+    )`;
+    params.push(mentorId, mentorId);
   }
 
   sql += ' ORDER BY u.role, u.real_name';
@@ -71,7 +82,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
     }
   }
 
-  if (search) {
+  if (search || schoolId || mentorId) {
     for (const school of tree.schools) {
       school.classes = school.classes.filter((cls) => cls.roles.teacher.length > 0 || cls.roles.student.length > 0);
     }

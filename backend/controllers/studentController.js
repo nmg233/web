@@ -9,6 +9,8 @@ const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
 const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
+const { canViewArchive } = require('../helpers/archivePolicy');
+const { loadStudentArchive } = require('./archiveController');
 const orgService = require('../services/organizationService');
 const { pinyin } = require('pinyin-pro');
 
@@ -88,6 +90,16 @@ exports.list = (req, res) => {
     if (isTeacher(req.user.role)) {
       sql += ' AND u.school_id = ?';
       params.push(req.user.school_id || 0);
+    } else if (req.user.role === 'academic_mentor') {
+      // 导师仅见历史/当前参加过自己课程的学生（决策 D-1，与详情/档案树一致，红线 1）
+      sql += ` AND EXISTS (
+        SELECT 1 FROM enrollments e JOIN courses c2 ON c2.id = e.course_id
+        WHERE e.student_id = u.id
+          AND (c2.created_by = ? OR EXISTS (
+            SELECT 1 FROM lessons l WHERE l.course_id = c2.id AND l.instructor_id = ?
+          ))
+      )`;
+      params.push(req.user.id, req.user.id);
     }
 
     if (req.query.school_id) { sql += ' AND u.school_id = ?'; params.push(req.query.school_id); }
@@ -727,15 +739,9 @@ exports.detail = (req, res) => {
     }
 
     if (target.role === 'student') {
-      // 学生目标：本人或教职工可查看（教师限本校）
-      if (viewer.role === 'student' && Number(id) !== viewer.id) {
-        return res.status(400).json({ error: '无权查看该学生档案' });
-      }
-      if (!isStaff(viewer.role) && viewer.role !== 'student') {
-        return res.status(400).json({ error: '无权查看学生档案' });
-      }
-      if (isTeacher(viewer.role) && target.school_id !== viewer.school_id) {
-        return res.status(400).json({ error: '无权查看其他学校学生' });
+      // 学生目标：档案访问范围统一由 archivePolicy 判定（决策 D-1）
+      if (!canViewArchive(viewer, target)) {
+        return res.status(403).json({ error: '学生不存在或无权访问' });
       }
     } else {
       // 非学生目标（教师/执行导师/管理员）：仅教职工可查看
@@ -774,39 +780,14 @@ exports.detail = (req, res) => {
       });
     }
 
-    const courses = db.prepare(
-      `SELECT c.title, c.theme, e.enrolled_at, e.completed_at
-       FROM enrollments e JOIN courses c ON e.course_id = c.id
-       WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
-    ).all(id);
-
-    const works = db.prepare(
-      `SELECT w.*, c.title as course_title, t.title as task_title
-       FROM works w
-       LEFT JOIN enrollments e ON w.enrollment_id = e.id
-       LEFT JOIN courses c ON e.course_id = c.id
-       LEFT JOIN tasks t ON w.task_id = t.id
-       WHERE w.student_id = ? ORDER BY w.created_at DESC`
-    ).all(id).map(toFileDto);
-
-    const reflections = db.prepare(
-      `SELECT r.*, l.title as lesson_title, c2.title as course_title
-       FROM reflections r
-       LEFT JOIN lessons l ON r.lesson_id = l.id
-       LEFT JOIN enrollments e ON r.enrollment_id = e.id
-       LEFT JOIN courses c2 ON e.course_id = c2.id
-       WHERE r.student_id = ? ORDER BY r.created_at DESC`
-    ).all(id);
-
-    const evaluations = db.prepare(
-      `SELECT ev.*, u2.real_name as evaluator_name
-       FROM evaluations ev JOIN users u2 ON ev.evaluator_id = u2.id
-       WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
-    ).all(id);
-
+    // 学生目标：档案数据统一由 loadStudentArchive 组装（作品/评价/反思按角色过滤，决策 D-1/D-2）
+    const archive = loadStudentArchive(id, viewer);
+    if (!archive) {
+      return res.status(403).json({ error: '学生不存在或无权访问' });
+    }
     res.json({
       title: `${safeTarget.real_name} - 成长档案`,
-      student: safeTarget, courses, works, reflections, evaluations
+      ...archive,
     });
   } catch (err) {
     console.error('用户详情错误:', err);

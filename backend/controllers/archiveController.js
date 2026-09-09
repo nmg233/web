@@ -4,6 +4,9 @@ const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
 const { todayInBeijing } = require('../helpers/date');
+const { canViewArchive, canAddObservation } = require('../helpers/archivePolicy');
+const { canViewWork } = require('../helpers/workPolicy');
+const { courseBelongsToMentor } = require('../helpers/courseScope');
 
 function loadStudentArchive(studentId, user) {
   const student = db.prepare(
@@ -14,25 +17,40 @@ function loadStudentArchive(studentId, user) {
      WHERE u.id = ? AND u.role = 'student'`
   ).get(studentId);
 
-  if (!student) return null;
+  // 档案访问范围统一由 archivePolicy 判定（决策 D-1；列表/树/详情三入口一致）
+  if (!student || !canViewArchive(user, student)) return null;
 
   // AUTH-01：脱敏，剔除 password_hash 等敏感字段
   const safeStudent = sanitizeUser(student);
 
   const courses = db.prepare(
-    `SELECT c.title, c.theme, c.grade_level, c.difficulty,
+    `SELECT e.id AS enrollment_id, c.title, c.theme, c.grade_level, c.difficulty,
             e.enrolled_at, e.completed_at
      FROM enrollments e JOIN courses c ON e.course_id = c.id
      WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
   ).all(studentId);
 
+  // 导师可见的课程报名（含历史），用于过滤评价/反思（决策 D-1；遗留无课程关联数据按 D-2 对导师不可见）
+  const mentorEnrollmentIds = user.role === 'academic_mentor'
+    ? db.prepare(`
+        SELECT e.id FROM enrollments e
+        JOIN courses c ON c.id = e.course_id
+        WHERE e.student_id = ?
+          AND (c.created_by = ? OR EXISTS (
+            SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
+          ))
+      `).all(studentId, user.id, user.id).map((r) => r.id)
+    : null;
+
   const works = db.prepare(`
-      SELECT w.*, u.school_id AS student_school_id
-      FROM works w JOIN users u ON u.id = w.student_id
+      SELECT w.*, u.school_id AS student_school_id, c.id AS course_id
+      FROM works w
+      JOIN users u ON u.id = w.student_id
+      LEFT JOIN enrollments e ON e.id = w.enrollment_id
+      LEFT JOIN courses c ON c.id = e.course_id
       WHERE w.student_id = ? ORDER BY w.created_at DESC`
   ).all(studentId)
-    // 教师档案仅含本校已通过作品（决策 D-1/D-4）；学生本人与管理员仍为全量
-    .filter((work) => !isTeacher(user.role) || (work.review_status === 'approved' && work.student_school_id === user.school_id))
+    .filter((work) => canViewWork(user, work))
     .map(toFileDto);
 
   const reflections = db.prepare(
@@ -40,13 +58,15 @@ function loadStudentArchive(studentId, user) {
      FROM reflections r
      LEFT JOIN lessons l ON r.lesson_id = l.id
      WHERE r.student_id = ? ORDER BY r.created_at DESC`
-  ).all(studentId);
+  ).all(studentId)
+    .filter((r) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id));
 
   const evaluations = db.prepare(
     `SELECT ev.*, u2.real_name as evaluator_name
      FROM evaluations ev JOIN users u2 ON ev.evaluator_id = u2.id
      WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
-  ).all(studentId);
+  ).all(studentId)
+    .filter((ev) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(ev.enrollment_id));
 
   // 能力评分口径与作品可见性一致：教师仅统计其可见（approved）作品，其余角色全量
   const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=? AND w.id IN (SELECT value FROM json_each(?))`).get(studentId, JSON.stringify(works.map((w) => w.id)));
@@ -70,7 +90,8 @@ exports.showExport = (req, res) => {
     const tree = buildUserTree({
       roles: ['student'],
       search: req.query.search || '',
-      schoolId: isTeacher(user.role) ? user.school_id : null
+      schoolId: isTeacher(user.role) ? user.school_id : null,
+      mentorId: user.role === 'academic_mentor' ? user.id : null
     });
 
     const courses = db.prepare('SELECT id, title FROM courses ORDER BY title').all();
@@ -99,11 +120,7 @@ exports.generate = (req, res) => {
     const archive = loadStudentArchive(studentId, user);
 
     if (!archive) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    if (isTeacher(user.role) && archive.student.school_id !== user.school_id) {
-      return res.status(400).json({ error: '无权查看其他学校学生档案' });
+      return res.status(403).json({ error: '学生不存在或无权访问' });
     }
 
     res.json({
@@ -125,9 +142,9 @@ exports.generate = (req, res) => {
 exports.addGrowthRecord = (req, res) => {
   try {
     const description = (req.body.description || '').trim();
-    const student = db.prepare("SELECT id, school_id FROM users WHERE id=? AND role='student'").get(req.body.student_id);
+    const student = db.prepare("SELECT id, school_id, role FROM users WHERE id=? AND role='student'").get(req.body.student_id);
     if (!student || !description) return res.status(400).json({ error: '请选择学生并填写记录内容' });
-    if (isTeacher(req.user.role) && student.school_id !== req.user.school_id) return res.status(403).json({ error: '无权记录该学生' });
+    if (!canAddObservation(req.user, student)) return res.status(403).json({ error: '无权记录该学生' });
     db.prepare("INSERT INTO growth_records (student_id,event_type,description,recorded_by) VALUES (?,'teacher',?,?)").run(student.id, description, req.user.id);
     res.json({ message: '成长记录已添加' });
   } catch (err) { res.status(500).json({ error: '添加成长记录失败' }); }
@@ -270,13 +287,13 @@ exports.submitReflection = (req, res) => {
   }
 };
 
-// 提交评价
+// 提交评价（决策 D-5）：仅执行导师/管理员；必须绑定有效报名；导师限自己课程
 exports.submitEvaluation = (req, res) => {
   try {
     const { student_id, enrollment_id, eval_type, score, comment } = req.body;
 
-    if (!isStaff(req.user.role)) {
-      return res.status(400).json({ error: '无权提交评价' });
+    if (!['admin', 'academic_mentor'].includes(req.user.role)) {
+      return res.status(403).json({ error: '无权提交评价' });
     }
 
     const student = db.prepare(
@@ -287,31 +304,33 @@ exports.submitEvaluation = (req, res) => {
       return res.status(400).json({ error: '学生不存在' });
     }
 
-    if (isTeacher(req.user.role) && student.school_id !== req.user.school_id) {
-      return res.status(400).json({ error: '教师只能评价本校学生' });
+    if (!enrollment_id) {
+      return res.status(400).json({ error: '请选择评价课程' });
+    }
+    const enrollment = db.prepare(
+      'SELECT id, course_id FROM enrollments WHERE id = ? AND student_id = ? AND status = ?'
+    ).get(enrollment_id, student_id, 'active');
+    if (!enrollment) {
+      return res.status(400).json({ error: '课程报名记录不属于该学生或已失效' });
+    }
+    if (req.user.role === 'academic_mentor' && !courseBelongsToMentor(req.user.id, enrollment.course_id)) {
+      return res.status(403).json({ error: '无权评价该课程的学生' });
     }
 
-    if (enrollment_id) {
-      const enrollment = db.prepare(
-        'SELECT id FROM enrollments WHERE id = ? AND student_id = ?'
-      ).get(enrollment_id, student_id);
-      if (!enrollment) {
-        return res.status(400).json({ error: '课程报名记录不属于该学生' });
-      }
+    // 教职工仅可提交过程性/成果评价；peer/self 保留给未来学生端功能
+    if (!['process', 'outcome'].includes(eval_type)) {
+      return res.status(400).json({ error: '请选择过程性评价或成果评价' });
     }
 
-    const allowedEvalTypes = ['process', 'outcome', 'peer', 'self'];
-    const finalEvalType = allowedEvalTypes.includes(eval_type) ? eval_type : 'process';
-
-    if (score && (!Number.isInteger(Number(score)) || Number(score) < 1 || Number(score) > 100)) {
+    if (score != null && score !== '' && (!Number.isInteger(Number(score)) || Number(score) < 1 || Number(score) > 100)) {
       return res.status(400).json({ error: '评分需为1-100的整数' });
     }
 
     db.prepare(
       `INSERT INTO evaluations (evaluator_id, student_id, enrollment_id, eval_type, score, comment)
        VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(req.user.id, student_id, enrollment_id || null,
-          finalEvalType, score || null, comment || null);
+    ).run(req.user.id, student_id, enrollment_id,
+          eval_type, score || null, comment || null);
 
     res.json({ message: '评价提交成功！' });
   } catch (err) {
