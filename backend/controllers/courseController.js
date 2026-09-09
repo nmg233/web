@@ -335,6 +335,25 @@ exports.uploadResource = (req, res) => {
   }
 };
 
+// 删除课程资源：先删除数据库记录，再在提交后清理物理文件
+exports.deleteResource = (req, res) => {
+  try {
+    const resource = db.prepare(
+      'SELECT id, course_id, file_path FROM resources WHERE id = ?'
+    ).get(req.params.resource_id);
+    if (!resource || !canManageCourse(req.user, resource.course_id)) {
+      return res.status(404).json({ error: '资源不存在' });
+    }
+
+    db.prepare('DELETE FROM resources WHERE id = ?').run(resource.id);
+    removeFilesAfterCommit([resource.file_path], UPLOAD_ROOT);
+    res.json({ message: '资源已删除' });
+  } catch (err) {
+    console.error('删除课程资源错误:', err);
+    res.status(500).json({ error: '删除资源失败' });
+  }
+};
+
 // 下载课程资源
 exports.downloadResource = (req, res) => {
   try {

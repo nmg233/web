@@ -15,6 +15,7 @@ router.use(requirePasswordChanged);
 router.get('/', controller.list);
 router.post('/', requireRole('admin', 'academic_mentor'), controller.create);
 router.get('/resources/:resource_id/download', controller.downloadResource);
+router.delete('/resources/:resource_id', requireRole('admin', 'academic_mentor'), controller.deleteResource);
 router.get('/replays/:replayId/stream-url', controller.streamUrl);
 router.put('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.updateReplay);
 router.delete('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.deleteReplay);
