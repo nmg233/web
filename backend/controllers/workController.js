@@ -329,14 +329,15 @@ exports.download = (req, res) => {
   }
 };
 
-// 删除作品
+// 删除作品（决策 D-6）
 exports.delete = (req, res) => {
   try {
     const work = db.prepare(`
       SELECT w.id, w.student_id, w.title, w.file_path, w.review_status,
-             u.school_id as student_school_id
+             EXISTS (SELECT 1 FROM works newer
+               WHERE newer.parent_work_id = COALESCE(w.parent_work_id, w.id)
+                 AND newer.version > w.version) AS has_newer_version
       FROM works w
-      JOIN users u ON u.id = w.student_id
       WHERE w.id = ?
     `).get(req.params.id);
 
@@ -344,21 +345,14 @@ exports.delete = (req, res) => {
       return res.status(400).json({ error: '作品不存在' });
     }
 
-    if (!isStaff(req.user.role) && work.student_id !== req.user.id) {
-      return res.status(400).json({ error: '无权删除该作品' });
-    }
-
-    if (isTeacher(req.user.role)) {
-      return res.status(403).json({ error: '教师不参与作品删除' });
-    }
-
-    if (isTeacher(req.user.role) && work.student_school_id !== req.user.school_id) {
-      return res.status(400).json({ error: '无权删除其他学校作品' });
-    }
-
-    // 已通过评审的作品承载评审证据与成长档案数据，禁止物理删除
-    if (work.review_status === 'approved') {
-      return res.status(403).json({ error: '已通过评审的作品不能删除' });
+    if (!canDeleteWork(req.user, work)) {
+      if (work.review_status === 'approved') {
+        return res.status(403).json({ error: '已通过评审的作品不能删除' });
+      }
+      if (work.has_newer_version) {
+        return res.status(403).json({ error: '已有后续版本的作品不能删除' });
+      }
+      return res.status(403).json({ error: '无权删除该作品' });
     }
 
     // 先删数据库记录（评审关联经外键级联清理），提交后再删物理文件
