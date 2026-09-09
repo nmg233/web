@@ -28,15 +28,19 @@ function taskStatusFromReview(reviewStatus) {
 
 function taskQuery(user) {
   const userId = user.role === 'student' ? user.id : null;
-  // 任务可见范围：学生=已报名课程；教师=自己授课课时；执行导师=自己管理课程；管理员=全部
+  // 任务可见范围：学生=已报名课程；教师=本校学生相关课程；执行导师=自己管理课程；管理员=全部
   const scopeConditions = [];
   const scopeParams = [];
   if (user.role === 'student') {
     scopeConditions.push('EXISTS (SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = ?)');
     scopeParams.push(user.id, 'active');
   } else if (user.role === 'teacher') {
-    scopeConditions.push('EXISTS (SELECT 1 FROM lessons l2 WHERE l2.id = t.lesson_id AND l2.instructor_id = ?)');
-    scopeParams.push(user.id);
+    scopeConditions.push(`EXISTS (
+      SELECT 1 FROM enrollments e2
+      JOIN users s2 ON s2.id = e2.student_id
+      WHERE e2.course_id = c.id AND e2.status = 'active' AND s2.school_id = ?
+    )`);
+    scopeParams.push(user.school_id || 0);
   } else if (user.role === 'academic_mentor') {
     scopeConditions.push('c.created_by = ?');
     scopeParams.push(user.id);
@@ -71,7 +75,7 @@ exports.detail = (req, res) => {
   try {
     const task = db.prepare(`
       SELECT t.*, l.title AS lesson_title, l.course_id, c.title AS course_title,
-        c.description AS course_description
+        c.description AS course_description, c.created_by
       FROM tasks t JOIN lessons l ON l.id = t.lesson_id JOIN courses c ON c.id = l.course_id
       WHERE t.id = ? AND c.status = 'published' AND t.status = 'active'
     `).get(req.params.id);
@@ -82,6 +86,17 @@ exports.detail = (req, res) => {
       ? db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(userId, task.course_id, 'active')
       : null;
     if (userId && !enrollment) return res.status(404).json({ error: '任务不存在' });
+    if (req.user.role === 'teacher') {
+      const related = db.prepare(`
+        SELECT 1 FROM enrollments e
+        JOIN users s ON s.id = e.student_id
+        WHERE e.course_id = ? AND e.status = 'active' AND s.school_id = ? LIMIT 1
+      `).get(task.course_id, req.user.school_id || 0);
+      if (!related) return res.status(404).json({ error: '任务不存在' });
+    }
+    if (req.user.role === 'academic_mentor' && task.created_by !== req.user.id) {
+      return res.status(404).json({ error: '任务不存在' });
+    }
     const works = userId ? db.prepare(`
       SELECT w.id, w.title, w.description, w.file_type,
         CASE WHEN w.file_path IS NOT NULL THEN 1 ELSE 0 END AS has_file,
