@@ -325,6 +325,37 @@ exports.addLesson = (req, res) => {
   }
 };
 
+exports.updateLesson = (req, res) => {
+  try {
+    const lesson = db.prepare('SELECT id, course_id FROM lessons WHERE id = ?').get(req.params.lessonId);
+    if (!lesson || !canManageCourse(req.user, lesson.course_id)) {
+      return res.status(404).json({ error: '课时不存在' });
+    }
+    const fields = ['title', 'description', 'duration', 'start_at', 'end_at', 'location', 'instructor_id'];
+    const sets = [];
+    const values = [];
+    for (const field of fields) {
+      if (req.body[field] !== undefined) {
+        sets.push(`${field} = ?`);
+        values.push(req.body[field] || null);
+      }
+    }
+    if (req.body.instructor_id) {
+      const instructor = db.prepare(
+        "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor' AND is_active = 1"
+      ).get(req.body.instructor_id);
+      if (!instructor) return res.status(400).json({ error: '授课人不存在或不可用' });
+    }
+    if (sets.length === 0) return res.status(400).json({ error: '没有需要更新的内容' });
+    values.push(lesson.id);
+    db.prepare(`UPDATE lessons SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+    res.json({ message: '课时更新成功' });
+  } catch (err) {
+    console.error('更新课时错误:', err);
+    res.status(500).json({ error: '更新课时失败' });
+  }
+};
+
 // 上传资源
 exports.uploadResource = (req, res) => {
   try {
