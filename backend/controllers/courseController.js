@@ -27,7 +27,7 @@ exports.list = (req, res) => {
   try {
     let sql = `
       SELECT c.*, u.real_name as creator_name,
-        (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as student_count
+        (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') as student_count
       FROM courses c
       LEFT JOIN users u ON c.created_by = u.id
       WHERE 1=1
