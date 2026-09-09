@@ -8,9 +8,8 @@ const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { toFileDto } = require('../helpers/fileDto');
 const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
-const { isStrongPassword } = require('../helpers/passwordPolicy');
+const { generateTemporaryPassword } = require('../services/tempPasswordService');
 const orgService = require('../services/organizationService');
-const { pinyin } = require('pinyin-pro');
 
 const { resolveUsername } = require('../helpers/username');
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
@@ -36,18 +35,6 @@ function userDeletionBlockers(userId) {
 
 function formatBlockers(blockers) {
   return blockers.map((b) => `${b.label} ${b.count} 条（${b.hint}）`).join('；');
-}
-
-// 学生默认密码：姓名拼音 + @123（如 王小明 → wangxiaoming@123）。
-// 姓名不含中文或拼音提取异常时回退 pbl123456。
-function defaultStudentPassword(realName) {
-  try {
-    const py = pinyin(String(realName || '').trim(), { toneType: 'none', type: 'array' })
-      .join('')
-      .toLowerCase();
-    if (py && /^[a-z0-9]+$/.test(py)) return `${py}@123`;
-  } catch (e) { /* 回退默认 */ }
-  return 'pbl123456';
 }
 
 function deleteUserWithWorks(userId) {
@@ -140,13 +127,10 @@ exports.create = (req, res) => {
     }
 
     const studentUsername = resolveUsername(db, req.body.username, 'student');
-    const studentPassword = password || defaultStudentPassword(real_name);
-    // AUTH-08：若管理员显式设置了自定义密码，则必须满足统一强密码策略
-    if (password && !isStrongPassword(password)) {
-      return res.status(400).json({
-        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
-      });
+    if (password !== undefined && password !== null && password !== '') {
+      return res.status(400).json({ error: '初始密码由系统随机生成，请勿传入 password' });
     }
+    const studentPassword = generateTemporaryPassword();
     const password_hash = bcrypt.hashSync(studentPassword, 10);
 
     // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
@@ -156,10 +140,14 @@ exports.create = (req, res) => {
     ).run(studentUsername, password_hash, real_name, email || null, phone || null,
           school_id || null, class_id || null);
 
+    res.set('Cache-Control', 'no-store');
     res.json({
-      message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）`,
+      message: `学生 ${real_name} 添加成功，首次登录需修改密码`,
       id: Number(result.lastInsertRowid),
       username: studentUsername,
+      real_name,
+      temp_password: studentPassword,
+      force_reset_password: 1,
     });
   } catch (err) {
     console.error('添加学生错误:', err);
@@ -269,7 +257,7 @@ exports.import = (req, res) => {
       return res.status(400).json({ error: '请上传 .csv / .xlsx 文件或提供 data' });
     }
 
-    // AUTH-06：批量导入默认密码按姓名拼音生成（姓名拼音@123），强制首次登录修改密码
+    // 每个成功导入的用户使用独立随机临时密码；仅当次响应返回明文。
     const insert = db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
@@ -310,16 +298,18 @@ exports.import = (req, res) => {
           errors.push(`第 ${seq} 行「${real_name}」：${err.message}`);
           continue;
         }
-        const password_hash = bcrypt.hashSync(defaultStudentPassword(real_name), 10);
+        const temp_password = generateTemporaryPassword();
+        const password_hash = bcrypt.hashSync(temp_password, 10);
         insert.run(username, password_hash, real_name,
                    row.email || null, row.phone || null, row.profile || null,
                    role, school_id || null, class_id || null);
         imported++;
-        accounts.push({ username, real_name, role, school_name: row.school_name, class_name: row.class_name });
+        accounts.push({ username, real_name, role, school_name: row.school_name, class_name: row.class_name, temp_password });
       }
       return { imported, errors, accounts };
     })();
 
+    res.set('Cache-Control', 'no-store');
     res.json({
       message: result.errors.length
         ? `成功导入 ${result.imported} 名用户，${result.errors.length} 条失败`
@@ -401,11 +391,8 @@ exports.createUser = (req, res) => {
       return res.status(400).json({ error: '学生和教师必须选择学校和班级' });
     }
 
-    // AUTH-08：管理员自定义密码须满足统一强密码策略
-    if (password && !isStrongPassword(password)) {
-      return res.status(400).json({
-        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
-      });
+    if (password !== undefined && password !== null && password !== '') {
+      return res.status(400).json({ error: '初始密码由系统随机生成，请勿传入 password' });
     }
 
     if (class_id) {
@@ -417,7 +404,7 @@ exports.createUser = (req, res) => {
 
     const finalUsername = resolveUsername(db, req.body.username, role);
 
-    const finalPassword = password || (role === 'student' ? defaultStudentPassword(real_name) : 'pbl123456');
+    const finalPassword = generateTemporaryPassword();
     const password_hash = bcrypt.hashSync(finalPassword, 10);
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     const finalClassId = role === 'academic_mentor' ? null : class_id;
@@ -428,7 +415,8 @@ exports.createUser = (req, res) => {
     ).run(finalUsername, password_hash, real_name, email || null, phone || null,
           profile || null, role, finalSchoolId || null, finalClassId || null);
 
-    res.json({ message: `用户 ${real_name} 添加成功`, username: finalUsername });
+    res.set('Cache-Control', 'no-store');
+    res.json({ message: `用户 ${real_name} 添加成功`, username: finalUsername, real_name, temp_password: finalPassword, force_reset_password: 1 });
   } catch (err) {
     console.error('添加用户错误:', err);
     if (err.status === 400) return res.status(400).json({ error: err.message });
@@ -471,23 +459,14 @@ exports.updateUser = (req, res) => {
       }
     }
 
-    // AUTH-08：管理员重置/修改用户密码须满足统一强密码策略
-    if (password && !isStrongPassword(password)) {
-      return res.status(400).json({
-        error: '密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类'
-      });
+    // 密码重置统一走专用接口，避免编辑资料绕过随机密码及首次改密规则。
+    if (password !== undefined && password !== null && password !== '') {
+      return res.status(400).json({ error: '请使用重置密码功能，系统将生成随机临时密码' });
     }
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     const finalClassId = role === 'academic_mentor' ? null : class_id;
     const active = toBooleanInt(is_active);
-
-    if (password) {
-      const password_hash = bcrypt.hashSync(password, 10);
-      // AUTH-03：管理员直接改密后，撤销该用户所有 Refresh Token
-      db.prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(userId);
-      db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(password_hash, userId);
-    }
 
     db.prepare(
       `UPDATE users

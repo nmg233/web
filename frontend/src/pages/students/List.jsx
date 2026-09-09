@@ -4,7 +4,8 @@ import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
-import { downloadAccounts } from '../../utils/accountExport';
+import { downloadAccounts, downloadTemporaryAccounts } from '../../utils/accountExport';
+import TempPasswordModal from '../../components/TempPasswordModal';
 
 const { Title, Text } = Typography;
 
@@ -23,6 +24,8 @@ export default function StudentList() {
   const [importOpen, setImportOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [createResult, setCreateResult] = useState(null);
+  const [creating, setCreating] = useState(false);
   const [selectedAccountIds, setSelectedAccountIds] = useState([]);
   const [form] = Form.useForm();
 
@@ -46,24 +49,26 @@ export default function StudentList() {
 
   // 非管理员：添加学生（无身份选择，固定为学生）
   const handleAddStudent = async (values) => {
+    setCreating(true);
     try {
       const res = await studentAPI.create(values);
-      Modal.success({ title: '添加成功', content: `登录账号：${res.username}` });
+      setCreateResult(res);
       setAddModal(false);
       form.resetFields();
       loadData();
-    } catch { /* handled */ }
+    } catch { /* handled */ } finally { setCreating(false); }
   };
 
   // 管理员：添加用户（支持学生/教师/学术导师）
   const handleAddUser = async (values) => {
+    setCreating(true);
     try {
       const res = await studentAPI.createUser(values);
-      Modal.success({ title: '用户添加成功', content: `登录账号：${res.username}` });
+      setCreateResult(res);
       setAddModal(false);
       form.resetFields();
       loadData();
-    } catch { /* handled */ }
+    } catch { /* handled */ } finally { setCreating(false); }
   };
 
   const handleDelete = async (id) => {
@@ -206,7 +211,8 @@ export default function StudentList() {
           )}
         </>
 
-        <Modal title="添加用户" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} width={500}>
+        <TempPasswordModal result={createResult} onClose={() => setCreateResult(null)} />
+        <Modal title="添加用户" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }} width={500}>
           <Form form={form} layout="vertical" onFinish={handleAddUser}>
             <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号；账号区分大小写，创建后保持不变"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
             <Form.Item name="real_name" label="真实姓名" rules={[{ required: true, message: '请输入姓名' }]}><Input /></Form.Item>
@@ -221,10 +227,7 @@ export default function StudentList() {
                 }
               }} />
             </Form.Item>
-            <Form.Item name="password" label="密码"
-              extra="留空则自动生成：学生=姓名拼音@123（如 wangxiaoming@123），教师/导师=pbl123456；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
-              <Input.Password placeholder="留空使用默认密码" />
-            </Form.Item>
+            <p>系统将生成 12 位随机临时密码，创建成功后请记录；用户首次登录必须改密。</p>
             <Form.Item name="school_id" label="学校" dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
@@ -244,26 +247,29 @@ export default function StudentList() {
           </Form>
         </Modal>
 
-        <Modal title="批量导入用户" open={importOpen} onCancel={() => setImportOpen(false)} footer={null} width={620}>
+        <Modal title="批量导入用户" open={importOpen} onCancel={() => { setImportOpen(false); setImportResult(null); }} closable={!importing} maskClosable={!importing} keyboard={!importing} destroyOnHidden footer={null} width={620}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Text type="secondary">
               支持 .csv / .xlsx / .xls 文件。表头：<Text code>登录账号,姓名,身份,学校名称,班级名称,邮箱,手机号</Text>
               ，身份可选：学生 / 教师 / 学术导师。
               登录账号可留空自动生成，旧模板仍可使用；同名用户允许导入，重复账号会跳过。无账号的文件重复上传会创建新用户。
+              每人自动生成随机临时密码，请在关闭结果前导出并妥善保管；关闭后无法再次查询。
             </Text>
             <Space>
               <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>下载模板</Button>
               <Upload
+                disabled={importing || !!importResult}
                 accept=".csv,.xlsx,.xls"
                 showUploadList={false}
                 beforeUpload={(file) => { handleImportFile(file); return false; }}
               >
-                <Button type="primary" icon={<UploadOutlined />} loading={importing}>选择文件上传</Button>
+                <Button type="primary" icon={<UploadOutlined />} loading={importing} disabled={!!importResult}>选择文件上传</Button>
               </Upload>
             </Space>
             {importResult && (
               <Card size="small" style={{ width: '100%' }}>
                 <Button icon={<DownloadOutlined />} disabled={!importResult.accounts?.length} onClick={() => downloadAccounts(importResult.accounts, '本次导入账号.csv')}>导出本次成功导入账号</Button>
+                <Button icon={<DownloadOutlined />} disabled={!importResult.accounts?.length} onClick={() => downloadTemporaryAccounts(importResult.accounts)}>导出本次临时密码</Button>
                 <p style={{ marginBottom: 8 }}>
                   成功：<b style={{ color: '#52c41a' }}>{importResult.imported ?? 0}</b>
                   {'  '}失败：<b style={{ color: '#ff4d4f' }}>{importResult.failed ?? 0}</b>
@@ -307,14 +313,12 @@ export default function StudentList() {
         <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />
       </Card>
 
-      <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()}>
+      <TempPasswordModal result={createResult} onClose={() => setCreateResult(null)} />
+      <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }}>
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
           <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="password" label="密码"
-            extra="留空则自动生成：姓名拼音@123（如 wangxiaoming@123）；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
-            <Input.Password placeholder="留空使用默认密码" />
-          </Form.Item>
+          <p>系统将生成 12 位随机临时密码，创建成功后请记录；用户首次登录必须改密。</p>
           <Form.Item name="school_id" label="学校" rules={[{ required: true }]}>
             <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
           </Form.Item>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm, Alert } from 'antd';
+import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
 import { studentAPI, authAPI, archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import TempPasswordModal from '../../components/TempPasswordModal';
 
 const { Title } = Typography;
 
@@ -25,6 +26,7 @@ export default function StudentDetail() {
   const [options, setOptions] = useState({ schools: [], teachers: [], mentors: [] });
   const [classes, setClasses] = useState([]);
   const [resetResult, setResetResult] = useState(null);
+  const [resetting, setResetting] = useState(false);
   const [evalOpen, setEvalOpen] = useState(false);
   const [evalLoading, setEvalLoading] = useState(false);
   const [form] = Form.useForm();
@@ -43,7 +45,7 @@ export default function StudentDetail() {
   };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { setResetResult(null); load(); }, [id]);
 
   // 打开编辑分配弹窗：加载选项并回填当前值
   const openAssign = async () => {
@@ -85,10 +87,12 @@ export default function StudentDetail() {
 
   // 管理员重置用户密码：临时密码仅通过弹窗返回给管理员，由管理员线下转告
   const handleResetPassword = async () => {
+    setResetting(true);
+    setResetResult(null);
     try {
       const res = await authAPI.adminResetPassword(student.id);
       setResetResult(res);
-    } catch { /* 错误已由拦截器提示 */ }
+    } catch { /* 错误已由拦截器提示 */ } finally { setResetting(false); }
   };
 
   const handleSubmitEvaluation = async (values) => {
@@ -116,16 +120,16 @@ export default function StudentDetail() {
         <Title level={4} style={{ margin: 0 }}>{student.real_name} 的详细信息</Title>
         <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
         {isAdmin && isStudentTarget && (
-          <>
             <Button type="primary" icon={<EditOutlined />} onClick={openAssign}>编辑分配</Button>
+        )}
+        {isAdmin && student.role !== 'admin' && (
             <Popconfirm
               title={`确定重置 ${student.real_name} 的密码？`}
               okText="重置" cancelText="取消"
               onConfirm={handleResetPassword}
             >
-              <Button icon={<ReloadOutlined />}>重置密码</Button>
+              <Button icon={<ReloadOutlined />} loading={resetting}>重置密码</Button>
             </Popconfirm>
-          </>
         )}
         {canEvaluate && isStudentTarget && (
           <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>提交评价</Button>
@@ -200,23 +204,7 @@ export default function StudentDetail() {
         </Form>
       </Modal>
 
-      <Modal
-        title="密码已重置"
-        open={!!resetResult}
-        onCancel={() => setResetResult(null)}
-        footer={<Button type="primary" onClick={() => setResetResult(null)}>我知道了</Button>}
-      >
-        <Alert
-          type="success" showIcon
-          message={`${student.real_name} 的密码已重置`}
-          description="请将以下临时密码线下告知用户；该用户下次登录将被要求修改密码。临时密码不会写入日志。"
-        />
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-          <Typography.Text copyable style={{ fontSize: 28, letterSpacing: 3, fontWeight: 600 }}>
-            {resetResult?.temp_password}
-          </Typography.Text>
-        </div>
-      </Modal>
+      <TempPasswordModal title="密码已重置" result={resetResult} onClose={() => setResetResult(null)} />
     </div>
   );
 }

@@ -22,6 +22,7 @@ const app = require('../app');
 const db = require('../config/database');
 let server, baseUrl, adminToken;
 const password = 'UserPass!234';
+const credentials = new Map();
 
 async function request(url, { method = 'GET', body, token = adminToken } = {}) {
   const res = await fetch(`${baseUrl}/api${url}`, {
@@ -29,11 +30,16 @@ async function request(url, { method = 'GET', body, token = adminToken } = {}) {
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  return { status: res.status, body: await res.json() };
+  const data = await res.json();
+  if (data.username && data.temp_password) credentials.set(data.username, data.temp_password);
+  for (const account of data.accounts || []) {
+    if (account.temp_password) credentials.set(account.username, account.temp_password);
+  }
+  return { status: res.status, body: data };
 }
-const login = (username, pwd = password) => request('/auth/login', { method: 'POST', body: { username, password: pwd }, token: null });
+const login = (username, pwd = credentials.get(String(username).trim()) || password) => request('/auth/login', { method: 'POST', body: { username, password: pwd }, token: null });
 const create = (username, real_name = '王小明', school_id = 1) => request('/students/users', {
-  method: 'POST', body: { username, real_name, school_id, class_id: school_id, role: 'student', password },
+  method: 'POST', body: { username, real_name, school_id, class_id: school_id, role: 'student' },
 });
 
 before(async () => {
@@ -68,7 +74,7 @@ test('两个学校的同名学生可创建并使用各自账号登录；首次�
   assert.equal(a.body.user.password_hash, undefined);
   const blocked = await request('/courses', { token: a.body.token });
   assert.equal(blocked.body.code, 'FORCE_RESET');
-  assert.equal((await request('/auth/change-password', { method: 'POST', token: a.body.token, body: { old_password: password, new_password: 'ChangedPass!234' } })).status, 200);
+  assert.equal((await request('/auth/change-password', { method: 'POST', token: a.body.token, body: { old_password: credentials.get('BJFX-2026-0001'), new_password: 'ChangedPass!234' } })).status, 200);
   assert.equal((await request('/courses', { token: a.body.token })).status, 200);
   assert.equal((await login('BJFX-2026-0001', 'ChangedPass!234')).status, 200);
 });
@@ -101,12 +107,12 @@ test('两个创建入口均支持自动唯一账号及同名用户，角色编�
   assert.equal(b.status, 200);
   assert.notEqual(a.body.username, b.body.username);
   assert.equal((await login(a.body.username)).status, 200);
-  const legacy = await request('/students', { method: 'POST', body: { real_name: '王小明', school_id: 1, class_id: 1, password, username: 'Legacy_Student' } });
+  const legacy = await request('/students', { method: 'POST', body: { real_name: '王小明', school_id: 1, class_id: 1, username: 'Legacy_Student' } });
   assert.equal(legacy.status, 200);
   assert.equal(legacy.body.username, 'Legacy_Student');
   assert.equal((await login(legacy.body.username)).status, 200);
   for (const [role, username] of [['teacher', 'T-BJFX-001'], ['academic_mentor', 'M-0001']]) {
-    const res = await request('/students/users', { method: 'POST', body: { role, username, real_name: '王小明', school_id: 1, class_id: 1, password } });
+    const res = await request('/students/users', { method: 'POST', body: { role, username, real_name: '王小明', school_id: 1, class_id: 1 } });
     assert.equal(res.status, 200);
     assert.equal((await login(username)).body.user.role, role);
   }
@@ -137,7 +143,7 @@ test('JSON 导入支持同名、逐行账号冲突检查、旧模板和账号结
   assert.equal(res.body.accounts.length, 3);
   assert.match(res.body.errors[0], /登录账号已存在/);
   for (const account of res.body.accounts) {
-    assert.equal((await login(account.username, 'wangxiaoming@123')).status, 200);
+    assert.equal((await login(account.username, account.temp_password)).status, 200);
     assert.equal(account.password_hash, undefined);
   }
 });

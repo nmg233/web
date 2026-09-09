@@ -14,11 +14,32 @@ export function accountsToCSV(accounts) {
   return '\uFEFF' + rows.map((row) => row.map(cell).join(',')).join('\r\n');
 }
 
-export function downloadAccounts(accounts, filename = '用户登录账号.csv') {
-  const url = URL.createObjectURL(new Blob([accountsToCSV(accounts)], { type: 'text/csv;charset=utf-8;' }));
+// 仅创建/导入的当次结果显式调用，普通账号清单仍不导出密码。
+export function temporaryAccountsToCSV(accounts) {
+  const cell = (value) => {
+    let text = String(value ?? '');
+    if (/^[\s]*[=+@-]|^[\t\r\n]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+  return '\uFEFF' + [
+    ['姓名', '登录账号', '临时密码'],
+    ...accounts.map((u) => [u.real_name, u.username, u.temp_password]),
+  ].map((row) => row.map(cell).join(',')).join('\r\n');
+}
+
+function downloadCSV(csv, filename) {
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export function downloadAccounts(accounts, filename = '用户登录账号.csv') {
+  downloadCSV(accountsToCSV(accounts), filename);
+}
+
+export function downloadTemporaryAccounts(accounts) {
+  downloadCSV(temporaryAccountsToCSV(accounts), '本次导入临时密码.csv');
 }

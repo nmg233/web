@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const db = require('../config/database');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 const { resolveUsername } = require('../helpers/username');
+const { generateTemporaryPassword } = require('../services/tempPasswordService');
 
 const PUBLIC_ROLES = ['student'];
 const REFRESH_TOKEN_TTL_DAYS = parseInt(process.env.JWT_REFRESH_EXPIRES_IN, 10) || 7; // 刷新令牌有效期（天）
@@ -48,16 +49,6 @@ function issueRefreshToken(userId) {
 function cleanupExpiredRefreshTokens() {
   db.prepare('DELETE FROM refresh_tokens WHERE expires_at < datetime(\'now\')').run();
 }
-// 生成临时密码：6 位小写字母+数字（如 abc123），使用密码学安全随机数 crypto.randomInt
-function generateTemporaryPassword() {
-  const chars = '0123456789abcdefghijklmnopqrstuvwxyz'; // 36 个字符（10 数字 + 26 小写字母）
-  let pwd = '';
-  for (let i = 0; i < 6; i++) {
-    pwd += chars[crypto.randomInt(0, chars.length)];
-  }
-  return pwd;
-}
-
 // 自助修改密码限流：每用户每分钟最多 5 次尝试（内存实现，单实例适用）
 const CHANGE_PWD_MAX_ATTEMPTS = 5;
 const CHANGE_PWD_WINDOW_MS = 60 * 1000;
@@ -304,7 +295,7 @@ exports.adminResetPassword = (req, res) => {
     if (!user_id) {
       return res.status(400).json({ error: '缺少目标用户' });
     }
-    const target = db.prepare('SELECT id, real_name, role FROM users WHERE id = ?').get(user_id);
+    const target = db.prepare('SELECT id, username, real_name, role FROM users WHERE id = ?').get(user_id);
     if (!target) {
       return res.status(400).json({ error: '用户不存在' });
     }
@@ -314,16 +305,19 @@ exports.adminResetPassword = (req, res) => {
 
     const tempPassword = generateTemporaryPassword();
     const password_hash = bcrypt.hashSync(tempPassword, 10);
-    db.prepare(
-      'UPDATE users SET password_hash = ?, force_reset_password = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
-    ).run(password_hash, user_id);
-
-    // AUTH-03：重置密码后撤销该用户所有 Refresh Token，防止旧令牌换取新 Access Token
-    revokeAllRefreshTokens(user_id);
+    db.transaction(() => {
+      db.prepare(
+        'UPDATE users SET password_hash = ?, force_reset_password = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+      ).run(password_hash, user_id);
+      revokeAllRefreshTokens(user_id);
+    })();
 
     // 注意：此处不得 console.log 临时密码
+    res.set('Cache-Control', 'no-store');
     res.json({
       message: `已重置 ${target.real_name} 的密码，请将临时密码线下告知用户`,
+      username: target.username,
+      real_name: target.real_name,
       temp_password: tempPassword,
       force_reset_password: 1
     });
