@@ -1,9 +1,12 @@
+require('dotenv').config();
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 
-const dbPath = path.join(__dirname, 'pbl_platform.db');
+const dbPath = process.env.DB_PATH
+  ? path.resolve(__dirname, '..', process.env.DB_PATH)
+  : path.join(__dirname, 'pbl_platform.db');
 const forceInit = process.argv.includes('--force') || process.env.DB_FORCE_INIT === '1';
 
 if (process.env.NODE_ENV === 'production') {
@@ -34,8 +37,7 @@ db.pragma('foreign_keys = ON');
 console.log('📦 正在初始化数据库...');
 
 // 执行建表 SQL
-const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-db.exec(schema);
+require('./migrate').runMigrations(db);
 console.log('✅ 数据库表结构创建成功');
 
 // ============================================
@@ -120,9 +122,9 @@ console.log('✅ 学生报名记录已创建');
 db.close();
 
 console.log('\n🎉 数据库初始化完成！');
-console.log('\n📋 测试账号：');
-console.log('  管理员: adminpbl / admin123');
-console.log('  导师:   mentor_zhang / mentor123');
-console.log('  教师:   teacher_li / teacher123');
-console.log('  学生:   student_wang / student123');
+console.log('\n📋 测试账号（登录时输入姓名）：');
+console.log('  管理员: 管理员 / admin123');
+console.log('  导师:   张导师 / mentor123');
+console.log('  教师:   李老师 / teacher123');
+console.log('  学生:   王小明 / student123');
 console.log('\n启动应用: npm start 或 npm run dev');

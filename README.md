@@ -116,7 +116,7 @@ DB_PATH=./database/pbl_platform.db
 
 ### 3. 初始化数据库
 
-仅在 `backend/database/pbl_platform.db` 不存在时执行：
+先初始化，再启动后端。仅在目标数据库不存在时执行（默认 `backend/database/pbl_platform.db`；设置 `DB_PATH` 时使用该路径，相对路径以 `backend` 为基准，读取 `backend/.env`）：
 
 ```powershell
 npm run db:init
@@ -124,11 +124,17 @@ npm run db:init
 
 如果数据库已经存在，初始化脚本会退出以保护现有数据。
 
+仅启动后端会自动建表，不会创建以下默认测试账号。若首次运行时先启动了后端，会留下无测试账号的数据库；确认无需保留数据后，先停止后端，再执行下面的重置命令。
+
 ```powershell
 npm run db:reset
 ```
 
 `db:reset` 会删除并重建数据库，清空全部现有数据，仅应在明确需要重置本地测试数据时使用。
+
+`db:init`、`db:reset` 和首次 `db:provision` 均通过版本化迁移器创建最新表结构并记录已应用版本，避免随后启动时重复添加字段。
+
+旧版初始化后若启动报 `duplicate column name: status`，说明表结构已更新而迁移记录缺失。不要反复初始化，也不要直接跳过所有旧库迁移。需先停止后端、执行 SQLite 一致性备份并校验完整性，再核对实际表结构与当前 `schema.sql`；仅在确认结构完全一致后补齐对应迁移记录。需要保留的数据不得通过 `db:reset` 修复。生产环境仅使用 `db:provision`，禁止测试初始化与重置。
 
 > **数据库迁移在服务启动时自动执行**（`backend/database/migrations/`，版本记录于 `schema_migrations` 表）：新建库直接按 `schema.sql` 建表并批量标记已应用版本；既有库按序应用未执行的增量迁移（如 `002_enrollment_management.sql` 为报名表补充软删除与导入人留痕字段）。升级前建议先用 `sqlite3 <db> ".backup <文件>"` 备份。
 
@@ -339,6 +345,8 @@ GLIDER_BACKEND=reference
 ## 默认本地测试账号
 
 数据库初始化脚本会创建以下测试账号：
+
+网页登录使用表中的中文**姓名**，不是内部用户名（例如管理员填写 `管理员`，不填写 `adminpbl`）。
 
 | 身份 | 姓名 | 密码 |
 | --- | --- | --- |
