@@ -22,6 +22,23 @@ function toBooleanInt(value) {
 // 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
 function userDeletionBlockers(userId) {
   const checks = [
+    // 按数据归属检查而非当前角色，避免变更角色后绕过学习档案保护。
+    ...[
+      ['enrollments', '课程参与记录（含已移除记录）'],
+      ['lesson_progress', '课时进度'],
+      ['works', '学生作品'],
+      ['reflections', '反思日志'],
+      ['evaluations', '学生评价'],
+      ['growth_records', '学生成长记录'],
+      ['glider_simulations', '实验模拟记录'],
+      ['project_team_members', '微课题参与记录'],
+    ].map(([table, label]) => ({
+      label,
+      count: db.prepare(`SELECT COUNT(*) c FROM ${table} WHERE student_id = ?`).get(userId).c,
+      hint: '请保留账号及历史档案',
+    })),
+    { label: '微课题组长记录', count: db.prepare('SELECT COUNT(*) c FROM project_teams WHERE leader_student_id = ?').get(userId).c, hint: '请保留账号及历史档案' },
+    { label: '实践队参与记录', count: db.prepare('SELECT COUNT(*) c FROM team_members WHERE user_id = ?').get(userId).c, hint: '请保留账号及历史档案' },
     { label: '创建的课程', count: db.prepare('SELECT COUNT(*) c FROM courses WHERE created_by = ?').get(userId).c, hint: '请先转移或删除课程' },
     { label: '授课课时', count: db.prepare('SELECT COUNT(*) c FROM lessons WHERE instructor_id = ?').get(userId).c, hint: '请先调整授课教师' },
     { label: '上传的课程资源', count: db.prepare('SELECT COUNT(*) c FROM resources WHERE upload_by = ?').get(userId).c, hint: '请先转移或删除资源' },
@@ -664,7 +681,11 @@ exports.deleteStudent = (req, res) => {
     if (isTeacher(req.user.role) && student.school_id !== req.user.school_id) {
       return res.status(400).json({ error: '无权删除其他学校学生' });
     }
-    deleteUserWithWorks(req.params.id);
+    const blockers = userDeletionBlockers(student.id);
+    if (blockers.length > 0) {
+      return res.status(400).json({ error: `该学生仍有关联数据，无法删除：${formatBlockers(blockers)}` });
+    }
+    deleteUserWithWorks(student.id);
     res.json({ message: '学生已删除' });
   } catch (err) {
     console.error('删除学生错误:', err);

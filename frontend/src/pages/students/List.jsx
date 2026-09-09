@@ -9,7 +9,7 @@ import TempPasswordModal from '../../components/TempPasswordModal';
 
 const { Title, Text } = Typography;
 
-const canManage = (role) => ['admin', 'academic_mentor', 'teacher'].includes(role);
+const canManage = (role) => role === 'admin';
 const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,63}$/, message: '请输入 4–64 位字母、数字、下划线或连字符，以字母或数字开头' }];
 
 export default function StudentList() {
@@ -94,7 +94,7 @@ export default function StudentList() {
       <Tag color={color} style={{ cursor: 'pointer', margin: 0 }} onClick={() => navigate(`/students/${u.id}`)}>
         {icon} {u.real_name}（{u.username}）
       </Tag>
-      <Popconfirm title={`确定删除 ${u.real_name}？`} okText="删除" cancelText="取消" onConfirm={() => handleDeleteUser(u)}>
+      <Popconfirm title={`确定删除 ${u.real_name}？`} description="有关联学习记录的账号无法删除，请保留其成长档案。" okText="删除" cancelText="取消" onConfirm={() => handleDeleteUser(u)}>
         <Button type="text" size="small" danger icon={<DeleteOutlined />} />
       </Popconfirm>
     </span>
