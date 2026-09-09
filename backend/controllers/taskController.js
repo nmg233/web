@@ -19,6 +19,13 @@ function taskStatus(task, userId) {
   return 'submitted';
 }
 
+function taskStatusFromReview(reviewStatus) {
+  if (!reviewStatus) return 'pending';
+  if (reviewStatus === 'approved') return 'completed';
+  if (reviewStatus === 'rejected') return 'in_progress';
+  return 'submitted';
+}
+
 function taskQuery(user) {
   const userId = user.role === 'student' ? user.id : null;
   // 任务可见范围：学生=已报名课程；教师=自己授课课时；执行导师=自己管理课程；管理员=全部
@@ -46,7 +53,7 @@ function taskQuery(user) {
     WHERE c.status = 'published' AND t.status = 'active'${scopeSql}
     ORDER BY c.title, l.sort_order, t.sort_order, t.created_at
   `).all(userId || null, userId || null, ...scopeParams);
-  return tasks.map((task) => ({ ...task, status: taskStatus(task, userId) }));
+  return tasks.map((task) => ({ ...task, status: taskStatusFromReview(task.review_status) }));
 }
 
 exports.list = (req, res) => {
