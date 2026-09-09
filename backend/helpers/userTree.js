@@ -8,7 +8,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
   const placeholders = roles.map(() => '?').join(',');
   const params = roles.slice();
   let sql = `
-    SELECT u.id, u.username, u.real_name, u.role, u.email, u.phone, u.is_active,
+    SELECT u.id, u.username, u.real_name, u.role, u.email, u.phone, u.is_active, u.archived_at,
            u.school_id, u.class_id, s.name AS school_name, c.name AS class_name, c.grade
     FROM users u
     LEFT JOIN schools s ON u.school_id = s.id

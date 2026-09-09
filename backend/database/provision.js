@@ -36,11 +36,10 @@ console.log('   目标数据库:', dbPath);
 
 // 1) 库文件不存在时，先执行 schema.sql 建全部主表（纯 DDL，无种子数据）
 if (!fs.existsSync(dbPath)) {
-  const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
-  db.exec(schema);
+  require('./migrate').runMigrations(db);
   db.close();
   console.log('✅ 主表结构已创建（schema.sql）');
 } else {

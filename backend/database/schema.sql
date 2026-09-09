@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS users (
   class_id INTEGER,
   avatar_url TEXT,
   is_active INTEGER DEFAULT 1,
+  archived_at DATETIME,
+  auth_version INTEGER NOT NULL DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE SET NULL,
@@ -49,6 +51,15 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 3.1 刷新令牌
+CREATE TABLE IF NOT EXISTS student_status_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id),
+  action TEXT NOT NULL CHECK(action IN ('disable','archive','restore')),
+  reason TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS refresh_tokens (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,

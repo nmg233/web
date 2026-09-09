@@ -173,6 +173,7 @@ export default function StudentList() {
             rowSelection={{ selectedRowKeys: selectedAccountIds, onChange: setSelectedAccountIds }}
             columns={[
               { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
+              { title: '状态', render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? '已归档' : r.is_active ? '正常' : '已停用'}</Tag> },
               { title: '登录账号', dataIndex: 'username', render: (text) => <Text copyable>{text}</Text> },
               { title: '身份', dataIndex: 'role', render: (role) => ({ student: '学生', teacher: '教师', academic_mentor: '学术导师' }[role] || role) },
               { title: '学校', dataIndex: 'school_name' },
@@ -294,7 +295,7 @@ export default function StudentList() {
     { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
     { title: '学校', dataIndex: 'school_name' },
     { title: '班级', dataIndex: 'class_name' },
-    { title: '状态', dataIndex: 'is_active', render: (v) => <Tag color={v ? 'green' : 'red'}>{v ? '正常' : '禁用'}</Tag> },
+    { title: '状态', render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? '已归档' : r.is_active ? '正常' : '已停用'}</Tag> },
     ...(canManage(user?.role) ? [{
       title: '操作', render: (_, r) => <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(r.id)}>删除</Button>
     }] : []),

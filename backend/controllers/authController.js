@@ -15,6 +15,7 @@ function generateToken(user, secret) {
   return jwt.sign(
     {
       id: user.id,
+      auth_version: user.auth_version || 0,
       username: user.username,
       real_name: user.real_name,
       role: user.role,
@@ -101,7 +102,7 @@ exports.login = (req, res) => {
     }
 
     const user = db.prepare(
-      'SELECT id, username, password_hash, real_name, role, school_id, class_id, force_reset_password FROM users WHERE username = ? AND is_active = 1'
+      'SELECT id, username, password_hash, real_name, role, school_id, class_id, force_reset_password, auth_version FROM users WHERE username = ? AND is_active = 1 AND archived_at IS NULL'
     ).get(username);
 
     if (!user) {
@@ -235,13 +236,13 @@ exports.refresh = (req, res) => {
 
     const record = db.prepare(`
       SELECT rt.id AS rt_id, rt.expires_at, u.id, u.username, u.real_name, u.role,
-             u.school_id, u.class_id, u.is_active, u.force_reset_password
+             u.school_id, u.class_id, u.is_active, u.force_reset_password, u.auth_version, u.archived_at
       FROM refresh_tokens rt
       JOIN users u ON u.id = rt.user_id
       WHERE rt.token_hash = ?
     `).get(hashToken(refresh_token));
 
-    if (!record || record.is_active !== 1) {
+    if (!record || record.is_active !== 1 || record.archived_at) {
       return res.status(401).json({ error: '登录已过期，请重新登录' });
     }
     if (new Date(record.expires_at).getTime() < Date.now()) {

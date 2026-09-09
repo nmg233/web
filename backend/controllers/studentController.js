@@ -10,6 +10,18 @@ const { toFileDto } = require('../helpers/fileDto');
 const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
 const { generateTemporaryPassword } = require('../services/tempPasswordService');
 const orgService = require('../services/organizationService');
+const lifecycle = require('../services/studentLifecycleService');
+
+exports.changeStatus = (req, res) => {
+  try {
+    if (!['disable', 'archive', 'restore'].includes(req.body.action)) return res.status(400).json({ error: '无效的账号操作' });
+    const method = { disable: lifecycle.disableStudent, archive: lifecycle.archiveStudent, restore: lifecycle.restoreStudent }[req.body.action];
+    if (typeof method !== 'function') return res.status(400).json({ error: '无效的账号操作' });
+    res.json(method(req.params.id, req.user.id, req.body.reason));
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
+  }
+};
 
 const { resolveUsername } = require('../helpers/username');
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
@@ -22,6 +34,7 @@ function toBooleanInt(value) {
 // 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
 function userDeletionBlockers(userId) {
   const checks = [
+    { label: '账号状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM student_status_events WHERE student_id = ? OR actor_id = ?').get(userId, userId).c, hint: '请保留账号及状态历史' },
     // 按数据归属检查而非当前角色，避免变更角色后绕过学习档案保护。
     ...[
       ['enrollments', '课程参与记录（含已移除记录）'],
@@ -76,7 +89,7 @@ exports.list = (req, res) => {
     }
 
     let sql = `
-      SELECT u.id, u.username, u.real_name, u.email, u.phone, u.is_active,
+      SELECT u.id, u.username, u.real_name, u.email, u.phone, u.is_active, u.archived_at,
              s.name as school_name, c.name as class_name, c.grade
       FROM users u
       LEFT JOIN schools s ON u.school_id = s.id
@@ -461,6 +474,14 @@ exports.updateUser = (req, res) => {
     const { real_name, role, school_id, class_id, email, phone, profile, password, is_active } = req.body;
     const userId = req.params.id;
 
+    const existing = db.prepare('SELECT role, is_active, archived_at FROM users WHERE id = ?').get(userId);
+    if (!existing) return res.status(404).json({ error: '用户不存在' });
+    if (existing.role === 'admin') return res.status(400).json({ error: '不能通过此接口修改管理员账号' });
+    if (existing.role === 'student' && (
+      (is_active !== undefined && toBooleanInt(is_active) !== existing.is_active) ||
+      ((existing.archived_at || existing.is_active !== 1) && role !== 'student')
+    )) return res.status(400).json({ error: '请先通过学生状态管理功能恢复或停用账号' });
+
     if (!real_name || !MANAGED_ROLES.includes(role)) {
       return res.status(400).json({ error: '姓名和身份不能为空' });
     }
@@ -483,7 +504,7 @@ exports.updateUser = (req, res) => {
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     const finalClassId = role === 'academic_mentor' ? null : class_id;
-    const active = toBooleanInt(is_active);
+    const active = is_active === undefined ? existing.is_active : toBooleanInt(is_active);
 
     db.prepare(
       `UPDATE users
@@ -794,7 +815,10 @@ exports.detail = (req, res) => {
 
     res.json({
       title: `${safeTarget.real_name} - 成长档案`,
-      student: safeTarget, courses, works, reflections, evaluations
+      student: safeTarget, courses, works, reflections, evaluations,
+      ...(viewer.role === 'admin' ? { statusEvents: db.prepare(`SELECT e.action, e.reason, e.created_at, u.username AS actor_username
+        FROM student_status_events e JOIN users u ON u.id = e.actor_id
+        WHERE e.student_id = ? ORDER BY e.id DESC`).all(id) } : {}),
     });
   } catch (err) {
     console.error('用户详情错误:', err);

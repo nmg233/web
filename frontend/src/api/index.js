@@ -73,6 +73,7 @@ export const studentAPI = {
   batchDeleteUsers: (ids) => client.post('/students/users/batch-delete', { ids }),
   getAssignOptions: () => client.get('/students/options'),
   assign: (id, data) => client.put(`/students/${id}/assign`, data),
+  changeStatus: (id, data) => client.post(`/students/${id}/status`, data),
 };
 
 export const workAPI = {
