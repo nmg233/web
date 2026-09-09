@@ -288,7 +288,9 @@ exports.file = (req, res) => {
 // 生成短期签名播放地址（视频回放流式拖动，避免整段 blob 下载）
 exports.streamUrl = (req, res) => {
   try {
-    const { id, name } = req.params;
+    const { id } = req.params;
+    // 文件名经 query 传入（?name=flight_replay.mp4），与前端 gliderAPI.streamUrl 的调用保持一致
+    const name = String(req.query.name || 'flight_replay.mp4');
     if (name !== 'flight_replay.mp4') return res.status(400).json({ error: '不支持的文件' });
     const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
     if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });

@@ -96,10 +96,20 @@ function requirePasswordChanged(req, res, next) {
   next();
 }
 
+// 可选认证中间件：请求携带 Bearer 时按 requireAuth 相同规则校验并填充 req.user；
+// 未携带凭证时直接放行，交由控制器内“签名 URL”校验兜底（<video>/<img> 直挂无法携带 Bearer）。
+// 用途：结果文件等“既可 Bearer 下载、又可签名直挂”的端点，需挂在 requireAuth 之前并叠加本中间件。
+function optionalAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return next();
+  return requireAuth(req, res, next);
+}
+
 module.exports = {
   requireAuth,
   requireRole,
   requirePasswordChanged,
+  optionalAuth,
   isStaff,
   isTeacher,
   STAFF_ROLES,
