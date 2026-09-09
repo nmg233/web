@@ -384,10 +384,15 @@ exports.downloadResource = (req, res) => {
     if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
       // 教师可下载已发布课程的课堂资料（线下备课需要）；学生须已报名；其余角色不可下载
       const isTeacher = req.user.role === 'teacher';
+      const teacherRelated = isTeacher && !!db.prepare(
+        `SELECT 1 FROM enrollments e
+         JOIN users s ON s.id = e.student_id
+         WHERE e.course_id = ? AND e.status = 'active' AND s.school_id = ? LIMIT 1`
+      ).get(resource.course_id, req.user.school_id || 0);
       const enrolled = req.user.role === 'student' && db.prepare(
         "SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = 'active'"
       ).get(req.user.id, resource.course_id);
-      if (resource.course_status !== 'published' || (!isTeacher && !enrolled)) {
+      if (resource.course_status !== 'published' || (!teacherRelated && !enrolled)) {
         return res.status(404).json({ error: '附件不存在' });
       }
     }
@@ -467,7 +472,13 @@ exports.updateProgress = (req, res) => {
 
 function canAccessReplay(user, course) {
   if (COURSE_MANAGER_ROLES.includes(user.role)) return true;
-  if (user.role === 'teacher') return course.status === 'published';
+  if (user.role === 'teacher') {
+    return course.status === 'published' && !!db.prepare(
+      `SELECT 1 FROM enrollments e
+       JOIN users s ON s.id = e.student_id
+       WHERE e.course_id = ? AND e.status = 'active' AND s.school_id = ? LIMIT 1`
+    ).get(course.id, user.school_id || 0);
+  }
   if (user.role !== 'student') return false;
   if (course.status !== 'published') return false;
   return !!db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(user.id, course.id, 'active');
