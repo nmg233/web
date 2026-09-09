@@ -101,17 +101,21 @@ export default function ArchiveIndex() {
 
 function ArchiveDetail({ archive }) {
   if (!archive) return null;
-  // 概览统计：参与课程 / 任务提交作品 / 反思 / 评价
+  // 概览统计：参与课程 / 项目作品（版本根去重） / 作品迭代（版本数） / 反思 / 评价
   const overview = [
     { label: '参与课程', value: archive.courses?.length ?? 0 },
-    { label: '项目作品', value: archive.works?.length ?? 0 },
+    { label: '项目作品', value: new Set((archive.works || []).map((w) => w.parent_work_id || w.id)).size },
+    { label: '作品迭代', value: (archive.works || []).filter((w) => w.parent_work_id).length },
     { label: '反思日志', value: archive.reflections?.length ?? 0 },
     { label: '教师评价', value: archive.evaluations?.length ?? 0 },
   ];
-  // 时间轴：成长记录 + 作品提交 + 反思，按时间倒序
+  // 时间轴：成长记录为唯一事件源；作品仅在无对应成长记录时兜底合成（按 work_id 匹配，遗留数据按标题+时间完全匹配）
   const timeline = [
     ...(archive.growthRecords || []).map((g) => ({ at: g.created_at, text: g.description, kind: g.event_type })),
-    ...(archive.works || []).map((w) => ({ at: w.created_at, text: `提交作品《${w.title}》`, kind: 'work' })),
+    ...(archive.works || [])
+      .filter((w) => !(archive.growthRecords || []).some((g) => g.work_id === w.id
+        || (g.work_id == null && g.created_at === w.created_at && g.description === `提交作品《${w.title}》`)))
+      .map((w) => ({ at: w.created_at, text: `提交作品《${w.title}》`, kind: 'work' })),
     ...(archive.reflections || []).map((r) => ({ at: r.created_at, text: `提交反思：${r.lesson_title || '课程反思'}`, kind: 'reflection' })),
   ].filter((t) => t.at).sort((a, b) => String(b.at).localeCompare(String(a.at)));
   const kindColor = (kind) => (kind === 'work' ? 'blue' : kind === 'reflection' ? 'green' : 'gray');

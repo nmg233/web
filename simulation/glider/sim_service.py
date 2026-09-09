@@ -25,12 +25,11 @@ import argparse
 import csv
 import json
 import os
+import platform
 import sys
 
-import numpy as np
-
-from aircraft import Glider
-from sim_core import SimConfig, run_flight, flight_summary
+# numpy / aircraft / sim_core 均为延迟导入（见 main）：
+# --probe 诊断模式需要在依赖缺失时仍能启动并输出环境报告。
 
 
 def _novaphy_usable():
@@ -39,6 +38,63 @@ def _novaphy_usable():
         return _nv is not None
     except Exception:  # noqa: BLE001
         return False
+
+
+def _detect_backend_name():
+    if _novaphy_usable():
+        return "novaphy"
+    try:
+        import numpy  # noqa: F401
+        return "reference"
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _probe(probe_outdir):
+    """输出引擎环境探测 JSON（不执行仿真）。"""
+
+    def has(mod):
+        try:
+            __import__(mod)
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    result = {
+        "ready": False,
+        "python": platform.python_version(),
+        "backend": "",
+        "numpy": has("numpy"),
+        "matplotlib": has("matplotlib"),
+        "ffmpeg": False,
+        "novaphy": _novaphy_usable(),
+        "outputWritable": False,
+    }
+    result["backend"] = "novaphy" if result["novaphy"] else ("reference" if result["numpy"] else "")
+    try:
+        import imageio_ffmpeg
+        result["ffmpeg"] = hasattr(imageio_ffmpeg, "get_ffmpeg_exe")
+    except Exception:  # noqa: BLE001
+        result["ffmpeg"] = False
+
+    outdir = os.path.abspath(probe_outdir or "output/_probe")
+    try:
+        os.makedirs(outdir, exist_ok=True)
+        probe_file = os.path.join(outdir, ".probe.tmp")
+        with open(probe_file, "w", encoding="utf-8") as f:
+            f.write("ok")
+        os.remove(probe_file)
+        result["outputWritable"] = True
+    except Exception:  # noqa: BLE001
+        result["outputWritable"] = False
+
+    # ready = 可完成一次参考/真机仿真：需要 numpy + 后端 + matplotlib + 输出目录可写；
+    # ffmpeg 仅影响 MP4 回放（缺失时优雅跳过），不参与 ready 判定。
+    result["ready"] = bool(
+        result["numpy"] and result["backend"] and result["matplotlib"] and result["outputWritable"]
+    )
+    print(json.dumps(result, ensure_ascii=False))
+    return 0
 
 
 def _pick_backend(name):
@@ -80,6 +136,8 @@ def write_plots(tele, outdir, backend_name, params):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description="PBL 滑翔机模拟服务（headless）")
+    p.add_argument("--probe", action="store_true", help="输出引擎环境探测 JSON 后退出")
+    p.add_argument("--probe-outdir", default="output/_probe", help="探测输出可写性时使用的目录")
     p.add_argument("--dihedral", type=float, default=0.0, help="机翼上反角 (°)")
     p.add_argument("--cg", type=float, default=0.0,
                    help="重心相对默认沿机体前移量 (m)，>0 靠前（静稳↑/时长短），<0 靠后（易失稳）")
@@ -96,6 +154,13 @@ def main(argv=None):
                    help="回放最长覆盖仿真秒数（实际取 min(整段时长, 该值))")
     p.add_argument("--outdir", default="output/sim", help="输出目录")
     args = p.parse_args(argv)
+
+    if args.probe:
+        return _probe(args.probe_outdir)
+
+    # 正式仿真才导入重依赖（numpy / 气动模型），保证 --probe 在依赖缺失时也能诊断
+    from aircraft import Glider
+    from sim_core import SimConfig, run_flight, flight_summary
 
     outdir = os.path.abspath(args.outdir)
     os.makedirs(outdir, exist_ok=True)

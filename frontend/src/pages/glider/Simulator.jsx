@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Row, Col, Card, Form, InputNumber, Button, Tag, Space, Spin, message,
-  Statistic, Alert, List, Typography, Empty, Result,
+  Statistic, Alert, List, Typography, Empty, Result, Select,
 } from 'antd';
 import { ArrowLeftOutlined, RocketOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { gliderAPI } from '../../api/glider';
+import { courseAPI } from '../../api';
 import { formatBeijingTime } from '../../utils/date';
 import { useAuth } from '../../store/AuthContext';
 
@@ -45,6 +46,11 @@ export default function GliderSimulator() {
   const [pollFailed, setPollFailed] = useState(false);
   const [pollTimedOut, setPollTimedOut] = useState(false);
   const [engineInfo, setEngineInfo] = useState(null);
+  // 试飞课程/课时关联（决策 D-7）
+  const [courses, setCourses] = useState([]);
+  const [courseId, setCourseId] = useState(undefined);
+  const [lessons, setLessons] = useState([]);
+  const [lessonId, setLessonId] = useState(undefined);
 
   const loadHistory = async () => {
     try {
@@ -73,6 +79,27 @@ export default function GliderSimulator() {
     }, 0);
     return () => { alive = false; clearTimeout(t); };
   }, []);
+
+  // 学生：加载可试飞课程（已报名且已发布），切换课程时加载课时
+  useEffect(() => {
+    if (user?.role !== 'student') return undefined;
+    let alive = true;
+    courseAPI.list()
+      .then((res) => { if (alive) setCourses(res.courses || []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [user?.role]);
+
+  const handleCourseChange = async (value) => {
+    setCourseId(value);
+    setLessonId(undefined);
+    setLessons([]);
+    if (!value) return;
+    try {
+      const res = await courseAPI.detail(value);
+      setLessons(res.lessons || []);
+    } catch { setLessons([]); }
+  };
 
   // 轮询：记录处于 running 时每 2s 刷新，直到 success / error；完成后刷新右侧历史列表
   // 总等待上限 300s：超过则视为任务卡住，停止轮询并提示刷新记录，避免无限转圈
@@ -171,6 +198,8 @@ export default function GliderSimulator() {
         dihedral_deg: values.dihedral,
         cg_x: values.cg,
         speed: values.speed,
+        course_id: courseId,
+        lesson_id: lessonId,
       });
       setViewingId(r.id);
       setViewing(null);
@@ -210,7 +239,11 @@ export default function GliderSimulator() {
         message={isStudent ? '设定你的滑翔机参数，让物理引擎帮你试飞' : '滑翔机试飞记录（只读视图）'}
         description={isStudent
           ? '输入机翼上反角、重心位置和初始投放速度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。'
-          : '模拟提交仅面向学生。当前角色可查看全部试飞记录与结果回放。'}
+          : user?.role === 'admin'
+            ? '模拟提交仅面向学生。管理员可查看全部试飞记录与结果回放。'
+            : user?.role === 'academic_mentor'
+              ? '模拟提交仅面向学生。您可查看自己课程学生的试飞记录。'
+              : '模拟提交仅面向学生。当前角色无试飞记录查看权限。'}
       />
 
       {isStudent && engineInfo && !engineInfo.ready && (
@@ -234,6 +267,29 @@ export default function GliderSimulator() {
               initialValues={{ dihedral: 5, cg: 0, speed: 36 }}
               onFinish={startSim}
             >
+              <Form.Item
+                name="course_id"
+                label="实验课程"
+                extra="试飞记录将关联到所选课程，供执行导师查看与归档"
+                rules={[{ required: true, message: '请选择实验课程' }]}
+              >
+                <Select
+                  placeholder="选择已报名的课程"
+                  value={courseId}
+                  onChange={handleCourseChange}
+                  options={courses.map((c) => ({ value: c.id, label: c.title }))}
+                />
+              </Form.Item>
+              <Form.Item name="lesson_id" label="关联课时（可选）">
+                <Select
+                  placeholder="选择课时"
+                  allowClear
+                  value={lessonId}
+                  onChange={setLessonId}
+                  disabled={!courseId}
+                  options={lessons.map((l) => ({ value: l.id, label: l.title }))}
+                />
+              </Form.Item>
               <Form.Item
                 name="dihedral"
                 label="机翼上反角（°）"

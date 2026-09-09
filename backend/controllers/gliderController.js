@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { spawn, execFile } = require('child_process');
 const { UPLOAD_ROOT } = require('../middleware/upload');
+const { canViewSimulation } = require('../helpers/gliderPolicy');
 
 // ------------------------------------------------------------------
 // 模拟引擎配置 —— 同一份代码可在“本地 Windows / 服务器 Linux”两种环境运行真正的 novaPhy
@@ -46,6 +47,8 @@ const GLIDER_TIMEOUT = Math.min(300, Math.max(20, Number.parseFloat(process.env.
 const GLIDER_VIDEO = String(process.env.GLIDER_VIDEO || '1') !== '0';
 const GLIDER_VIDEO_FPS = Math.min(30, Math.max(4, parseInt(process.env.GLIDER_VIDEO_FPS || '10', 10) || 10));
 const GLIDER_VIDEO_MAX = Math.min(600, Math.max(5, Number.parseFloat(process.env.GLIDER_VIDEO_MAX) || 300));
+// 结果保留策略（决策 E-6）：默认 0 = 不自动清理；>0 表示 error 状态结果的可清理天数（供运维脚本使用）
+const GLIDER_RETENTION_DAYS = Math.max(0, parseInt(process.env.GLIDER_RETENTION_DAYS || '0', 10) || 0);
 
 // 把 Windows 绝对路径转成 WSL 的 /mnt/<盘符>/... 路径（供 wsl 调用 novaPhy 引擎）
 function toWslPath(p) {
@@ -101,16 +104,35 @@ function toDto(row) {
 }
 
 function canRead(row, user) {
-  if (!row) return false;
-  return row.student_id === user.id || user.role === 'admin';
+  return canViewSimulation(user, row);
 }
 
 // 学生提交三参数，启动一次模拟（异步）
 exports.simulate = async (req, res) => {
   try {
+    // 课程/课时关联校验（决策 D-7）：先做廉价校验，无效输入不拉起引擎
+    const courseId = req.body.course_id ? Number(req.body.course_id) : null;
+    const lessonId = req.body.lesson_id ? Number(req.body.lesson_id) : null;
+    if (courseId) {
+      const enrollment = db.prepare(`
+        SELECT e.id FROM enrollments e
+        JOIN courses c ON c.id = e.course_id
+        WHERE e.student_id = ? AND e.course_id = ? AND e.status = 'active' AND c.status = 'published'
+      `).get(req.user.id, courseId);
+      if (!enrollment) {
+        return res.status(400).json({ error: '请选择已报名且已发布的课程' });
+      }
+      if (lessonId) {
+        const lesson = db.prepare('SELECT id FROM lessons WHERE id = ? AND course_id = ?').get(lessonId, courseId);
+        if (!lesson) {
+          return res.status(400).json({ error: '课时不属于所选课程' });
+        }
+      }
+    }
+
     // 引擎不可用时快速失败，避免先落库再必然失败
-    const engineReady = await probeEngine();
-    if (!engineReady) {
+    const probe = await probeEngine();
+    if (!computeReady(probe, GLIDER_BACKEND)) {
       return res.status(503).json({ error: '模拟引擎不可用，请稍后再试或联系管理员检查引擎环境' });
     }
 
@@ -124,9 +146,9 @@ exports.simulate = async (req, res) => {
     const speed = clampNum(req.body.speed, 15, 60, 36);
 
     const info = db.prepare(
-      `INSERT INTO glider_simulations (student_id, dihedral_deg, cg_x, speed, alt, status)
-       VALUES (?, ?, ?, ?, ?, 'running')`
-    ).run(req.user.id, dihedral_deg, cg_x, speed, GLIDER_ALT);
+      `INSERT INTO glider_simulations (student_id, dihedral_deg, cg_x, speed, alt, status, course_id, lesson_id)
+       VALUES (?, ?, ?, ?, ?, 'running', ?, ?)`
+    ).run(req.user.id, dihedral_deg, cg_x, speed, GLIDER_ALT, courseId, lessonId);
     const id = info.lastInsertRowid;
 
     const simDir = path.join(UPLOAD_ROOT, 'glider', String(id));
@@ -214,19 +236,25 @@ exports.simulate = async (req, res) => {
   }
 };
 
-// 我的模拟历史（学生本人 / 管理员可见全部）
+// 试飞记录列表（决策 D-7：admin 全部；导师自己课程；学生本人；教师/media 无）
 exports.list = (req, res) => {
   try {
-    const rows = (req.user.role === 'admin')
-      ? db.prepare(
-          `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
-           LEFT JOIN users u ON u.id = g.student_id ORDER BY g.id DESC LIMIT 200`
-        ).all()
-      : db.prepare(
-          `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
-           LEFT JOIN users u ON u.id = g.student_id WHERE g.student_id = ? ORDER BY g.id DESC LIMIT 100`
-        ).all(req.user.id);
-    return res.json({ items: rows.map(toDto) });
+    let rows;
+    if (req.user.role === 'admin') {
+      rows = db.prepare(
+        `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
+         LEFT JOIN users u ON u.id = g.student_id ORDER BY g.id DESC LIMIT 200`
+      ).all();
+    } else if (req.user.role === 'student' || req.user.role === 'academic_mentor') {
+      rows = db.prepare(
+        `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
+         LEFT JOIN users u ON u.id = g.student_id ORDER BY g.id DESC LIMIT 500`
+      ).all();
+    } else {
+      return res.json({ items: [] });
+    }
+    const items = rows.filter((row) => canRead(row, req.user)).slice(0, 200).map(toDto);
+    return res.json({ items });
   } catch (err) {
     console.error('滑翔机模拟列表错误:', err);
     return res.status(500).json({ error: '加载失败，请稍后重试' });
@@ -308,45 +336,75 @@ exports.streamUrl = (req, res) => {
 };
 
 // 引擎能力探测缓存（60s）+ 统一探测函数（供 capabilities 与 simulate fail-fast 复用）
-let capabilityCache = { at: 0, payload: null };
+let probeCache = { at: 0, probe: null };
 
+// 返回引擎探测结果（原始 --probe JSON；失败返回 null）
 function probeEngine() {
-  if (capabilityCache.payload && Date.now() - capabilityCache.at < 60 * 1000) {
-    return Promise.resolve(capabilityCache.payload.ready);
+  if (probeCache.probe && Date.now() - probeCache.at < 60 * 1000) {
+    return Promise.resolve(probeCache.probe);
   }
   return new Promise((resolve) => {
     let settled = false;
-    const finish = (ready) => {
+    const finish = (probe) => {
       if (settled) return; // error 与 close 可能先后触发，只结算一次
       settled = true;
-      resolve(ready);
+      probeCache = { at: Date.now(), probe };
+      resolve(probe);
     };
+    const probeOutdir = PY.mode === 'wsl'
+      ? toWslPath(path.join(UPLOAD_ROOT, '.probe'))
+      : path.join(UPLOAD_ROOT, '.probe');
     try {
       const child = PY.mode === 'wsl'
-        ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python, '-c', 'import numpy'], { timeout: 15000 })
-        : execFile(PY.python, ['-c', 'import numpy'], { timeout: 15000 });
-      child.on('error', () => finish(false));
-      child.on('close', (code) => finish(code === 0));
+        ? execFile('wsl.exe', ['-d', PY.distro, '--', PY.python,
+            toWslPath(path.join(GLIDER_DIR, 'sim_service.py')), '--probe', '--probe-outdir', probeOutdir],
+          { timeout: 30000 })
+        : execFile(PY.python, ['sim_service.py', '--probe', '--probe-outdir', probeOutdir],
+          { cwd: GLIDER_DIR, timeout: 30000 });
+      let stdout = '';
+      child.stdout.on('data', (d) => { stdout += d.toString(); });
+      child.stderr.on('data', () => { /* 诊断输出忽略 */ });
+      child.on('error', () => finish(null));
+      child.on('close', (code) => {
+        if (code !== 0) return finish(null);
+        try {
+          const probe = JSON.parse(stdout.trim().split('\n').pop());
+          finish(probe && typeof probe === 'object' ? probe : null);
+        } catch (err) {
+          finish(null);
+        }
+      });
     } catch (err) {
-      finish(false);
+      finish(null);
     }
   });
 }
 
-exports.capabilities = async (req, res) => {
-  const now = Date.now();
-  if (capabilityCache.payload && now - capabilityCache.at < 60 * 1000) {
-    return res.json(capabilityCache.payload);
-  }
-  const payload = {
-    ready: false,
+// 结合平台配置判定引擎是否可用：novaphy 模式要求探测到 novaPhy；auto/reference 仅需参考后端就绪
+function computeReady(probe, backendConfig) {
+  if (!probe || !probe.ready) return false;
+  if (backendConfig === 'novaphy') return probe.backend === 'novaphy';
+  return true;
+}
+
+function buildCapabilities(probe) {
+  return {
+    ready: computeReady(probe, GLIDER_BACKEND),
     backend: GLIDER_BACKEND,
+    detectedBackend: (probe && probe.backend) || '',
     python: PY.mode === 'wsl' ? `wsl:${PY.distro}:${PY.python}` : PY.python,
     video: GLIDER_VIDEO,
     maxActive: GLIDER_MAX_ACTIVE,
+    retentionDays: GLIDER_RETENTION_DAYS,
+    probe,
   };
-  const ready = await probeEngine();
-  payload.ready = ready;
-  capabilityCache = { at: Date.now(), payload };
-  res.json(payload);
+}
+
+exports.capabilities = async (req, res) => {
+  const now = Date.now();
+  if (probeCache.probe && now - probeCache.at < 60 * 1000) {
+    return res.json(buildCapabilities(probeCache.probe));
+  }
+  const probe = await probeEngine();
+  res.json(buildCapabilities(probe));
 };

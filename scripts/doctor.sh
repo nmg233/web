@@ -65,7 +65,12 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 echo "== 6/6 磁盘空间 =="
+DISK_WARN_PERCENT="${DISK_WARN_PERCENT:-85}"
+USED_PCT=$(df -P . 2>/dev/null | tail -1 | awk '{print $5}' | tr -d '%')
 df -h . 2>/dev/null | tail -1 | awk '{print "  [info] 当前分区可用：" $4 " / 总 " $2}'
+if [ -n "$USED_PCT" ] && [ "$USED_PCT" -ge "$DISK_WARN_PERCENT" ] 2>/dev/null; then
+  echo "  [WARN] 磁盘使用率 ${USED_PCT}% 已达告警阈值 ${DISK_WARN_PERCENT}%（滑翔机视频等大文件建议及时归档）"
+fi
 
 if [ "$FAIL" -ne 0 ]; then
   echo

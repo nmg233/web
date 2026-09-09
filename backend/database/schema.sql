@@ -285,6 +285,7 @@ CREATE TABLE IF NOT EXISTS growth_records (
   event_type TEXT NOT NULL DEFAULT 'teacher',
   description TEXT NOT NULL,
   recorded_by INTEGER,
+  work_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (recorded_by) REFERENCES users(id)
@@ -459,6 +460,8 @@ CREATE TABLE IF NOT EXISTS glider_simulations (
   glide_time REAL,
   summary_json TEXT,
   error TEXT,
+  course_id INTEGER,
+  lesson_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
@@ -474,12 +477,15 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
 CREATE INDEX IF NOT EXISTS idx_works_student ON works(student_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_works_root ON works(student_id, task_id) WHERE parent_work_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_growth_records_work ON growth_records(work_id);
 CREATE INDEX IF NOT EXISTS idx_reflections_student ON reflections(student_id);
 CREATE INDEX IF NOT EXISTS idx_evaluations_student ON evaluations(student_id);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status, priority, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedback_messages_feedback ON feedback_messages(feedback_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_glider_sims_student ON glider_simulations(student_id, id DESC);
+CREATE INDEX IF NOT EXISTS idx_glider_sims_course ON glider_simulations(course_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_attachments_feedback ON feedback_attachments(feedback_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_event ON notifications(event_key, business_type, business_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_published ON notifications(status, published_at DESC);
