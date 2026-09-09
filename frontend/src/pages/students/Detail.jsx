@@ -183,12 +183,14 @@ export default function StudentDetail() {
       <Modal title={`提交评价：${student.real_name}`} open={evalOpen} onCancel={() => setEvalOpen(false)}
         onOk={() => evalForm.submit()} confirmLoading={evalLoading}>
         <Form form={evalForm} layout="vertical" onFinish={handleSubmitEvaluation}>
+          <Form.Item name="enrollment_id" label="评价课程" rules={[{ required: true, message: '请选择评价课程' }]}>
+            <Select placeholder="选择课程（该生有效报名）"
+              options={(detail.courses || []).map((c) => ({ value: c.enrollment_id, label: c.title }))} />
+          </Form.Item>
           <Form.Item name="eval_type" label="评价类型" initialValue="process">
             <Select options={[
               { value: 'process', label: '过程性评价' },
               { value: 'outcome', label: '成果评价' },
-              { value: 'peer', label: '同伴评价' },
-              { value: 'self', label: '自我评价' },
             ]} />
           </Form.Item>
           <Form.Item name="score" label="评分（1-100）">

@@ -6,7 +6,6 @@ const XLSX = require('xlsx');
 const { isStaff, isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
-const { toFileDto } = require('../helpers/fileDto');
 const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
 const { canViewArchive } = require('../helpers/archivePolicy');
