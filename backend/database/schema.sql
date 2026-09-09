@@ -460,6 +460,8 @@ CREATE TABLE IF NOT EXISTS glider_simulations (
   glide_time REAL,
   summary_json TEXT,
   error TEXT,
+  course_id INTEGER,
+  lesson_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
@@ -483,6 +485,7 @@ CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id, created_at D
 CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status, priority, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedback_messages_feedback ON feedback_messages(feedback_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_glider_sims_student ON glider_simulations(student_id, id DESC);
+CREATE INDEX IF NOT EXISTS idx_glider_sims_course ON glider_simulations(course_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_attachments_feedback ON feedback_attachments(feedback_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_event ON notifications(event_key, business_type, business_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_published ON notifications(status, published_at DESC);
