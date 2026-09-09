@@ -133,7 +133,7 @@ export default function StudentDetail() {
       </Space>
       <Card>
         <Descriptions column={2} bordered size="small">
-          <Descriptions.Item label="用户名">{student.username}</Descriptions.Item>
+          <Descriptions.Item label="登录账号">{student.username}</Descriptions.Item>
           <Descriptions.Item label="真实姓名">{student.real_name}</Descriptions.Item>
           <Descriptions.Item label="邮箱">{student.email || '—'}</Descriptions.Item>
           <Descriptions.Item label="手机号">{student.phone || '—'}</Descriptions.Item>

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const db = require('../config/database');
 const { isStrongPassword } = require('../helpers/passwordPolicy');
+const { resolveUsername } = require('../helpers/username');
 
 const PUBLIC_ROLES = ['student'];
 const REFRESH_TOKEN_TTL_DAYS = parseInt(process.env.JWT_REFRESH_EXPIRES_IN, 10) || 7; // 刷新令牌有效期（天）
@@ -102,27 +103,23 @@ exports.getClasses = (req, res) => {
 // 处理登录 → 返回 JWT
 exports.login = (req, res) => {
   try {
-    const realName = String(req.body.real_name || '').trim();
+    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
     const password = req.body.password;
-    if (!realName || !password) {
-      return res.status(400).json({ error: '请输入姓名和密码' });
+    if (!username || typeof password !== 'string' || !password) {
+      return res.status(400).json({ error: '请输入账号和密码' });
     }
 
-    const users = db.prepare(
-      'SELECT id, username, password_hash, real_name, role, school_id, class_id, force_reset_password FROM users WHERE real_name = ? AND is_active = 1'
-    ).all(realName);
+    const user = db.prepare(
+      'SELECT id, username, password_hash, real_name, role, school_id, class_id, force_reset_password FROM users WHERE username = ? AND is_active = 1'
+    ).get(username);
 
-    if (users.length === 0) {
-      return res.status(401).json({ error: '姓名或密码错误' });
-    }
-    if (users.length > 1) {
-      return res.status(401).json({ error: '存在重名用户，请联系管理员' });
+    if (!user) {
+      return res.status(401).json({ error: '账号或密码错误' });
     }
 
-    const user = users[0];
     const validPassword = bcrypt.compareSync(password, user.password_hash);
     if (!validPassword) {
-      return res.status(401).json({ error: '姓名或密码错误' });
+      return res.status(401).json({ error: '账号或密码错误' });
     }
 
     const token = generateToken(user, req.app.get('jwt_secret'));
@@ -193,21 +190,17 @@ exports.register = (req, res) => {
       }
     }
 
-    const existing = db.prepare('SELECT id FROM users WHERE real_name = ?').get(real_name);
-    if (existing) {
-      return res.status(400).json({ error: '该姓名已被使用，请换一个' });
-    }
-
-    const username = `user${Date.now()}${Math.floor(Math.random() * 100000)}`;
+    const username = resolveUsername(db, req.body.username, role);
     const password_hash = bcrypt.hashSync(password, 10);
     db.prepare(
       `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(username, password_hash, real_name, email || null, phone, role, school_id || null, class_id || null);
 
-    res.json({ message: '注册成功，请登录' });
+    res.json({ message: '注册成功，请登录', username });
   } catch (err) {
     console.error('注册错误:', err);
+    if (err.status === 400) return res.status(400).json({ error: err.message });
     res.status(500).json({ error: '注册失败，请稍后重试' });
   }
 };

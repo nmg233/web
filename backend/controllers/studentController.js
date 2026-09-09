@@ -12,7 +12,7 @@ const { isStrongPassword } = require('../helpers/passwordPolicy');
 const orgService = require('../services/organizationService');
 const { pinyin } = require('pinyin-pro');
 
-const USERNAME_RE = /^[a-zA-Z0-9]+$/;
+const { resolveUsername } = require('../helpers/username');
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 
 // 统一布尔解析：兼容前端 true/1/'1'/'on'/'true' 等形态，其余一律视为 false
@@ -36,10 +36,6 @@ function userDeletionBlockers(userId) {
 
 function formatBlockers(blockers) {
   return blockers.map((b) => `${b.label} ${b.count} 条（${b.hint}）`).join('；');
-}
-
-function isValidUsername(username) {
-  return username && username.length >= 6 && USERNAME_RE.test(username);
 }
 
 // 学生默认密码：姓名拼音 + @123（如 王小明 → wangxiaoming@123）。
@@ -143,12 +139,7 @@ exports.create = (req, res) => {
       return res.status(400).json({ error: '学校和班级为必填项' });
     }
 
-    const nameExists = db.prepare('SELECT id FROM users WHERE real_name = ?').get(real_name);
-    if (nameExists) {
-      return res.status(400).json({ error: '该姓名已存在' });
-    }
-
-    const studentUsername = `student${Date.now()}${Math.floor(Math.random() * 100000)}`;
+    const studentUsername = resolveUsername(db, req.body.username, 'student');
     const studentPassword = password || defaultStudentPassword(real_name);
     // AUTH-08：若管理员显式设置了自定义密码，则必须满足统一强密码策略
     if (password && !isStrongPassword(password)) {
@@ -168,9 +159,11 @@ exports.create = (req, res) => {
     res.json({
       message: `学生 ${real_name} 添加成功！默认密码: ${studentPassword}（首次登录需修改密码）`,
       id: Number(result.lastInsertRowid),
+      username: studentUsername,
     });
   } catch (err) {
     console.error('添加学生错误:', err);
+    if (err.status === 400) return res.status(400).json({ error: err.message });
     res.status(500).json({ error: '添加失败，请稍后重试' });
   }
 };
@@ -204,6 +197,7 @@ function normalizeImportRow(raw) {
     return '';
   };
   return {
+    username: get('登录账号', '账号', 'username', 'login_id'),
     real_name: get('姓名', 'real_name', '真实姓名'),
     role: get('身份', '角色', 'role'),
     school_name: get('学校', 'school_name', '学校名称'),
@@ -280,13 +274,13 @@ exports.import = (req, res) => {
       `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
     );
-    const nameExists = db.prepare('SELECT id FROM users WHERE real_name = ?');
     const findSchool = db.prepare('SELECT id FROM schools WHERE name = ?');
     const findClass = db.prepare('SELECT id FROM classes WHERE name = ? AND school_id = ?');
 
     const result = db.transaction(() => {
       let imported = 0;
       const errors = [];
+      const accounts = [];
       let seq = 0;
       for (const row of rows) {
         seq++;
@@ -308,19 +302,22 @@ exports.import = (req, res) => {
           }
           class_id = cls.id;
         }
-        if (nameExists.get(real_name)) {
-          errors.push(`第 ${seq} 行「${real_name}」：姓名已存在`);
+        let username;
+        try {
+          username = resolveUsername(db, row.username, role);
+        } catch (err) {
+          if (err.status !== 400) throw err;
+          errors.push(`第 ${seq} 行「${real_name}」：${err.message}`);
           continue;
         }
-        const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
-        const username = `${prefix}${Date.now()}${imported}${seq}${Math.floor(Math.random() * 10000)}`;
         const password_hash = bcrypt.hashSync(defaultStudentPassword(real_name), 10);
         insert.run(username, password_hash, real_name,
                    row.email || null, row.phone || null, row.profile || null,
                    role, school_id || null, class_id || null);
         imported++;
+        accounts.push({ username, real_name, role, school_name: row.school_name, class_name: row.class_name });
       }
-      return { imported, errors };
+      return { imported, errors, accounts };
     })();
 
     res.json({
@@ -329,6 +326,7 @@ exports.import = (req, res) => {
         : `成功导入 ${result.imported} 名用户`,
       imported: result.imported,
       failed: result.errors.length,
+      accounts: result.accounts,
       errors: result.errors.slice(0, 20)
     });
   } catch (err) {
@@ -403,11 +401,6 @@ exports.createUser = (req, res) => {
       return res.status(400).json({ error: '学生和教师必须选择学校和班级' });
     }
 
-    const nameExists = db.prepare('SELECT id FROM users WHERE real_name = ?').get(real_name);
-    if (nameExists) {
-      return res.status(400).json({ error: '该姓名已存在' });
-    }
-
     // AUTH-08：管理员自定义密码须满足统一强密码策略
     if (password && !isStrongPassword(password)) {
       return res.status(400).json({
@@ -422,8 +415,7 @@ exports.createUser = (req, res) => {
       }
     }
 
-    const prefix = role === 'teacher' ? 'teacher' : role === 'academic_mentor' ? 'mentor' : 'student';
-    const finalUsername = `${prefix}${Date.now()}${Math.floor(Math.random() * 100000)}`;
+    const finalUsername = resolveUsername(db, req.body.username, role);
 
     const finalPassword = password || (role === 'student' ? defaultStudentPassword(real_name) : 'pbl123456');
     const password_hash = bcrypt.hashSync(finalPassword, 10);
@@ -436,9 +428,10 @@ exports.createUser = (req, res) => {
     ).run(finalUsername, password_hash, real_name, email || null, phone || null,
           profile || null, role, finalSchoolId || null, finalClassId || null);
 
-    res.json({ message: `用户 ${real_name} 添加成功` });
+    res.json({ message: `用户 ${real_name} 添加成功`, username: finalUsername });
   } catch (err) {
     console.error('添加用户错误:', err);
+    if (err.status === 400) return res.status(400).json({ error: err.message });
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
@@ -476,11 +469,6 @@ exports.updateUser = (req, res) => {
       if (!cls || (school_id && cls.school_id !== Number(school_id))) {
         return res.status(400).json({ error: '班级不存在或不属于所选学校' });
       }
-    }
-
-    const nameExists = db.prepare('SELECT id FROM users WHERE real_name = ? AND id <> ?').get(real_name, userId);
-    if (nameExists) {
-      return res.status(400).json({ error: '该姓名已存在' });
     }
 
     // AUTH-08：管理员重置/修改用户密码须满足统一强密码策略

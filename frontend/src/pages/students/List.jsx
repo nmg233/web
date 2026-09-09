@@ -4,10 +4,12 @@ import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import { downloadAccounts } from '../../utils/accountExport';
 
 const { Title, Text } = Typography;
 
 const canManage = (role) => ['admin', 'academic_mentor', 'teacher'].includes(role);
+const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,63}$/, message: '请输入 4–64 位字母、数字、下划线或连字符，以字母或数字开头' }];
 
 export default function StudentList() {
   const { user } = useAuth();
@@ -21,6 +23,7 @@ export default function StudentList() {
   const [importOpen, setImportOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [selectedAccountIds, setSelectedAccountIds] = useState([]);
   const [form] = Form.useForm();
 
   const loadData = async () => {
@@ -44,8 +47,8 @@ export default function StudentList() {
   // 非管理员：添加学生（无身份选择，固定为学生）
   const handleAddStudent = async (values) => {
     try {
-      await studentAPI.create(values);
-      message.success('添加成功');
+      const res = await studentAPI.create(values);
+      Modal.success({ title: '添加成功', content: `登录账号：${res.username}` });
       setAddModal(false);
       form.resetFields();
       loadData();
@@ -55,8 +58,8 @@ export default function StudentList() {
   // 管理员：添加用户（支持学生/教师/学术导师）
   const handleAddUser = async (values) => {
     try {
-      await studentAPI.createUser(values);
-      message.success('用户添加成功');
+      const res = await studentAPI.createUser(values);
+      Modal.success({ title: '用户添加成功', content: `登录账号：${res.username}` });
       setAddModal(false);
       form.resetFields();
       loadData();
@@ -84,7 +87,7 @@ export default function StudentList() {
   const renderUserTag = (u, color, icon) => (
     <span key={u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginBottom: 4 }}>
       <Tag color={color} style={{ cursor: 'pointer', margin: 0 }} onClick={() => navigate(`/students/${u.id}`)}>
-        {icon} {u.real_name}
+        {icon} {u.real_name}（{u.username}）
       </Tag>
       <Popconfirm title={`确定删除 ${u.real_name}？`} okText="删除" cancelText="取消" onConfirm={() => handleDeleteUser(u)}>
         <Button type="text" size="small" danger icon={<DeleteOutlined />} />
@@ -109,10 +112,10 @@ export default function StudentList() {
 
   // 批量导入：下载 CSV 模板
   const downloadTemplate = () => {
-    const csv = '\uFEFF姓名,身份,学校名称,班级名称,邮箱,手机号\n' +
-      '示例学生,学生,北航附属实验学校,四年级1班,example@xx.com,13800000000\n' +
-      '示例教师,教师,北航附属实验学校,四年级1班,,\n' +
-      '示例导师,学术导师,,,,';
+    const csv = '\uFEFF登录账号,姓名,身份,学校名称,班级名称,邮箱,手机号\n' +
+      'BJFX-2026-0001,示例学生,学生,北航附属实验学校,四年级1班,example@xx.com,13800000000\n' +
+      'T-BJFX-001,示例教师,教师,北航附属实验学校,四年级1班,,\n' +
+      'M-0001,示例导师,学术导师,,,,';
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -138,6 +141,13 @@ export default function StudentList() {
 
   // Admin tree view
   if (user?.role === 'admin') {
+    const accounts = [
+      ...(data.schools || []).flatMap((s) => (s.classes || []).flatMap((c) => [...(c.roles?.student || []), ...(c.roles?.teacher || [])])),
+      ...(data.academicMentors || []),
+      ...(data.unassigned?.teacher || []),
+      ...(data.unassigned?.student || []),
+    ];
+    const selectedAccounts = accounts.filter((u) => selectedAccountIds.includes(u.id));
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -147,7 +157,23 @@ export default function StudentList() {
             <Button icon={<UploadOutlined />} onClick={() => setImportOpen(true)}>批量导入</Button>
           </Space>
         </div>
-        <Input.Search placeholder="搜索用户" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300, marginBottom: 16 }} />
+        <Input.Search placeholder="搜索姓名或登录账号" value={search} onChange={(e) => { setSearch(e.target.value); setSelectedAccountIds([]); }} style={{ width: 300, marginBottom: 16 }} />
+        <Card size="small" title="登录账号清单" style={{ marginBottom: 16 }} extra={
+          <Space>
+            <Button icon={<DownloadOutlined />} disabled={loading || !accounts.length} onClick={() => downloadAccounts(accounts)}>导出当前筛选结果</Button>
+            <Button icon={<DownloadOutlined />} disabled={loading || !selectedAccounts.length} onClick={() => downloadAccounts(selectedAccounts)}>导出已选（{selectedAccounts.length}）</Button>
+          </Space>
+        }>
+          <Table rowKey="id" dataSource={accounts} loading={loading} size="small" pagination={{ pageSize: 10 }} scroll={{ x: 700 }}
+            rowSelection={{ selectedRowKeys: selectedAccountIds, onChange: setSelectedAccountIds }}
+            columns={[
+              { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
+              { title: '登录账号', dataIndex: 'username', render: (text) => <Text copyable>{text}</Text> },
+              { title: '身份', dataIndex: 'role', render: (role) => ({ student: '学生', teacher: '教师', academic_mentor: '学术导师' }[role] || role) },
+              { title: '学校', dataIndex: 'school_name' },
+              { title: '班级', dataIndex: 'class_name' },
+            ]} />
+        </Card>
         <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>组织结构</Typography.Text>
         <>
           {data.schools ? data.schools.map((school) => (
@@ -182,6 +208,7 @@ export default function StudentList() {
 
         <Modal title="添加用户" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} width={500}>
           <Form form={form} layout="vertical" onFinish={handleAddUser}>
+            <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号；账号区分大小写，创建后保持不变"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
             <Form.Item name="real_name" label="真实姓名" rules={[{ required: true, message: '请输入姓名' }]}><Input /></Form.Item>
             <Form.Item name="role" label="身份" rules={[{ required: true, message: '请选择身份' }]}>
               <Select options={[
@@ -220,8 +247,9 @@ export default function StudentList() {
         <Modal title="批量导入用户" open={importOpen} onCancel={() => setImportOpen(false)} footer={null} width={620}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Text type="secondary">
-              支持 .csv / .xlsx / .xls 文件。表头：<Text code>姓名,身份,学校名称,班级名称,邮箱,手机号</Text>
+              支持 .csv / .xlsx / .xls 文件。表头：<Text code>登录账号,姓名,身份,学校名称,班级名称,邮箱,手机号</Text>
               ，身份可选：学生 / 教师 / 学术导师。
+              登录账号可留空自动生成，旧模板仍可使用；同名用户允许导入，重复账号会跳过。无账号的文件重复上传会创建新用户。
             </Text>
             <Space>
               <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>下载模板</Button>
@@ -235,6 +263,7 @@ export default function StudentList() {
             </Space>
             {importResult && (
               <Card size="small" style={{ width: '100%' }}>
+                <Button icon={<DownloadOutlined />} disabled={!importResult.accounts?.length} onClick={() => downloadAccounts(importResult.accounts, '本次导入账号.csv')}>导出本次成功导入账号</Button>
                 <p style={{ marginBottom: 8 }}>
                   成功：<b style={{ color: '#52c41a' }}>{importResult.imported ?? 0}</b>
                   {'  '}失败：<b style={{ color: '#ff4d4f' }}>{importResult.failed ?? 0}</b>
@@ -280,6 +309,7 @@ export default function StudentList() {
 
       <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()}>
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
+          <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="password" label="密码"
             extra="留空则自动生成：姓名拼音@123（如 wangxiaoming@123）；自定义密码需 8 位以上，含大写/小写/数字/特殊字符至少 3 类">
