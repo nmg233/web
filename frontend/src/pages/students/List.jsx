@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload } from 'antd';
+import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload, Radio } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -10,6 +10,7 @@ import TempPasswordModal from '../../components/TempPasswordModal';
 const { Title, Text } = Typography;
 
 const canManage = (role) => role === 'admin';
+const accountStatus = (account) => account.archived_at ? 'archived' : account.is_active ? 'active' : 'disabled';
 const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,63}$/, message: '请输入 4–64 位字母、数字、下划线或连字符，以字母或数字开头' }];
 
 export default function StudentList() {
@@ -27,6 +28,8 @@ export default function StudentList() {
   const [createResult, setCreateResult] = useState(null);
   const [creating, setCreating] = useState(false);
   const [selectedAccountIds, setSelectedAccountIds] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('active');
+  const [accountPage, setAccountPage] = useState(1);
   const [form] = Form.useForm();
 
   const loadData = async () => {
@@ -146,12 +149,13 @@ export default function StudentList() {
 
   // Admin tree view
   if (user?.role === 'admin') {
-    const accounts = [
+    const allAccounts = [
       ...(data.schools || []).flatMap((s) => (s.classes || []).flatMap((c) => [...(c.roles?.student || []), ...(c.roles?.teacher || [])])),
       ...(data.academicMentors || []),
       ...(data.unassigned?.teacher || []),
       ...(data.unassigned?.student || []),
     ];
+    const accounts = allAccounts.filter((u) => statusFilter === 'all' || accountStatus(u) === statusFilter);
     const selectedAccounts = accounts.filter((u) => selectedAccountIds.includes(u.id));
     return (
       <div>
@@ -162,14 +166,24 @@ export default function StudentList() {
             <Button icon={<UploadOutlined />} onClick={() => setImportOpen(true)}>批量导入</Button>
           </Space>
         </div>
-        <Input.Search placeholder="搜索姓名或登录账号" value={search} onChange={(e) => { setSearch(e.target.value); setSelectedAccountIds([]); }} style={{ width: 300, marginBottom: 16 }} />
+        <Input.Search placeholder="搜索姓名或登录账号" value={search} onChange={(e) => { setSearch(e.target.value); setSelectedAccountIds([]); setAccountPage(1); }} style={{ width: 300, marginBottom: 16 }} />
         <Card size="small" title="登录账号清单" style={{ marginBottom: 16 }} extra={
           <Space>
             <Button icon={<DownloadOutlined />} disabled={loading || !accounts.length} onClick={() => downloadAccounts(accounts)}>导出当前筛选结果</Button>
             <Button icon={<DownloadOutlined />} disabled={loading || !selectedAccounts.length} onClick={() => downloadAccounts(selectedAccounts)}>导出已选（{selectedAccounts.length}）</Button>
           </Space>
         }>
-          <Table rowKey="id" dataSource={accounts} loading={loading} size="small" pagination={{ pageSize: 10 }} scroll={{ x: 700 }}
+          <Space wrap style={{ marginBottom: 12 }}>
+            <Radio.Group aria-label="账号状态筛选" value={statusFilter} onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setSelectedAccountIds([]);
+              setAccountPage(1);
+            }} optionType="button" buttonStyle="solid" options={[
+              ['active', '正常'], ['disabled', '已停用'], ['archived', '已归档'], ['all', '全部'],
+            ].map(([value, label]) => ({ value, label: `${label}（${allAccounts.filter(u => value === 'all' || accountStatus(u) === value).length}）` }))} />
+            <Text type="secondary">筛选仅作用于账号清单；数量按当前搜索结果统计。</Text>
+          </Space>
+          <Table rowKey="id" dataSource={accounts} loading={loading} size="small" pagination={{ pageSize: 10, current: accountPage, onChange: setAccountPage }} scroll={{ x: 700 }}
             rowSelection={{ selectedRowKeys: selectedAccountIds, onChange: setSelectedAccountIds }}
             columns={[
               { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
