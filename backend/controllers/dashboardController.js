@@ -65,7 +65,7 @@ exports.index = (req, res) => {
         schoolCount: db.prepare('SELECT COUNT(*) AS c FROM schools').get().c,
         userCount: db.prepare('SELECT COUNT(*) AS c FROM users').get().c,
         courseCount: db.prepare('SELECT COUNT(*) AS c FROM courses').get().c,
-        workCount: db.prepare('SELECT COUNT(*) AS c FROM works').get().c,
+        workCount: db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) AS c FROM works').get().c,
       };
     }
 
@@ -94,7 +94,7 @@ exports.index = (req, res) => {
         ? db.prepare(`
             SELECT c.*,
               (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') as student_count,
-              (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
+              (SELECT COUNT(DISTINCT COALESCE(w.parent_work_id, w.id)) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
             FROM courses c
             WHERE c.status != 'archived' AND EXISTS (
               SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
@@ -104,7 +104,7 @@ exports.index = (req, res) => {
         : db.prepare(`
             SELECT c.*,
               (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') as student_count,
-              (SELECT COUNT(*) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
+              (SELECT COUNT(DISTINCT COALESCE(w.parent_work_id, w.id)) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) as work_count
             FROM courses c
             WHERE c.created_by = ? AND c.status != 'archived'
             ORDER BY c.updated_at DESC
@@ -126,7 +126,7 @@ exports.index = (req, res) => {
         JOIN users u ON w.student_id = u.id
         LEFT JOIN enrollments e ON w.enrollment_id = e.id
         LEFT JOIN courses c ON e.course_id = c.id
-        WHERE u.school_id = ?
+        WHERE u.school_id = ? AND w.review_status = 'approved'
         ORDER BY w.created_at DESC LIMIT 10
       `).all(user.school_id || 0) : db.prepare(`
         SELECT w.*, u.real_name as student_name, c.title as course_title
@@ -134,9 +134,11 @@ exports.index = (req, res) => {
         JOIN users u ON w.student_id = u.id
         JOIN enrollments e ON w.enrollment_id = e.id
         JOIN courses c ON e.course_id = c.id
-        WHERE c.created_by = ?
+        WHERE (c.created_by = ? OR EXISTS (
+          SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
+        ))
         ORDER BY w.created_at DESC LIMIT 10
-      `).all(user.id);
+      `).all(user.id, user.id);
 
       viewData.myCourses = myCourses;
       viewData.recentWorks = recentWorks.map(toFileDto);
@@ -147,7 +149,7 @@ exports.index = (req, res) => {
       // 参与的课程（仅有效报名且已发布的课程；选课由执行导师/教师/管理员统一导入）
       const myCourses = db.prepare(`
         SELECT c.*, e.id as enrollment_id, e.enrolled_at,
-          (SELECT COUNT(*) FROM works w2 WHERE w2.student_id = ? AND w2.enrollment_id = e.id) as my_work_count,
+          (SELECT COUNT(DISTINCT COALESCE(w2.parent_work_id, w2.id)) FROM works w2 WHERE w2.student_id = ? AND w2.enrollment_id = e.id) as my_work_count,
           (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as total_lessons
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id
@@ -155,11 +157,11 @@ exports.index = (req, res) => {
         ORDER BY e.enrolled_at DESC
       `).all(user.id, user.id);
 
-      // 每门课的最新作品
+      // 每门课的最新作品（DTO 脱敏，不下发 file_path）
       for (const course of myCourses) {
         course.recentWorks = db.prepare(`
           SELECT * FROM works WHERE student_id = ? AND enrollment_id = ? ORDER BY created_at DESC LIMIT 3
-        `).all(user.id, course.enrollment_id);
+        `).all(user.id, course.enrollment_id).map(toFileDto);
       }
 
       // 今日是否已提交反思日志（日期边界按北京时间：created_at 为 UTC，+8 小时后取日期）

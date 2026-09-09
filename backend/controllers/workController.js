@@ -236,8 +236,9 @@ exports.upload = (req, res) => {
           displayType, req.file?.size || null, parentId, version);
 
     db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `提交作品《${title}》`);
-    const workCount = db.prepare('SELECT COUNT(*) count FROM works WHERE student_id=?').get(actualStudentId).count;
-    if (workCount % 3 === 0) db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `累计完成 ${workCount} 个作品`);
+    // 作品数按版本根去重（v2/v3 不计入新作品）；仅首次提交触发里程碑
+    const workCount = db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) count FROM works WHERE student_id=?').get(actualStudentId).count;
+    if (!parentId && workCount % 3 === 0) db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `累计完成 ${workCount} 个作品`);
 
     const workId = Number(insertResult.lastInsertRowid);
     const courseOwner = resolvedEnrollmentId ? db.prepare(`
