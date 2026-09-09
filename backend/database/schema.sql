@@ -285,6 +285,7 @@ CREATE TABLE IF NOT EXISTS growth_records (
   event_type TEXT NOT NULL DEFAULT 'teacher',
   description TEXT NOT NULL,
   recorded_by INTEGER,
+  work_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (recorded_by) REFERENCES users(id)
@@ -474,6 +475,8 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
 CREATE INDEX IF NOT EXISTS idx_works_student ON works(student_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_works_root ON works(student_id, task_id) WHERE parent_work_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_growth_records_work ON growth_records(work_id);
 CREATE INDEX IF NOT EXISTS idx_reflections_student ON reflections(student_id);
 CREATE INDEX IF NOT EXISTS idx_evaluations_student ON evaluations(student_id);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id, created_at DESC);
