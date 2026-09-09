@@ -60,6 +60,24 @@ function makeStorage(prefix, subdir) {
   });
 }
 
+// 关键格式魔数校验（FILE-01/E-5）：只信扩展名与 MIME 不足以防伪造
+const MAGIC_CHECKED_EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.mp4', '.webm', '.zip', '.doc', '.docx', '.ppt', '.pptx']);
+const MAGIC_CHECK = {
+  '.jpg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  '.jpeg': (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  '.png': (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47,
+  '.gif': (b) => b.toString('ascii', 0, 4) === 'GIF8',
+  '.webp': (b) => b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP',
+  '.pdf': (b) => b.toString('ascii', 0, 4) === '%PDF',
+  '.mp4': (b) => b.length > 11 && b.toString('ascii', 4, 8) === 'ftyp',
+  '.webm': (b) => b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3,
+  '.zip': (b) => b[0] === 0x50 && b[1] === 0x4b && (b[2] === 0x03 || b[2] === 0x05 || b[2] === 0x07),
+  '.docx': (b) => b[0] === 0x50 && b[1] === 0x4b && b[2] === 0x03,
+  '.pptx': (b) => b[0] === 0x50 && b[1] === 0x4b && b[2] === 0x03,
+  '.doc': (b) => b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0,
+  '.ppt': (b) => b[0] === 0xd0 && b[1] === 0xcf && b[2] === 0x11 && b[3] === 0xe0,
+};
+
 function fileFilter(req, file, cb) {
   const ext = path.extname(file.originalname).toLowerCase();
 
@@ -76,7 +94,39 @@ function fileFilter(req, file, cb) {
     return cb(err, false);
   }
 
-  cb(null, true);
+  if (!MAGIC_CHECKED_EXT.has(ext)) {
+    return cb(null, true);
+  }
+
+  // 读取文件头（最多 16 字节）做魔数校验，读完后 unshift 回流传给 multer 继续处理
+  const checker = MAGIC_CHECK[ext];
+  let head = Buffer.alloc(0);
+  let handled = false;
+  const done = (ok, message) => {
+    if (handled) return;
+    handled = true;
+    file.stream.removeListener('data', onData);
+    file.stream.removeListener('end', onEnd);
+    file.stream.removeListener('error', onErr);
+    if (ok) return cb(null, true);
+    const err = new Error(message);
+    err.status = 400;
+    cb(err, false);
+  };
+  const onData = (chunk) => {
+    head = Buffer.concat([head, chunk]);
+    if (head.length >= 16) {
+      file.stream.unshift(head);
+      done(checker(head), `文件内容与扩展名不符（${ext}）`);
+    }
+  };
+  const onEnd = () => {
+    done(checker(head), `文件过小或无法读取文件头（${ext}）`);
+  };
+  const onErr = () => done(false, `读取文件失败（${ext}）`);
+  file.stream.on('data', onData);
+  file.stream.on('end', onEnd);
+  file.stream.on('error', onErr);
 }
 
 const uploadWork = multer({
