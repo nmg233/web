@@ -80,4 +80,11 @@ sleep 2
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
 curl -fsS "$HEALTH_URL"
 echo
+
+# 文件清理队列重试（失败不阻断部署；队列残留由定时任务兜底）
+echo "== deploy: 文件清理队列重试 =="
+ENV_FILE="${ENV_FILE:-/etc/pbl-platform/backend.env}"
+UPLOAD_CLEAN="${UPLOAD_CLEAN:-$(grep -E '^UPLOAD_PATH=' "$ENV_FILE" 2>/dev/null | head -1 | cut -d= -f2- || true)}"
+node scripts/cleanup-files.js "$UPLOAD_CLEAN" || true
+
 echo "deploy ok"
