@@ -1,5 +1,8 @@
 # NovaPhy 气动滑翔机 3D 仿真（glider_sim）
 
+> 📦 **运行环境（WSL / Docker / 无 novaPhy 兜底）与 novaPhy 交付包的放置方式，见上级
+> [`simulation/README.md`](../README.md)。本文件只讲气动模型与纯 Python 用法。**
+
 在 **novaPhy** 物理引擎（`novaphy` wheel 0.4.0，CPU 版）上做一架**符合空气动力学**的
 滑翔机 6 自由度仿真。`sim_service.py` 为无界面服务入口，供 **PBL 科创平台**后端调用：
 输出 3D 航迹图、遥测曲线图、遥测 CSV、`summary.json` 与**固定机位 MP4 飞行回放**。
