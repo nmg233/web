@@ -1,7 +1,8 @@
-# glider_sim 输出与临时文件
-glider_sim/output/
-glider_sim/_tmpframes/
-glider_sim/_*.png
-glider_sim/_*.gif
+# glider 运行产物与临时文件（仓库根 .gitignore 亦已忽略 simulation/glider/output/）
+glider/output/
+glider/_tmpframes/
+glider/_*.png
+glider/_*.gif
 __pycache__/
 *.pyc
+*.pyo
