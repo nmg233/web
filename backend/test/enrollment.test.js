@@ -80,10 +80,11 @@ after(() => {
 });
 
 async function login(realName) {
+  const username = { 管理员: "admin", 甲老师: "teacher_a", 乙老师: "teacher_b", 学生A: "student_a", 学生B: "student_b", 学生C: "student_c", 执行导师: "mentor" }[realName];
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ real_name: realName, password: 'user123' }),
+    body: JSON.stringify({ username, password: 'user123' }),
   });
   const body = await res.json();
   assert.equal(res.status, 200, realName);
@@ -114,7 +115,7 @@ function enrollmentRows() {
 
 test('新库迁移标记到最新版本', () => {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map((r) => r.version);
-  assert.deepEqual(versions, [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(versions, [1, 2, 3, 4, 5, 6, 7, 8]);
   const cols = db.prepare('PRAGMA table_info(enrollments)').all().map((c) => c.name);
   for (const col of ['status', 'enrolled_by', 'removed_at', 'removed_by', 'remove_reason']) {
     assert.ok(cols.includes(col), `缺少列 ${col}`);
