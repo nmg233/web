@@ -114,35 +114,30 @@ function enrollmentRows() {
 
 test('新库迁移标记到最新版本', () => {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map((r) => r.version);
-  assert.deepEqual(versions, [1, 2, 3, 4, 5]);
+  assert.deepEqual(versions, [1, 2, 3, 4, 5, 6, 7]);
   const cols = db.prepare('PRAGMA table_info(enrollments)').all().map((c) => c.name);
   for (const col of ['status', 'enrolled_by', 'removed_at', 'removed_by', 'remove_reason']) {
     assert.ok(cols.includes(col), `缺少列 ${col}`);
   }
 });
 
-test('教师可导入自己授课课程的本校学生并记录导入人', async () => {
+test('教师不可导入选课', async () => {
   const token = await tokenFor('甲老师');
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [4] });
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.equal(body.added, 1);
-  const row = db.prepare("SELECT * FROM enrollments WHERE student_id = 4 AND course_id = 1").get();
-  assert.equal(row.status, 'active');
-  assert.equal(row.enrolled_by, 2);
-});
-
-test('教师不能导入非自己授课的课程', async () => {
-  const token = await tokenFor('甲老师');
-  const res = await authed(token, 'POST', '/api/courses/2/enroll', { student_ids: [7] });
   assert.equal(res.status, 403);
 });
 
-test('教师不能导入外校学生（整体拒绝）', async () => {
+test('教师不能查询导入候选学生', async () => {
+  const token = await tokenFor('甲老师');
+  const res = await authed(token, 'GET', '/api/courses/1/enroll/candidates', null);
+  assert.equal(res.status, 403);
+});
+
+test('教师不能导入外校学生', async () => {
   const token = await tokenFor('甲老师');
   const before = enrollmentRows().length;
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [5] });
-  assert.equal(res.status, 400);
+  assert.equal(res.status, 403);
   assert.equal(enrollmentRows().length, before);
 });
 
@@ -161,23 +156,11 @@ test('归档课程不能导入学生', async () => {
 });
 
 test('重复导入幂等且不产生重复行', async () => {
-  const token = await tokenFor('甲老师');
+  const token = await tokenFor('执行导师');
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [4] });
   assert.equal(res.status, 200);
   const count = db.prepare('SELECT COUNT(*) c FROM enrollments WHERE student_id = 4 AND course_id = 1').get().c;
   assert.equal(count, 1);
-});
-
-test('候选学生：教师仅本校且不含已报名', async () => {
-  const token = await tokenFor('甲老师');
-  const res = await authed(token, 'GET', '/api/courses/1/enroll/candidates', null);
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.equal(body.lockedSchoolId, 1);
-  const ids = body.students.map((s) => s.id);
-  assert.ok(ids.includes(7), '本校未报名学生应在候选内');
-  assert.ok(!ids.includes(5), '外校学生不应出现');
-  assert.ok(!ids.includes(4), '已报名学生不应出现');
 });
 
 test('日常不可退课：学生/教师/导师调用移除均被拒绝', async () => {
@@ -238,7 +221,7 @@ test('课时授课人必须是启用的教师或执行导师', async () => {
   assert.equal(okRes.status, 200);
 });
 
-test('教师任务列表只含自己授课课时的任务', async () => {
+test('教师任务列表包含本校学生参与课程的任务', async () => {
   const tokenA = await tokenFor('甲老师');
   const resA = await authed(tokenA, 'GET', '/api/tasks', null);
   const bodyA = await resA.json();
@@ -247,7 +230,7 @@ test('教师任务列表只含自己授课课时的任务', async () => {
   const tokenB = await tokenFor('乙老师');
   const resB = await authed(tokenB, 'GET', '/api/tasks', null);
   const bodyB = await resB.json();
-  assert.ok(!bodyB.tasks.some((t) => t.id === 1), '非授课教师不应看到任务');
+  assert.ok(bodyB.tasks.some((t) => t.id === 1), '本校学生参与的课程任务应可见');
 });
 
 test('教师 Dashboard 展示授课课程，学生列表仅含已报名课程', async () => {

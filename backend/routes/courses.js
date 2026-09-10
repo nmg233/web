@@ -15,6 +15,7 @@ router.use(requirePasswordChanged);
 router.get('/', controller.list);
 router.post('/', requireRole('admin', 'academic_mentor'), controller.create);
 router.get('/resources/:resource_id/download', controller.downloadResource);
+router.delete('/resources/:resource_id', requireRole('admin', 'academic_mentor'), controller.deleteResource);
 router.get('/replays/:replayId/stream-url', controller.streamUrl);
 router.put('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.updateReplay);
 router.delete('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.deleteReplay);
@@ -25,6 +26,8 @@ router.delete('/:id', requireRole('admin', 'academic_mentor'), controller.delete
 
 // 课时
 router.post('/:id/lessons', requireRole('admin', 'academic_mentor'), controller.addLesson);
+router.put('/lessons/:lessonId', requireRole('admin', 'academic_mentor'), controller.updateLesson);
+router.post('/lessons/:lessonId/cancel', requireRole('admin', 'academic_mentor'), controller.cancelLesson);
 
 // 资源
 router.post('/:id/resources', requireRole('admin', 'academic_mentor'), uploadResource.single('file'), controller.uploadResource);
@@ -36,8 +39,8 @@ router.post('/:id/replays', requireRole('admin', 'academic_mentor'), uploadRepla
 // 任务
 router.post('/lessons/:lesson_id/tasks', requireRole('admin', 'academic_mentor'), controller.addTask);
 
-// 选课导入：执行导师/教师/管理员（教师仅限自己授课课程与本校学生，控制器内校验）
-router.post('/:id/enroll', requireRole('admin', 'academic_mentor', 'teacher'), controller.enroll);
+// 选课导入：仅执行导师和管理员
+router.post('/:id/enroll', requireRole('admin', 'academic_mentor'), controller.enroll);
 // 导入候选学生查询（同上权限）
 router.get('/:id/enroll/candidates', controller.enrollCandidates);
 // 管理员异常修正：移除报名（软删除 + 审计，日常不可退课）

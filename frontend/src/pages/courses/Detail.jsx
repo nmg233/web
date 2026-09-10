@@ -9,7 +9,7 @@ import PageLoading from '../../components/common/PageLoading';
 const { Title, Text } = Typography;
 
 const canManage = (role) => ['admin', 'academic_mentor'].includes(role);
-const canImport = (role) => ['admin', 'academic_mentor', 'teacher'].includes(role);
+const canImport = (role) => ['admin', 'academic_mentor'].includes(role);
 
 const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
 const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
@@ -511,7 +511,7 @@ export default function CourseDetail() {
           <Form.Item name="end_at" label="下课时间"><Input type="datetime-local" /></Form.Item>
           <Form.Item name="location" label="上课地点"><Input placeholder="如：北航 XX 实验室" /></Form.Item>
           <Form.Item name="instructor_id" label="授课教师">
-            <Select allowClear placeholder="选择授课教师（教师/执行导师）"
+            <Select allowClear placeholder="选择授课教师（执行导师）"
               options={teachers.map((t) => ({ value: t.id, label: `${t.real_name}${t.role === 'academic_mentor' ? '（执行导师）' : ''}` }))} />
           </Form.Item>
         </Form>
