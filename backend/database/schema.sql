@@ -111,6 +111,9 @@ CREATE TABLE IF NOT EXISTS lessons (
   end_at TEXT,
   location TEXT,
   instructor_id INTEGER,
+  status TEXT NOT NULL DEFAULT 'scheduled',
+  cancel_reason TEXT,
+  cancelled_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
   FOREIGN KEY (instructor_id) REFERENCES users(id)
@@ -126,6 +129,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   sort_order INTEGER DEFAULT 0,
   require_upload INTEGER DEFAULT 1,
   deadline DATETIME,
+  status TEXT NOT NULL DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
 );
