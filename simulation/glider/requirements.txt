@@ -1,5 +1,8 @@
 # 物理后端所需的绘图/数值依赖（reference 后端 + 3D 可视化）
-# 若在 Linux 环境使用 novaPhy 后端，另需按 README 安装 novaphy wheel（不在 PyPI）。
+# 若在 Linux 环境使用 novaPhy 后端，另需按 simulation/README.md 安装 novaphy wheel（不在 PyPI）。
 numpy>=1.24
 matplotlib>=3.7
 Pillow>=9.0
+# MP4 回放（--video）所需
+imageio>=2.31
+imageio-ffmpeg>=0.4.9
