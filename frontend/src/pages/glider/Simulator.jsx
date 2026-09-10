@@ -46,8 +46,10 @@ export default function GliderSimulator() {
   const [pollFailed, setPollFailed] = useState(false);
   const [pollTimedOut, setPollTimedOut] = useState(false);
   const [engineInfo, setEngineInfo] = useState(null);
+  const [engineError, setEngineError] = useState(null);
   // 试飞课程/课时关联（决策 D-7）
   const [courses, setCourses] = useState([]);
+  const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [courseId, setCourseId] = useState(undefined);
   const [lessons, setLessons] = useState([]);
   const [lessonId, setLessonId] = useState(undefined);
@@ -60,11 +62,16 @@ export default function GliderSimulator() {
   };
 
   // 进入页面检测引擎就绪状态（结果缓存于后端 60s）
+  // 注意：探测失败不能静默吞掉——否则按钮看似可用、点击却毫无反应，排查成本极高
   useEffect(() => {
     let alive = true;
     gliderAPI.capabilities()
-      .then((res) => { if (alive) setEngineInfo(res); })
-      .catch(() => {});
+      .then((res) => { if (alive) { setEngineInfo(res); setEngineError(null); } })
+      .catch((err) => {
+        if (!alive) return;
+        setEngineInfo(null);
+        setEngineError(err?.response?.data?.error || err?.message || '无法获取实验环境状态');
+      });
     return () => { alive = false; };
   }, []);
 
@@ -81,14 +88,27 @@ export default function GliderSimulator() {
   }, []);
 
   // 学生：加载可试飞课程（已报名且已发布），切换课程时加载课时
+  // 只有一个可试飞课程时自动选中：“实验课程”是必填项，漏选会导致点“开始试飞”不发任何请求
   useEffect(() => {
     if (user?.role !== 'student') return undefined;
     let alive = true;
     courseAPI.list()
-      .then((res) => { if (alive) setCourses(res.courses || []); })
-      .catch(() => {});
+      .then((res) => {
+        if (!alive) return;
+        const list = res.courses || [];
+        setCourses(list);
+        setCoursesLoaded(true);
+        if (list.length === 1) {
+          setCourseId(list[0].id);
+          form.setFieldValue('course_id', list[0].id);
+          courseAPI.detail(list[0].id)
+            .then((d) => { if (alive) setLessons(d.lessons || []); })
+            .catch(() => {});
+        }
+      })
+      .catch(() => { if (alive) setCoursesLoaded(true); });
     return () => { alive = false; };
-  }, [user?.role]);
+  }, [user?.role, form]);
 
   const handleCourseChange = async (value) => {
     setCourseId(value);
@@ -222,8 +242,30 @@ export default function GliderSimulator() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // 表单校验未通过时给出明确反馈：否则只有一行小红字，容易被当成“点了没反应”
+  const onFinishFailed = ({ errorFields }) => {
+    const first = errorFields?.[0];
+    message.error(`无法开始试飞：${first?.errors?.[0] || '请先完成表单必填项'}`);
+    if (first?.name) form.scrollToField(first.name);
+  };
+
   const meta = useMemo(() => stateMeta(viewing?.state), [viewing]);
   const isStudent = user?.role === 'student';
+  const engineChecking = !engineInfo && !engineError;
+  const engineReady = engineInfo?.ready === true;
+  const noCourse = isStudent && coursesLoaded && courses.length === 0;
+  const canSubmit = isStudent && engineReady && !noCourse;
+  const blockedReason = !isStudent
+    ? ''
+    : engineChecking
+      ? '正在检测实验环境…'
+      : engineError
+        ? `无法确认实验环境：${engineError}`
+        : !engineReady
+          ? `模拟引擎暂不可用（解释器：${engineInfo?.python || '未知'}）。请稍后再试或联系管理员检查引擎环境。`
+          : noCourse
+            ? '你还没有已报名的课程，无法提交试飞。请联系教师或管理员将你加入课程。'
+            : '';
 
   return (
     <div>
@@ -246,13 +288,23 @@ export default function GliderSimulator() {
               : '模拟提交仅面向学生。当前角色无试飞记录查看权限。'}
       />
 
-      {isStudent && engineInfo && !engineInfo.ready && (
+      {isStudent && !engineChecking && blockedReason && (
         <Alert
           style={{ marginBottom: 16 }}
-          type="warning"
+          type={engineError || noCourse ? 'error' : 'warning'}
           showIcon
-          message="实验环境维护中"
-          description={`模拟引擎暂不可用（解释器：${engineInfo.python}）。请稍后再试或联系管理员检查引擎环境。`}
+          message={noCourse ? '无法提交试飞' : '实验环境不可用'}
+          description={blockedReason}
+        />
+      )}
+
+      {isStudent && engineReady && engineInfo && !noCourse && (
+        <Alert
+          style={{ marginBottom: 16 }}
+          type="success"
+          showIcon
+          message={`实验环境就绪：${engineInfo.detectedBackend === 'novaphy' ? '真 novaPhy 物理引擎' : (engineInfo.detectedBackend || '参考后端')}`}
+          description={`解释器：${engineInfo.python}${engineInfo.video ? ' · 将生成 MP4 飞行回放' : ' · 已关闭视频回放'}`}
         />
       )}
 
@@ -266,6 +318,7 @@ export default function GliderSimulator() {
               layout="vertical"
               initialValues={{ dihedral: 5, cg: 0, speed: 36 }}
               onFinish={startSim}
+              onFinishFailed={onFinishFailed}
             >
               <Form.Item
                 name="course_id"
@@ -315,9 +368,14 @@ export default function GliderSimulator() {
                 <InputNumber min={15} max={60} step={1} style={{ width: '100%' }} addonAfter="米/秒" />
               </Form.Item>
               <Button type="primary" htmlType="submit" icon={<ThunderboltOutlined />} loading={submitting} block
-                disabled={engineInfo && !engineInfo.ready}>
-                开始试飞
+                disabled={!canSubmit}>
+                {engineChecking ? '正在检测实验环境…' : '开始试飞'}
               </Button>
+              {blockedReason && !engineChecking && (
+                <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+                  {blockedReason}
+                </Text>
+              )}
             </Form>
           </Card>
           ) : null}
