@@ -23,7 +23,7 @@ function succeeds(result) {
   assert.equal(result.status, 0, result.stderr || result.error?.message);
 }
 
-test('db:init 后可重复启动并使用 README 姓名和密码登录', async (t) => {
+test('db:init 后可重复启动并使用 README 账号和密码登录', async (t) => {
   const dbPath = fixture(t);
   const result = run(dbPath, ['database/init.js']);
   succeeds(result);
@@ -38,12 +38,12 @@ test('db:init 后可重复启动并使用 README 姓名和密码登录', async (
     const server = app.listen(0, '127.0.0.1', async () => {
       try {
         const base = 'http://127.0.0.1:' + server.address().port;
-        for (const [real_name, password] of [
-          ['管理员', 'admin123'], ['张导师', 'mentor123'],
-          ['李老师', 'teacher123'], ['王小明', 'student123']]) {
+        for (const [username, password] of [
+          ['adminpbl', 'admin123'], ['mentor_zhang', 'mentor123'],
+          ['teacher_li', 'teacher123'], ['student_wang', 'student123']]) {
           const res = await fetch(base + '/api/auth/login', {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({real_name, password})
+            body: JSON.stringify({username, password})
           });
           assert.equal(res.status, 200);
           assert.ok((await res.json()).token);
