@@ -1,5 +1,11 @@
 .git
 **/__pycache__
 **/*.pyc
-glider_sim/output
+**/*.pyo
+
+# 运行产物不入镜像（容器运行时以 -v 挂载 glider/ 覆盖）
+glider/output
+glider/_tmpframes
+
+# Dockerfile 自身不必进构建上下文
 docker

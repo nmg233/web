@@ -1,0 +1,27 @@
+# ---- 换行符策略 ----
+# Shell 脚本必须为 LF。否则在 WSL / Linux 下 `bash xxx.sh` 会报：
+#   set: invalid option name
+#   $'\r': command not found
+# 本规则优先级高于 core.autocrlf（Windows 上通常为 true），
+# 保证 Windows 工作区里的脚本也能被 WSL 直接执行（simulation/README.md 的推荐流程）。
+*.sh text eol=lf
+
+# Windows 批处理需要 CRLF，改 LF 可能导致 cmd.exe 解析异常
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Dockerfile 用 LF：CRLF 会影响 `RUN ... \` 行续接的解析
+Dockerfile    text eol=lf
+*.dockerfile  text eol=lf
+
+# 二进制 / 大文件：不做换行转换，也不参与 diff
+*.whl    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.mp4    binary
+*.db     binary
+*.sqlite binary
+*.docx   binary
+*.pdf    binary
