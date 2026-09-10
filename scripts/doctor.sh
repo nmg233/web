@@ -41,6 +41,28 @@ else
   echo "  [WARN] 未设置 GLIDER_PYTHON：Linux 将默认使用 python3（reference 后端仍需 numpy/matplotlib）"
 fi
 
+# novaPhy 交付包不在仓库内，需自行放入 simulation/ 下（见 simulation/README.md）
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WHEEL_DIR="$REPO_ROOT/simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64"
+if [ -f "$WHEEL_DIR/novaphy-0.4.0-cp311-cp311-linux_x86_64.whl" ]; then
+  echo "  [ok] novaPhy 交付包已就位：$WHEEL_DIR"
+else
+  echo "  [WARN] 缺少 novaPhy 交付包：$WHEEL_DIR"
+  echo "         仅能使用 reference 后端；真 novaPhy 需自行放入，见 simulation/README.md"
+fi
+
+# 引擎可用性：GLIDER_PYTHON 指向的解释器能否 import novaphy（wsl: 前缀无法在此直接探测）
+if [ -n "${GLIDER_PYTHON:-}" ] && [ "${GLIDER_PYTHON#wsl:}" = "$GLIDER_PYTHON" ]; then
+  if "$GLIDER_PYTHON" -c "import novaphy" >/dev/null 2>&1; then
+    echo "  [ok] $GLIDER_PYTHON 可 import novaphy（真 novaPhy 后端可用）"
+  elif [ "${GLIDER_BACKEND:-auto}" = "novaphy" ]; then
+    echo "  [FAIL] GLIDER_BACKEND=novaphy，但 $GLIDER_PYTHON 无法 import novaphy"
+    FAIL=1
+  else
+    echo "  [WARN] $GLIDER_PYTHON 无法 import novaphy：将回退 reference 纯 numpy 后端"
+  fi
+fi
+
 echo "== 4/6 环境文件 =="
 if [ -f "$ENV_FILE" ]; then
   echo "  [ok] $ENV_FILE 存在"
