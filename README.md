@@ -20,7 +20,9 @@
 
 - Node.js 22.12 或更高版本
 - npm 10 或更高版本
-- Python 3.11+（仅“滑翔机模拟（学生科创）”需要，详见对应章节）
+- Python 3（仅“滑翔机模拟（学生科创）”需要，详见对应章节）
+- 若要跑**真 novaPhy**：Linux x86_64 + **glibc ≥ 2.38** + CPython **3.11**（精确 3.11，3.12/3.13 不行）
+  → WSL 需 **Ubuntu 24.04+**（22.04 的 glibc 2.35 装不了）；服务器需 Ubuntu 24.04 / Debian 13 / RHEL9 系
 
 Node.js 18 不满足当前依赖要求：Vite 8 要求 Node.js 20.19+，`better-sqlite3` 13 要求 Node.js 22+。建议统一使用 Node.js 22 LTS 或更高版本。
 
@@ -58,8 +60,9 @@ project/
 ├── simulation/                  # 滑翔机仿真（生产依赖，不再使用 test_ 前缀目录）
 │   ├── glider/                  # 滑翔机气动仿真（Python）：aircraft/aero/sim_core/render/plot_flight
 │   │   └── sim_service.py       # 供平台后端 spawn 调用的 headless 服务（结果图 + MP4 回放）
-│   ├── docker/                  # novaPhy Docker 运行环境
-│   └── wsl_setup.sh             # WSL novaPhy 环境准备脚本
+│   ├── novaphy-0.4.0-cpu-cp311-linux-x86_64/  # ⚠️ novaPhy 交付包：需自行放入，不入库（见 simulation/README.md）
+│   ├── docker/                  # novaPhy Docker 运行环境（构建前需先把交付包放到 simulation/）
+│   └── wsl_setup.sh             # novaPhy 环境准备脚本（WSL / Ubuntu 服务器通用）
 ├── scripts/                     # 部署辅助脚本（doctor/backup-db/health-check）
 ├── deploy.sh                    # 一键部署脚本（测试/演示环境）
 ├── 网站使用手册.docx
@@ -188,26 +191,46 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，前端�
 
 #### 启动滑翔机模拟（可选）
 
-滑翔机模拟是 Python 物理仿真，需要一套含 `numpy`、`matplotlib`、`imageio-ffmpeg` 的 Python 3 环境（Windows 直接使用系统 Python 即可，参考后端不依赖 novaPhy）：
+滑翔机模拟是唯一的 Python 功能，**平台后端本身不需要 Python**；不需要它可整节跳过
+（前端“开始试飞”按钮会置灰，其余功能不受影响）。
+
+| 你的机器 | 走哪条路 | 得到 |
+| --- | --- | --- |
+| 有 WSL（Ubuntu 24.04+） | 方案二 | **真 novaPhy**（推荐） |
+| 无 WSL / 不想装 | 方案一 | 纯 numpy 参考后端，功能完整 |
+
+##### 方案一：Windows 无 WSL —— 参考后端
 
 ```powershell
-# 本机 Windows（无 WSL）：安装参考后端所需依赖
+python --version      # 必须能直接运行；若是 Microsoft Store 存根会弹应用商店，需先装真 Python
 pip install numpy matplotlib imageio imageio-ffmpeg
 ```
 
-```bash
-# Linux / WSL（真 novaPhy）：另需 Python 3.11 + novaPhy wheel，
-# 可执行 simulation/wsl_setup.sh 一键准备（wheel 路径见脚本头部注释，支持 WHEEL 变量覆盖）
+##### 方案二：WSL —— 真 novaPhy
+
+> ⚠️ novaPhy wheel **不在仓库里**（约 160MB 的第三方二进制包，已被 `.gitignore` 排除），
+> 必须先向项目 owner 索取，并放到 `simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/` 下。
+> 完整说明见 [`simulation/README.md`](simulation/README.md)。
+
+```powershell
+wsl -l -v      # 1) 查发行版名字（下文以 Ubuntu-24.04 为例）；需 Ubuntu 24.04+，22.04 装不了
+
+# 2) 把交付包目录放到 simulation\ 下，然后一键装环境（需要 root）
+wsl -d Ubuntu-24.04 -u root -- bash /mnt/d/<你的路径>/web/simulation/wsl_setup.sh
+# 期望最后一行输出 ALL_DONE
 ```
+
+> 路径换算：WSL 访问 Windows 盘用 `/mnt/<盘符小写>/...`，
+> 例如 `D:\a\b\web` → `/mnt/d/a/b/web`。
 
 然后在 `backend/.env` 声明引擎并正常启动后端：
 
 ```dotenv
-# 方案一：本机无 WSL/无 novaPhy —— 纯 numpy 参考后端（结果与真 novaPhy 等价）
+# 方案一（参考后端）
 GLIDER_PYTHON=python
 GLIDER_BACKEND=reference
 
-# 方案二：有 WSL 的 Linux novaPhy 环境 —— 跑真 novaPhy（推荐）
+# 方案二（真 novaPhy）—— 把 Ubuntu-24.04 换成第 1 步查到的发行版名
 # GLIDER_PYTHON=wsl:Ubuntu-24.04:/opt/novaphy/bin/python
 # GLIDER_BACKEND=novaphy
 ```
@@ -435,14 +458,50 @@ GLIDER_BACKEND=reference
 
 `GLIDER_BACKEND` 支持 `auto`（默认，可加载 novaPhy 则优先）/ `novaphy` / `reference`。
 
-### Python 依赖
+### Python 依赖与安装
 
-- 本机 Python 3（Windows 参考后端）：`numpy matplotlib imageio imageio-ffmpeg`。
-- Linux novaPhy 环境（服务器 `/opt/novaphy` 或 WSL）：Python 3.11 venv，安装
-  `novaphy-0.4.0-cp311-cp311-linux_x86_64.whl` + `numpy matplotlib Pillow imageio imageio-ffmpeg`；
-  可用 `simulation/wsl_setup.sh` 一键准备（wheel 默认取脚本目录下交付包目录，也可用 `WHEEL` 环境变量指定）。
-  注意：WSL 中该 venv 若由 root 创建，需 `wsl -d <发行版> -u root -- bash -lc '/opt/novaphy/bin/pip install imageio imageio-ffmpeg'`。
-  缺失 `imageio-ffmpeg` 时视频自动跳过（`files.video=null`），不影响模拟结果。
+**0) 先放入 novaPhy 交付包（仅真 novaPhy 需要）**。仓库**不含** novaPhy（约 160MB 的第三方二进制包，
+`.gitignore` 已排除），需要时向项目 owner 索取，把**整个目录连同目录名**放到
+`simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/`，并校验完整性：
+
+```bash
+cd simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64 && sha256sum -c SHA256SUMS
+```
+
+**1) Windows 参考后端**（不需要 novaPhy）：
+
+```powershell
+python --version      # 确认不是 Microsoft Store 存根
+pip install numpy matplotlib imageio imageio-ffmpeg
+```
+
+**2) WSL / Ubuntu·Debian 服务器：真 novaPhy**：
+
+```bash
+# WSL（在 Windows 上）；发行版名用 wsl -l -v 查，需 Ubuntu 24.04+
+wsl -d Ubuntu-24.04 -u root -- bash /mnt/d/<路径>/web/simulation/wsl_setup.sh
+
+# Ubuntu/Debian 服务器（原生）
+cd <项目根目录> && sudo bash simulation/wsl_setup.sh
+```
+
+脚本装到 `/opt/novaphy`，结尾打印 `ALL_DONE`；它会把交付包里的 wheel 与
+`numpy matplotlib Pillow imageio imageio-ffmpeg` 一并装进 venv（viewer 依赖可选、失败不中断）。
+若发行版不是 Ubuntu 24.04+，脚本会在预检阶段直接报错退出并告知原因。
+
+**3) RHEL / Alibaba Cloud Linux 服务器**（脚本依赖 apt，不适用，改手工装）：
+
+```bash
+sudo dnf install -y python3.11 python3.11-devel gcc gcc-c++ make
+sudo python3.11 -m venv /opt/novaphy
+sudo /opt/novaphy/bin/pip install numpy matplotlib Pillow imageio imageio-ffmpeg
+sudo /opt/novaphy/bin/pip install simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/*.whl
+/opt/novaphy/bin/python -c "import novaphy; print('novaPhy OK')"
+```
+
+> 若 venv 由 root 创建，后续补装依赖需带 `sudo`，例如
+> `sudo /opt/novaphy/bin/pip install imageio imageio-ffmpeg`。
+> 缺失 `imageio-ffmpeg` 时视频自动跳过（`files.video=null`），不影响模拟结果。
 
 ### 相关环境变量（均写入 `backend/.env` 或生产 `EnvironmentFile`）
 
@@ -697,8 +756,27 @@ curl -I  http://127.0.0.1/login                # SPA fallback
 
 ### 3. 服务器部署滑翔机引擎（如需该功能）
 
-- 创建 Linux Python 3.11 环境并安装 novaPhy wheel 与渲染依赖（命令同“滑翔机模拟（学生科创）”章节）；
-- `backend.env` 中 `GLIDER_PYTHON=/opt/novaphy/bin/python`（`GLIDER_BACKEND=auto` 即可）；
+**前置**：把 novaPhy 交付包放到 `simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/`
+（仓库不含，见“滑翔机模拟（学生科创）→ Python 依赖与安装”第 0 步）。
+
+```bash
+cd /opt/pbl-platform/current
+sudo bash simulation/wsl_setup.sh          # Ubuntu/Debian：装到 /opt/novaphy
+# RHEL/Alibaba Cloud Linux 用 dnf 手工装，命令见“Python 依赖与安装”第 3 步
+
+/opt/novaphy/bin/python -c "import novaphy; print('novaPhy OK')"
+bash scripts/doctor.sh                     # 第 3 节会校验交付包与引擎可用性
+```
+
+然后确认 `backend.env` 内：
+
+```dotenv
+GLIDER_PYTHON=/opt/novaphy/bin/python
+GLIDER_BACKEND=auto
+```
+
+- 若忘配这两项，后端会回退 `python3` + 参考后端：**能跑但不是真 novaPhy**，`doctor.sh` 会给出 WARN；
+- 若显式设了 `GLIDER_BACKEND=novaphy` 而解释器不可用，`doctor.sh` 直接 **FAIL**，避免蒙混过关；
 - 模拟结果图/视频写入 `UPLOAD_PATH/glider/<id>/`（即数据盘），随备份一起持久化。
 
 ## 账号权限整改进度
