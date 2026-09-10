@@ -39,15 +39,18 @@ function requireAuth(req, res, next) {
   let row;
   try {
     row = db.prepare(
-      'SELECT id, is_active, role, school_id, force_reset_password FROM users WHERE id = ?'
+      'SELECT id, is_active, archived_at, auth_version, role, school_id, force_reset_password FROM users WHERE id = ?'
     ).get(decoded.id);
   } catch (err) {
     console.error('认证中间件数据库查询错误:', err);
     return res.status(500).json({ error: '服务器内部错误', message: '请稍后重试' });
   }
 
-  if (!row || row.is_active !== 1) {
+  if (!row || row.is_active !== 1 || row.archived_at) {
     return res.status(401).json({ error: '账号已被禁用或删除', message: '请重新登录' });
+  }
+  if (row.auth_version !== (decoded.auth_version || 0)) {
+    return res.status(401).json({ error: '账号状态已变更，请重新登录', message: '请重新登录' });
   }
   if (row.role !== decoded.role) {
     return res.status(401).json({ error: '账号权限已变更，请重新登录', message: '请重新登录' });

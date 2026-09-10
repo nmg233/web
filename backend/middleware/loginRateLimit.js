@@ -45,7 +45,7 @@ function loginRateLimit(handler) {
     }
 
     // 2. 账户锁定检查（连续失败达到阈值）
-    const username = String(req.body.real_name || '').trim();
+    const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
     const lockKey = `lock:${username}`;
     const lockInfo = userLocks.get(lockKey);
     if (lockInfo && lockInfo.lockedUntil > now()) {

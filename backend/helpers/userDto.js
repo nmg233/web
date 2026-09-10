@@ -9,6 +9,7 @@ const PUBLIC_FIELDS = new Set([
   'id', 'username', 'real_name', 'email', 'phone', 'profile', 'avatar_url',
   'role', 'school_id', 'class_id', 'is_active', 'force_reset_password',
   'teacher_id', 'mentor_id',
+  'archived_at',
   'created_at', 'updated_at',
   // 联表别名
   'school_name', 'class_name', 'grade', 'teacher_name', 'mentor_name'

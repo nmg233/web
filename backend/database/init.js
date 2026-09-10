@@ -15,14 +15,23 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 if (fs.existsSync(dbPath) && !forceInit) {
-  console.error('Database already exists. Run "npm run db:init -- --force" to reset it.');
-  process.exit(1);
+  // 先启动后端可能已创建空表。仅允许补充完全没有业务数据的库，绝不覆盖已有数据。
+  const existing = new Database(dbPath, { readonly: true, fileMustExist: true });
+  const tables = existing.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name <> 'schema_migrations'").all();
+  const populated = tables.some(({ name }) => existing.prepare(`SELECT 1 FROM "${name.replace(/"/g, '""')}" LIMIT 1`).get());
+  const hasSequence = existing.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'sqlite_sequence'").get();
+  const previouslyUsed = hasSequence && existing.prepare('SELECT 1 FROM sqlite_sequence WHERE seq > 0 LIMIT 1').get();
+  existing.close();
+  if (populated || previouslyUsed) {
+    console.error('Database already contains data; initialization cancelled. Existing accounts and passwords are unchanged.');
+    process.exit(1);
+  }
 }
 
-for (const suffix of ['', '-wal', '-shm']) {
-  const file = dbPath + suffix;
-  if (fs.existsSync(file)) {
-    fs.unlinkSync(file);
+if (forceInit) {
+  for (const suffix of ['', '-wal', '-shm']) {
+    const file = dbPath + suffix;
+    if (fs.existsSync(file)) fs.unlinkSync(file);
   }
 }
 
@@ -35,6 +44,7 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
 console.log('📦 正在初始化数据库...');
+console.log('   目标数据库:', dbPath);
 
 // 执行建表 SQL
 require('./migrate').runMigrations(db);

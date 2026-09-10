@@ -68,10 +68,11 @@ after(() => {
 });
 
 async function login(realName) {
+  const username = { 管理员: 'admin', 甲老师: 'teacher_a', 学生A: 'student_a', 学生B: 'student_b', 导师A: 'mentor_a', 导师B: 'mentor_b' }[realName];
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ real_name: realName, password: 'user123' }),
+    body: JSON.stringify({ username, password: 'user123' }),
   });
   const body = await res.json();
   assert.equal(res.status, 200, realName);

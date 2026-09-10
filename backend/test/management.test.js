@@ -76,10 +76,11 @@ after(() => {
 });
 
 async function login(realName) {
+  const username = { 管理员: "admin", 甲老师: "teacher_a", 乙老师: "teacher_b", 学生A: "student_a", 学生B: "student_b", 学生C: "student_c", 执行导师: "mentor" }[realName];
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ real_name: realName, password: 'user123' }),
+    body: JSON.stringify({ username, password: 'user123' }),
   });
   const body = await res.json();
   assert.equal(res.status, 200, realName);
@@ -186,4 +187,64 @@ test('下一节课过滤两小时前已开始的场次', async () => {
   const dash = await (await authed(token, 'GET', '/api/dashboard', null)).json();
   assert.ok(dash.nextLesson, '应有下一节课');
   assert.equal(dash.nextLesson.lesson_title, '未来的课');
+});
+
+test('教师、执行导师和学生不能通过学生或通用用户入口写账号', async () => {
+  const before = db.prepare('SELECT * FROM users ORDER BY id').all();
+  for (const name of ['甲老师', '执行导师', '学生A']) {
+    const token = await tokenFor(name);
+    for (const [method, url, body] of [
+      ['POST', '/api/students', { real_name: '越权创建', school_id: 1, class_id: 1 }],
+      ['PUT', '/api/students/3', { real_name: '越权修改' }],
+      ['DELETE', '/api/students/3'],
+      ['PUT', '/api/students/3/assign', { class_id: 1 }],
+      ['POST', '/api/students/users', { role: 'student' }],
+      ['PUT', '/api/students/users/3', { real_name: '越权修改' }],
+      ['DELETE', '/api/students/users/3'],
+      ['POST', '/api/students/users/batch-delete', { ids: [3] }],
+      ['POST', '/api/students/import', { students: [] }],
+    ]) {
+      assert.equal((await authed(token, method, url, body)).status, 403, `${name} ${method} ${url}`);
+    }
+  }
+  assert.deepEqual(db.prepare('SELECT * FROM users ORDER BY id').all(), before);
+});
+
+test('三个删除入口均保留学生及历史学习记录，批量删除只删除空账号', async () => {
+  const token = await tokenFor('管理员');
+  const before = db.prepare('SELECT * FROM enrollments WHERE student_id = 3').all();
+  for (const url of ['/api/students/3', '/api/students/users/3']) {
+    const res = await authed(token, 'DELETE', url);
+    assert.equal(res.status, 400);
+    assert.match((await res.json()).error, /课程参与记录/);
+  }
+  const empty = db.prepare("INSERT INTO users (username, real_name, role, password_hash) VALUES ('empty-delete', '空测试账号', 'student', 'unused')").run().lastInsertRowid;
+  const res = await authed(token, 'POST', '/api/students/users/batch-delete', { ids: [3, Number(empty)] });
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.blocked.length, 1);
+  assert.deepEqual(body.deleted, ['空测试账号']);
+  assert.ok(db.prepare('SELECT id FROM users WHERE id = 3').get());
+  assert.equal(db.prepare('SELECT id FROM users WHERE id = ?').get(empty), undefined);
+  assert.deepEqual(db.prepare('SELECT * FROM enrollments WHERE student_id = 3').all(), before);
+});
+
+test('独立学习记录和已移除选课也阻止删除，变更角色不能绕过保护', async () => {
+  const token = await tokenFor('管理员');
+  const cases = [
+    "INSERT INTO enrollments (student_id, course_id, status) VALUES (?, 1, 'removed')",
+    'INSERT INTO lesson_progress (student_id, lesson_id) VALUES (?, 1)',
+    "INSERT INTO works (student_id, title, file_path) VALUES (?, '保留作品', 'keep-file.txt')",
+    "INSERT INTO reflections (student_id, difficulty) VALUES (?, '保留反思')",
+    "INSERT INTO evaluations (student_id, evaluator_id, eval_type) VALUES (?, 1, 'process')",
+    "INSERT INTO growth_records (student_id, description) VALUES (?, '保留成长记录')",
+    'INSERT INTO glider_simulations (student_id) VALUES (?)',
+  ];
+  for (const [index, sql] of cases.entries()) {
+    const id = db.prepare('INSERT INTO users (username, real_name, role, password_hash) VALUES (?, ?, ?, ?)')
+      .run(`protected-${index}`, '保护测试', index === 0 ? 'teacher' : 'student', 'unused').lastInsertRowid;
+    db.prepare(sql).run(id);
+    assert.equal((await authed(token, 'DELETE', `/api/students/users/${id}`)).status, 400);
+    assert.ok(db.prepare('SELECT id FROM users WHERE id = ?').get(id));
+  }
 });

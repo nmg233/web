@@ -14,7 +14,7 @@ export default function Login() {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const user = await login(values.real_name, values.password);
+      const user = await login(values.username, values.password);
       message.success('登录成功');
       // 若管理员重置过密码，强制先修改密码
       navigate(user?.force_reset_password ? '/change-password' : '/dashboard');
@@ -68,11 +68,11 @@ export default function Login() {
           <Text type="secondary">大中小贯通 · 项目式学习数字化平台</Text>
         </div>
         <Form onFinish={onFinish} size="large">
-          <Form.Item name="real_name" rules={[{ required: true, message: '请输入姓名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="姓名" />
+          <Form.Item name="username" rules={[{ required: true, whitespace: true, message: '请输入账号' }]}>
+            <Input prefix={<UserOutlined />} placeholder="账号" autoComplete="username" />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<LockOutlined />} placeholder="密码" autoComplete="current-password" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>

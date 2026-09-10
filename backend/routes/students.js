@@ -14,14 +14,15 @@ router.use(requirePasswordChanged);
 router.get('/', requireRole('admin', 'academic_mentor', 'teacher'), controller.list);
 
 // 学生 CRUD
-router.post('/', requireRole('admin', 'academic_mentor', 'teacher'), controller.create);
+router.post('/', requireRole('admin'), controller.create);
 // 分配选项（管理员）——必须声明在 /:id 之前，否则会被当作 id
 router.get('/options', requireRole('admin'), controller.getAssignOptions);
 router.get('/:id', controller.detail);
-router.put('/:id', requireRole('admin', 'academic_mentor', 'teacher'), controller.updateStudent);
-router.delete('/:id', requireRole('admin', 'academic_mentor', 'teacher'), controller.deleteStudent);
+router.put('/:id', requireRole('admin'), controller.updateStudent);
+router.delete('/:id', requireRole('admin'), controller.deleteStudent);
 // 管理员：分配学校/班级/负责教师/负责导师
 router.put('/:id/assign', requireRole('admin'), controller.assignStudent);
+router.post('/:id/status', requireRole('admin'), controller.changeStatus);
 
 // 批量导入（文件或 JSON）
 router.post('/import', requireRole('admin'), uploadImport.single('file'), controller.import);
