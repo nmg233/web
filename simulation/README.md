@@ -26,7 +26,11 @@ simulation/
    ├─ backend_novaphy.py   novaPhy 刚体求解后端（权威）
    ├─ backend_reference.py 纯 numpy 6DOF 参考后端（对拍影子 / 无 novaPhy 时兜底）
    ├─ sim_service.py       headless 服务入口（平台后端 spawn 的就是它）
-   ├─ render.py            3D 体视渲染（PNG / GIF / MP4）
+   ├─ render.py            3D 体视渲染（默认 matplotlib，PNG / GIF / MP4）
+   ├─ gldeferred.py        OpenGL 延迟渲染（--renderer gl：GLB 模型 + G-buffer + FrameSink）
+   ├─ gl_math.py           渲染数学薄适配层（内部全用 pyGLM）
+   ├─ gl_mesh.py           GLB/OBJ 网格加载（节点变换烘焙 / 颜色 / 归一化 / 轴转换）
+   ├─ glshaders/           延迟管线着色器（gbuffer / lighting / flat / blit）
    ├─ plot_flight.py       2D 遥测曲线 + 3D 航迹图
    ├─ requirements.txt     reference 后端所需的 Python 依赖
    └─ output/              运行产物（已 gitignore）
@@ -154,6 +158,7 @@ GLIDER_BACKEND=reference      # 强制走参考后端
 |---|---|---|
 | `GLIDER_PYTHON` | `python`(Win) / `python3`(Linux) | 解释器。`wsl:<发行版>:<路径>` 前缀表示经 `wsl.exe` 调用 |
 | `GLIDER_BACKEND` | `auto` | `auto` / `novaphy` / `reference` |
+| `GLIDER_RENDERER` | `mpl` | MP4 回放渲染器：`mpl`（matplotlib）/ `gl`（GLB 模型 + OpenGL 延迟渲染，需 moderngl/trimesh/pyglm，不可用自动回退 mpl；详见 `glider/README.md` 第 5 节） |
 | `GLIDER_MAX_ACTIVE` | `2` | 同时运行的模拟任务上限 |
 | `GLIDER_TIMEOUT` | `100` | 单次最长仿真秒数（同时决定子进程预算） |
 | `GLIDER_VIDEO` | `1` | `0` 关闭 MP4 回放生成 |

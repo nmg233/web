@@ -16,6 +16,8 @@ const { canViewSimulation } = require('../helpers/gliderPolicy');
 //     （/mnt/d 与 D:\ 是同一物理盘：Node 用 Windows 路径读写结果，Python 用 /mnt/d 路径写结果，天然互通）
 //   · 无 WSL 的 Windows 兜底：GLIDER_PYTHON=python + GLIDER_BACKEND=reference（纯 numpy，行为等价）
 // GLIDER_BACKEND  auto | novaphy | reference（默认 auto：可加载 novaPhy 则优先 novaPhy）
+// GLIDER_RENDERER  mpl | gl（默认 mpl：matplotlib 回放；gl = GLB 模型 + OpenGL 延迟渲染，
+//                  需 moderngl/trimesh/pyglm 与可用 GL 上下文，不可用时 sim_service 自动回退 mpl）
 // GLIDER_MAX_ACTIVE  并发上限（默认 2）
 // ------------------------------------------------------------------
 function parsePython() {
@@ -37,6 +39,7 @@ function parsePython() {
 
 const PY = parsePython();
 const GLIDER_BACKEND = process.env.GLIDER_BACKEND || 'auto';
+const GLIDER_RENDERER = process.env.GLIDER_RENDERER || 'mpl';
 const GLIDER_DIR = path.resolve(__dirname, '..', '..', 'simulation', 'glider');
 const GLIDER_MAX_ACTIVE = Math.max(1, parseInt(process.env.GLIDER_MAX_ACTIVE || '2', 10) || 2);
 const GLIDER_ALT = 150;            // 投放高度固定 (m)，避免变量过多
@@ -163,6 +166,10 @@ exports.simulate = async (req, res) => {
       '--timeout', String(GLIDER_TIMEOUT),
       '--backend', GLIDER_BACKEND,
     ];
+    if (GLIDER_RENDERER === 'gl') {
+      // 仅 gl 时显式推入（mpl 保持原 spawn 参数不变；gl 不可用由 sim_service 自动回退 mpl）
+      flags.push('--renderer', 'gl');
+    }
     if (GLIDER_VIDEO) {
       flags.push('--video', '--video-fps', String(GLIDER_VIDEO_FPS),
                  '--video-max', String(GLIDER_VIDEO_MAX));
@@ -391,6 +398,7 @@ function buildCapabilities(probe) {
   return {
     ready: computeReady(probe, GLIDER_BACKEND),
     backend: GLIDER_BACKEND,
+    renderer: GLIDER_RENDERER,
     detectedBackend: (probe && probe.backend) || '',
     python: PY.mode === 'wsl' ? `wsl:${PY.distro}:${PY.python}` : PY.python,
     video: GLIDER_VIDEO,

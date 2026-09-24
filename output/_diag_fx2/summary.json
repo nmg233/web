@@ -1,0 +1,27 @@
+{
+  "params": {
+    "dihedral_deg": 0.0,
+    "cg_x": 0.0,
+    "speed": 28.0,
+    "alt": 150.0,
+    "autolevel": false
+  },
+  "backend": "reference",
+  "renderer": "mpl",
+  "reason": "timedout",
+  "glide_time_s": 14.99,
+  "distance_m": 464.6,
+  "alt_start": 150.0,
+  "alt_end": 106.8,
+  "mean_sink_mps": 2.883,
+  "mean_speed_mps": 31.19,
+  "glide_ratio": 10.74,
+  "steps": 1800,
+  "files": {
+    "summary": "summary.json",
+    "csv": "flight_telemetry.csv",
+    "telemetry_png": "flight_telemetry.png",
+    "trajectory_png": "trajectory3d.png",
+    "video": null
+  }
+}

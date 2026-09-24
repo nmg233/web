@@ -6,3 +6,7 @@ Pillow>=9.0
 # MP4 回放（--video）所需
 imageio>=2.31
 imageio-ffmpeg>=0.4.9
+# OpenGL 延迟渲染途径（--renderer gl）所需；缺失时自动回退 matplotlib，不影响默认路径
+moderngl>=5.10
+trimesh>=4.0        # GLB 模型加载
+pyglm               # 渲染数学（pyGLM）
