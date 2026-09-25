@@ -386,9 +386,10 @@ export default function CourseDetail() {
       children: (
         <div>
           {course.can_manage && (
-            <Button type="dashed" icon={<UploadOutlined />} onClick={openResourceModal} style={{ marginBottom: 16 }}>
-              上传资料
-            </Button>
+            <Space style={{ marginBottom: 16 }}>
+              <Button type="dashed" icon={<UploadOutlined />} onClick={openResourceModal}>上传资料</Button>
+              <Button onClick={() => navigate(`/courses/${id}/ai-knowledge`)}>管理 AI 知识库</Button>
+            </Space>
           )}
           {resources.length === 0 ? (
             <Typography.Text type="secondary">暂无课程资源</Typography.Text>
@@ -450,7 +451,7 @@ export default function CourseDetail() {
         )}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && firstLearningLesson && <Button type="primary" onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>进入课时学习</Button>}
-        {isStudent && isEnrolled && <Button type="link" onClick={() => navigate('/dashboard/ai')}>灵境小智</Button>}
+        {isStudent && isEnrolled && <Button type="link" onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>灵境小智</Button>}
       </Space>
 
       {isStudent ? (
@@ -485,7 +486,7 @@ export default function CourseDetail() {
                 <div style={{ marginTop: 12 }}>
                   <Space wrap>
                     <Button type="primary" disabled={!firstLearningLesson} onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>继续课后学习</Button>
-                    <Button onClick={() => navigate('/dashboard/ai')}>灵境小智</Button>
+                    <Button onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>灵境小智</Button>
                   </Space>
                 </div>
               </div>
@@ -585,7 +586,7 @@ export default function CourseDetail() {
           </Form.Item>
           <Form.Item label="文件" required>
             <Upload
-              accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.pdf,.doc,.docx,.ppt,.pptx,.zip,.obj,.glb,.gltf,.stl"
+              accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.obj,.glb,.gltf,.stl"
               maxCount={1}
               beforeUpload={(file) => { setResourceFile(file); return false; }}
               onRemove={() => setResourceFile(null)}
@@ -593,6 +594,7 @@ export default function CourseDetail() {
             >
               <Button icon={<UploadOutlined />}>选择文件（≤50MB）</Button>
             </Upload>
+            <Typography.Text type="secondary">AI 知识库仅解析可提取文字的 PDF、DOCX、PPTX、TXT。旧版 DOC/PPT 需先转换；扫描版 PDF 需先 OCR。</Typography.Text>
           </Form.Item>
         </Form>
       </Modal>

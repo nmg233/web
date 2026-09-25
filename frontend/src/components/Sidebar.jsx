@@ -28,6 +28,7 @@ const menuItems = {
     { key: '/archives', icon: <FolderOpenOutlined />, label: '成长档案' },
     { key: '/glider', icon: <ExperimentOutlined />, label: '滑翔机模拟实验室' },
     { key: '/dashboard/ai', icon: <RobotOutlined />, label: '灵境小智' },
+    { key: '/dashboard/ai/settings', icon: <RobotOutlined />, label: 'AI 配置' },
     { key: '/feedback/manage', icon: <MessageOutlined />, label: '反馈管理' },
     { key: '/notifications', icon: <BellOutlined />, label: '通知中心' },
   ],
@@ -54,6 +55,7 @@ const menuItems = {
   student: [
     { key: '/dashboard', icon: <DashboardOutlined />, label: '我的工作台' },
     { key: '/courses', icon: <BookOutlined />, label: '我的课程' },
+    { key: '/dashboard/ai', icon: <RobotOutlined />, label: '灵境小智' },
     { key: '/tasks', icon: <CheckSquareOutlined />, label: '课后任务' },
     { key: '/works', icon: <FileTextOutlined />, label: '我的作品' },
     { key: '/glider', icon: <ExperimentOutlined />, label: '实验工具' },

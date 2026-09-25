@@ -14,6 +14,8 @@ const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
 const Dashboard = lazy(() => import('./pages/dashboard/Index'));
 const SchoolDetail = lazy(() => import('./pages/dashboard/School'));
 const AIAssistant = lazy(() => import('./pages/dashboard/AI'));
+const AISettings = lazy(() => import('./pages/dashboard/AISettings'));
+const AIKnowledge = lazy(() => import('./pages/courses/AIKnowledge'));
 const CourseList = lazy(() => import('./pages/courses/List'));
 const CourseDetail = lazy(() => import('./pages/courses/Detail'));
 const CourseForm = lazy(() => import('./pages/courses/Form'));
@@ -80,10 +82,12 @@ function App() {
                 <Route path="dashboard" element={guard(<Dashboard />, ['admin', 'academic_mentor', 'student', 'media'])} />
                 <Route path="dashboard/schools/:id" element={guard(<SchoolDetail />, ['admin'])} />
                 <Route path="dashboard/ai" element={guard(<AIAssistant />, ['admin', 'academic_mentor', 'student'])} />
+                <Route path="dashboard/ai/settings" element={guard(<AISettings />, ['admin'])} />
                 <Route path="glider" element={guard(<GliderSimulator />, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses" element={guard(<CourseList />, ['admin', 'academic_mentor', 'student', 'media'])} />
                 <Route path="courses/create" element={guard(<CourseForm />, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id" element={guard(<CourseDetail />, ['admin', 'academic_mentor', 'student'])} />
+                <Route path="courses/:courseId/ai-knowledge" element={guard(<AIKnowledge />, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id/learn" element={guard(<Learning />, ['student'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/learn" element={guard(<LessonLearn />, ['student'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin', 'academic_mentor'])} />

@@ -108,7 +108,7 @@ test('受邀授课导师可管理该课程，其他课程仍无权限', async ()
   assert.equal((await api('/courses/3', 'PUT', { title: '无关课程编辑' })).status, 403);
 });
 
-test('灵境小智按课程范围提供上下文，教师和新媒体不能调用', async () => {
+test('灵境小智按课程范围授权，未配置时不伪装为规则式回答', async () => {
   assert.deepEqual((await api('/dashboard/ai/courses','GET',undefined,tokens.admin)).body.courses.map(c=>c.id).sort(),[1,2,3]);
   assert.deepEqual((await api('/dashboard/ai/courses')).body.courses.map(c=>c.id).sort(),[1,2]);
   for (const token of [tokens.teacher,tokens.media]) {
@@ -117,11 +117,10 @@ test('灵境小智按课程范围提供上下文，教师和新媒体不能调�
   }
   assert.equal((await api('/works','GET',undefined,tokens.media)).status,403);
   const invited=await api('/dashboard/ai/ask','POST',{question:'pbl',course_id:2});
-  assert.equal(invited.status,200);
-  assert.match(invited.body.answer,/当前课程《授课导师编辑》/);
+  assert.equal(invited.status,503);
   const other=await api('/dashboard/ai/ask','POST',{question:'pbl',course_id:3});
-  assert.equal(other.status,200);
-  assert.doesNotMatch(other.body.answer,/当前课程《/);
+  assert.equal(other.status,403);
   const admin=await api('/dashboard/ai/ask','POST',{question:'pbl',course_id:3},tokens.admin);
-  assert.match(admin.body.answer,/当前课程《/);
+  assert.equal(admin.status,503);
+  assert.equal((await api('/dashboard/ai/ask','POST',{question:'pbl'})).status,400);
 });

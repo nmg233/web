@@ -85,6 +85,8 @@ app.use(`${API_PREFIX}/notifications`, require('./routes/notifications'));
 app.use(`${API_PREFIX}/learning`, require('./routes/learning'));
 app.use(`${API_PREFIX}/mentor-reviews`, require('./routes/mentorReview'));
 app.use(`${API_PREFIX}/observer`, require('./routes/observer'));
+// 服务重启后继续处理尚未完成的课程资料索引；失败项由课程管理者手动重试。
+require('./services/aiDocumentService').resumePending();
 
 // 健康检查
 app.get(`${API_PREFIX}/health`, (req, res) => {

@@ -12,6 +12,7 @@ const { NOTIFICATION_EVENTS } = require('../constants/notification');
 const coursePolicy = require('../policies/coursePolicy');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
+const aiDocuments = require('../services/aiDocumentService');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -408,6 +409,9 @@ exports.uploadResource = (req, res) => {
       'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?)'
     ).run(id, resource_type || 'other', displayTitle,
          req.file.path, req.file.size, req.user.id);
+
+    try { aiDocuments.registerResource(Number(result.lastInsertRowid)); }
+    catch (indexError) { console.error('课程资料加入知识库失败，可在知识库页面重试:', indexError); }
 
     res.json({ message: '资源上传成功', id: Number(result.lastInsertRowid) });
   } catch (err) {

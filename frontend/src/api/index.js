@@ -33,6 +33,7 @@ export const courseAPI = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
+  deleteResource: (resourceId) => client.delete(`/courses/resources/${resourceId}`),
   listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
   uploadReplay: (courseId, formData) => client.post(`/courses/${courseId}/replays`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -105,6 +106,11 @@ export const archiveAPI = {
 export const aiAPI = {
   getCourses: () => client.get('/dashboard/ai/courses'),
   ask: (question, course_id) => client.post('/dashboard/ai/ask', { question, course_id }),
+  getSettings: () => client.get('/dashboard/ai/settings'),
+  saveSettings: (data) => client.put('/dashboard/ai/settings', data),
+  getDocuments: (courseId) => client.get(`/dashboard/ai/courses/${courseId}/documents`),
+  indexResource: (resourceId) => client.post(`/dashboard/ai/resources/${resourceId}/index`),
+  setDocumentEnabled: (documentId, enabled) => client.patch(`/dashboard/ai/documents/${documentId}`, { enabled }),
 };
 
 export const feedbackAPI = {

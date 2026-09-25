@@ -142,7 +142,13 @@ const uploadWork = multer({
 
 const uploadResource = multer({
   storage: makeStorage('resource', 'resources'),
-  fileFilter,
+  fileFilter: (req, file, cb) => {
+    if (path.extname(file.originalname).toLowerCase() === '.txt') {
+      if (file.mimetype === 'text/plain' || file.mimetype === 'application/octet-stream') return cb(null, true);
+      return cb(Object.assign(new Error('TXT 文件类型无效'), { status: 400 }), false);
+    }
+    return fileFilter(req, file, cb);
+  },
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
