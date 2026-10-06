@@ -20,7 +20,7 @@ cd "$APP_DIR"
 echo "== deploy: 环境预检 =="
 bash scripts/doctor.sh
 echo "== deploy: 数据库备份 =="
-bash scripts/backup-db.sh || echo "[WARN] 数据库备份失败（本地开发可忽略），是否继续由 set -e 决定"
+bash scripts/backup-db.sh
 
 git fetch origin
 git checkout "$BRANCH"
