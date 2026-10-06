@@ -668,7 +668,9 @@ cd 项目根目录
 RESET_DB=1 ./deploy.sh main # 重置数据库并恢复默认测试账号（仅测试环境）
 ```
 
-脚本会依次完成：`git pull` → 后端 `npm ci` + 强制本机编译 `better-sqlite3` 并移除不兼容的 linux-x64 prebuild →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
+脚本先执行环境预检与数据库备份；备份失败（包括数据库不存在、备份命令失败或完整性校验失败）会立即阻止部署，不会执行后续的 `git fetch` 或 `npm ci`。首次部署需先配置数据库路径并使用 `db:provision` 初始化数据库，再运行部署脚本。
+
+预检与备份成功后，脚本会依次完成：`git pull` → 后端 `npm ci` + 强制本机编译 `better-sqlite3` 并移除不兼容的 linux-x64 prebuild →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
 
 - 默认对应当前 ECS 测试环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`；
 - 可覆盖的环境变量：`NGINX_ROOT`、`SERVICE`、`SYNC_DELETE=1`（同步删除旧文件）、`HEALTH_URL`。
@@ -852,6 +854,33 @@ curl -I  http://127.0.0.1/login                # SPA fallback
 | 每周完整备份 | 保留 4 周 |
 | 每次部署前 | 强制备份 |
 | 数据盘 uploads/private_uploads | 与数据库一起备份，并另存异机/NAS/对象存储 |
+
+#### 2.10 自动备份
+
+在项目根目录安装（服务器需安装 cron、tar 和 sqlite3，并启动 cron 服务）：
+
+```bash
+sudo bash scripts/install-cron.sh
+tail -f /var/log/pbl-backup.log
+```
+
+脚本管理执行用户的 crontab：每天 02:00 备份数据库、每天 03:00 备份上传文件、每周日 04:00 依次执行数据库与上传文件完整备份，时间使用服务器时区。重复安装会跳过相同任务，更新项目路径会替换旧任务，其他定时任务保留。使用 sudo 安装时，日志由 root 写入 `/var/log/pbl-backup.log`；日志在第一次任务执行后生成。非 root 安装需确保该日志可写。
+
+任务从项目 `backend` 目录执行，读取 `/etc/pbl-platform/backend.env` 的 `DB_PATH` 和 `UPLOAD_PATH`。建议配置绝对路径；`UPLOAD_PATH` 缺省为 `uploads`，相对路径以 `backend` 为基准。上传备份存于上传目录同级的 `backups/uploads-YYYYMMDD-HHMMSS.tar.gz`，数据库使用现有 `pre-deploy-*.db` 备份，两者各保留最近 7 份。每周任务复用这套备份与保留策略；上节“保留 4 周”的建议需另行归档实现。生产环境应从稳定的项目路径安装，Release 路径变更后重新安装。
+
+手动触发（完整备份依次运行以下两条命令）：
+
+```bash
+cd backend
+sudo bash ../scripts/backup-db.sh
+sudo bash ../scripts/backup-uploads.sh
+```
+
+卸载本项目的定时任务（以安装时的同一用户执行）：
+
+```bash
+sudo bash scripts/install-cron.sh --uninstall
+```
 
 ### 3. 服务器部署滑翔机引擎（如需该功能）
 
