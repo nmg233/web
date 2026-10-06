@@ -88,3 +88,13 @@ UPLOAD_CLEAN="${UPLOAD_CLEAN:-$(grep -E '^UPLOAD_PATH=' "$ENV_FILE" 2>/dev/null 
 node scripts/cleanup-files.js "$UPLOAD_CLEAN" || true
 
 echo "deploy ok"
+
+# 可选交互提示；非交互部署只输出提醒，不等待输入。
+if [ -t 0 ]; then
+  read -r -p "是否已安装自动备份？[y/N] " BACKUP_INSTALLED || BACKUP_INSTALLED=""
+else
+  BACKUP_INSTALLED=""
+fi
+if [[ ! "$BACKUP_INSTALLED" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+  echo "提醒：请在项目根目录执行 sudo bash scripts/install-cron.sh 安装自动备份。"
+fi
