@@ -24,3 +24,6 @@ simulation/glider/imgui.ini
 
 # 本地方案/规划文档：留在本地评审，不入库（docs/ 内既有已跟踪文件不受影响）
 docs/
+
+# 本地工具目录：不入库
+.trae/

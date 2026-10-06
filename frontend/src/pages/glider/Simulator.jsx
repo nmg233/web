@@ -9,6 +9,7 @@ import { gliderAPI } from '../../api/glider';
 import { courseAPI } from '../../api';
 import { formatBeijingTime } from '../../utils/date';
 import { useAuth } from '../../store/AuthContext';
+import FlightReplay3D from './FlightReplay3D';
 
 const { Title, Text } = Typography;
 
@@ -467,9 +468,12 @@ export default function GliderSimulator() {
                       <Col xs={12} sm={8}><Statistic title="落地高度" value={viewing.result?.alt_end ?? '—'} suffix="m" /></Col>
                     </Row>
 
-                    {/* 历史记录回放（旧版后端生成的 MP4，仅早期记录有）。新试飞不再生成视频：
-                        飞行回放将由前端基于逐帧轨迹数据渲染（three.js 接入中），
-                        数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md */}
+                    {/* 3D 飞行回放：前端基于逐帧轨迹数据实时渲染（three.js），
+                        数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md
+                        key：切换记录时重建组件，使内部状态回到初值（替代 effect 内同步 setState 重置） */}
+                    <FlightReplay3D key={viewing.id} simId={viewing.id} />
+
+                    {/* 旧版后端生成的 MP4 回放（仅早期记录有；新试飞由上方 3D 回放替代） */}
                     {img.video && (
                       <Card size="small" title="✈️ 飞行过程回放（视频）" style={{ marginBottom: 16 }}>
                         <video
