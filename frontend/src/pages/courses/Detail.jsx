@@ -44,6 +44,7 @@ export default function CourseDetail() {
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
   const [replayForm] = Form.useForm();
+  const replaySummary = Form.useWatch('summary', replayForm);
   const [resourceForm] = Form.useForm();
   // 选课导入（执行导师/管理员）
   const [importOpen, setImportOpen] = useState(false);
@@ -569,9 +570,12 @@ export default function CourseDetail() {
             </Form.Item>
           )}
           <Form.Item name="description" label="简介"><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="summary" label="回放内容摘要" extra="课程结束后可在此单独补录或更新摘要，无需重新上传视频。" rules={[{ max: 10000, message: '摘要不能超过 10000 个字符' }]}>
-            <Input.TextArea rows={6} showCount maxLength={10000} placeholder="填写本次回放的主要内容、重点知识与课堂活动" />
-          </Form.Item>
+          <Tabs items={[
+            { key: 'edit', label: '编辑 Markdown', forceRender: true, children: <Form.Item name="summary" label="回放内容摘要（课程纪要）" extra="支持标题、加粗、列表、链接、代码块和表格；课程结束后可单独更新，无需重新上传视频。" rules={[{ max: 10000, message: '摘要不能超过 10000 个字符' }]}>
+              <Input.TextArea rows={6} showCount maxLength={10000} placeholder={'## 课程纪要\n\n**重点知识**\n\n- 要点一\n- 要点二'} />
+            </Form.Item> },
+            { key: 'preview', label: '预览', children: <div style={{ marginBottom: 16 }}><ReplaySummary replay={{ summary: replaySummary }} /></div> },
+          ]} />
           <Upload accept=".txt,.md" showUploadList={false} beforeUpload={async (file) => {
             if (!/\.(txt|md)$/i.test(file.name) || file.size > 100000) { message.error('请选择不超过 100KB 的 UTF-8 文本或 Markdown 文件'); return Upload.LIST_IGNORE; }
             try {

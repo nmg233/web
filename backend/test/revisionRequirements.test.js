@@ -145,14 +145,15 @@ test('回放可先上传视频，随后单独添加、更改或清空摘要，�
   assert.equal(db.prepare('SELECT summary FROM course_replays WHERE id=?').get(original.id).summary,'课堂重点');
 });
 
-test('上传时可附带摘要，列表和学生课时接口均返回摘要且不泄漏磁盘路径', async () => {
-  const created = await api('/courses/1/replays','POST',replayForm('  课程内容摘要\n课堂活动  '),'mentor');
+test('上传时可附带Markdown课程纪要，列表和学生课时接口原样返回且不泄漏磁盘路径', async () => {
+  const summary = '## 课程纪要\n\n**重点知识**\n\n- 课堂活动\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
+  const created = await api('/courses/1/replays','POST',replayForm(`  ${summary}  `),'mentor');
   assert.equal(created.status,200);
   const list = await api('/courses/1/replays');
-  assert.equal(list.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),'课程内容摘要\n课堂活动');
+  assert.equal(list.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),summary);
   assert.equal(Object.hasOwn(list.body.replays[0],'video_path'),false);
   const lesson = await api('/learning/lessons/1');
-  assert.equal(lesson.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),'课程内容摘要\n课堂活动');
+  assert.equal(lesson.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),summary);
   db.prepare('UPDATE course_replays SET lesson_id=2 WHERE id=?').run(created.body.id);
   assert.equal((await api('/learning/lessons/1')).body.replays.some((item) => item.id === created.body.id),false);
   assert.equal((await api('/learning/lessons/2')).body.replays.some((item) => item.id === created.body.id),true);
