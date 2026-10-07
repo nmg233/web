@@ -34,7 +34,7 @@ export default function ChangePassword() {
           <Title level={4} style={{ marginBottom: 4 }}>
             <KeyOutlined /> 修改密码
           </Title>
-          <Text type="secondary">{isForced ? '管理员已重置您的密码，首次登录请设置新密码' : '定期更换密码可以提升账号安全性'}</Text>
+          <Text type="secondary">{isForced ? '当前使用初始或重置密码，请先设置您自己的新密码' : '定期更换密码可以提升账号安全性'}</Text>
         </div>
 
         {isForced && (
