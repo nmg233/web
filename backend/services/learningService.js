@@ -165,7 +165,7 @@ function lessonPackage(studentId, lessonId) {
   const report = learningGate.latestReport(studentId, lessonId);
   const reflection = report ? db.prepare('SELECT * FROM reflections WHERE report_id = ?').get(report.id) || null : null;
   const replays = db.prepare(`
-    SELECT id, course_id, lesson_id, title, description, duration_seconds, recording_date, sort_order
+    SELECT id, course_id, lesson_id, title, description, summary, duration_seconds, recording_date, sort_order
     FROM course_replays WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL)
     ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, sort_order, id
   `).all(lesson.course_id, lessonId, lessonId);
@@ -359,13 +359,18 @@ function submitReport(studentId, lessonId, data) {
     throw new LearningError('请先完成课堂回顾、全部知识卡片和配套练习', 409, 'REPORT_LOCKED');
   }
   const payload = validateReport(data);
-  const previous = learningGate.latestReport(studentId, lessonId);
-  if (previous && previous.status !== 'rejected') {
-    throw new LearningError('当前报告已提交或通过，不能覆盖', 409, 'REPORT_IMMUTABLE');
-  }
-  const version = previous ? previous.version + 1 : 1;
-  const parentId = previous ? previous.id : null;
+  let version;
   const reportId = db.transaction(() => {
+    // 取得写锁后核实当前版本，避免重复请求或旧页面基于过期版本提交。
+    const previous = learningGate.latestReport(studentId, lessonId);
+    if (previous && previous.status !== 'rejected') {
+      throw new LearningError('当前报告已提交或通过，不能覆盖', 409, 'REPORT_IMMUTABLE');
+    }
+    if (data.base_report_id !== undefined && data.base_report_id !== (previous?.id ?? null)) {
+      throw new LearningError('报告版本已更新，请刷新页面后根据最新意见修改', 409, 'REPORT_VERSION_CHANGED');
+    }
+    version = previous ? previous.version + 1 : 1;
+    const parentId = previous ? previous.id : null;
     const result = db.prepare(`
       INSERT INTO lesson_learning_reports (
         student_id, lesson_id, enrollment_id, summary, key_points, application,
@@ -389,7 +394,7 @@ function submitReport(studentId, lessonId, data) {
     );
     learningGate.recalculateLessonProgress(studentId, lessonId);
     return id;
-  })();
+  }).immediate();
   const context = lessonContext(lessonId);
   notificationService.safeCreateForUsers({
     eventKey: 'lesson.report_submitted',

@@ -8,6 +8,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { mentorReviewAPI } from '../../api';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
+import ReportHistory from '../../components/common/ReportHistory';
 
 const dimensions = [
   ['knowledge_understanding', '知识理解'],
@@ -26,7 +27,7 @@ export default function ReviewDetail() {
   const [form] = Form.useForm();
   const load = async () => {
     setLoading(true); setError('');
-    try { setData(await mentorReviewAPI.detail(reportId)); }
+    try { setData(await mentorReviewAPI.detail(reportId)); form.resetFields(); }
     catch (err) { setError(err?.response?.data?.error || '无法加载评审详情'); }
     finally { setLoading(false); }
   };
@@ -67,6 +68,7 @@ export default function ReviewDetail() {
           <Descriptions.Item label="困难与疑问">{report.difficulties || '-'}</Descriptions.Item>
           <Descriptions.Item label="下一步计划">{report.next_plan || '-'}</Descriptions.Item>
         </Descriptions></Card>
+        <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`)} />
         <Card className="content-card" title="结构化反思" style={{ marginBottom: 16 }}><Descriptions column={1} size="small">
           <Descriptions.Item label="遇到的困难">{reflection?.difficulty || '-'}</Descriptions.Item>
           <Descriptions.Item label="解决方式">{reflection?.solution || '-'}</Descriptions.Item>

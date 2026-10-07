@@ -174,13 +174,17 @@ function review(user, reportId, payload = {}) {
 
   let state;
   db.transaction(() => {
+    const current = reportContext(reportId);
+    if (current.status !== 'submitted' || learningGate.latestReport(current.student_id, current.lesson_id)?.id !== current.id) {
+      throw new MentorReviewError('只能评审最新的待评审报告，请刷新评审队列', 409, 'REPORT_ALREADY_REVIEWED');
+    }
     db.prepare(`
       UPDATE lesson_learning_reports SET status = ?, reviewer_id = ?, review_comment = ?, score = ?, score_dimensions_json = ?,
         reviewed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?
     `).run(payload.status, user.id, comment || null, score, dimensionsJson, report.id);
     state = learningGate.recalculateLessonProgress(report.student_id, report.lesson_id);
     learningGate.recordCompletionGrowth(report.student_id, report.lesson_id, user.id);
-  })();
+  }).immediate();
 
   const approved = payload.status === 'approved';
   notificationService.safeCreateForUsers({

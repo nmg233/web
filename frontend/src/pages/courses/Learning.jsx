@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, Descriptions, Empty, Space, Tag, Typography, message } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { courseAPI, workAPI } from '../../api';
+import ReplaySummary from '../../components/common/ReplaySummary';
 
 const { Title, Text } = Typography;
 
@@ -92,6 +93,7 @@ export default function Learning() {
                 {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
                 <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
               </Space>
+              <ReplaySummary replay={replay} />
             </Card>
           ))
         )}

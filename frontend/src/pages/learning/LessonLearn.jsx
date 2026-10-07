@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Alert, Button, Card, Checkbox, Collapse, Empty, Form, Grid, Input, Modal,
+  Alert, Button, Card, Checkbox, Collapse, Descriptions, Empty, Form, Grid, Input, Modal,
   Progress, Radio, Space, Steps, Tag, Typography, message,
 } from 'antd';
 import {
@@ -12,6 +12,10 @@ import { courseAPI, learningAPI } from '../../api';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
 import { LEARNING_STEPS, REPORT_STATUS } from '../../constants/status';
+import { useAuth } from '../../store/AuthContext';
+import MarkdownContent from '../../components/common/MarkdownContent';
+import ReplaySummary from '../../components/common/ReplaySummary';
+import { clearReportDraft, reportDraftKey, restoreReportDraft, saveReportDraft } from '../../utils/reportDraft';
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -63,6 +67,7 @@ function Exercise({ exercise, onDone }) {
 
 export default function LessonLearn() {
   const { courseId, lessonId } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const screens = Grid.useBreakpoint();
   const [data, setData] = useState(null);
@@ -73,8 +78,10 @@ export default function LessonLearn() {
   const [replayUrl, setReplayUrl] = useState('');
   const [activeReplayId, setActiveReplayId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [draftSaveFailed, setDraftSaveFailed] = useState(false);
+  const [reflectionExpanded, setReflectionExpanded] = useState(['reflection']);
   const [form] = Form.useForm();
-  const reportDraftKey = `lesson-report-draft:${lessonId}`;
+  const draftKey = reportDraftKey(user?.id, lessonId, data?.report?.id);
 
   const playReplay = async (replayId) => {
     setActiveReplayId(replayId);
@@ -82,18 +89,18 @@ export default function LessonLearn() {
     catch { setReplayUrl(''); }
   };
 
-  const load = async () => {
+  const load = async ({ resetReplay = false } = {}) => {
     setLoading(true); setError('');
     try {
       const payload = await learningAPI.lesson(lessonId);
       setData(payload);
       setActiveStage(nextStage(payload));
       setCardIndex((current) => Math.min(current, Math.max(0, payload.cards.length - 1)));
-      if (!activeReplayId && payload.replays?.length) await playReplay(payload.replays[0].id);
+      if (resetReplay) { setReplayUrl(''); setActiveReplayId(null); setDraftSaveFailed(false); }
+      if ((resetReplay || !activeReplayId) && payload.replays?.length) await playReplay(payload.replays[0].id);
       if (!payload.report || payload.report.status === 'rejected') {
-        let savedDraft = null;
-        try { savedDraft = JSON.parse(localStorage.getItem(reportDraftKey)); } catch { savedDraft = null; }
-        form.setFieldsValue(savedDraft || (payload.report?.status === 'rejected' ? { ...payload.report, reflection: payload.reflection || {} } : {}));
+        form.resetFields();
+        form.setFieldsValue(restoreReportDraft(localStorage, reportDraftKey(user?.id, lessonId, payload.report?.id), payload.report, payload.reflection));
       }
     } catch (err) {
       setData(null);
@@ -102,7 +109,7 @@ export default function LessonLearn() {
   };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { load(); }, [lessonId]);
+  useEffect(() => { load({ resetReplay: true }); }, [lessonId, user?.id]);
 
   const finishReview = async () => {
     setSubmitting(true);
@@ -141,9 +148,9 @@ export default function LessonLearn() {
       onOk: async () => {
         setSubmitting(true);
         try {
-          await learningAPI.submitReport(lessonId, { report: values, reflection: values.reflection });
+          await learningAPI.submitReport(lessonId, { report: values, reflection: values.reflection, base_report_id: data.report?.id ?? null });
           message.success('学习报告已提交，等待执行导师评审');
-          localStorage.removeItem(reportDraftKey);
+          clearReportDraft(localStorage, draftKey);
           form.resetFields(); await load();
         } finally { setSubmitting(false); }
       },
@@ -168,6 +175,7 @@ export default function LessonLearn() {
           <Card size="small" title="课堂回放" style={{ marginBottom: 16 }}>
             {replayUrl ? <video key={replayUrl} controls src={replayUrl} style={{ width: '100%', maxHeight: 460, marginBottom: 16, background: '#000', borderRadius: 8 }} /> : <Empty description="本课时暂无课堂回放" />}
             <Space wrap>{data.replays.map((replay) => <Button key={replay.id} type={activeReplayId === replay.id ? 'primary' : 'default'} icon={<PlayCircleOutlined />} onClick={() => playReplay(replay.id)}>{replay.title}</Button>)}</Space>
+            <ReplaySummary replay={data.replays.find((replay) => replay.id === activeReplayId)} />
           </Card>
           <Card size="small" title="配套资料" style={{ marginBottom: 24 }}>
             {data.resources.length === 0 ? <Empty description="本课时暂无配套资料" /> : data.resources.map((resource) => <Card key={resource.id} size="small" style={{ marginBottom: 8 }}><Space wrap style={{ justifyContent: 'space-between', width: '100%' }}><span><Text strong>{resource.title}</Text>{resource.description && <Text type="secondary"> · {resource.description}</Text>}</span>{resource.has_file && <Button icon={<DownloadOutlined />} onClick={() => downloadResource(resource)}>下载资料</Button>}</Space></Card>)}
@@ -181,7 +189,7 @@ export default function LessonLearn() {
             <Card size="small" style={{ marginBottom: 12 }}><Space wrap>{cards.map((card, index) => <Button key={card.id} type={index === cardIndex ? 'primary' : 'default'} icon={card.completed ? <CheckCircleOutlined /> : null} onClick={() => setCardIndex(index)} disabled={index > 0 && !cards[index - 1].completed}>{index + 1}. {card.title}</Button>)}</Space></Card>
             <Card className="content-card" title={<Space>{activeCard.completed && <CheckCircleOutlined style={{ color: '#52c41a' }} />}{activeCard.title}<Tag color="blue">{cardIndex + 1}/{cards.length}</Tag></Space>}>
               {activeCard.summary && <Paragraph type="secondary">{activeCard.summary}</Paragraph>}
-              <Paragraph style={{ whiteSpace: 'pre-wrap', fontSize: 16, lineHeight: 1.9 }}>{activeCard.content}</Paragraph>
+              <MarkdownContent>{activeCard.content}</MarkdownContent>
               {activeCard.key_points && <Alert type="info" message="关键要点" description={activeCard.key_points} style={{ marginBottom: 12 }} />}
               {activeCard.common_mistakes && <Alert type="warning" message="常见误区" description={activeCard.common_mistakes} style={{ marginBottom: 12 }} />}
               {(activeCard.exercises || []).map((exercise) => <Exercise key={exercise.id} exercise={exercise} onDone={load} />)}
@@ -194,18 +202,31 @@ export default function LessonLearn() {
 
         {activeStage === 2 && <><Title level={4}>第三阶段：学习报告与反思</Title><Card className="content-card">
           {report && <Alert type={report.status === 'rejected' ? 'warning' : 'success'} showIcon message={`第 ${report.version} 版：${REPORT_STATUS[report.status]?.label || report.status}${Number.isInteger(report.score) ? ` · ${report.score} 分` : ''}`} description={report.review_comment} style={{ marginBottom: 16 }} />}
-          {(!report || report.status === 'rejected') && <Form form={form} layout="vertical" onFinish={submitReport} disabled={!progress.report_unlocked} onValuesChange={(_, values) => localStorage.setItem(reportDraftKey, JSON.stringify(values))}>
+          {(!report || report.status === 'rejected') && <Form form={form} layout="vertical" onFinish={submitReport} onFinishFailed={() => setReflectionExpanded(['reflection'])} disabled={!progress.report_unlocked || submitting} onValuesChange={(_, values) => setDraftSaveFailed(!saveReportDraft(localStorage, draftKey, values))}>
             <Alert type="info" showIcon message="填写内容会自动保存在当前浏览器，提交成功后自动清除草稿。" style={{ marginBottom: 16 }} />
-            <Form.Item name="summary" label="学习总结" rules={[{ required: true, message: '请填写学习总结' }]}><Input.TextArea rows={4} /></Form.Item>
-            <Form.Item name="key_points" label="关键收获"><Input.TextArea rows={2} /></Form.Item><Form.Item name="application" label="应用设想"><Input.TextArea rows={2} /></Form.Item><Form.Item name="difficulties" label="困难与疑问"><Input.TextArea rows={2} /></Form.Item><Form.Item name="next_plan" label="下一步计划"><Input.TextArea rows={2} /></Form.Item>
-            <Collapse items={[{ key: 'reflection', label: '结构化反思（必填）', children: <><Form.Item name={['reflection', 'difficulty']} label="遇到的困难" rules={[{ required: true, message: '请填写遇到的困难' }]}><Input.TextArea /></Form.Item><Form.Item name={['reflection', 'solution']} label="解决方式"><Input.TextArea /></Form.Item><Form.Item name={['reflection', 'improvement']} label="可以改进之处"><Input.TextArea /></Form.Item><Form.Item name={['reflection', 'new_question']} label="新的问题"><Input.TextArea /></Form.Item></> }]} style={{ marginBottom: 16 }} />
+            {draftSaveFailed && <Alert type="warning" showIcon message="浏览器无法保存草稿，请保持页面打开并提交，避免丢失修改。" style={{ marginBottom: 16 }} />}
+            <Form.Item name="summary" label="学习总结" rules={[{ required: true, whitespace: true, message: '请填写学习总结' }]}><Input.TextArea rows={4} maxLength={5000} /></Form.Item>
+            <Form.Item name="key_points" label="关键收获"><Input.TextArea rows={2} maxLength={5000} /></Form.Item><Form.Item name="application" label="应用设想"><Input.TextArea rows={2} maxLength={5000} /></Form.Item><Form.Item name="difficulties" label="困难与疑问"><Input.TextArea rows={2} maxLength={5000} /></Form.Item><Form.Item name="next_plan" label="下一步计划"><Input.TextArea rows={2} maxLength={5000} /></Form.Item>
+            <Collapse activeKey={reflectionExpanded} onChange={setReflectionExpanded} items={[{ key: 'reflection', label: '结构化反思（必填）', forceRender: true, children: <><Form.Item name={['reflection', 'difficulty']} label="遇到的困难" rules={[{ required: true, whitespace: true, message: '请填写遇到的困难' }]}><Input.TextArea maxLength={2000} /></Form.Item><Form.Item name={['reflection', 'solution']} label="解决方式"><Input.TextArea maxLength={2000} /></Form.Item><Form.Item name={['reflection', 'improvement']} label="可以改进之处"><Input.TextArea maxLength={2000} /></Form.Item><Form.Item name={['reflection', 'new_question']} label="新的问题"><Input.TextArea maxLength={2000} /></Form.Item></> }]} style={{ marginBottom: 16 }} />
             {!progress.report_unlocked && <Alert type="warning" message="完成课堂回顾、全部知识卡片与配套练习后才能提交报告" style={{ marginBottom: 12 }} />}
-            <Button type="primary" size="large" htmlType="submit" loading={submitting}>提交学习报告与反思</Button>
+            <Button type="primary" size="large" htmlType="submit" loading={submitting}>{report?.status === 'rejected' ? `重新提交第 ${report.version + 1} 版报告与反思` : '提交学习报告与反思'}</Button>
           </Form>}
           {report && report.status !== 'rejected' && <Button type="primary" style={{ marginTop: 16 }} onClick={() => setActiveStage(3)}>查看导师评审状态</Button>}
         </Card></>}
 
-        {activeStage === 3 && <Card className="content-card" title="导师评审"><Alert type={report?.status === 'approved' ? 'success' : report?.status === 'rejected' ? 'warning' : 'info'} showIcon message={report ? `${REPORT_STATUS[report.status]?.label}${Number.isInteger(report.score) ? ` · ${report.score} 分` : ''}` : '尚未提交学习报告'} description={report?.review_comment || (report?.status === 'submitted' ? '第三阶段已完成，报告正在等待执行导师评审。' : '完成前三个阶段后进入导师评审。')} />{report?.status === 'rejected' && <Button type="primary" style={{ marginTop: 16 }} onClick={() => setActiveStage(2)}>返回第三阶段修改</Button>}</Card>}
+        {activeStage === 3 && <Card className="content-card" title="导师评审"><Alert type={report?.status === 'approved' ? 'success' : report?.status === 'rejected' ? 'warning' : 'info'} showIcon message={report ? `第 ${report.version} 版 · ${REPORT_STATUS[report.status]?.label}${Number.isInteger(report.score) ? ` · ${report.score} 分` : ''}` : '尚未提交学习报告'} description={report?.review_comment || (report?.status === 'submitted' ? '第三阶段已完成，报告正在等待执行导师评审。' : '完成前三个阶段后进入导师评审。')} />{report?.status === 'rejected' && <Button type="primary" style={{ marginTop: 16 }} onClick={() => setActiveStage(2)}>返回第三阶段修改</Button>}
+          {report && <Descriptions title="本次提交内容" column={1} bordered size="small" style={{ marginTop: 16, whiteSpace: 'pre-wrap' }} items={[
+            { key: 'summary', label: '学习总结', children: report.summary },
+            { key: 'key_points', label: '关键收获', children: report.key_points || '-' },
+            { key: 'application', label: '应用设想', children: report.application || '-' },
+            { key: 'difficulties', label: '困难与疑问', children: report.difficulties || '-' },
+            { key: 'next_plan', label: '下一步计划', children: report.next_plan || '-' },
+            { key: 'difficulty', label: '遇到的困难', children: data.reflection?.difficulty || '-' },
+            { key: 'solution', label: '解决方式', children: data.reflection?.solution || '-' },
+            { key: 'improvement', label: '可以改进之处', children: data.reflection?.improvement || '-' },
+            { key: 'new_question', label: '新的问题', children: data.reflection?.new_question || '-' },
+          ]} />}
+        </Card>}
       </div>
       <Card className="learning-sticky content-card" title="本课时进度"><Progress type="circle" percent={progress.percent || 0} /><Paragraph style={{ marginTop: 16 }}>课堂回顾 25% · 知识卡片 35% · 报告反思 25% · 导师评审 15%</Paragraph><Space direction="vertical"><Tag color={progress.review_completed ? 'green' : 'default'}>课堂回顾</Tag><Tag color={progress.cards_done ? 'green' : 'default'}>知识卡片与练习</Tag><Tag color={report && report.status !== 'rejected' ? 'green' : 'default'}>学习报告与反思</Tag><Tag color={report?.status === 'approved' ? 'green' : report?.status === 'rejected' ? 'red' : 'default'}>导师评审</Tag></Space></Card>
     </div>

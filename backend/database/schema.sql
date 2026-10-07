@@ -183,6 +183,7 @@ CREATE TABLE IF NOT EXISTS course_replays (
   lesson_id INTEGER,
   title TEXT NOT NULL,
   description TEXT,
+  summary TEXT,
   video_path TEXT NOT NULL,
   duration_seconds INTEGER,
   recording_date DATE,

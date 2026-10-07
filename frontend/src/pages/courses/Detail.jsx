@@ -4,6 +4,7 @@ import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Resul
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI, studentAPI, authAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import ReplaySummary from '../../components/common/ReplaySummary';
 
 const { Title, Text } = Typography;
 
@@ -43,6 +44,7 @@ export default function CourseDetail() {
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
   const [replayForm] = Form.useForm();
+  const replaySummary = Form.useWatch('summary', replayForm);
   const [resourceForm] = Form.useForm();
   // 选课导入（执行导师/管理员）
   const [importOpen, setImportOpen] = useState(false);
@@ -135,6 +137,7 @@ export default function CourseDetail() {
       replayForm.setFieldsValue({
         title: replay.title,
         description: replay.description,
+        summary: replay.summary || '',
         duration_seconds: replay.duration_seconds,
         recording_date: replay.recording_date,
         sort_order: replay.sort_order,
@@ -158,6 +161,7 @@ export default function CourseDetail() {
         formData.append('file', replayFile);
         formData.append('title', values.title);
         formData.append('description', values.description || '');
+        formData.append('summary', values.summary || '');
         formData.append('duration_seconds', values.duration_seconds || '');
         formData.append('recording_date', values.recording_date || '');
         formData.append('sort_order', values.sort_order || '0');
@@ -376,6 +380,7 @@ export default function CourseDetail() {
                 {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
                 <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
               </Space>
+              <ReplaySummary replay={replay} />
             </Card>
           ))}
         </div>
@@ -565,6 +570,21 @@ export default function CourseDetail() {
             </Form.Item>
           )}
           <Form.Item name="description" label="简介"><Input.TextArea rows={2} /></Form.Item>
+          <Tabs items={[
+            { key: 'edit', label: '编辑 Markdown', forceRender: true, children: <Form.Item name="summary" label="回放内容摘要（课程纪要）" extra="支持标题、加粗、列表、链接、代码块和表格；课程结束后可单独更新，无需重新上传视频。" rules={[{ max: 10000, message: '摘要不能超过 10000 个字符' }]}>
+              <Input.TextArea rows={6} showCount maxLength={10000} placeholder={'## 课程纪要\n\n**重点知识**\n\n- 要点一\n- 要点二'} />
+            </Form.Item> },
+            { key: 'preview', label: '预览', children: <div style={{ marginBottom: 16 }}><ReplaySummary replay={{ summary: replaySummary }} /></div> },
+          ]} />
+          <Upload accept=".txt,.md" showUploadList={false} beforeUpload={async (file) => {
+            if (!/\.(txt|md)$/i.test(file.name) || file.size > 100000) { message.error('请选择不超过 100KB 的 UTF-8 文本或 Markdown 文件'); return Upload.LIST_IGNORE; }
+            try {
+              const summary = await file.text();
+              if (summary.length > 10000) message.error('摘要不能超过 10000 个字符');
+              else { replayForm.setFieldValue('summary', summary); message.success('摘要已导入，请保存回放信息'); }
+            } catch { message.error('无法读取摘要文件，请重试'); }
+            return false;
+          }}><Button icon={<UploadOutlined />} style={{ marginBottom: 16 }}>从文件导入摘要（.txt / .md）</Button></Upload>
           <Form.Item name="duration_seconds" label="时长（秒）"><Input type="number" min={1} /></Form.Item>
           <Form.Item name="recording_date" label="录制日期"><Input type="date" /></Form.Item>
           <Form.Item name="sort_order" label="排序（数字越小越靠前）"><Input type="number" min={0} /></Form.Item>
