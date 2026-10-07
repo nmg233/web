@@ -1,0 +1,13 @@
+.markdown-content { font-size: 16px; line-height: 1.9; overflow-wrap: anywhere; }
+.markdown-content > :first-child { margin-top: 0; }
+.markdown-content > :last-child { margin-bottom: 0; }
+.markdown-content p { white-space: pre-wrap; }
+.markdown-content h1, .markdown-content h2, .markdown-content h3 { line-height: 1.4; }
+.markdown-content ul, .markdown-content ol { padding-left: 1.6em; }
+.markdown-content pre { max-width: 100%; overflow-x: auto; padding: 12px; border-radius: 6px; background: #f5f7fa; }
+.markdown-content code { font-family: Consolas, monospace; background: #f5f7fa; border-radius: 3px; padding: 2px 4px; }
+.markdown-content pre code { padding: 0; }
+.markdown-content blockquote { margin-left: 0; padding-left: 16px; border-left: 3px solid #91caff; color: #596579; }
+.markdown-content table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.markdown-content th, .markdown-content td { border: 1px solid #d9d9d9; padding: 6px 12px; }
+.markdown-content img { max-width: 100%; height: auto; }

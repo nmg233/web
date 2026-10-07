@@ -553,7 +553,7 @@ exports.listReplays = (req, res) => {
     const course = db.prepare('SELECT id, status FROM courses WHERE id = ?').get(req.params.id);
     if (!course || !canAccessReplay(req.user, course)) return res.status(404).json({ error: '课程回放不存在' });
     const replays = db.prepare(
-      'SELECT id, course_id, title, description, duration_seconds, recording_date, sort_order, created_at FROM course_replays WHERE course_id = ? ORDER BY sort_order, recording_date, id'
+      'SELECT id, course_id, lesson_id, title, description, summary, duration_seconds, recording_date, sort_order, created_at FROM course_replays WHERE course_id = ? ORDER BY sort_order, recording_date, id'
     ).all(course.id);
     res.json({ replays });
   } catch (err) {
@@ -571,18 +571,23 @@ exports.uploadReplay = (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: '请选择回放视频' });
     }
-    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    const { title, description, summary, duration_seconds, recording_date, sort_order } = req.body;
+    if (summary !== undefined && (typeof summary !== 'string' || summary.length > 10000)) {
+      removeUploadedFile(req.file);
+      return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
+    }
     if (!title || !title.trim()) {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '请填写回放标题' });
     }
     const result = db.prepare(
-      `INSERT INTO course_replays (course_id, title, description, video_path, duration_seconds, recording_date, sort_order, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO course_replays (course_id, title, description, summary, video_path, duration_seconds, recording_date, sort_order, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       req.params.id,
       title.trim(),
       description || null,
+      summary?.trim() || null,
       req.file.path,
       Number(duration_seconds) || null,
       recording_date || null,
@@ -599,20 +604,24 @@ exports.uploadReplay = (req, res) => {
 
 exports.updateReplay = (req, res) => {
   try {
-    const replay = db.prepare('SELECT id, course_id FROM course_replays WHERE id = ?').get(req.params.replayId);
+    const replay = db.prepare('SELECT * FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
-    const { title, description, duration_seconds, recording_date, sort_order } = req.body;
+    const { title, description, summary, duration_seconds, recording_date, sort_order } = req.body;
+    if (summary !== undefined && (typeof summary !== 'string' || summary.length > 10000)) {
+      return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
+    }
     if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: '回放标题不能为空' });
     db.prepare(
       `UPDATE course_replays
-       SET title = COALESCE(?, title), description = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
+       SET title = COALESCE(?, title), description = ?, summary = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
     ).run(
       title ? String(title).trim() : null,
-      description || null,
-      Number(duration_seconds) || null,
-      recording_date || null,
-      Number(sort_order) || 0,
+      description === undefined ? replay.description : description || null,
+      summary === undefined ? replay.summary : summary.trim() || null,
+      duration_seconds === undefined ? replay.duration_seconds : Number(duration_seconds) || null,
+      recording_date === undefined ? replay.recording_date : recording_date || null,
+      sort_order === undefined ? replay.sort_order : Number(sort_order) || 0,
       replay.id
     );
     res.json({ message: '课程回放已更新' });

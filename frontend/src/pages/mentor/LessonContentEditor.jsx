@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Alert, Button, Card, Form, Input, InputNumber, Modal, Popconfirm,
-  Select, Space, Switch, Tag, Typography, message,
+  Select, Space, Switch, Tag, Typography, Tabs, message,
 } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { learningManageAPI } from '../../api';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
+import MarkdownContent from '../../components/common/MarkdownContent';
 
 const blankCard = { status: 'draft', is_required: true, estimated_minutes: 10 };
 const statusLabel = { draft: '草稿·学生不可见', published: '已发布', archived: '已归档' };
@@ -24,6 +25,7 @@ export default function LessonContentEditor() {
   const [saving, setSaving] = useState(false);
   const [cardForm] = Form.useForm();
   const [exerciseForm] = Form.useForm();
+  const cardContent = Form.useWatch('content', cardForm);
 
   const load = async () => {
     setLoading(true); setError('');
@@ -36,6 +38,7 @@ export default function LessonContentEditor() {
 
   const openCard = (card = blankCard) => {
     setEditing(card);
+    cardForm.resetFields();
     cardForm.setFieldsValue({ ...card, is_required: Boolean(card.is_required) });
   };
   const saveCard = async (status) => {
@@ -84,7 +87,7 @@ export default function LessonContentEditor() {
         </Space>}
       >
         <Typography.Paragraph type="secondary">{card.summary || '暂无摘要'}</Typography.Paragraph>
-        <Typography.Paragraph style={{ whiteSpace: 'pre-wrap' }}>{card.content}</Typography.Paragraph>
+        <MarkdownContent>{card.content}</MarkdownContent>
         {(card.exercises || []).length === 0
           ? <Alert type="warning" showIcon message="尚未配置配套练习" />
           : (card.exercises || []).map((exercise) => <Card size="small" key={exercise.id} style={{ marginTop: 8 }}><Space wrap><Tag>{typeLabel[exercise.question_type]}</Tag><span>{exercise.prompt}</span><Tag>一次作答</Tag><Popconfirm title="确认删除该练习？" onConfirm={async () => { await learningManageAPI.deleteExercise(exercise.id); load(); }}><Button type="link" danger>删除</Button></Popconfirm></Space></Card>)}
@@ -95,7 +98,10 @@ export default function LessonContentEditor() {
       <Form form={cardForm} layout="vertical">
         <Form.Item name="title" label="标题" rules={[{ required: true, message: '请填写卡片标题' }]}><Input /></Form.Item>
         <Form.Item name="summary" label="摘要"><Input.TextArea /></Form.Item>
-        <Form.Item name="content" label="正文" rules={[{ required: true, message: '请填写卡片正文' }]}><Input.TextArea rows={7} /></Form.Item>
+        <Tabs items={[
+          { key: 'edit', label: '编辑 Markdown', forceRender: true, children: <Form.Item name="content" label="正文（支持 Markdown）" extra="支持标题、加粗、列表、链接、代码块和表格；切换预览检查排版。" rules={[{ required: true, whitespace: true, message: '请填写卡片正文' }, { max: 20000, message: '正文不能超过 20000 个字符' }]}><Input.TextArea rows={10} showCount maxLength={20000} placeholder={'## 知识要点\n\n**核心概念**\n\n- 要点一\n- 要点二'} /></Form.Item> },
+          { key: 'preview', label: '预览', children: <Card size="small" style={{ marginBottom: 16 }}><MarkdownContent>{cardContent || '尚未填写正文'}</MarkdownContent></Card> },
+        ]} />
         <Form.Item name="key_points" label="关键要点"><Input.TextArea /></Form.Item>
         <Form.Item name="common_mistakes" label="常见误区"><Input.TextArea /></Form.Item>
         <Space wrap><Form.Item name="estimated_minutes" label="预计分钟"><InputNumber min={1} max={600} /></Form.Item><Form.Item name="is_required" label="必修" valuePropName="checked"><Switch /></Form.Item></Space>
