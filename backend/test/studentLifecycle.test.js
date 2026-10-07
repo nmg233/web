@@ -119,6 +119,7 @@ test('旧库增量迁移幂等且保留账号与密码，新库结构一致', ()
     // 模拟合并前旧库：仅 users + 迁移基线，且各迁移目标表已存在（与真实旧库一致）
     old.exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password_hash TEXT, role TEXT, is_active INTEGER); INSERT INTO users VALUES (1,'old','unchanged','student',1); CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY,name TEXT,applied_at TEXT); INSERT INTO schema_migrations VALUES(1,'baseline',''),(2,'enrollments','');");
     old.exec('CREATE TABLE enrollments (id INTEGER PRIMARY KEY); CREATE TABLE growth_records (id INTEGER PRIMARY KEY); CREATE TABLE works (id INTEGER PRIMARY KEY, student_id INTEGER, task_id INTEGER, parent_work_id INTEGER); CREATE TABLE glider_simulations (id INTEGER PRIMARY KEY); CREATE TABLE lessons (id INTEGER PRIMARY KEY); CREATE TABLE tasks (id INTEGER PRIMARY KEY); CREATE TABLE course_replays (id INTEGER PRIMARY KEY); CREATE TABLE resources (id INTEGER PRIMARY KEY); CREATE TABLE reflections (id INTEGER PRIMARY KEY);');
+    old.exec('CREATE TABLE schools (id INTEGER PRIMARY KEY, name TEXT NOT NULL)');
     const { runMigrations } = require('../database/migrate');
     runMigrations(old); runMigrations(old);
     assert.deepEqual(old.prepare('SELECT * FROM users').get(), { id: 1, username: 'old', password_hash: 'unchanged', role: 'student', is_active: 1, archived_at: null, auth_version: 0 });

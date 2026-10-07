@@ -57,9 +57,11 @@ export default function SchoolDetail() {
         extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>添加班级</Button>}
       >
         <p>班级总数：{school.class_count} | 用户数：{school.user_count}</p>
+        <p>学校 ID：{school.id} | 建号缩写：{school.account_code || '首次创建账号时生成并固定'}；重名组织导入请使用 ID</p>
         {school.region && <p>地区：{school.region}</p>}
         <Table dataSource={classes} rowKey="id" pagination={false}
           columns={[
+            { title: '班级 ID', dataIndex: 'id' },
             { title: '班级名称', dataIndex: 'name' },
             { title: '年级', dataIndex: 'grade' },
             { title: '学生数', dataIndex: 'student_count' },

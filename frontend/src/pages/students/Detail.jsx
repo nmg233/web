@@ -23,6 +23,9 @@ export default function StudentDetail() {
   const [detail, setDetail] = useState({});
   const [loading, setLoading] = useState(true);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false), [editing, setEditing] = useState(false);
+  const [editSchools, setEditSchools] = useState([]), [editClasses, setEditClasses] = useState([]);
+  const [editForm] = Form.useForm();
   const [options, setOptions] = useState({ schools: [], teachers: [], mentors: [] });
   const [classes, setClasses] = useState([]);
   const [resetResult, setResetResult] = useState(null);
@@ -72,10 +75,11 @@ export default function StudentDetail() {
   };
 
   const handleSchoolChange = async (sid) => {
+    form.setFieldsValue({ class_id: undefined, teacher_id: undefined });
+    setClasses([]);
     if (sid) {
       const c = await studentAPI.getClasses(sid);
       setClasses(c.classes || []);
-      form.setFieldsValue({ class_id: undefined });
     } else {
       setClasses([]);
     }
@@ -91,6 +95,22 @@ export default function StudentDetail() {
   };
 
   // 管理员重置用户密码：临时密码仅通过弹窗返回给管理员，由管理员线下转告
+  const openEdit = async () => {
+    try {
+    const opts = await studentAPI.getAssignOptions(); setEditSchools(opts.schools);
+    const cls = student.school_id ? await studentAPI.getClasses(student.school_id) : { classes: [] };
+    setEditClasses(cls.classes); editForm.setFieldsValue({ real_name: student.real_name, role: student.role,
+      school_id: student.school_id, class_id: student.class_id, email: student.email, phone: student.phone, profile: student.profile });
+    setEditOpen(true);
+    } catch { /* API 统一展示错误 */ }
+  };
+  const saveEdit = async values => {
+    setEditing(true);
+    try { await studentAPI.updateUser(id,values); setEditOpen(false); message.success('资料已更新，原登录账号保持不变'); load(); }
+    catch { /* API 统一展示错误 */ }
+    finally { setEditing(false); }
+  };
+
   const handleResetPassword = async () => {
     setResetting(true);
     setResetResult(null);
@@ -137,15 +157,16 @@ export default function StudentDetail() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/students')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{student.real_name} 的详细信息</Title>
         <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
-        {isAdmin && isStudentTarget && <>
+        {isAdmin && student.role !== 'admin' && <Button icon={<EditOutlined />} onClick={openEdit}>编辑资料</Button>}
+        {isAdmin && student.role !== 'admin' && <>
           {!!student.is_active && !student.archived_at && <Button danger onClick={() => openStatus('disable')}>停用账号</Button>}
-          {!student.archived_at && <Button onClick={() => openStatus('archive')}>归档账号</Button>}
+          {isStudentTarget && !student.archived_at && <Button onClick={() => openStatus('archive')}>归档账号</Button>}
           {(!student.is_active || student.archived_at) && <Button onClick={() => openStatus('restore')}>恢复账号</Button>}
         </>}
         {isAdmin && isStudentTarget && (
             <Button type="primary" icon={<EditOutlined />} onClick={openAssign}>编辑分配</Button>
         )}
-        {isAdmin && student.role !== 'admin' && (
+        {isAdmin && student.id !== user.id && (
             <Popconfirm
               title={`确定重置 ${student.real_name} 的密码？`}
               okText="重置" cancelText="取消"
@@ -192,6 +213,16 @@ export default function StudentDetail() {
         </Card>
       )}
 
+      <Modal title="编辑账号资料" open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => editForm.submit()} confirmLoading={editing} closable={!editing} maskClosable={!editing} cancelButtonProps={{disabled:editing}}>
+        <Form form={editForm} layout="vertical" onFinish={saveEdit}>
+          <Form.Item name="real_name" label="姓名" rules={[{required:true,whitespace:true}]}><Input maxLength={80}/></Form.Item>
+          <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:'学生'},{value:'teacher',label:'教师'},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
+          <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
+          <Form.Item name="class_id" label="班级" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择班级'})]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item>
+          <Form.Item name="email" label="邮箱"><Input/></Form.Item><Form.Item name="phone" label="手机号"><Input/></Form.Item><Form.Item name="profile" label="简介"><Input.TextArea/></Form.Item>
+          <p>修改姓名不修改原用户名或现有密码；重置后使用新姓名拼音@123。已有业务历史的账号不能随意更改身份。</p>
+        </Form>
+      </Modal>
       <Modal title="编辑分配" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} width={500}>
         <Form form={form} layout="vertical" onFinish={handleAssign}>
           <Form.Item name="school_id" label="所属学校">

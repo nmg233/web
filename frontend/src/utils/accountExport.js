@@ -14,7 +14,7 @@ export function accountsToCSV(accounts) {
   return '\uFEFF' + rows.map((row) => row.map(cell).join(',')).join('\r\n');
 }
 
-// 仅创建/导入的当次结果显式调用，普通账号清单仍不导出密码。
+// 仅创建/重置结果或授权批次的有效凭据显式调用，普通账号清单不导出密码。
 export function temporaryAccountsToCSV(accounts) {
   const cell = (value) => {
     let text = String(value ?? '');
@@ -42,4 +42,19 @@ export function downloadAccounts(accounts, filename = '用户登录账号.csv') 
 
 export function downloadTemporaryAccounts(accounts) {
   downloadCSV(temporaryAccountsToCSV(accounts), '本次导入临时密码.csv');
+}
+
+export function importFailuresToCSV(failures) {
+  const fields = ['username','real_name','role','school_name','school_code','school_id','grade','class_name','class_id','email','phone','profile'];
+  const cell = value => {
+    let text = String(value ?? '');
+    if (/^[\s]*[=+@-]|^[\t\r\n]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g,'""')}"`;
+  };
+  const rows = [[...fields,'失败原因'],...failures.map(r=>[...fields.map(f=>r.input?.[f]),r.error])];
+  return '\uFEFF'+rows.map(r=>r.map(cell).join(',')).join('\r\n');
+}
+
+export function downloadImportFailures(failures) {
+  downloadCSV(importFailuresToCSV(failures),'导入失败名单.csv');
 }

@@ -9,7 +9,7 @@
 //
 // 用法（生产，systemd 的 EnvironmentFile 已注入相关变量）：
 //   ADMIN_USERNAME=<管理员账号> \
-//   ADMIN_PASSWORD=<至少12位强密码> \
+//   初始密码统一为姓名拼音@123，ADMIN_PASSWORD 不再覆盖该规则。
 //   ADMIN_REAL_NAME=<姓名> \
 //   DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db \
 //   node database/provision.js
@@ -50,28 +50,29 @@ if (!fs.existsSync(dbPath)) {
 require('../config/database');
 console.log('✅ 兼容迁移已执行（幂等）');
 
-// 3) 创建初始管理员（仅当同名账号不存在；创建后强制首次登录改密）
-const username = (process.env.ADMIN_USERNAME || '').trim();
-const password = process.env.ADMIN_PASSWORD || '';
+// 3) 初始管理员与普通账号使用同一姓名拼音规则；不覆盖已有账号。
+const { resolveUsername } = require('../helpers/username');
+const { generateTemporaryPassword } = require('../services/tempPasswordService');
+const suppliedUsername = (process.env.ADMIN_USERNAME || '').trim();
 const realName = (process.env.ADMIN_REAL_NAME || '').trim() || '系统管理员';
-if (!username || password.length < 12) {
-  console.error('❌ 必须提供 ADMIN_USERNAME 以及长度至少 12 位的 ADMIN_PASSWORD 环境变量。');
-  console.error('   示例：ADMIN_USERNAME=admin ADMIN_PASSWORD=<强密码> npm run db:provision');
-  process.exit(1);
-}
-
 const db = new Database(dbPath);
 db.pragma('foreign_keys = ON');
-const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
-if (exists) {
-  console.error(`⚠️  用户名 ${username} 已存在，未重复创建。如需重置密码，请使用管理员重置密码流程。`);
-} else {
-  const hash = bcrypt.hashSync(password, 10);
-  db.prepare(
-    "INSERT INTO users (username, password_hash, real_name, role, force_reset_password) VALUES (?, ?, ?, 'admin', 1)"
-  ).run(username, hash, realName);
-  console.log(`✅ 初始管理员已创建: ${username}（${realName}，首次登录将被要求修改密码）`);
-}
-db.close();
-
-console.log('\n🎉 db:provision 完成。请通过正常启动流程验证 /api/health。');
+try {
+  const exists = suppliedUsername
+    ? db.prepare('SELECT id,role FROM users WHERE username=?').get(suppliedUsername)
+    : db.prepare("SELECT id FROM users WHERE role='admin' LIMIT 1").get();
+  if (exists) {
+    if (suppliedUsername && exists.role !== 'admin') throw Object.assign(new Error('ADMIN_USERNAME 已被非管理员账号占用，请选择其他账号'), { status: 400 });
+    console.log('已有账号，未修改用户名、密码或会话；需要重置时请使用授权流程。');
+  } else {
+    const password = generateTemporaryPassword(realName);
+    db.transaction(() => {
+      const username = resolveUsername(db, suppliedUsername, 'admin', realName, null);
+      db.prepare("INSERT INTO users(username,password_hash,real_name,role,force_reset_password) VALUES(?,?,?,'admin',1)")
+        .run(username,bcrypt.hashSync(password,10),realName);
+      console.log('初始管理员已创建: ' + username + '（首次登录必须改密；初始密码规则见 README）');
+    })();
+  }
+} catch (err) {
+  console.error(err.status ? err.message : '管理员初始化失败，请检查配置'); process.exitCode=1;
+} finally { db.close(); }

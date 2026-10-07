@@ -301,11 +301,11 @@ exports.adminResetPassword = (req, res) => {
     if (!target) {
       return res.status(400).json({ error: '用户不存在' });
     }
-    if (target.role === 'admin') {
+    if (target.id === req.user.id) {
       return res.status(400).json({ error: '不能重置管理员自己的密码' });
     }
 
-    const tempPassword = generateTemporaryPassword();
+    const tempPassword = generateTemporaryPassword(target.real_name);
     const password_hash = bcrypt.hashSync(tempPassword, 10);
     db.transaction(() => {
       db.prepare(

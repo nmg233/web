@@ -83,6 +83,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:14,name:'014_glider_design_params.sql' },
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
+      { version:17,name:'017_account_batches.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -110,6 +111,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:14,name:'014_glider_design_params.sql' },
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
+      { version:17,name:'017_account_batches.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }

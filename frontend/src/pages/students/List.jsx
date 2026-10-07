@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Upload, Radio } from 'antd';
+import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Radio } from 'antd';
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
-import { downloadAccounts, downloadTemporaryAccounts } from '../../utils/accountExport';
+import { downloadAccounts } from '../../utils/accountExport';
+import AccountImportModal from '../../components/AccountImportModal';
 import TempPasswordModal from '../../components/TempPasswordModal';
 
 const { Title, Text } = Typography;
 
 const canManage = (role) => role === 'admin';
 const accountStatus = (account) => account.archived_at ? 'archived' : account.is_active ? 'active' : 'disabled';
-const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,63}$/, message: '请输入 4–64 位字母、数字、下划线或连字符，以字母或数字开头' }];
+const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,159}$/, message: '请输入 4–160 位字母、数字、下划线或连字符，以字母或数字开头' }];
 
 export default function StudentList() {
   const { user } = useAuth();
@@ -23,8 +24,6 @@ export default function StudentList() {
   const [schools, setSchools] = useState([]);
   const [classes, setClasses] = useState([]);
   const [importOpen, setImportOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState(null);
   const [createResult, setCreateResult] = useState(null);
   const [creating, setCreating] = useState(false);
   const [selectedAccountIds, setSelectedAccountIds] = useState([]);
@@ -103,37 +102,11 @@ export default function StudentList() {
     </span>
   );
 
-  // 批量导入：上传文件
-  const handleImportFile = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    setImporting(true);
-    setImportResult(null);
-    try {
-      const res = await studentAPI.importFile(formData);
-      setImportResult(res);
-      message.success(res.message || '导入完成');
-      loadData();
-    } catch { /* 错误已在拦截器提示 */ }
-    finally { setImporting(false); }
-  };
 
-  // 批量导入：下载 CSV 模板
-  const downloadTemplate = () => {
-    const csv = '\uFEFF登录账号,姓名,身份,学校名称,班级名称,邮箱,手机号\n' +
-      'BJFX-2026-0001,示例学生,学生,北航附属实验学校,四年级1班,example@xx.com,13800000000\n' +
-      'T-BJFX-001,示例教师,教师,北航附属实验学校,四年级1班,,\n' +
-      'M-0001,示例导师,学术导师,,,,';
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = '用户导入模板.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handleSchoolChange = async (schoolId) => {
+    form.setFieldsValue({ class_id: undefined });
+    setClasses([]);
     if (schoolId) {
       const res = await studentAPI.getClasses(schoolId);
       setClasses(res.classes || []);
@@ -242,7 +215,7 @@ export default function StudentList() {
                 }
               }} />
             </Form.Item>
-            <p>系统将生成 12 位随机临时密码，创建成功后请记录；用户首次登录必须改密。</p>
+            <p>账号留空按学校缩写_角色_姓名拼音_流水号生成；导师前缀 BUAA。初始密码为姓名拼音@123，首次登录必须改密。</p>
             <Form.Item name="school_id" label="学校" dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
@@ -262,44 +235,7 @@ export default function StudentList() {
           </Form>
         </Modal>
 
-        <Modal title="批量导入用户" open={importOpen} onCancel={() => { setImportOpen(false); setImportResult(null); }} closable={!importing} maskClosable={!importing} keyboard={!importing} destroyOnHidden footer={null} width={620}>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Text type="secondary">
-              支持 .csv / .xlsx / .xls 文件。表头：<Text code>登录账号,姓名,身份,学校名称,班级名称,邮箱,手机号</Text>
-              ，身份可选：学生 / 教师 / 学术导师。
-              登录账号可留空自动生成，旧模板仍可使用；同名用户允许导入，重复账号会跳过。无账号的文件重复上传会创建新用户。
-              每人自动生成随机临时密码，请在关闭结果前导出并妥善保管；关闭后无法再次查询。
-            </Text>
-            <Space>
-              <Button icon={<DownloadOutlined />} onClick={downloadTemplate}>下载模板</Button>
-              <Upload
-                disabled={importing || !!importResult}
-                accept=".csv,.xlsx,.xls"
-                showUploadList={false}
-                beforeUpload={(file) => { handleImportFile(file); return false; }}
-              >
-                <Button type="primary" icon={<UploadOutlined />} loading={importing} disabled={!!importResult}>选择文件上传</Button>
-              </Upload>
-            </Space>
-            {importResult && (
-              <Card size="small" style={{ width: '100%' }}>
-                <Button icon={<DownloadOutlined />} disabled={!importResult.accounts?.length} onClick={() => downloadAccounts(importResult.accounts, '本次导入账号.csv')}>导出本次成功导入账号</Button>
-                <Button icon={<DownloadOutlined />} disabled={!importResult.accounts?.length} onClick={() => downloadTemporaryAccounts(importResult.accounts)}>导出本次临时密码</Button>
-                <p style={{ marginBottom: 8 }}>
-                  成功：<b style={{ color: '#52c41a' }}>{importResult.imported ?? 0}</b>
-                  {'  '}失败：<b style={{ color: '#ff4d4f' }}>{importResult.failed ?? 0}</b>
-                </p>
-                {importResult.errors?.length > 0 && (
-                  <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-                    {importResult.errors.map((e, i) => (
-                      <div key={i} style={{ color: '#ff4d4f', fontSize: 12 }}>{e}</div>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            )}
-          </Space>
-        </Modal>
+        <AccountImportModal open={importOpen} onClose={() => setImportOpen(false)} onChanged={loadData} />
       </div>
     );
   }
@@ -334,7 +270,7 @@ export default function StudentList() {
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
           <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
-          <p>系统将生成 12 位随机临时密码，创建成功后请记录；用户首次登录必须改密。</p>
+          <p>初始密码为姓名拼音@123，创建成功后请交付；用户首次登录必须改密。</p>
           <Form.Item name="school_id" label="学校" rules={[{ required: true }]}>
             <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
           </Form.Item>
