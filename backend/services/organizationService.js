@@ -2,14 +2,18 @@
 // dashboardController 与 studentController 原先各自维护一套 CRUD，
 // 统一到此服务后避免两处校验/SQL 漂移；响应契约由各控制器自行包装。
 const db = require('../config/database');
+const { ensureSchoolCode } = require('../helpers/username');
 
 function createSchool({ name, description, tags, region, contact_person, contact_phone }) {
+  return db.transaction(() => {
   const result = db.prepare(
     `INSERT INTO schools (name, description, tags, region, contact_person, contact_phone)
      VALUES (?, ?, ?, ?, ?, ?)`
   ).run(name.trim(), description || null, tags || null, region || null,
         contact_person || null, contact_phone || null);
-  return { id: Number(result.lastInsertRowid) };
+  const id = Number(result.lastInsertRowid);
+  return { id, account_code: ensureSchoolCode(db,id) };
+  })();
 }
 
 function deleteSchool(id) {

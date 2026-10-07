@@ -275,7 +275,7 @@ exports.addSchool = (req, res) => {
     res.json({ message: '学校添加成功', id });
   } catch (err) {
     console.error('添加学校错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 

@@ -32,9 +32,7 @@ const create = (username, role = 'student', endpoint = '/students/users') => api
 });
 const idFor = (username) => db.prepare('SELECT id FROM users WHERE username = ?').get(username).id;
 function checkPassword(password) {
-  assert.equal(password.length, 12);
-  assert.match(password, /^[A-Za-z0-9]/);
-  for (const pattern of [/[A-Z]/, /[a-z]/, /[0-9]/, /[!@#$%&*?]/]) assert.match(password, pattern);
+  assert.equal(password, 'wangxiaoming@123');
 }
 
 before(async () => {
@@ -52,14 +50,14 @@ after(async () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
-test('随机服务生成的密码均为 12 位四类字符，无样本重复', () => {
-  const samples = Array.from({ length: 1000 }, generateTemporaryPassword);
-  samples.forEach(checkPassword);
-  assert.equal(new Set(samples).size, samples.length);
+test('初始服务统一使用姓名拼音@123，空姓名拒绝，短姓名也可首次登录', () => {
+  checkPassword(generateTemporaryPassword('王小明'));
+  assert.equal(generateTemporaryPassword('吴'), 'wu@123');
+  assert.equal(generateTemporaryPassword('张伟'), 'zhangwei@123');
+  assert.throws(() => generateTemporaryPassword('  '));
 });
 
-test('学生创建与管理员创建各角色统一随机密码，仅当次响应返回且仅 hash 入库', async () => {
-  const seen = new Set();
+test('学生创建与管理员创建各角色统一初始规则，仅 hash 入库且业务 DTO 不泄露', async () => {
   for (const [username, role, endpoint] of [
     ['student-direct', 'student', '/students'], ['student-admin', 'student', '/students/users'],
     ['teacher-admin', 'teacher', '/students/users'], ['mentor-admin', 'academic_mentor', '/students/users'],
@@ -69,8 +67,6 @@ test('学生创建与管理员创建各角色统一随机密码，仅当次响�
     assert.equal(res.cache, 'no-store');
     const temp = res.body.temp_password;
     checkPassword(temp);
-    assert.ok(!seen.has(temp));
-    seen.add(temp);
     assert.ok(!res.body.message.includes(temp));
     const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
     assert.ok(bcrypt.compareSync(temp, user.password_hash));
@@ -86,7 +82,7 @@ test('学生创建与管理员创建各角色统一随机密码，仅当次响�
       assert.ok(!JSON.stringify(body).includes(temp));
       assert.ok(!JSON.stringify(body).includes(user.password_hash));
     }
-    assert.equal((await login(username, 'wangxiaoming@123')).status, 401);
+    assert.equal((await login(username, 'wangxiaoming@123')).status, 200);
     assert.equal((await login(username, 'pbl123456')).status, 401);
   }
 });
@@ -103,7 +99,7 @@ test('手填初始密码和编辑资料改密被明确拒绝，现有密码不�
   assert.equal(db.prepare('SELECT password_hash FROM users WHERE username = ?').get('student-admin').password_hash, original);
 });
 
-test('导入随机密码只对应成功行，普通账号 CSV 无密码，临时 CSV 可原样登录', async () => {
+test('导入初始密码只对应成功行，普通账号 CSV 无密码，临时 CSV 可原样登录', async () => {
   const res = await api('/students/import', { data: JSON.stringify([
     { username: 'import-first', real_name: '王小明', school_name: '学校A', class_name: '一班' },
     { username: 'import-second', real_name: '王小明', school_name: '学校A', class_name: '一班' },
@@ -128,19 +124,20 @@ test('导入随机密码只对应成功行，普通账号 CSV 无密码，临时
     assert.equal(row['临时密码'], account.temp_password);
     assert.equal((await login(account.username, row['临时密码'])).status, 200);
   }
-  assert.notEqual(res.body.accounts[0].temp_password, res.body.accounts[1].temp_password);
+  assert.equal(res.body.accounts[0].temp_password, res.body.accounts[1].temp_password);
 });
 
 test('重置撤销旧 refresh token、阻止旧业务会话；临时密码改密后失效', async () => {
   const created = await create('reset-flow');
-  const old = await login('reset-flow', created.body.temp_password);
+  const first = await login('reset-flow', created.body.temp_password);
+  const old = { body: (await api('/auth/change-password', {old_password:created.body.temp_password,new_password:legacyPassword},first.body.token)).body };
   const reset = await api('/auth/admin/reset-password', { user_id: idFor('reset-flow') });
   assert.equal(reset.status, 200);
   assert.equal(reset.cache, 'no-store');
   assert.equal(reset.body.username, 'reset-flow');
   checkPassword(reset.body.temp_password);
-  assert.notEqual(reset.body.temp_password, created.body.temp_password);
-  assert.equal((await login('reset-flow', created.body.temp_password)).status, 401);
+  assert.equal(reset.body.temp_password, created.body.temp_password);
+  assert.equal((await login('reset-flow', legacyPassword)).status, 401);
   assert.equal((await api('/auth/refresh', { refresh_token: old.body.refresh_token }, null)).status, 401);
   assert.equal((await api('/courses', undefined, old.body.token)).status, 401);
   const temporary = await login('reset-flow', reset.body.temp_password);

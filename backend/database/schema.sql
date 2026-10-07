@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS schools (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
+  account_code TEXT,
   description TEXT,
   tags TEXT,
   region TEXT,
@@ -13,6 +14,28 @@ CREATE TABLE IF NOT EXISTS schools (
   contact_phone TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_school_account_code ON schools(account_code) WHERE account_code IS NOT NULL;
+CREATE TABLE IF NOT EXISTS account_school_codes (school_id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE);
+CREATE TABLE IF NOT EXISTS account_sequences (
+  scope TEXT NOT NULL, role TEXT NOT NULL, last_value INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY(scope, role)
+);
+CREATE TABLE IF NOT EXISTS account_import_batches (
+  id TEXT PRIMARY KEY, actor_id INTEGER NOT NULL, actor_auth_version INTEGER NOT NULL DEFAULT 0, fingerprint TEXT NOT NULL,
+  request_key TEXT NOT NULL, input_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', progress INTEGER NOT NULL DEFAULT 0,
+  result_json TEXT NOT NULL DEFAULT '{"accounts":[],"errors":[],"row_results":[]}',
+  error_message TEXT, delivered_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(actor_id, request_key)
+);
+CREATE INDEX IF NOT EXISTS idx_account_batch_owner ON account_import_batches(actor_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_account_batch_fingerprint ON account_import_batches(actor_id, fingerprint);
+CREATE TABLE IF NOT EXISTS account_status_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id), action TEXT NOT NULL,
+  reason TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. 班级表
