@@ -5,9 +5,12 @@ import { EditOutlined, SearchOutlined } from '@ant-design/icons';
 import { learningManageAPI } from '../../api';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
+import { useAuth } from '../../store/AuthContext';
 
 export default function ContentHub() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canEdit = user?.role === 'admin';
   const [lessons, setLessons] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -29,9 +32,9 @@ export default function ContentHub() {
     { title: '课时', dataIndex: 'title' },
     { title: '内容完整度', render: (_, row) => <div style={{ minWidth: 160 }}><Progress percent={row.card_count ? Math.round(row.published_card_count / row.card_count * 100) : 0} size="small" /><Typography.Text type="secondary">{row.published_card_count}/{row.card_count} 张卡片已发布</Typography.Text></div> },
     { title: '配套习题', dataIndex: 'exercise_count', render: (value) => `${value || 0} 题` },
-    { title: '操作', render: (_, row) => <Button type="primary" icon={<EditOutlined />} disabled={row.course_status === 'archived'} onClick={() => navigate(`/courses/${row.course_id}/lessons/${row.id}/content`)}>{row.course_status === 'archived' ? '课程已归档' : '设置知识卡片与习题'}</Button> },
+    { title: '操作', render: (_, row) => <Button type="primary" icon={canEdit ? <EditOutlined /> : undefined} disabled={canEdit && row.course_status === 'archived'} onClick={() => navigate(`/courses/${row.course_id}/lessons/${row.id}/${canEdit ? 'content' : 'preview'}`)}>{canEdit ? (row.course_status === 'archived' ? '课程已归档' : '设置知识卡片与习题') : '只读预览'}</Button> },
   ];
-  return <PageContainer title="学习内容编排" description="按课时设置知识卡片和配套习题，发布后学生才能在学习工作台中看到。" extra={<Input allowClear prefix={<SearchOutlined />} placeholder="搜索课程或课时" value={search} onChange={(e) => setSearch(e.target.value)} />}>
+  return <PageContainer title={canEdit ? '学习内容编排' : '学习内容预览'} description={canEdit ? '按课时设置知识卡片和配套习题，发布后学生才能在学习工作台中看到。' : '只读查看所属课程已发布的知识卡片和练习。'} extra={<Input allowClear prefix={<SearchOutlined />} placeholder="搜索课程或课时" value={search} onChange={(e) => setSearch(e.target.value)} />}>
     <Card className="content-card"><AsyncPageState loading={loading} error={error} onRetry={load} empty={!visible.length} emptyText="暂无可编排课时，请先创建课程和课时"><Table rowKey="id" columns={columns} dataSource={visible} pagination={{ pageSize: 12 }} scroll={{ x: 760 }} /></AsyncPageState></Card>
   </PageContainer>;
 }

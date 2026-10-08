@@ -81,6 +81,10 @@ test('只读预览按角色和课程归属授权，学生和新媒体不可访�
   assert.equal((await preview(3, 'mentor')).status, 403);
   assert.equal((await preview(3, 'teacher')).status, 403, '公开课程不等于教师有权限');
   assert.equal((await preview(999999, 'admin')).status, 404);
+  const detail = await api('/observer/students/3', { token: tokens.teacher });
+  assert.deepEqual(detail.body.courses.find((course) => course.id === 1).lessons.map((lesson) => lesson.id), [1]);
+  assert.equal(detail.body.courses.some((course) => course.id === 3), false);
+  assert.equal((await api('/observer/students/4', { token: tokens.teacher })).status, 404);
   assert.equal((await preview(3, 'admin')).body.cards.length, 0);
   assert.throws(() => require('../services/learningService').previewLesson({ id: 3, role: 'student' }, 1),
     (error) => error.status === 403);

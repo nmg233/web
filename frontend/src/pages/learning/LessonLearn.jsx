@@ -15,16 +15,10 @@ import { LEARNING_STEPS, REPORT_STATUS } from '../../constants/status';
 import { useAuth } from '../../store/AuthContext';
 import MarkdownContent from '../../components/common/MarkdownContent';
 import ReplaySummary from '../../components/common/ReplaySummary';
+import ExerciseFeedback from '../../components/learning/ExerciseFeedback';
 import { clearReportDraft, reportDraftKey, restoreReportDraft, saveReportDraft } from '../../utils/reportDraft';
 
 const { Paragraph, Text, Title } = Typography;
-
-function answerText(value) {
-  if (Array.isArray(value)) return value.join('、');
-  if (value === true) return '正确';
-  if (value === false) return '错误';
-  return String(value ?? '-');
-}
 
 function nextStage(data) {
   if (!data?.progress?.review_completed) return 0;
@@ -37,8 +31,10 @@ function Exercise({ exercise, onDone }) {
   const [answer, setAnswer] = useState(exercise.question_type === 'multiple_choice' ? [] : '');
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : answer !== '' && answer !== null && answer !== undefined;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : typeof answer === 'string' ? answer.trim().length > 0 : answer !== null && answer !== undefined;
+  const locked = exercise.attempted || Boolean(result) || submitting;
   const submit = async () => {
+    if (locked || !hasAnswer) return;
     setSubmitting(true);
     try {
       const next = await learningAPI.submitExercise(exercise.id, answer);
@@ -56,11 +52,11 @@ function Exercise({ exercise, onDone }) {
   if (exercise.question_type === 'true_false') input = <Radio.Group options={[{ label: '正确', value: true }, { label: '错误', value: false }]} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
   return <Card size="small" style={{ marginTop: 12 }}>
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Text strong>{exercise.prompt}</Text>{input}
-      {!exercise.attempted && <Alert type="info" showIcon message="本题只有一次作答机会，提交后不能修改" />}
-      <Button type="primary" size="small" onClick={submit} loading={submitting} disabled={exercise.attempted || !hasAnswer}>提交答案</Button>
-      {exercise.attempted && <Alert type={exercise.passed ? 'success' : 'warning'} showIcon message={exercise.passed ? '回答正确' : '已作答，本题回答不正确'} description={<Space direction="vertical" size={2}><Text>标准答案：{answerText(exercise.correct_answer)}</Text><Text>答案详解：{exercise.explanation || '导师暂未设置答案详解。'}</Text></Space>} />}
-      {result && !exercise.attempted && <Alert type={result.correct ? 'success' : 'warning'} showIcon message={result.correct ? '回答正确' : '回答不正确'} description={<Space direction="vertical" size={2}><Text>标准答案：{answerText(result.correct_answer)}</Text><Text>答案详解：{result.explanation || '导师暂未设置答案详解。'}</Text></Space>} />}
+      <Space><Text strong>{exercise.prompt}</Text><Tag>{exercise.points} 分</Tag></Space>
+      {!exercise.attempted && <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, width: '100%' }}>{input}</fieldset>}
+      {!exercise.attempted && !result && <Alert type="info" showIcon message="本题只有一次作答机会，提交后不能修改" />}
+      {!exercise.attempted && !result && <Button type="primary" size="small" onClick={submit} loading={submitting} disabled={locked || !hasAnswer}>提交答案</Button>}
+      <ExerciseFeedback exercise={exercise} result={result} />
     </Space>
   </Card>;
 }
