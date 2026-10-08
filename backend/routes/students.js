@@ -34,8 +34,11 @@ router.post('/import', requireRole('admin'), uploadImport.single('file'), contro
 // 学校和班级管理（管理员）
 router.post('/schools', requireRole('admin'), controller.createSchool);
 router.delete('/schools/:id', requireRole('admin'), controller.deleteSchool);
+router.put('/schools/:id/status', requireRole('admin'), controller.schoolStatus);
 router.post('/classes', requireRole('admin'), controller.createClass);
 router.delete('/classes/:id', requireRole('admin'), controller.deleteClass);
+router.post('/classes/:id/transfer', requireRole('admin'), controller.transferClass);
+router.get('/classes/:id/transfers', requireRole('admin'), controller.classTransfers);
 
 // 用户管理（管理员）
 router.post('/users', requireRole('admin'), controller.createUser);
