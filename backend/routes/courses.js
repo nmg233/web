@@ -3,6 +3,7 @@ const router = express.Router();
 const controller = require('../controllers/courseController');
 const { requireAuth, requirePasswordChanged, requireRole, optionalAuth } = require('../middleware/auth');
 const { uploadResource, uploadReplay, validateUploadedFiles } = require('../middleware/upload');
+const uploadFingerprint = require('../middleware/uploadFingerprint');
 
 // 回放流式播放：支持签名 URL 访问（<video> 直挂无法携带 Bearer），鉴权在控制器内完成。
 // 必须声明在 router.use(requireAuth) 之前。
@@ -35,7 +36,7 @@ router.post('/:id/resources', requireRole('admin', 'academic_mentor'), controlle
 
 // 课程回放
 router.get('/:id/replays', controller.listReplays);
-router.post('/:id/replays', requireRole('admin', 'academic_mentor'), controller.requireCourseManagement, uploadReplay.single('file'), validateUploadedFiles, controller.uploadReplay);
+router.post('/:id/replays', requireRole('admin', 'academic_mentor'), controller.requireCourseManagement, uploadReplay.single('file'), validateUploadedFiles, uploadFingerprint, controller.uploadReplay);
 
 // 任务
 router.post('/lessons/:lesson_id/tasks', requireRole('admin', 'academic_mentor'), controller.addTask);

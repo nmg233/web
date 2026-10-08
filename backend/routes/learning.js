@@ -8,6 +8,7 @@ router.use(requireAuth);
 router.use(requirePasswordChanged);
 
 router.get('/manage/lessons', requireRole('admin', 'academic_mentor'), controller.manageLessons);
+router.post('/manage/lessons/:lessonId/repair-legacy', requireRole('admin'), controller.repairLegacy);
 router.get('/manage/lessons/:lessonId/cards', requireRole('admin', 'academic_mentor'), controller.manageCards);
 router.post('/manage/lessons/:lessonId/cards', requireRole('admin', 'academic_mentor'), controller.createCard);
 router.post('/manage/lessons/:lessonId/cards/reorder', requireRole('admin', 'academic_mentor'), controller.reorderCards);

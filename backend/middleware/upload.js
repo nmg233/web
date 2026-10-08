@@ -117,8 +117,13 @@ function validateUploadedFiles(req, _res, next) {
     for (const file of uploadedFiles(req)) {
       const ext = path.extname(file.originalname).toLowerCase();
       if (!MAGIC_CHECKED_EXT.has(ext)) continue;
-      const head = fs.readFileSync(file.path).subarray(0, 16);
-      if (!MAGIC_CHECK[ext](head)) {
+      // 只读取签名需要的字节；500 MB 视频不能整体读入 API 进程。
+      const descriptor = fs.openSync(file.path, 'r');
+      const head = Buffer.alloc(16);
+      let bytes;
+      try { bytes = fs.readSync(descriptor, head, 0, head.length, 0); }
+      finally { fs.closeSync(descriptor); }
+      if (!MAGIC_CHECK[ext](head.subarray(0, bytes))) {
         removeFile(file);
         const err = new Error(`文件内容与扩展名不符（${ext}）`);
         err.status = 400;
@@ -154,7 +159,12 @@ const uploadResource = multer({
 
 const uploadReplay = multer({
   storage: makeStorage('replay', 'course-replays'),
-  fileFilter,
+  fileFilter: (req, file, cb) => {
+    if (!['.mp4', '.webm'].includes(path.extname(file.originalname).toLowerCase())) {
+      return cb(Object.assign(new Error('回放仅支持 MP4 或 WebM 视频'), { status: 400 }), false);
+    }
+    return fileFilter(req, file, cb);
+  },
   limits: { fileSize: 500 * 1024 * 1024 }
 });
 

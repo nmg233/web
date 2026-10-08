@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, Progress, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { courseAPI, studentAPI, authAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import ReplaySummary from '../../components/common/ReplaySummary';
+import { requestKey } from '../../utils/requestKey';
 
 const { Title, Text } = Typography;
 
@@ -19,9 +20,18 @@ const RESOURCE_TYPE_LABELS = {
 
 export default function CourseDetail() {
   const { id } = useParams();
+  return <CourseDetailPage key={id} />;
+}
+
+function CourseDetailPage() {
+  const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
+  const requests = useRef({ load: 0, play: 0 });
+  const candidateRequests = useRef({ list: 0, classes: 0 });
+  const [uploadPercent, setUploadPercent] = useState(0);
+  const replayRequest = useRef({ fingerprint: '', key: '' });
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [lessons, setLessons] = useState([]);
@@ -62,28 +72,31 @@ export default function CourseDetail() {
   const [removeLoading, setRemoveLoading] = useState(false);
 
   const loadData = async () => {
+    const sequence = ++requests.current.load;
     setPageLoading(true);
     setLoadError('');
     try {
       const res = await courseAPI.detail(id);
+      if (sequence !== requests.current.load) return;
       setCourse(res.course);
       setLessons(res.lessons || []);
       setResources(res.resources || []);
-      courseAPI.listReplays(id).then((replayRes) => setReplays(replayRes.replays || [])).catch(() => {});
+      courseAPI.listReplays(id).then((replayRes) => { if (sequence === requests.current.load) setReplays(replayRes.replays || []); }).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
       setTeachers(res.teachers || []);
     } catch (err) {
+      if (sequence !== requests.current.load) return;
       setCourse(null);
       setLoadError(err?.response?.data?.error || '课程不存在，或当前身份无权查看。');
     } finally {
-      setPageLoading(false);
+      if (sequence === requests.current.load) setPageLoading(false);
     }
   };
 
   // 页面首次进入时加载完整详情；loadData 会在异步回调中更新多个状态。
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { loadData(); }, [id]);
+  useEffect(() => { setCourse(null); setReplayUrl(null); loadData(); return () => { requests.current.load++; requests.current.play++; candidateRequests.current.list++; candidateRequests.current.classes++; Modal.destroyAll(); }; }, [id]);
 
   const handleAddLesson = async (values) => {
     try {
@@ -111,31 +124,35 @@ export default function CourseDetail() {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = r.title || '课程资源';
+      anchor.download = r.download_name || r.title || '课程资源';
       anchor.click();
       URL.revokeObjectURL(url);
     } catch { /* handled */ }
   };
 
   const playReplay = async (replayId) => {
+    const sequence = ++requests.current.play;
     try {
       // 签名流式地址直挂 <video>：支持 Range 拖动，避免整段 blob 下载
       const res = await courseAPI.streamUrl(replayId);
-      setReplayUrl(res.url);
+      if (sequence === requests.current.play) setReplayUrl(res.url);
     } catch { /* handled */ }
   };
 
   const refreshReplays = () => {
-    courseAPI.listReplays(id).then((res) => setReplays(res.replays || [])).catch(() => {});
+    const sequence = requests.current.load;
+    courseAPI.listReplays(id).then((res) => { if (sequence === requests.current.load) setReplays(res.replays || []); }).catch(() => {});
   };
 
   const openReplayModal = (replay = null) => {
+    replayRequest.current = { fingerprint: '', key: '' };
     setEditingReplay(replay);
     setReplayFile(null);
     replayForm.resetFields();
     if (replay) {
       replayForm.setFieldsValue({
         title: replay.title,
+        lesson_id: replay.lesson_id,
         description: replay.description,
         summary: replay.summary || '',
         duration_seconds: replay.duration_seconds,
@@ -159,13 +176,18 @@ export default function CourseDetail() {
       } else {
         const formData = new FormData();
         formData.append('file', replayFile);
+        formData.append('lesson_id', values.lesson_id || '');
         formData.append('title', values.title);
         formData.append('description', values.description || '');
         formData.append('summary', values.summary || '');
         formData.append('duration_seconds', values.duration_seconds || '');
         formData.append('recording_date', values.recording_date || '');
         formData.append('sort_order', values.sort_order || '0');
-        await courseAPI.uploadReplay(id, formData);
+        const fingerprint = JSON.stringify([values, replayFile.name, replayFile.size, replayFile.lastModified]);
+        if (replayRequest.current.fingerprint !== fingerprint) replayRequest.current = { fingerprint, key: requestKey() };
+        formData.append('request_key', replayRequest.current.key);
+        setUploadPercent(0);
+        await courseAPI.uploadReplay(id, formData, (event) => setUploadPercent(event.total ? Math.round(event.loaded / event.total * 100) : 0));
         message.success('回放上传成功');
       }
       setReplayModal(false);
@@ -222,12 +244,14 @@ export default function CourseDetail() {
 
   // ==== 选课导入 ====
   const loadCandidates = async (query = {}) => {
+    const sequence = ++candidateRequests.current.list;
     setCandidateLoading(true);
     try {
       const res = await courseAPI.enrollCandidates(id, query);
+      if (sequence !== candidateRequests.current.list) return;
       setCandidates(res.students || []);
     } catch { /* handled */ } finally {
-      setCandidateLoading(false);
+      if (sequence === candidateRequests.current.list) setCandidateLoading(false);
     }
   };
 
@@ -245,13 +269,14 @@ export default function CourseDetail() {
   };
 
   const handleCandidateSchoolChange = async (sid) => {
+    const sequence = ++candidateRequests.current.classes;
     setCandidateSchool(sid);
     setCandidateClass(undefined);
     if (sid) {
       try {
         const res = await studentAPI.getClasses(sid);
-        setCandidateClasses(res.classes || []);
-      } catch { setCandidateClasses([]); }
+        if (sequence === candidateRequests.current.classes) setCandidateClasses(res.classes || []);
+      } catch { if (sequence === candidateRequests.current.classes) setCandidateClasses([]); }
     } else {
       setCandidateClasses([]);
     }
@@ -305,6 +330,8 @@ export default function CourseDetail() {
       formData.append('file', resourceFile);
       formData.append('title', values.title || '');
       formData.append('resource_type', values.resource_type || 'courseware');
+      formData.append('lesson_id', values.lesson_id || '');
+      formData.append('description', values.description || '');
       await courseAPI.uploadResource(id, formData);
       message.success('资料上传成功');
       setResourceModal(false);
@@ -314,30 +341,35 @@ export default function CourseDetail() {
     }
   };
 
-  if (!course) return pageLoading
+  if (!course || course.id !== Number(id)) return pageLoading
     ? <div style={{ padding: 24 }}><Card loading /></div>
     : <Result status={loadError.includes('无权') ? '403' : '404'} title="无法打开课程" subTitle={loadError} extra={<Space><Button onClick={() => navigate('/courses')}>返回课程列表</Button><Button type="primary" onClick={loadData}>重新加载</Button></Space>} />;
 
   const isStudent = user?.role === 'student';
   const isEnrolled = isStudent && enrollments.some((e) => e.student_id === user.id);
-  const firstLearningLesson = lessons.find((lesson) => lesson.status !== 'cancelled');
+  const availableLessons = lessons.filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false);
+  const firstLearningLesson = availableLessons.find((l) => l.progress > 0 && l.progress < 100)
+    || availableLessons.find((l) => l.progress < 100) || availableLessons[0];
+  const canEdit = course.can_manage && course.status !== 'archived';
 
   const tabItems = [
     {
       key: 'lessons', label: '课时安排',
       children: (
         <div>
-          {course.can_manage && (
+          {canEdit && (
             <Button type="dashed" icon={<PlusOutlined />} onClick={() => setLessonModal(true)} style={{ marginBottom: 16 }}>添加课时</Button>
           )}
           {lessons.map((lesson) => (
             <Card key={lesson.id} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
-                {isEnrolled && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>进入课后学习</Button>}
-                {course.can_manage && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>设置知识卡片与习题</Button>}
-                {course.can_manage && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>添加任务</Button>}
+                {isEnrolled && lesson.status !== 'cancelled' && lesson.learning_in_scope !== false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>进入课后学习</Button>}
+                {canEdit && lesson.status !== 'cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>设置知识卡片与习题</Button>}
+                {canEdit && lesson.status !== 'cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>添加任务</Button>}
               </Space>}
             >
+              {lesson.status === 'cancelled' && <Tag color="red">已取消，仅保留历史</Tag>}
+              {lesson.readiness && !lesson.readiness.ready && <Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}
               {lesson.description && <p>{lesson.description}</p>}
               <Space wrap size={[4, 0]}>
                 {lesson.duration && <Tag>{lesson.duration} 分钟</Tag>}
@@ -355,7 +387,7 @@ export default function CourseDetail() {
       key: 'replays', label: '课程回放',
       children: (
         <div>
-          {course.can_manage && (
+          {canEdit && (
             <Button type="dashed" icon={<UploadOutlined />} onClick={() => openReplayModal()} style={{ marginBottom: 16 }}>
               上传回放
             </Button>
@@ -365,7 +397,7 @@ export default function CourseDetail() {
             <Typography.Text type="secondary">暂无课程回放</Typography.Text>
           ) : replays.map((replay) => (
             <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
-              extra={course.can_manage && (
+              extra={canEdit && (
                 <Space size={4}>
                   <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>编辑</Button>
                   <Popconfirm title="确定删除该回放？" okText="删除" cancelText="取消" onConfirm={() => handleDeleteReplay(replay.id)}>
@@ -380,6 +412,7 @@ export default function CourseDetail() {
                 {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
                 <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
               </Space>
+              {replay.description && <Text>{replay.description}</Text>}
               <ReplaySummary replay={replay} />
             </Card>
           ))}
@@ -390,7 +423,7 @@ export default function CourseDetail() {
       key: 'resources', label: '课程资源',
       children: (
         <div>
-          {course.can_manage && (
+          {canEdit && (
             <Space style={{ marginBottom: 16 }}>
               <Button type="dashed" icon={<UploadOutlined />} onClick={openResourceModal}>上传资料</Button>
               <Button onClick={() => navigate(`/courses/${id}/ai-knowledge`)}>管理 AI 知识库</Button>
@@ -448,10 +481,10 @@ export default function CourseDetail() {
       <Space style={{ marginBottom: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/courses')}>返回</Button>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
-        {course.can_manage && course.status !== 'published' && (
+        {canEdit && course.status !== 'published' && (
           <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>发布课程</Button>
         )}
-        {course.can_manage && course.status === 'published' && (
+        {canEdit && course.status === 'published' && (
           <Button size="small" onClick={() => handleChangeStatus('draft')}>撤回为草稿</Button>
         )}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
@@ -464,7 +497,7 @@ export default function CourseDetail() {
           {/* 学生视角：线下课程主页 */}
           {(() => {
             const upcoming = lessons
-              .filter((l) => l.start_at && new Date(l.start_at) >= Date.now() - 3600 * 1000)
+              .filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false && l.start_at && new Date(l.start_at) >= Date.now() - 3600 * 1000)
               .sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)))[0];
             return (
               <div>
@@ -483,7 +516,8 @@ export default function CourseDetail() {
                     )}
                   </div>
                   <Space wrap>
-                    <Tag>{lessons.length} 次线下课</Tag>
+                    <Tag>{lessons.filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false).length} 次线下课</Tag>
+                    {course.completion?.completed && <Tag color="green">已结课 · {course.completion.completed_at}</Tag>}
                     <Tag>{tasks.length} 个课后任务</Tag>
                     <Tag>{resources.length} 份课堂资料</Tag>
                   </Space>
@@ -569,7 +603,9 @@ export default function CourseDetail() {
               </Upload>
             </Form.Item>
           )}
-          <Form.Item name="description" label="简介"><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="lesson_id" label="所属课时（不选择则为课程共享回放）" extra="课后学习开放必须有明确绑定到该课时的视频，共享回放不替代课时视频。"><Select allowClear options={lessons.filter((l) => l.status !== 'cancelled').map((l) => ({ label: l.title, value: l.id }))} /></Form.Item>
+          {replayUploading && <Progress percent={uploadPercent} status="active" />}
+          <Form.Item name="description" label="视频简介" rules={[{ required: true, whitespace: true, message: '请填写视频简介' }]}><Input.TextArea rows={2} /></Form.Item>
           <Tabs items={[
             { key: 'edit', label: '编辑 Markdown', forceRender: true, children: <Form.Item name="summary" label="回放内容摘要（课程纪要）" extra="支持标题、加粗、列表、链接、代码块和表格；课程结束后可单独更新，无需重新上传视频。" rules={[{ max: 10000, message: '摘要不能超过 10000 个字符' }]}>
               <Input.TextArea rows={6} showCount maxLength={10000} placeholder={'## 课程纪要\n\n**重点知识**\n\n- 要点一\n- 要点二'} />
@@ -600,6 +636,8 @@ export default function CourseDetail() {
         confirmLoading={resourceUploading}
       >
         <Form form={resourceForm} layout="vertical" onFinish={handleResourceSubmit}>
+          <Form.Item name="lesson_id" label="所属课时（不选择则为课程共享资料）"><Select allowClear options={lessons.filter((l) => l.status !== 'cancelled').map((l) => ({ label: l.title, value: l.id }))} /></Form.Item>
+          <Form.Item name="description" label="资料说明"><Input.TextArea /></Form.Item>
           <Form.Item name="title" label="资料名称"><Input placeholder="如：第 1 讲讲义" /></Form.Item>
           <Form.Item name="resource_type" label="资料类型" initialValue="courseware">
             <Select options={Object.entries(RESOURCE_TYPE_LABELS).map(([value, label]) => ({ value, label }))} />

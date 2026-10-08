@@ -4,7 +4,7 @@ const feedbackService = require('../services/feedbackService');
 const { FEEDBACK_UPLOAD_ROOT, removeFiles } = require('../middleware/feedbackUpload');
 
 function sendError(res, err) {
-  if (err instanceof feedbackService.FeedbackError) {
+  if (err instanceof feedbackService.FeedbackError || err.status) {
     return res.status(err.status).json({ success: false, error: err.message, code: err.code });
   }
   console.error('反馈模块错误:', err);

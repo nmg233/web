@@ -2,6 +2,7 @@ const db = require('../config/database');
 const { toFileDto } = require('../helpers/fileDto');
 const orgService = require('../services/organizationService');
 const { todayInBeijing } = require('../helpers/date');
+const { courseState } = require('../helpers/lessonVersions');
 
 // 今日项目提示（按角色定制，替代原“每日运势”）
 const ROLE_PROMPTS = {
@@ -180,6 +181,9 @@ exports.index = (req, res) => {
 
       // 每门课的最新作品（DTO 脱敏，不下发 file_path）
       for (const course of myCourses) {
+        course.completion = courseState(db, user.id, course.id);
+        course.progress = course.completion.percent;
+        course.total_lessons = course.completion.lesson_ids.length;
         course.recentWorks = db.prepare(`
           SELECT * FROM works WHERE student_id = ? AND enrollment_id = ? ORDER BY created_at DESC LIMIT 3
         `).all(user.id, course.enrollment_id).map(toFileDto);
@@ -287,7 +291,7 @@ exports.deleteSchool = (req, res) => {
     res.json({ message: '学校已删除' });
   } catch (err) {
     console.error('删除学校错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -307,7 +311,8 @@ exports.showSchool = (req, res) => {
 
     const classes = db.prepare(`
       SELECT c.*,
-        (SELECT COUNT(*) FROM users u WHERE u.class_id = c.id) as student_count
+        (SELECT COUNT(*) FROM users u WHERE u.class_id = c.id AND u.role = 'student') as student_count,
+        (SELECT COUNT(*) FROM users u WHERE u.class_id = c.id AND u.role != 'student') as staff_count
       FROM classes c
       WHERE c.school_id = ?
       ORDER BY c.grade, c.name
@@ -345,6 +350,6 @@ exports.deleteClass = (req, res) => {
     res.json({ message: '班级已删除' });
   } catch (err) {
     console.error('删除班级错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };

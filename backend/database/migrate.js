@@ -74,6 +74,7 @@ function runMigrations(db) {
     const sql = fs.readFileSync(path.join(dir, file), 'utf8');
     db.transaction(() => {
       db.exec(sql);
+      if (version === 18) require('../helpers/lessonVersions').migrateLegacy(db);
       db.prepare('INSERT INTO schema_migrations (version, name) VALUES (?, ?)').run(version, file);
     })();
     console.log(`✅ 数据库迁移 ${file} 已应用`);

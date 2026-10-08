@@ -26,6 +26,15 @@ exports.changeStatus = (req, res) => {
 
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
 
+exports.transferClass = (req, res) => {
+  try { res.json({ message: '整班迁移成功', ...orgService.transferClass(req.user, req.params.id, req.body) }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '迁移失败，班级和学生关系未改变，请稍后重试' }); }
+};
+exports.classTransfers = (req, res) => {
+  try { res.json({ transfers: orgService.classTransfers(req.user, req.params.id) }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '读取迁移记录失败' }); }
+};
+
 // 统一布尔解析：兼容前端 true/1/'1'/'on'/'true' 等形态，其余一律视为 false
 function toBooleanInt(value) {
   return [true, 1, '1', 'on', 'true'].includes(value) ? 1 : 0;
@@ -34,6 +43,7 @@ function toBooleanInt(value) {
 // 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
 function userDeletionBlockers(userId) {
   const checks = [
+    { label: '整班迁移操作记录', count: db.prepare('SELECT COUNT(*) c FROM class_school_transfers WHERE actor_id=?').get(userId).c, hint: '请保留迁移操作者身份' },
     { label: '教职工状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM account_status_events WHERE user_id=? OR actor_id=?').get(userId,userId).c, hint: '请保留账号及状态历史' },
     { label: '账号状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM student_status_events WHERE student_id = ? OR actor_id = ?').get(userId, userId).c, hint: '请保留账号及状态历史' },
     // 按数据归属检查而非当前角色，避免变更角色后绕过学习档案保护。
@@ -217,11 +227,15 @@ exports.deleteSchool = (req, res) => {
     if (!orgService.deleteSchool(req.params.id)) {
       return res.status(400).json({ error: '学校不存在' });
     }
-    res.json({ message: '学校已删除，关联班级已删除' });
+    res.json({ message: '空学校已删除' });
   } catch (err) {
     console.error('删除学校错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
+};
+exports.schoolStatus = (req, res) => {
+  try { orgService.setSchoolActive(req.params.id, req.body.is_active); res.json({ message: '学校状态已更新；现有账号继续使用' }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
 };
 
 exports.createClass = (req, res) => {
@@ -248,7 +262,7 @@ exports.deleteClass = (req, res) => {
     res.json({ message: '班级已删除' });
   } catch (err) {
     console.error('删除班级错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -418,7 +432,7 @@ exports.batchDeleteUsers = (req, res) => {
 // 管理员：获取分配用选项（学校/负责教师/负责导师）
 exports.getAssignOptions = (req, res) => {
   try {
-    const schools = db.prepare('SELECT id, name FROM schools ORDER BY name').all();
+    const schools = db.prepare('SELECT id, name, is_active FROM schools ORDER BY name').all();
     const teachers = db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' AND is_active=1 AND archived_at IS NULL ORDER BY real_name").all();
     const mentors = db.prepare(
       "SELECT id, real_name FROM users WHERE role = 'academic_mentor' AND is_active=1 AND archived_at IS NULL ORDER BY real_name"

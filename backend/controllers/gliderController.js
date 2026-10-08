@@ -321,15 +321,22 @@ exports.file = (req, res) => {
     // 无 Bearer 时走签名校验（视频直挂 <video> 场景），权限仍以数据库为准
     let user = req.user;
     if (!user) {
-      const { exp, uid, sig } = req.query;
-      if (!exp || !uid || !sig) return res.status(401).json({ error: '未登录' });
+      const { exp, uid, sig, v } = req.query;
+      if (!/^\d+$/.test(String(exp)) || !/^\d+$/.test(String(uid))
+          || !/^\d+$/.test(String(v)) || !/^[a-f0-9]{64}$/.test(String(sig))) {
+        return res.status(401).json({ error: '播放链接无效' });
+      }
       const expMs = Number(exp) * 1000;
       if (!Number.isFinite(expMs) || Date.now() > expMs) return res.status(401).json({ error: '播放链接已过期' });
       const expected = crypto.createHmac('sha256', req.app.get('jwt_secret'))
-        .update(`${id}:${name}:${uid}:${exp}`).digest('hex');
-      if (sig !== expected) return res.status(401).json({ error: '播放链接无效' });
-      const urow = db.prepare('SELECT id, role FROM users WHERE id = ? AND is_active = 1').get(uid);
-      if (!urow) return res.status(401).json({ error: '账号不可用' });
+        .update(`${id}:${name}:${uid}:${exp}:${v}`).digest('hex');
+      if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
+        return res.status(401).json({ error: '播放链接无效' });
+      }
+      const urow = db.prepare('SELECT id, role, auth_version, force_reset_password FROM users WHERE id = ? AND is_active = 1 AND archived_at IS NULL').get(uid);
+      if (!urow || urow.force_reset_password || Number(urow.auth_version || 0) !== Number(v)) {
+        return res.status(401).json({ error: '账号状态已变化，请重新登录' });
+      }
       user = urow;
     }
 
@@ -358,10 +365,11 @@ exports.streamUrl = (req, res) => {
     const row = db.prepare('SELECT * FROM glider_simulations WHERE id = ?').get(id);
     if (!canRead(row, req.user)) return res.status(404).json({ error: '模拟记录不存在' });
     const exp = Math.floor(Date.now() / 1000) + 600;
+    const v = Number(req.user.auth_version || 0);
     const sig = crypto.createHmac('sha256', req.app.get('jwt_secret'))
-      .update(`${id}:${name}:${req.user.id}:${exp}`).digest('hex');
+      .update(`${id}:${name}:${req.user.id}:${exp}:${v}`).digest('hex');
     res.json({
-      url: `/api/glider/simulations/${id}/files/${name}?exp=${exp}&uid=${req.user.id}&sig=${sig}`,
+      url: `/api/glider/simulations/${id}/files/${name}?exp=${exp}&uid=${req.user.id}&v=${v}&sig=${sig}`,
       expires_in: 600,
     });
   } catch (err) {

@@ -1,4 +1,6 @@
 const db = require('../config/database');
+const learningGate = require('../helpers/learningGate');
+const versions = require('../helpers/lessonVersions');
 
 class ObserverError extends Error {
   constructor(message, status = 400, code = 'OBSERVER_INVALID') {
@@ -36,16 +38,32 @@ function pagination(query = {}) {
   return { page, pageSize, offset: (page - 1) * pageSize };
 }
 
-function students(user, query = {}) {
+function students(user, query = {}, all = false) {
   const { page, pageSize, offset } = pagination(query);
   const scope = scopeSql(user, 's');
   const where = ["s.role = 'student'", 's.is_active = 1', 's.archived_at IS NULL', scope.sql];
   const params = [...scope.params];
+  for (const key of ['school_id', 'class_id']) {
+    if (query[key]) { where.push(`s.${key} = ?`); params.push(Number(query[key])); }
+  }
   if (String(query.search || '').trim()) {
     const keyword = `%${String(query.search).trim().slice(0, 100)}%`;
     where.push('(s.real_name LIKE ? OR s.username LIKE ?)');
     params.push(keyword, keyword);
   }
+  if (query.course_id) {
+    where.push("EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = s.id AND e.course_id = ? AND e.status = 'active')");
+    params.push(Number(query.course_id));
+  }
+  const statusSql = {
+    not_started: 'NOT EXISTS (SELECT 1 FROM student_lesson_versions v WHERE v.student_id = s.id)',
+    learning: `EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = s.id AND e.status = 'active'
+      AND NOT EXISTS (SELECT 1 FROM enrollment_completions ec WHERE ec.enrollment_id = e.id))`,
+    completed: `EXISTS (SELECT 1 FROM enrollments e JOIN enrollment_completions ec ON ec.enrollment_id = e.id WHERE e.student_id = s.id AND e.status = 'active')`,
+    revision: `EXISTS (SELECT 1 FROM lesson_learning_reports r WHERE r.student_id = s.id AND r.status = 'rejected'
+      AND r.id = (SELECT last.id FROM lesson_learning_reports last WHERE last.student_id = s.id AND last.lesson_id = r.lesson_id ORDER BY version DESC,id DESC LIMIT 1))`,
+  };
+  if (statusSql[query.learning_status]) where.push(statusSql[query.learning_status]);
   const whereSql = where.join(' AND ');
   const total = db.prepare(`SELECT COUNT(*) AS count FROM users s WHERE ${whereSql}`).get(...params).count;
   const items = db.prepare(`
@@ -62,7 +80,8 @@ function students(user, query = {}) {
             JOIN lessons l ON l.id = lp.lesson_id
             WHERE lp.student_id = s.id AND lp.completed_at IS NULL AND lp.progress > 0) AS pending_lessons,
            (SELECT COUNT(*) FROM lesson_learning_reports r
-            WHERE r.student_id = s.id AND r.status = 'rejected') AS rejected_reports,
+            WHERE r.student_id = s.id AND r.status = 'rejected'
+            AND r.id=(SELECT latest.id FROM lesson_learning_reports latest WHERE latest.student_id=r.student_id AND latest.lesson_id=r.lesson_id ORDER BY latest.version DESC,latest.id DESC LIMIT 1)) AS rejected_reports,
            (SELECT r.status FROM lesson_learning_reports r WHERE r.student_id = s.id
             ORDER BY r.updated_at DESC, r.id DESC LIMIT 1) AS latest_report_status
     FROM users s
@@ -70,19 +89,27 @@ function students(user, query = {}) {
     LEFT JOIN classes cls ON cls.id = s.class_id
     WHERE ${whereSql}
     ORDER BY last_learning_at DESC, s.id DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, pageSize, offset).map((item) => ({
+    ${all ? '' : 'LIMIT ? OFFSET ?'}
+  `).all(...params, ...(all ? [] : [pageSize, offset])).map((item) => ({
     ...item,
     risk_tags: [
       ...(item.pending_lessons >= 2 ? ['连续课时未完成'] : []),
-      ...(item.rejected_reports >= 2 ? ['报告多次退回'] : []),
+      ...(item.rejected_reports >= 2 ? ['多份报告待修改'] : []),
     ],
   }));
-  return { items, pagination: { page, pageSize, total } };
+  const scoped = db.prepare(`SELECT DISTINCT s.school_id, school.name AS school_name, s.class_id, cls.name AS class_name,
+    c.id AS course_id, c.title AS course_title FROM users s
+    LEFT JOIN schools school ON school.id = s.school_id LEFT JOIN classes cls ON cls.id = s.class_id
+    LEFT JOIN enrollments e ON e.student_id = s.id AND e.status = 'active' LEFT JOIN courses c ON c.id = e.course_id
+    WHERE s.role = 'student' AND s.is_active = 1 AND s.archived_at IS NULL AND ${scope.sql}`).all(...scope.params);
+  const options = (id, name) => [...new Map(scoped.filter((s) => s[id]).map((s) => [s[id], { value: s[id], label: s[name], school_id: s.school_id }])).values()];
+  return { items, pagination: { page, pageSize, total }, filters: {
+    schools: options('school_id','school_name'), classes: options('class_id','class_name'), courses: options('course_id','course_title'),
+  } };
 }
 
 function dashboard(user) {
-  const list = students(user, { page: 1, page_size: 100 });
+  const list = students(user, {}, true);
   const ids = list.items.map((item) => item.id);
   const placeholders = ids.map(() => '?').join(',');
   const weeklyCompleted = ids.length ? db.prepare(`
@@ -96,6 +123,7 @@ function dashboard(user) {
     JOIN users s ON s.id = r.student_id
     JOIN lessons l ON l.id = r.lesson_id JOIN courses c ON c.id = l.course_id
     WHERE r.student_id IN (${placeholders})
+      AND r.id=(SELECT latest.id FROM lesson_learning_reports latest WHERE latest.student_id=r.student_id AND latest.lesson_id=r.lesson_id ORDER BY latest.version DESC,latest.id DESC LIMIT 1)
     ORDER BY r.updated_at DESC, r.id DESC LIMIT 10
   `).all(...ids) : [];
   return {
@@ -118,25 +146,34 @@ function studentDetail(user, studentId) {
            COUNT(DISTINCT l.id) AS lesson_count,
            COUNT(DISTINCT CASE WHEN lp.completed_at IS NOT NULL THEN l.id END) AS completed_lessons
     FROM enrollments e JOIN courses c ON c.id = e.course_id
-    LEFT JOIN lessons l ON l.course_id = c.id
+    LEFT JOIN lessons l ON l.course_id = c.id AND l.status != 'cancelled'
     LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = e.student_id
     WHERE e.student_id = ? AND e.status = 'active'
     GROUP BY e.id, c.id ORDER BY e.enrolled_at DESC
-  `).all(student.id);
+  `).all(student.id).map((c) => ({ ...c, completion: versions.courseState(db, student.id, c.id) }));
   const lessons = db.prepare(`
-    SELECT lp.lesson_id, lp.progress, lp.completed_at, lp.updated_at,
+    SELECT l.id AS lesson_id, COALESCE(lp.progress, 0) AS progress, lp.completed_at, lp.updated_at,
            l.title AS lesson_title, c.id AS course_id, c.title AS course_title,
            r.id AS report_id, r.version AS report_version, r.status AS report_status,
            r.summary, r.review_comment, r.reviewed_at
-    FROM lesson_progress lp
-    JOIN lessons l ON l.id = lp.lesson_id JOIN courses c ON c.id = l.course_id
+    FROM enrollments enrollment JOIN courses c ON c.id = enrollment.course_id
+    JOIN lessons l ON l.course_id = c.id AND l.status != 'cancelled'
+    LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = enrollment.student_id
     LEFT JOIN lesson_learning_reports r ON r.id = (
       SELECT latest.id FROM lesson_learning_reports latest
-      WHERE latest.student_id = lp.student_id AND latest.lesson_id = lp.lesson_id
+      WHERE latest.student_id = enrollment.student_id AND latest.lesson_id = l.id
       ORDER BY latest.version DESC, latest.id DESC LIMIT 1
     )
-    WHERE lp.student_id = ? ORDER BY lp.updated_at DESC
-  `).all(student.id);
+    WHERE enrollment.student_id = ? AND enrollment.status = 'active' ORDER BY c.id, l.sort_order, l.id
+  `).all(student.id).filter((l) => {
+    const state = versions.courseState(db, student.id, l.course_id);
+    return !state.completed || state.lesson_ids.includes(l.lesson_id);
+  }).map((l) => ({ ...l, stages: learningGate.getLessonLearningState(student.id, l.lesson_id),
+    content_version: versions.boundVersion(db, student.id, l.lesson_id)?.id || null,
+    cards: versions.studentCards(db, student.id, l.lesson_id).map((c) => ({
+      id: c.id, title: c.title, completed_at: c.completed_at, best_score: c.best_score,
+      answered: c.exercises.filter((e) => e.attempt).length, exercise_count: c.exercises.length,
+    })) }));
   const reflections = db.prepare(`
     SELECT r.id, r.lesson_id, r.difficulty, r.solution, r.improvement, r.new_question, r.created_at,
            l.title AS lesson_title

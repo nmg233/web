@@ -17,3 +17,6 @@ exports.detail = (req, res) => {
 exports.review = (req, res) => {
   try { return res.json(service.review(req.user, req.params.reportId, req.body)); } catch (err) { return sendError(res, err); }
 };
+exports.feedback = (req, res) => {
+  try { return res.json(service.feedback(req.user, req.params.reportId, req.params.exerciseId, req.body)); } catch (err) { return sendError(res, err); }
+};
