@@ -28,6 +28,18 @@ test('累计文本、文件大小有硬预算，不返回截断的成功结果',
   await assert.rejects(parse(large,'.txt'), /50 MB/);
 });
 
+test('N15：DOCX真实解析不调用CLI格式化依赖，精度格式文本只作为正文处理',async()=>{
+  const Module=require('node:module'),original=Module._load;
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml','<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  zip.file('_rels/.rels','<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  zip.file('word/document.xml','<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>正常正文 %.101f %.0g</w:t></w:r></w:p></w:body></w:document>');
+  const file=path.join(directory,'safe.docx');fs.writeFileSync(file,await zip.generateAsync({type:'nodebuffer'}));
+  Module._load=function(request,...args){if(['argparse','sprintf-js'].includes(request)) throw Error('不应调用CLI依赖');return original.call(this,request,...args);};
+  try{const chunks=await parse(file,'.docx');assert.match(chunks[0].text,/正常正文 %\.101f %\.0g/);}
+  finally{Module._load=original;}
+});
+
 test('500MB 上传签名验证只读取16字节，不整体读入内存', () => {
   const file = path.join(directory, 'large.mp4');
   const descriptor = fs.openSync(file,'w');
