@@ -26,6 +26,12 @@ if [ "${1:-}" = --uninstall ]; then
   sed '/# pbl-platform-backup:/d' "$WORK_DIR/current" > "$WORK_DIR/next"
 else
   APP_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+  # 原子布局必须保留 current 的逻辑路径，不能将任务永久固定到某个旧发行版。
+  if [ -n "${BACKUP_APP_DIR:-}" ]; then
+    case "$BACKUP_APP_DIR" in /*) ;; *) echo "BACKUP_APP_DIR 必须为绝对路径" >&2; exit 1;; esac
+    if [ ! -d "$BACKUP_APP_DIR/backend" ]; then echo "备份应用目录不存在" >&2; exit 1; fi
+    APP_DIR="$BACKUP_APP_DIR"
+  fi
   # POSIX 单引号转义保护安装路径（包括空格及单引号）。
   APP_QUOTED="'${APP_DIR//\'/\'\\\'\'}'"
   cp "$WORK_DIR/current" "$WORK_DIR/next"

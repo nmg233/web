@@ -26,6 +26,14 @@ git fetch origin
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
 
+# 原生依赖在 npm ci 的安装阶段就可能编译，必须先选定现代 Python。
+PYTHON_BIN="${PYTHON:-/usr/bin/python3.11}"
+if ! "$PYTHON_BIN" -c 'import sys; assert sys.version_info >= (3, 9)' >/dev/null 2>&1; then
+  echo "error: node-gyp 需要 Python >=3.9；请设置 PYTHON=/实际路径/python3.11" >&2
+  exit 1
+fi
+export PYTHON="$PYTHON_BIN"
+export npm_config_python="$PYTHON_BIN"
 cd backend
 npm ci
 # better-sqlite3 v13 会优先加载 npm 包内的 linux-x64 prebuild，旧 glibc 测试机运行会失败。
@@ -85,7 +93,9 @@ echo
 echo "== deploy: 文件清理队列重试 =="
 ENV_FILE="${ENV_FILE:-/etc/pbl-platform/backend.env}"
 UPLOAD_CLEAN="${UPLOAD_CLEAN:-$(grep -E '^UPLOAD_PATH=' "$ENV_FILE" 2>/dev/null | head -1 | cut -d= -f2- || true)}"
-node scripts/cleanup-files.js "$UPLOAD_CLEAN" || true
+if ! node ../scripts/cleanup-files.js "$UPLOAD_CLEAN"; then
+  echo "警告：文件清理失败，发布已完成但需检查清理队列和定时任务" >&2
+fi
 
 echo "deploy ok"
 

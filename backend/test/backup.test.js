@@ -26,6 +26,8 @@ function fixture(t) {
     fs.copyFileSync(path.join(root, 'scripts', script), path.join(dir, 'scripts', script));
   }
   fs.writeFileSync(path.join(dir, 'backend.env'), 'UPLOAD_PATH="upload files"\n');
+  fs.mkdirSync(path.join(dir, 'backend/private_uploads'));
+  fs.writeFileSync(path.join(dir, 'backend/private_uploads/private.txt'), 'private feedback');
   return dir;
 }
 function run(dir, command) {
@@ -45,32 +47,34 @@ test('上传目录不存在时报错并返回非零退出码', (t) => {
 });
 test('上传备份包含完整目录，保留最近七份且不删除其他备份', (t) => {
   const dir = fixture(t);
-  fs.mkdirSync(path.join(dir, 'upload files/nested'), { recursive: true });
-  fs.writeFileSync(path.join(dir, 'upload files/nested/data.txt'), 'backup content');
-  fs.mkdirSync(path.join(dir, 'backups'));
+  fs.mkdirSync(path.join(dir, 'backend/upload files/nested'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'backend/upload files/nested/data.txt'), 'backup content');
+  fs.mkdirSync(path.join(dir, 'backend/backups'));
   for (let i = 1; i <= 8; i++) {
-    fs.writeFileSync(path.join(dir, `backups/uploads-2020010${i}-020000.tar.gz`), 'old');
+    fs.writeFileSync(path.join(dir, `backend/backups/uploads-2020010${i}-020000.tar.gz`), 'old');
   }
-  fs.writeFileSync(path.join(dir, 'backups/pre-deploy-old.db'), 'database');
+  fs.writeFileSync(path.join(dir, 'backend/backups/pre-deploy-old.db'), 'database');
   const result = run(dir, 'bash scripts/backup-uploads.sh');
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, /备份完成.*uploads-\d{8}-\d{6}\.tar\.gz/);
   assert.match(result.stdout, /大小/);
-  const files = fs.readdirSync(path.join(dir, 'backups')).filter(f => f.endsWith('.tar.gz')).sort();
+  const files = fs.readdirSync(path.join(dir, 'backend/backups')).filter(f => f.startsWith('uploads-')).sort();
   assert.equal(files.length, 7);
   assert.equal(files.includes('uploads-20200101-020000.tar.gz'), false);
-  assert.equal(fs.existsSync(path.join(dir, 'backups/pre-deploy-old.db')), true);
-  const extracted = run(dir, `tar -xOzf "backups/${files.at(-1)}" 'upload files/nested/data.txt'`);
+  assert.equal(fs.existsSync(path.join(dir, 'backend/backups/pre-deploy-old.db')), true);
+  const extracted = run(dir, `tar -xOzf "backend/backups/${files.at(-1)}" './nested/data.txt'`);
   assert.equal(extracted.status, 0, extracted.stderr);
   assert.equal(extracted.stdout, 'backup content');
+  const privateFile = fs.readdirSync(path.join(dir, 'backend/backups')).find(f => f.startsWith('feedback-uploads-'));
+  assert.equal(run(dir, `tar -xOzf "backend/backups/${privateFile}" './private.txt'`).stdout, 'private feedback');
 });
 test('未配置 UPLOAD_PATH 时默认使用 uploads', (t) => {
   const dir = fixture(t);
   fs.writeFileSync(path.join(dir, 'backend.env'), 'DB_PATH=data.db\n');
-  fs.mkdirSync(path.join(dir, 'uploads'));
+  fs.mkdirSync(path.join(dir, 'backend/uploads'));
   const result = run(dir, 'bash scripts/backup-uploads.sh');
   assert.equal(result.status, 0, result.stdout + result.stderr);
-  assert.equal(fs.readdirSync(path.join(dir, 'backups')).length, 1);
+  assert.equal(fs.readdirSync(path.join(dir, 'backend/backups')).length, 2);
 });
 function mockCron(dir) {
   fs.writeFileSync(path.join(dir, 'bin/crontab'), `#!/usr/bin/env bash
@@ -111,13 +115,13 @@ test('首次安装允许尚无 crontab，但拒绝读取权限错误', (t) => {
 });
 test('tar 失败时报告原因并清理不完整备份', (t) => {
   const dir = fixture(t);
-  fs.mkdirSync(path.join(dir, 'upload files'));
+  fs.mkdirSync(path.join(dir, 'backend/upload files'));
   fs.writeFileSync(path.join(dir, 'bin/tar'), '#!/usr/bin/env bash\necho "tar: simulated failure" >&2\nexit 2\n', { mode: 0o755 });
   const result = run(dir, 'export PATH="$PWD/bin:$PATH"; chmod +x bin/tar; bash scripts/backup-uploads.sh');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /simulated failure/);
   assert.match(result.stderr, /上传备份失败/);
-  assert.deepEqual(fs.readdirSync(path.join(dir, 'backups')), []);
+  assert.deepEqual(fs.readdirSync(path.join(dir, 'backend/backups')), []);
 });
 test('生成的每周任务正确处理路径空格，从 backend 依次执行两种备份', (t) => {
   const dir = fixture(t);
