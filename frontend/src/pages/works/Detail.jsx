@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Tag, Button, Space, Typography, Spin, Input, message, Form, Select } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined } from '@ant-design/icons';
@@ -59,6 +59,23 @@ function WorkDetailPage() {
 
 function ReviewForm({ id, setData }) {
   const [form] = Form.useForm();
+  const [saving,setSaving]=useState(false);
+  const pending=useRef(false),lifecycle=useRef({epoch:0});
+  useEffect(()=>{const scope=lifecycle.current;scope.epoch++;return()=>{scope.epoch++;};},[]);
+  const save=async(values)=>{
+    if(pending.current) return;
+    const scope=lifecycle.current,epoch=scope.epoch,page=window.location.pathname+window.location.search;
+    const current=()=>epoch===scope.epoch && page===window.location.pathname+window.location.search;
+    pending.current=true;setSaving(true);
+    try {
+      await workAPI.review(id,values);
+      if(!current()) return;
+      const payload=await workAPI.detail(id);
+      if(!current()) return;
+      message.success('评审已保存');setData(payload);
+    } catch { /* handled by request client */ }
+    finally{pending.current=false;if(current())setSaving(false);}
+  };
   const status = Form.useWatch('status', form) || 'approved';
-  return <Card title="作品评审" size="small" style={{ marginTop: 16 }}><Form form={form} layout="vertical" initialValues={{ status: 'approved' }} onFinish={async (values) => { await workAPI.review(id, values); message.success('评审已保存'); setData(await workAPI.detail(id)); }}><Form.Item name="status" label="评审结果"><Select options={[{ value: 'approved', label: '通过' }, { value: 'rejected', label: '需修改' }]} /></Form.Item><Form.Item name="comment" label="导师评语"><Input.TextArea rows={2} /></Form.Item><Form.Item name="suggestion" label="修改建议"><Input.TextArea rows={2} /></Form.Item>{status === 'approved' && <Space wrap>{dimensions.map(([key, label]) => <Form.Item key={key} name={key} label={label} rules={[{ required: true, message: '请选择评分' }]}><Select style={{ width: 120 }} options={[1,2,3,4,5].map((v) => ({ value: v, label: `${v} 分` }))} /></Form.Item>)}</Space>}<Button type="primary" htmlType="submit">保存评审</Button></Form></Card>;
+  return <Card title="作品评审" size="small" style={{ marginTop: 16 }}><Form form={form} layout="vertical" disabled={saving} initialValues={{ status: 'approved' }} onFinish={save}><Form.Item name="status" label="评审结果"><Select options={[{ value: 'approved', label: '通过' }, { value: 'rejected', label: '需修改' }]} /></Form.Item><Form.Item name="comment" label="导师评语"><Input.TextArea rows={2} /></Form.Item><Form.Item name="suggestion" label="修改建议"><Input.TextArea rows={2} /></Form.Item>{status === 'approved' && <Space wrap>{dimensions.map(([key, label]) => <Form.Item key={key} name={key} label={label} rules={[{ required: true, message: '请选择评分' }]}><Select style={{ width: 120 }} options={[1,2,3,4,5].map((v) => ({ value: v, label: `${v} 分` }))} /></Form.Item>)}</Space>}<Button type="primary" htmlType="submit" loading={saving}>保存评审</Button></Form></Card>;
 }

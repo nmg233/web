@@ -1,6 +1,6 @@
 const express = require('express');
 const controller = require('../controllers/notificationController');
-const { requireAuth, requirePasswordChanged } = require('../middleware/auth');
+const { requireAuth, requirePasswordChanged,requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -11,6 +11,8 @@ router.use(requirePasswordChanged);
 router.get('/', controller.list);
 router.get('/recent', controller.recent);
 router.get('/unread-count', controller.unreadCount);
+router.get('/outbox',requireRole('admin'),controller.outbox);
+router.post('/outbox/replay',requireRole('admin'),controller.replayOutbox);
 router.post('/read-all', controller.markAllRead);
 router.post('/hide-read', controller.hideRead);
 router.get('/:id', controller.detail);

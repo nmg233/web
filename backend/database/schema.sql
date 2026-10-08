@@ -339,7 +339,8 @@ CREATE TABLE IF NOT EXISTS growth_records (
 CREATE TABLE IF NOT EXISTS notification_outbox (
   event_key TEXT PRIMARY KEY, payload_json TEXT NOT NULL, recipients_json TEXT NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
-  delivered_at DATETIME, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  delivered_at DATETIME, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  next_retry_at DATETIME, quarantined_at DATETIME
 );
 CREATE TABLE IF NOT EXISTS request_results (
   actor_id INTEGER NOT NULL REFERENCES users(id), scope TEXT NOT NULL, request_key TEXT NOT NULL,
@@ -364,7 +365,7 @@ CREATE TABLE IF NOT EXISTS student_lesson_versions (
   PRIMARY KEY(student_id, lesson_id)
 );
 CREATE TABLE IF NOT EXISTS retired_exercises (
-  exercise_id INTEGER PRIMARY KEY REFERENCES card_exercises(id),
+  exercise_id INTEGER PRIMARY KEY REFERENCES card_exercises(id) ON DELETE CASCADE,
   retired_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS exercise_feedback (
@@ -809,3 +810,21 @@ CREATE TABLE IF NOT EXISTS ai_usage (
   FOREIGN KEY(course_id) REFERENCES courses(id) ON DELETE SET NULL
 );
 CREATE INDEX IF NOT EXISTS idx_ai_usage_day_user ON ai_usage(request_day, user_id);
+
+-- 020：个体迁校审计、历史补学报告替代、通知公平重试。
+CREATE TABLE IF NOT EXISTS student_school_transfers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id),
+  source_school_id INTEGER, target_school_id INTEGER NOT NULL,
+  teacher_id INTEGER NOT NULL REFERENCES users(id), reason TEXT NOT NULL,
+  context_json TEXT NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS report_replacements (
+  report_id INTEGER PRIMARY KEY REFERENCES lesson_learning_reports(id),
+  content_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id), reason TEXT NOT NULL,
+  replacement_report_id INTEGER REFERENCES lesson_learning_reports(id),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_notification_outbox_retry ON notification_outbox(delivered_at,quarantined_at,next_retry_at,created_at);

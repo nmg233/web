@@ -30,7 +30,7 @@ service_op() {
 }
 WORKING_DIR=$(service_op show "$SERVICE" --property=WorkingDirectory --value)
 if [ "$WORKING_DIR" != "$CURRENT_LINK/backend" ]; then echo "systemd WorkingDirectory 尚未切换为 $CURRENT_LINK/backend" >&2; exit 1; fi
-DATA_CONFIG=$(node --env-file="$ENV_FILE" -e 'for(const key of ["DB_PATH","UPLOAD_PATH","FEEDBACK_UPLOAD_PATH"]) { const p=process.env[key]; if(!p || !require("path").isAbsolute(p)) throw Error(key+" 必须为外置绝对路径"); console.log(p); }')
+DATA_CONFIG=$(node --env-file="$ENV_FILE" -e 'for(const key of ["DB_PATH","UPLOAD_PATH","FEEDBACK_UPLOAD_PATH","MAINTENANCE_FILE"]) { const p=process.env[key] || (key==="MAINTENANCE_FILE" && require("path").join(require("path").dirname(process.env.DB_PATH),"maintenance.lock")); if(!p || !require("path").isAbsolute(p)) throw Error(key+" 必须为外置绝对路径"); console.log(p); }')
 mapfile -t DATA_PATHS <<< "$DATA_CONFIG"
 DATA_ROOT=$(cd "$DATA_ROOT" && pwd -P)
 if [ "$DATA_ROOT" = / ]; then echo "数据目录不安全" >&2; exit 1; fi
@@ -38,6 +38,8 @@ for data in "${DATA_PATHS[@]}"; do
   data=$(readlink -f -- "$data")
   case "$data" in "$DATA_ROOT"/*) ;; *) echo "数据路径须在 $DATA_ROOT 下：$data" >&2; exit 1;; esac
 done
+MAINTENANCE_FILE="${DATA_PATHS[3]}"
+if [ -e "$MAINTENANCE_FILE" ] || [ -L "$MAINTENANCE_FILE" ]; then echo "已有维护标记，先检查上次发布/恢复状态，禁止覆盖" >&2; exit 1; fi
 if [ ! -f "${DATA_PATHS[0]}" ] || [ ! -d "${DATA_PATHS[1]}" ] || [ ! -d "${DATA_PATHS[2]}" ]; then echo "数据库或上传目录不存在，停止发布" >&2; exit 1; fi
 git -C "$APP_DIR" fetch origin "$BRANCH"
 SHA=$(git -C "$APP_DIR" rev-parse --verify "origin/$BRANCH^{commit}")
@@ -59,17 +61,21 @@ printf '%s\n' "$SHA" > "$STAGE/.release-sha"
     node -e 'const D=require("better-sqlite3");const d=new D(":memory:");d.close()'
   fi
 )
+# 后端回归只使用隔离目录，不能继承生产数据库和附件路径。
+CHECK_DIR=$(mktemp -d "$STAGE/.release-check.XXXXXX")
+(cd "$STAGE/backend" && NODE_ENV=test JWT_SECRET=release-check-only AI_CONFIG_SECRET=$(printf 'c%.0s' {1..64}) MAINTENANCE_FILE="$CHECK_DIR/maintenance.lock" DB_PATH="$CHECK_DIR/test.db" UPLOAD_PATH="$CHECK_DIR/uploads" FEEDBACK_UPLOAD_PATH="$CHECK_DIR/private" npm test)
 (cd "$STAGE/frontend" && npm ci && npm run lint && npm test && npm run build)
 # 先在一致性数据库副本上执行迁移与完整性检查，不修改正在服务的数据库。
 SMOKE_DB="$STAGE/backend/.deployment-smoke.db"
 sqlite3 "${DATA_PATHS[0]}" ".backup '$SMOKE_DB'"
-(cd "$STAGE/backend" && DB_PATH="$SMOKE_DB" node --env-file="$ENV_FILE" -e 'const d=require("./config/database");if(d.pragma("integrity_check",{simple:true})!=="ok" || d.pragma("foreign_key_check").length) process.exit(1); d.close()')
+(cd "$STAGE/backend" && DB_PATH="$SMOKE_DB" node --env-file="$ENV_FILE" -e 'const d=require("./config/database");require("./helpers/readiness").assertReady(d);if(d.pragma("integrity_check",{simple:true})!=="ok" || d.pragma("foreign_key_check").length) process.exit(1); d.close()')
 rm -f -- "$SMOKE_DB" "$SMOKE_DB-wal" "$SMOKE_DB-shm"
 RELEASE="$RELEASE_ROOT/$SHA-$(date +%Y%m%d-%H%M%S)"
 if [ -e "$RELEASE" ]; then echo "发行目录已存在，未进行切换" >&2; exit 1; fi
 mv -- "$STAGE" "$RELEASE"
 SWITCHED=0
 STOPPED=0
+MAINTENANCE_OWNED=0
 switch_link() {
   local target="$1" link="$CURRENT_LINK.next.$$"
   if [ -e "$link" ] || [ -L "$link" ]; then echo "临时切换链接冲突" >&2; return 1; fi
@@ -80,15 +86,26 @@ rollback() {
   local status="${1:-1}"
   trap - ERR INT TERM
   local restored=1
-  if [ "$SWITCHED" = 1 ]; then switch_link "$PREVIOUS" || restored=0; fi
+  if [ "$SWITCHED" = 1 ]; then
+    service_op stop "$SERVICE" || { echo "新服务停止失败，必须立即人工隔离流量" >&2; exit "$status"; }
+    switch_link "$PREVIOUS" || restored=0
+  fi
   if [ "$restored" = 0 ]; then echo "旧链接恢复失败，保留停服状态，需人工处理" >&2;
-  elif [ "$STOPPED" = 1 ]; then service_op restart "$SERVICE" || echo "回滚版本重启失败，需人工处理" >&2; fi
-  echo "发布失败，旧版本链接已保留/恢复。未自动恢复数据库，以免覆盖用户新写入；检查 $RELEASE 与备份。" >&2
+  elif [ "$SWITCHED" = 1 ]; then
+    echo "已恢复旧链接但保持停服和维护标记：迁移可能已执行，未经兼容性/恢复验收不得开放旧代码" >&2
+  elif [ "$STOPPED" = 1 ]; then
+    if service_op restart "$SERVICE"; then
+      if [ "$MAINTENANCE_OWNED" = 1 ]; then rm -- "$MAINTENANCE_FILE"; fi
+    else echo "旧版本重启失败，保留维护标记，需人工处理" >&2; fi
+  elif [ "$MAINTENANCE_OWNED" = 1 ]; then rm -- "$MAINTENANCE_FILE"; fi
+  echo "发布失败。未自动覆盖数据库或附件；检查 $RELEASE、维护标记与备份。" >&2
   exit "$status"
 }
 trap 'rollback $?' ERR
 trap 'rollback 130' INT
 trap 'rollback 143' TERM
+(set -o noclobber; printf '%s\n' "$SHA" > "$MAINTENANCE_FILE")
+MAINTENANCE_OWNED=1
 STOPPED=1
 service_op stop "$SERVICE"
 (cd "$RELEASE" && ENV_FILE="$ENV_FILE" bash scripts/backup-db.sh && ENV_FILE="$ENV_FILE" bash scripts/backup-uploads.sh)
@@ -98,11 +115,13 @@ service_op start "$SERVICE"
 HEALTHY=0
 for ((attempt=0; attempt<30; attempt++)); do
   if body=$(curl --max-time 3 -fsS "$HEALTH_URL"); then
-    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || h.schema_version<19)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
+    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || !Number.isInteger(h.schema_version) || h.schema_version<20)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
   fi
   sleep 1
 done
 if [ "$HEALTHY" != 1 ]; then echo "健康检查失败，开始回滚链接" >&2; false; fi
+rm -- "$MAINTENANCE_FILE"
+MAINTENANCE_OWNED=0
 trap - ERR INT TERM
 STOPPED=0
 echo "发布成功：$SHA；前一版本：$PREVIOUS"

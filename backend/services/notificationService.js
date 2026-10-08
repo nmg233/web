@@ -132,21 +132,52 @@ function safeCreateForUsers(payload, recipientIds) {
   }
   try {
     const row = db.prepare('SELECT * FROM notification_outbox WHERE event_key = ?').get(key);
-    if (row.delivered_at) return null;
-    const result = createForUsers(JSON.parse(row.payload_json), JSON.parse(row.recipients_json));
-    db.prepare('UPDATE notification_outbox SET delivered_at = CURRENT_TIMESTAMP, last_error = NULL WHERE event_key = ?').run(key);
-    return result;
+    if (row.delivered_at || row.quarantined_at) return null;
+    return deliverOutbox(row);
   } catch (err) {
-    try { db.prepare('UPDATE notification_outbox SET attempts = attempts + 1, last_error = ? WHERE event_key = ?').run(String(err.message).slice(0, 500), key); }
-    catch { /* 数据库不可写时必须告警；不能伪称已入队。 */ }
+    failOutbox(key,err);
     console.error('创建站内通知失败:', err);
     return null;
   }
 }
 
+function failOutbox(key,err) {
+  const attempts=(db.prepare('SELECT attempts FROM notification_outbox WHERE event_key=?').get(key)?.attempts || 0)+1;
+  db.prepare(`UPDATE notification_outbox SET attempts=?,last_error=?,next_retry_at=datetime('now',?),
+    quarantined_at=CASE WHEN ?>=8 THEN CURRENT_TIMESTAMP ELSE NULL END WHERE event_key=?`)
+    .run(attempts,String(err.message).slice(0,500),`+${Math.min(3600,15*2**Math.min(attempts-1,8))} seconds`,attempts,key);
+}
+
+function deliverOutbox(row) {
+  const payload=JSON.parse(row.payload_json),recipients=JSON.parse(row.recipients_json);
+  const result=createForUsers({...payload,dedupeKey:row.event_key},recipients);
+  db.prepare('UPDATE notification_outbox SET delivered_at=CURRENT_TIMESTAMP,last_error=NULL,next_retry_at=NULL,quarantined_at=NULL WHERE event_key=?').run(row.event_key);
+  return result;
+}
+
 function retryOutbox() {
-  const rows = db.prepare('SELECT * FROM notification_outbox WHERE delivered_at IS NULL ORDER BY created_at LIMIT 100').all();
-  for (const row of rows) safeCreateForUsers(JSON.parse(row.payload_json), JSON.parse(row.recipients_json));
+  const rows=db.prepare(`SELECT * FROM notification_outbox WHERE delivered_at IS NULL AND quarantined_at IS NULL
+    AND (next_retry_at IS NULL OR next_retry_at<=CURRENT_TIMESTAMP) ORDER BY COALESCE(next_retry_at,created_at),event_key LIMIT 100`).all();
+  for(const row of rows) {
+    try {deliverOutbox(row);} catch(err) {failOutbox(row.event_key,err);console.error('通知事件重试失败:',row.event_key,String(err.message));}
+  }
+}
+
+function outbox(user) {
+  if(user.role!=='admin') throw new NotificationError('仅管理员可以管理投递队列',403);
+  const stats=db.prepare(`SELECT COUNT(*) AS pending,SUM(quarantined_at IS NOT NULL) AS quarantined,MIN(created_at) AS oldest_at FROM notification_outbox WHERE delivered_at IS NULL`).get();
+  const items=db.prepare('SELECT event_key,attempts,last_error,created_at,next_retry_at,quarantined_at FROM notification_outbox WHERE delivered_at IS NULL ORDER BY created_at LIMIT 100').all();
+  return {stats,items};
+}
+
+function replayOutbox(user,key) {
+  if(user.role!=='admin') throw new NotificationError('仅管理员可以重放通知',403);
+  if(typeof key!=='string' || !key.trim() || key.length>300) throw new NotificationError('请提供有效的事件标识',400);
+  const row=db.prepare('SELECT * FROM notification_outbox WHERE event_key=?').get(key);
+  if(!row) throw new NotificationError('事件不存在',404);
+  if(row.delivered_at) return {message:'事件已经投递，无需重放'};
+  db.prepare('UPDATE notification_outbox SET quarantined_at=NULL,next_retry_at=NULL,attempts=0 WHERE event_key=?').run(key);
+  try {deliverOutbox(row);return {message:'事件已重放'};} catch(err) {failOutbox(key,err);throw new NotificationError('事件仍无法投递，已保留错误与重试记录',409);}
 }
 
 function buildListWhere(userId, query = {}) {
@@ -286,6 +317,8 @@ function hideRead(user) {
 
 module.exports = {
   retryOutbox,
+  outbox,
+  replayOutbox,
   NotificationError,
   NOTIFICATION_EVENTS,
   createForUsers,

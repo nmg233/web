@@ -47,7 +47,7 @@ function pagination(query = {}) {
 
 function list(user, query = {}) {
   const { page, pageSize, offset } = pagination(query);
-  const where = [`r.id = (SELECT latest.id FROM lesson_learning_reports latest
+  const where = [`NOT EXISTS (SELECT 1 FROM report_replacements rr WHERE rr.report_id=r.id)`, `r.id = (SELECT latest.id FROM lesson_learning_reports latest
     WHERE latest.student_id = r.student_id AND latest.lesson_id = r.lesson_id
     ORDER BY latest.version DESC, latest.id DESC LIMIT 1)`];
   const params = [];
@@ -146,7 +146,8 @@ function detail(user, reportId) {
     consolidation_tasks: tasks,
     history,
     content_version: contentVersionId || versions.boundVersion(db, report.student_id, report.lesson_id)?.id || null,
-    read_only: report.course_status === 'archived' || report.lesson_status === 'cancelled',
+    read_only: report.course_status === 'archived' || report.lesson_status === 'cancelled' || Boolean(versions.replacement(db,report.id)),
+    replacement: versions.replacement(db,report.id),
     progress: learningGate.getLessonLearningState(report.student_id, report.lesson_id),
   };
 }
@@ -154,6 +155,8 @@ function detail(user, reportId) {
 function review(user, reportId, payload = {}) {
   const report = reportContext(reportId);
   assertReviewAccess(user, report);
+  if (versions.replacement(db,report.id)) throw new MentorReviewError('历史内容已修复，请等待学生补学并提交新版报告',409,'REPORT_REPLACEMENT_REQUIRED');
+  if (!learningGate.canSubmitLessonReport(report.student_id,report.lesson_id)) throw new MentorReviewError('学生尚未完成课堂回顾及全部卡片习题，暂不可评审',409,'LEARNING_INCOMPLETE');
   if (report.course_status === 'archived' || report.lesson_status === 'cancelled') {
     throw new MentorReviewError('归档课程或取消课时只允许查看历史', 409, 'REVIEW_READ_ONLY');
   }
@@ -185,6 +188,7 @@ function review(user, reportId, payload = {}) {
   let state;
   db.transaction(() => {
     const current = reportContext(reportId);
+    if (versions.replacement(db,current.id) || !learningGate.canSubmitLessonReport(current.student_id,current.lesson_id)) throw new MentorReviewError('学习状态已改变，请刷新',409);
     if (current.status !== 'submitted' || learningGate.latestReport(current.student_id, current.lesson_id)?.id !== current.id) {
       throw new MentorReviewError('只能评审最新的待评审报告，请刷新评审队列', 409, 'REPORT_ALREADY_REVIEWED');
     }
@@ -228,8 +232,10 @@ function feedback(user, reportId, exerciseId, payload) {
   const report = reportContext(reportId);
   assertReviewAccess(user, report);
   if (report.course_status === 'archived' || report.lesson_status === 'cancelled') throw new MentorReviewError('历史课时只读', 409);
+  if (versions.replacement(db,report.id)) throw new MentorReviewError('已替代的历史报告只允许查看',409);
   if (learningGate.latestReport(report.student_id, report.lesson_id)?.id !== report.id) throw new MentorReviewError('请在最新报告中填写反馈', 409);
-  const exercise = versions.studentCards(db, report.student_id, report.lesson_id).flatMap((c) => c.exercises).find((e) => e.id === Number(exerciseId));
+  const reportVersion = db.prepare('SELECT content_version_id FROM report_content_versions WHERE report_id=?').get(report.id)?.content_version_id;
+  const exercise = versions.studentCards(db, report.student_id, report.lesson_id,reportVersion).flatMap((c) => c.exercises).find((e) => e.id === Number(exerciseId));
   if (!exercise?.attempt) throw new MentorReviewError('未找到本课时的作答记录', 404);
   const content = String(payload.content || '').trim();
   if (!content || content.length > 5000) throw new MentorReviewError('请填写 1–5000 字的反馈');

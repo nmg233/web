@@ -6,10 +6,13 @@ import { notificationAPI } from '../../api';
 import NotificationFilters from '../../components/notifications/NotificationFilters';
 import NotificationItem from '../../components/notifications/NotificationItem';
 import useNotifications from '../../hooks/useNotifications';
+import { useAuth } from '../../store/AuthContext';
+import OutboxPanel from '../../components/notifications/OutboxPanel';
 
 const { Title } = Typography;
 
 export default function NotificationList() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { refreshUnread } = useNotifications();
   const [filters, setFilters] = useState({ page: 1, pageSize: 20 });
@@ -89,6 +92,7 @@ export default function NotificationList() {
           />
         )}
       </Card>
+      {user?.role === 'admin' && <OutboxPanel />}
     </div>
   );
 }

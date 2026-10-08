@@ -36,13 +36,13 @@ npm() { echo "npm:$*" >> "$MOCK_LOG"; if [[ "$MOCK_FAILURE" == build && "$*" == 
 python() { return 0; }
 flock() { return 0; }
 node() {
-  if [[ "$*" == *'for(const key of'* ]]; then printf '%s\n' "$DATA_ROOT/data.db" "$DATA_ROOT/uploads" "$DATA_ROOT/private";
+  if [[ "$*" == *'for(const key of'* ]]; then printf '%s\n' "$DATA_ROOT/data.db" "$DATA_ROOT/uploads" "$DATA_ROOT/private" "$DATA_ROOT/maintenance.lock";
   elif [[ "$*" == *'process.stdin.on'* ]]; then "$REAL_NODE" "$@";
   else return 0; fi
 }
 sqlite3() { local target; target=$(printf '%s' "$2" | command sed "s/^\\.backup '//;s/'$//"); command cp "$1" "$target"; }
 systemctl() { echo "service:$1" >> "$MOCK_LOG"; if [[ "$1" == show ]]; then echo "$CURRENT_LINK/backend"; fi; }
-curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":19}' "$MOCK_SHA"; }
+curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":20}' "$MOCK_SHA"; }
 sleep() { return 0; }
 readlink() { if [[ "$2" == "$CURRENT_LINK" ]]; then command cat "$CURRENT_LINK"; else command readlink "$@"; fi; }
 ln() { printf '%s\n' "$3" > "$4"; echo switch >> "$MOCK_LOG"; }
@@ -63,8 +63,14 @@ exec bash deploy.sh main
   else {
     assert.notEqual(result.status,0,result.stdout+result.stderr); assert.ok(target.endsWith('/previous'),target);
     if(failure === 'build') assert.equal(log.includes('service:stop'),false,'构建失败不停止旧服务');
-    else assert.match(log,/service:restart/,'停止之后的故障必须重启旧版本');
+    else if(failure==='backup') assert.match(log,/service:restart/,'迁移之前备份失败可以恢复旧服务');
+    else {
+      assert.equal(log.includes('service:restart'),false,'迁移后的故障不得自动开放旧代码');
+      assert.ok(fs.existsSync(path.join(dir,'data/maintenance.lock')),'故障保持维护标记');
+      assert.equal(log.split('\n').filter(l=>l==='service:stop').length,2,'先停止新服务再恢复旧链接');
+    }
     if(failure === 'health') assert.equal(log.split('\n').filter(l=>l==='switch').length,2,'先切换新版本再恢复旧链接');
     if(failure === 'backup') assert.equal(log.includes('switch'),false,'备份失败不得切换');
   }
+  if(failure!=='health') assert.equal(fs.existsSync(path.join(dir,'data/maintenance.lock')),false);
 });

@@ -43,6 +43,7 @@ function toBooleanInt(value) {
 // 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
 function userDeletionBlockers(userId) {
   const checks = [
+    {label:'学生迁校操作记录',count:db.prepare('SELECT COUNT(*) c FROM student_school_transfers WHERE student_id=? OR actor_id=?').get(userId,userId).c,hint:'请保留账号与迁移历史'},
     { label: '整班迁移操作记录', count: db.prepare('SELECT COUNT(*) c FROM class_school_transfers WHERE actor_id=?').get(userId).c, hint: '请保留迁移操作者身份' },
     { label: '教职工状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM account_status_events WHERE user_id=? OR actor_id=?').get(userId,userId).c, hint: '请保留账号及状态历史' },
     { label: '账号状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM student_status_events WHERE student_id = ? OR actor_id = ?').get(userId, userId).c, hint: '请保留账号及状态历史' },
@@ -78,6 +79,16 @@ function userDeletionBlockers(userId) {
     { label: '成长记录', count: db.prepare('SELECT COUNT(*) c FROM growth_records WHERE recorded_by = ?').get(userId).c, hint: '成长记录将随删除丢失' },
     { label: '历史评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE evaluator_id = ?').get(userId).c, hint: '评价记录将被级联删除' },
   ];
+  // 新增外键不能绕过预检；幂等结果是可清理缓存，不是业务历史。
+  const tables=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all();
+  for(const {name} of tables) {
+    if(name==='request_results' || !/^[a-zA-Z0-9_]+$/.test(name)) continue;
+    for(const fk of db.prepare(`PRAGMA foreign_key_list(${name})`).all()) {
+      if(fk.table!=='users' || !['NO ACTION','RESTRICT'].includes(fk.on_delete) || !/^[a-zA-Z0-9_]+$/.test(fk.from)) continue;
+      const count=db.prepare(`SELECT COUNT(*) c FROM ${name} WHERE ${fk.from}=?`).get(userId).c;
+      if(count) checks.push({label:`关联记录（${name}）`,count,hint:'请保留关联历史或先移交职责'});
+    }
+  }
   return checks.filter((c) => c.count > 0);
 }
 
@@ -92,7 +103,10 @@ function deleteUserWithWorks(userId) {
   const sims = db.prepare('SELECT id FROM glider_simulations WHERE student_id = ?').all(userId);
   const simDirs = sims.map((s) => path.join(require('../middleware/upload').UPLOAD_ROOT, 'glider', String(s.id)));
   // 先事务删除用户（作品/档案/反思等经外键级联清理），提交后再删物理文件
-  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  db.transaction(() => {
+    db.prepare('DELETE FROM request_results WHERE actor_id=?').run(userId);
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  }).immediate();
   removeFilesAfterCommit(filePaths, require('../middleware/upload').UPLOAD_ROOT);
   removeDirectoriesAfterCommit(simDirs, require('../middleware/upload').UPLOAD_ROOT);
 }
@@ -296,7 +310,7 @@ exports.updateUser = (req, res) => {
     const { real_name, role, school_id, class_id, email, phone, profile, password, is_active } = req.body;
     const userId = req.params.id;
 
-    const existing = db.prepare('SELECT role, is_active, archived_at FROM users WHERE id = ?').get(userId);
+    const existing = db.prepare('SELECT role, is_active, archived_at,school_id FROM users WHERE id = ?').get(userId);
     if (!existing) return res.status(404).json({ error: '用户不存在' });
     if (existing.role === 'admin') return res.status(400).json({ error: '不能通过此接口修改管理员账号' });
     if (existing.role === 'student' && (
@@ -336,6 +350,8 @@ exports.updateUser = (req, res) => {
     }
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
+    if(existing.role==='student' && role==='student' && Number(finalSchoolId)!==existing.school_id) return res.status(409).json({error:'学生跨校请使用编辑分配，指定目标学校新教师并填写原因'});
+    if(existing.role==='teacher' && Number(finalSchoolId)!==existing.school_id && db.prepare('SELECT 1 FROM users WHERE teacher_id=? LIMIT 1').get(userId)) return res.status(409).json({error:'该教师仍负责学生，请先移交负责学生再调整学校'});
     const finalClassId = role === 'academic_mentor' ? null : class_id;
     const active = is_active === undefined ? existing.is_active : toBooleanInt(is_active);
 
@@ -446,94 +462,16 @@ exports.getAssignOptions = (req, res) => {
 
 // 管理员：为学生分配学校/班级/负责教师/负责导师
 exports.assignStudent = (req, res) => {
-  try {
-    const { school_id, class_id, teacher_id, mentor_id } = req.body;
-    const student = db.prepare(
-      "SELECT id, real_name, school_id FROM users WHERE id = ? AND role = 'student'"
-    ).get(req.params.id);
-    if (!student) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    // 目标学校以「请求 school_id」或「学生当前学校」为准，保证约束一致
-    const targetSchoolId = school_id ? Number(school_id) : student.school_id;
-    if (school_id) {
-      const school = db.prepare('SELECT id FROM schools WHERE id = ?').get(school_id);
-      if (!school) return res.status(400).json({ error: '所选学校不存在' });
-    }
-    if (class_id) {
-      // class 非空时 school 必须非空且归属一致，避免「有班级无学校」的不一致组合
-      if (!targetSchoolId) return res.status(400).json({ error: '选择班级前请先选择学校' });
-      const cls = db.prepare('SELECT id, school_id FROM classes WHERE id = ?').get(class_id);
-      if (!cls) return res.status(400).json({ error: '所选班级不存在' });
-      if (cls.school_id !== targetSchoolId) {
-        return res.status(400).json({ error: '所选班级不属于所选学校' });
-      }
-    }
-    if (teacher_id) {
-      const teacher = db.prepare(
-        "SELECT id, school_id FROM users WHERE id = ? AND role = 'teacher' AND is_active=1 AND archived_at IS NULL"
-      ).get(teacher_id);
-      if (!teacher) return res.status(400).json({ error: '所选负责教师不存在或已停用' });
-      if (targetSchoolId && teacher.school_id !== targetSchoolId) {
-        return res.status(400).json({ error: '负责教师必须与学生同校' });
-      }
-    }
-    if (mentor_id) {
-      const mentor = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor' AND is_active=1 AND archived_at IS NULL"
-      ).get(mentor_id);
-      if (!mentor) return res.status(400).json({ error: '所选负责导师不存在或已停用' });
-    }
-
-    db.prepare(
-      `UPDATE users
-       SET school_id = ?, class_id = ?, teacher_id = ?, mentor_id = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`
-    ).run(targetSchoolId, class_id || null, teacher_id || null, mentor_id || null, req.params.id);
-
-    res.json({ message: `已更新 ${student.real_name} 的分配信息` });
-  } catch (err) {
-    console.error('分配学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
+  try { return res.json(orgService.assignStudent(req.user,req.params.id,req.body)); }
+  catch(err) { return res.status(err.status || 500).json({error:err.status ? err.message : '分配失败，原关系未改变'}); }
 };
+
 
 exports.updateStudent = (req, res) => {
-  try {
-    const { school_id, class_id } = req.body;
-    const student = db.prepare(
-      "SELECT id, school_id FROM users WHERE id = ? AND role = 'student'"
-    ).get(req.params.id);
-
-    if (!student) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    if (isTeacher(req.user.role)) {
-      // 原学校与新学校都必须属于教师本校，防止教师把外校学生“迁入”本校
-      if (student.school_id !== req.user.school_id) {
-        return res.status(400).json({ error: '无权编辑其他学校学生' });
-      }
-      if (Number(school_id) !== req.user.school_id) {
-        return res.status(400).json({ error: '教师只能编辑本校学生' });
-      }
-    }
-
-    const cls = db.prepare('SELECT id FROM classes WHERE id = ? AND school_id = ?')
-      .get(class_id, school_id);
-    if (!cls) {
-      return res.status(400).json({ error: '班级不存在或不属于所选学校' });
-    }
-
-    db.prepare('UPDATE users SET school_id = ?, class_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      .run(school_id, class_id, req.params.id);
-    res.json({ message: '学生信息已更新' });
-  } catch (err) {
-    console.error('更新学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
+  try { return res.json(orgService.assignStudent(req.user,req.params.id,req.body)); }
+  catch(err) { return res.status(err.status || 500).json({error:err.status ? err.message : '更新失败，原关系未改变'}); }
 };
+
 
 exports.deleteStudent = (req, res) => {
   try {
@@ -636,7 +574,15 @@ exports.detail = (req, res) => {
       ...archive,
       ...(viewer.role === 'admin' ? { statusEvents: db.prepare(`SELECT e.action, e.reason, e.created_at, u.username AS actor_username
         FROM student_status_events e JOIN users u ON u.id = e.actor_id
-        WHERE e.student_id = ? ORDER BY e.id DESC`).all(id) } : {}),
+        WHERE e.student_id = ? ORDER BY e.id DESC`).all(id),
+        schoolTransfers: db.prepare(`SELECT t.id,t.created_at,t.reason,t.context_json,
+          src.name AS source_school_name,dst.name AS target_school_name,
+          actor.username AS actor_username,teacher.real_name AS teacher_name
+          FROM student_school_transfers t LEFT JOIN schools src ON src.id=t.source_school_id
+          LEFT JOIN schools dst ON dst.id=t.target_school_id JOIN users actor ON actor.id=t.actor_id
+          JOIN users teacher ON teacher.id=t.teacher_id WHERE t.student_id=? ORDER BY t.id DESC`).all(id)
+          .map(({context_json,...row})=>({...row,context:JSON.parse(context_json)})),
+      } : {}),
     });
   } catch (err) {
     console.error('用户详情错误:', err);

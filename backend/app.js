@@ -49,6 +49,7 @@ app.set('jwt_secret', JWT_SECRET);
 // 中间件配置
 // ============================================
 app.disable('x-powered-by');
+app.use(require('./helpers/maintenance').gate(API_PREFIX));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
@@ -103,9 +104,8 @@ notificationRetry.unref();
 app.get(`${API_PREFIX}/health`, (req, res) => {
   try {
     const db = require('./config/database');
-    db.prepare('SELECT 1').get();
-    const migration = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get();
-    res.json({ status: 'ok', database: 'ready', schema_version: migration.version,
+    const version=require('./helpers/readiness').assertReady(db);
+    res.json({ status: 'ok', database: 'ready', schema_version: version,
       release: RELEASE_SHA, timestamp: new Date().toISOString() });
   } catch {
     res.status(503).json({ status: 'unavailable', database: 'unavailable' });
@@ -133,6 +133,8 @@ app.use((err, req, res, _next) => {
 });
 
 if (require.main === module) {
+  // 启动即核验结构与写入能力，禁止缺表的实例先接受业务流量。
+  require('./helpers/readiness').assertReady(require('./config/database'));
   app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
     console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
     console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);

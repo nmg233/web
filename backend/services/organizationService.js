@@ -6,10 +6,48 @@ const { ensureSchoolCode } = require('../helpers/username');
 const requests = require('../helpers/requestResults');
 
 function fail(message, status = 400) { throw Object.assign(new Error(message), { status }); }
+const own = (data,key) => Object.prototype.hasOwnProperty.call(data,key);
 function positiveId(value) {
   const id = Number(value);
   if (!/^[1-9]\d*$/.test(String(value)) || !Number.isSafeInteger(id)) fail('组织或教师标识无效');
   return id;
+}
+
+// 所有旧/新学生分配入口共用部分更新契约：省略保留，明确 null 才解除。
+function assignStudent(actor, studentId, data) {
+  if (actor?.role !== 'admin') fail('仅管理员可以调整学生归属',403);
+  const id=positiveId(studentId);
+  const identity=requests.identity(actor,`student-assignment:${id}`,data);
+  return db.transaction(() => {
+    const prior=requests.existing(db,identity); if(prior) return prior;
+    const student=db.prepare("SELECT * FROM users WHERE id=? AND role='student'").get(id);
+    if(!student) fail('学生不存在',404);
+    const school=own(data,'school_id') ? positiveId(data.school_id) : student.school_id;
+    const moved=school !== student.school_id;
+    const cls=own(data,'class_id') ? (data.class_id == null ? null : positiveId(data.class_id)) : student.class_id;
+    const teacher=own(data,'teacher_id') ? (data.teacher_id == null ? null : positiveId(data.teacher_id)) : student.teacher_id;
+    const mentor=own(data,'mentor_id') ? (data.mentor_id == null ? null : positiveId(data.mentor_id)) : student.mentor_id;
+    const target=db.prepare('SELECT id,is_active,name FROM schools WHERE id=?').get(school);
+    if(!target || (moved && !target.is_active)) fail('目标学校不存在或已停用');
+    if(moved && (!own(data,'teacher_id') || !teacher || !own(data,'class_id') || !cls)) fail('跨校必须选择目标学校班级和新负责教师');
+    if(cls && !db.prepare('SELECT 1 FROM classes WHERE id=? AND school_id=?').get(cls,school)) fail('班级不属于目标学校');
+    if(teacher) {
+      const staff=db.prepare("SELECT school_id,is_active,archived_at FROM users WHERE id=? AND role='teacher'").get(teacher);
+      if(!staff || staff.school_id!==school || ((moved || own(data,'teacher_id')) && (!staff.is_active || staff.archived_at))) fail('负责教师必须与学生同校，新增分配须选择有效教师');
+    }
+    if(mentor && !db.prepare("SELECT 1 FROM users WHERE id=? AND role='academic_mentor' AND is_active=1 AND archived_at IS NULL").get(mentor)) {
+      // 原有停用导师关系允许保留，不能把资料编辑当作新增分配。
+      if(own(data,'mentor_id') && !(moved && mentor===student.mentor_id)) fail('负责导师不存在或已停用');
+    }
+    const reason=typeof data.reason==='string' ? data.reason.trim() : '';
+    if(moved && (!reason || reason.length>1000)) fail('跨校迁移原因必填，且不能超过1000字');
+    if(moved && mentor !== student.mentor_id) fail('跨校迁移必须保留原负责导师；请另行调整导师');
+    if(data.source_school_id !== undefined && Number(data.source_school_id)!==student.school_id) fail('学生学校已改变，请刷新后操作',409);
+    if(moved) db.prepare(`INSERT INTO student_school_transfers(student_id,actor_id,source_school_id,target_school_id,teacher_id,reason,context_json) VALUES(?,?,?,?,?,?,?)`)
+      .run(id,actor.id,student.school_id,school,teacher,reason,JSON.stringify({username:student.username,old_class_id:student.class_id,new_class_id:cls,old_teacher_id:student.teacher_id,mentor_id:student.mentor_id,target_school_name:target.name}));
+    db.prepare('UPDATE users SET school_id=?,class_id=?,teacher_id=?,mentor_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(school,cls,teacher,mentor,id);
+    const result={message:'学生分配信息已更新',student_id:id}; requests.save(db,identity,result); return result;
+  }).immediate();
 }
 
 // 移动同一个班级，而非重新建班、重建账号；审计和幂等结果必须与关系更新一起提交。
@@ -107,4 +145,4 @@ function setSchoolActive(id, active) {
   if (!result.changes) throw Object.assign(new Error('学校不存在'), { status: 404 });
 }
 
-module.exports = { createSchool, deleteSchool, createClass, deleteClass, setSchoolActive, transferClass, classTransfers };
+module.exports = { createSchool, deleteSchool, createClass, deleteClass, setSchoolActive, transferClass, classTransfers, assignStudent };

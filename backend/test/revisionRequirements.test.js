@@ -11,6 +11,7 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pbl-revision-'));
 Object.assign(process.env, {
   DB_PATH: path.join(dir, 'test.db'), UPLOAD_PATH: path.join(dir, 'uploads'),
   FEEDBACK_UPLOAD_PATH: path.join(dir, 'feedback'), NODE_ENV: 'test',
+  MAINTENANCE_FILE: path.join(dir, 'maintenance.lock'),
   JWT_SECRET: 'revision-regression', LOGIN_RATE_LIMIT_IP: '1000',
 });
 const app = require('../app');
@@ -90,6 +91,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:17,name:'017_account_batches.sql' },
       { version:18,name:'018_learning_versions.sql' },
       { version:19,name:'019_operations_safety.sql' },
+      { version:20,name:'020_release_closure.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -120,6 +122,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:17,name:'017_account_batches.sql' },
       { version:18,name:'018_learning_versions.sql' },
       { version:19,name:'019_operations_safety.sql' },
+      { version:20,name:'020_release_closure.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -289,11 +292,36 @@ test('指定课时回放上传重试幂等，同一请求标识不能提交不�
 
 test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
   const healthy=await api('/health','GET',undefined,null);
-  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,19);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,20);
   const prepare=db.prepare;
   try {
-    db.prepare=function(sql){if(sql==='SELECT 1')throw Error('模拟数据库不可用');return prepare.call(this,sql);};
+    db.prepare=function(sql){if(sql.includes('FROM schema_migrations'))throw Error('模拟数据库不可用');return prepare.call(this,sql);};
     const failed=await api('/health','GET',undefined,null);
     assert.equal(failed.status,503);assert.equal(failed.body.database,'unavailable');
   } finally {db.prepare=prepare;}
+});
+
+test('维护窗口阻断包括 GET 学习绑定的所有业务请求，健康检查仍可用且不丢弃账号', async () => {
+  const marker=require('../helpers/maintenance').maintenanceFile();
+  const before=db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n;
+  fs.writeFileSync(marker,'isolated-maintenance-test');
+  try {
+    for(const [url,method,body] of [['/learning/lessons/2','GET'],['/auth/login','POST',{username:'student',password:'Test!1234'}],['/courses','GET']]) {
+      const result=await api(url,method,body);
+      assert.equal(result.status,503);assert.equal(result.body.code,'MAINTENANCE');
+    }
+    assert.equal((await api('/health','GET',undefined,null)).status,200);
+    assert.equal(db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n,before);
+  } finally {fs.unlinkSync(marker);}
+  assert.equal((await api('/auth/me')).status,200);
+});
+
+test('通知失败监控与重放的 HTTP 入口仅管理员可用', async () => {
+  assert.equal((await api('/notifications/outbox','GET',undefined,'admin')).status,200);
+  for(const user of ['student','mentor','teacher']) {
+    assert.equal((await api('/notifications/outbox','GET',undefined,user)).status,403);
+    assert.equal((await api('/notifications/outbox/replay','POST',{event_key:'missing'},user)).status,403);
+  }
+  assert.equal((await api('/notifications/outbox/replay','POST',{event_key:'missing'},'admin')).status,404);
+  assert.equal((await api('/notifications/outbox/replay','POST',{event_key:{}},'admin')).status,400);
 });

@@ -189,6 +189,7 @@ test('通知投递失败持久化，修复后重试只投递一次', () => {
   const payload={eventKey:'system.test',dedupeKey:'test:outbox',title:'测试',content:'正文',category:'system'};
   assert.equal(notifications.safeCreateForUsers(payload,[3]),null);
   db.exec('DROP TRIGGER fail_notification');
+  db.prepare("UPDATE notification_outbox SET next_retry_at=NULL WHERE event_key='test:outbox'").run();
   notifications.retryOutbox(); notifications.retryOutbox();
   assert.equal(db.prepare("SELECT COUNT(*) n FROM notifications WHERE dedupe_key='test:outbox'").get().n,1);
   assert.ok(db.prepare("SELECT delivered_at FROM notification_outbox WHERE event_key='test:outbox'").get().delivered_at);
@@ -233,6 +234,7 @@ test('通知事件入队失败时报告业务一起回滚，而投递失败时�
   let report;
   try { report=learning.submitReport(3,f.lesson,{report:{summary:'总结'},reflection:{difficulty:'困难'}}); }
   finally { db.exec('DROP TRIGGER fail_delivery'); }
+  db.prepare('UPDATE notification_outbox SET next_retry_at=NULL WHERE event_key=?').run(`lesson.report_submitted:${report.id}`);
   notifications.retryOutbox();
   assert.ok(db.prepare('SELECT delivered_at FROM notification_outbox WHERE event_key=?').get(`lesson.report_submitted:${report.id}`).delivered_at);
 });

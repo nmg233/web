@@ -136,7 +136,10 @@ function lessonPackage(studentId, lessonId) {
     FROM tasks t WHERE t.lesson_id = ? AND t.status = 'active'
     ORDER BY t.sort_order, t.id
   `).all(studentId, studentId, lessonId);
-  const report = learningGate.latestReport(studentId, lessonId);
+  const originalReport = learningGate.latestReport(studentId, lessonId);
+  const repair = versions.replacement(db,originalReport?.id);
+  const report = repair ? { ...originalReport, original_status:originalReport.status, status:'rejected',
+    resubmission_required:true, review_comment:'历史内容已补齐，请完成补学后重新提交新版报告。' } : originalReport;
   const reflection = report ? db.prepare('SELECT * FROM reflections WHERE report_id = ?').get(report.id) || null : null;
   const replays = version.content.replays.map(({ file_path, ...r }) => r);
   const resources = version.content.resources.map(({ file_path, ...r }) => ({
@@ -406,7 +409,7 @@ function submitReport(studentId, lessonId, data) {
   const reportId = db.transaction(() => {
     // 取得写锁后核实当前版本，避免重复请求或旧页面基于过期版本提交。
     const previous = learningGate.latestReport(studentId, lessonId);
-    if (previous && previous.status !== 'rejected') {
+    if (previous && previous.status !== 'rejected' && !versions.replacement(db,previous.id)) {
       throw new LearningError('当前报告已提交或通过，不能覆盖', 409, 'REPORT_IMMUTABLE');
     }
     if (data.base_report_id !== undefined && data.base_report_id !== (previous?.id ?? null)) {
@@ -425,6 +428,7 @@ function submitReport(studentId, lessonId, data) {
       payload.report.next_plan, parentId, version,
     );
     const id = Number(result.lastInsertRowid);
+    if (previous) db.prepare('UPDATE report_replacements SET replacement_report_id=? WHERE report_id=?').run(id,previous.id);
     db.prepare('INSERT INTO report_content_versions (report_id, content_version_id) VALUES (?, ?)').run(id, requireStarted(studentId,lessonId).id);
     db.prepare(`
       INSERT INTO reflections (
@@ -487,7 +491,7 @@ function listManagedLessons(user) {
     FROM lessons l
     JOIN courses c ON c.id = l.course_id
     LEFT JOIN knowledge_cards kc ON kc.lesson_id = l.id AND kc.status != 'archived'
-    LEFT JOIN card_exercises ce ON ce.card_id = kc.id
+    LEFT JOIN card_exercises ce ON ce.card_id = kc.id AND NOT EXISTS (SELECT 1 FROM retired_exercises x WHERE x.exercise_id=ce.id)
     WHERE ${where}
     GROUP BY l.id, c.id
     ORDER BY CASE c.status WHEN 'published' THEN 1 WHEN 'draft' THEN 2 ELSE 3 END,

@@ -143,6 +143,8 @@ export const feedbackAPI = {
 };
 
 export const notificationAPI = {
+  outbox: () => client.get('/notifications/outbox'),
+  replayOutbox: (event_key) => client.post('/notifications/outbox/replay', { event_key }),
   list: (params) => client.get('/notifications', { params }),
   recent: (limit = 10) => client.get('/notifications/recent', { params: { limit } }),
   unreadCount: () => client.get('/notifications/unread-count'),
