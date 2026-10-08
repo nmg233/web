@@ -80,6 +80,9 @@ function assertManageLesson(user, lessonId) {
 }
 
 function assertWritableLesson(user, lessonId) {
+  if (user.role !== 'admin') {
+    throw new LearningError('仅管理员可编辑知识卡片和练习', 403, 'LEARNING_CONTENT_READ_ONLY');
+  }
   const lesson = assertManageLesson(user, lessonId);
   if (lesson.course_status === 'archived') {
     throw new LearningError('已归档课程不能修改学习内容', 409, 'COURSE_ARCHIVED');
@@ -421,7 +424,9 @@ function listManagedCards(user, lessonId) {
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
       ...item,
       options: parseStoredJson(item.options_json, []),
-      answer: parseStoredJson(item.answer_json),
+      answer_json: user.role === 'admin' ? item.answer_json : undefined,
+      answer: user.role === 'admin' ? parseStoredJson(item.answer_json) : undefined,
+      explanation: user.role === 'admin' ? item.explanation : undefined,
     })),
   }));
 }

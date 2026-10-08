@@ -209,10 +209,71 @@ test('导师评审和内容管理严格按课程归属授权', async () => {
   assert.equal((await api('/learning/manage/lessons/1/cards', { token: tokens.othermentor })).status, 403);
   assert.equal((await api('/learning/manage/lessons/1/cards', { token: tokens.teacher })).status, 403);
   const created = await api('/learning/manage/lessons/1/cards', {
-    method: 'POST', token: tokens.mentor,
+    method: 'POST', token: tokens.admin,
     body: { title: '补充卡片', content: '补充学习内容', status: 'draft' },
   });
   assert.equal(created.status, 201);
+});
+
+test('题库七个写接口拒绝导师、教师和学生且不改变历史数据', async () => {
+  const writes = [
+    ['POST', '/learning/manage/lessons/1/cards', { title: '禁止新增', content: '内容' }],
+    ['POST', '/learning/manage/lessons/1/cards/reorder', { card_ids: [2, 1] }],
+    ['PUT', '/learning/manage/cards/1', { title: '禁止修改', status: 'archived' }],
+    ['DELETE', '/learning/manage/cards/1'],
+    ['POST', '/learning/manage/cards/1/exercises', { question_type: 'fill_blank', prompt: '题目', answer: '答案', explanation: '解析' }],
+    ['PUT', '/learning/manage/exercises/1', { answer: 'B', explanation: '禁止修改' }],
+    ['DELETE', '/learning/manage/exercises/1'],
+  ];
+  const snapshot = () => Object.fromEntries([
+    'knowledge_cards', 'card_exercises', 'card_exercise_attempts', 'student_card_progress',
+    'lesson_progress', 'lesson_learning_reports', 'courses', 'enrollments',
+  ].map((table) => [table, db.prepare(`SELECT * FROM ${table} ORDER BY id`).all()]));
+  const original = snapshot();
+  for (const role of ['mentor', 'othermentor', 'teacher', 'student']) {
+    for (const [method, url, body] of writes) {
+      assert.equal((await api(url, { method, body, token: tokens[role] })).status, 403, `${role}: ${method} ${url}`);
+    }
+  }
+  assert.deepEqual(snapshot(), original);
+});
+
+test('服务层直接调用也拒绝导师写题库，导师只读接口隐藏答案和解析', async () => {
+  const service = require('../services/learningService');
+  const mentor = { id: 2, role: 'academic_mentor' };
+  for (const write of [
+    () => service.createCard(mentor, 1, {}),
+    () => service.updateCard(mentor, 1, {}),
+    () => service.deleteCard(mentor, 1),
+    () => service.reorderCards(mentor, 1, [1, 2]),
+    () => service.createExercise(mentor, 1, {}),
+    () => service.updateExercise(mentor, 1, {}),
+    () => service.deleteExercise(mentor, 1),
+  ]) {
+    assert.throws(write, (error) => error.status === 403 && error.code === 'LEARNING_CONTENT_READ_ONLY');
+  }
+  const result = await api('/learning/manage/lessons/1/cards', { token: tokens.mentor });
+  assert.equal(result.status, 200);
+  const exercise = result.body.cards.find((card) => card.id === 1).exercises[0];
+  for (const field of ['answer_json', 'answer', 'correct_answer', 'explanation']) {
+    assert.equal(Object.hasOwn(exercise, field), false, field);
+  }
+  const admin = await api('/learning/manage/lessons/1/cards', { token: tokens.admin });
+  assert.equal(admin.body.cards.find((card) => card.id === 1).exercises[0].answer, 'A');
+});
+
+test('管理员仍可创建、修改、排序和删除知识卡片与练习', async () => {
+  const request = (url, method, body) => api(url, { method, body, token: tokens.admin });
+  const card = await request('/learning/manage/lessons/3/cards', 'POST', { title: '管理员卡片', content: '正文', status: 'draft' });
+  assert.equal(card.status, 201);
+  const id = card.body.id;
+  assert.equal((await request(`/learning/manage/cards/${id}`, 'PUT', { title: '更新标题' })).status, 200);
+  assert.equal((await request('/learning/manage/lessons/3/cards/reorder', 'POST', { card_ids: [id] })).status, 200);
+  const exercise = await request(`/learning/manage/cards/${id}/exercises`, 'POST', { question_type: 'fill_blank', prompt: '作用力', answer: '重力', explanation: '地球吸引' });
+  assert.equal(exercise.status, 201);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`, 'PUT', { explanation: '更新解析' })).status, 200);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`, 'DELETE')).status, 200);
+  assert.equal((await request(`/learning/manage/cards/${id}`, 'DELETE')).status, 200);
 });
 
 test('内容编排中心列出导师创建或受邀授课课程的课时', async () => {

@@ -9,13 +9,13 @@ router.use(requirePasswordChanged);
 
 router.get('/manage/lessons', requireRole('admin', 'academic_mentor'), controller.manageLessons);
 router.get('/manage/lessons/:lessonId/cards', requireRole('admin', 'academic_mentor'), controller.manageCards);
-router.post('/manage/lessons/:lessonId/cards', requireRole('admin', 'academic_mentor'), controller.createCard);
-router.post('/manage/lessons/:lessonId/cards/reorder', requireRole('admin', 'academic_mentor'), controller.reorderCards);
-router.put('/manage/cards/:cardId', requireRole('admin', 'academic_mentor'), controller.updateCard);
-router.delete('/manage/cards/:cardId', requireRole('admin', 'academic_mentor'), controller.deleteCard);
-router.post('/manage/cards/:cardId/exercises', requireRole('admin', 'academic_mentor'), controller.createExercise);
-router.put('/manage/exercises/:exerciseId', requireRole('admin', 'academic_mentor'), controller.updateExercise);
-router.delete('/manage/exercises/:exerciseId', requireRole('admin', 'academic_mentor'), controller.deleteExercise);
+router.post('/manage/lessons/:lessonId/cards', requireRole('admin'), controller.createCard);
+router.post('/manage/lessons/:lessonId/cards/reorder', requireRole('admin'), controller.reorderCards);
+router.put('/manage/cards/:cardId', requireRole('admin'), controller.updateCard);
+router.delete('/manage/cards/:cardId', requireRole('admin'), controller.deleteCard);
+router.post('/manage/cards/:cardId/exercises', requireRole('admin'), controller.createExercise);
+router.put('/manage/exercises/:exerciseId', requireRole('admin'), controller.updateExercise);
+router.delete('/manage/exercises/:exerciseId', requireRole('admin'), controller.deleteExercise);
 
 router.get('/lessons/:lessonId', requireRole('student'), controller.lesson);
 router.post('/lessons/:lessonId/review-complete', requireRole('student'), controller.completeReview);

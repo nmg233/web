@@ -182,10 +182,10 @@ test('摘要管理和读取遵守课程与角色权限', async () => {
 
 test('Markdown知识卡片源码完整保存，草稿隐藏，发布后学生获得相同内容', async () => {
   const markdown = '## 升力\n\n**核心概念**\n\n- 流速\n- 压力\n\n```js\nconst lift = 1;\n```\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
-  const created = await api('/learning/manage/lessons/1/cards','POST',{title:'Markdown卡片',content:markdown,status:'draft'},'mentor');
+  const created = await api('/learning/manage/lessons/1/cards','POST',{title:'Markdown卡片',content:markdown,status:'draft'},'admin');
   assert.equal(created.status,201);
   assert.equal((await api('/learning/lessons/1')).body.cards.some((item) => item.id === created.body.id),false);
-  assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{status:'published'},'mentor')).status,200);
+  assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{status:'published'},'admin')).status,200);
   assert.equal((await api('/learning/lessons/1')).body.cards.find((item) => item.id === created.body.id).content,markdown);
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{content:markdown+'\n\n> 继续探究'},'othermentor')).status,403);
   assert.equal(db.prepare('SELECT content FROM knowledge_cards WHERE id=?').get(created.body.id).content,markdown);
