@@ -35,8 +35,9 @@ export const courseAPI = {
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
   deleteResource: (resourceId) => client.delete(`/courses/resources/${resourceId}`),
   listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
-  uploadReplay: (courseId, formData) => client.post(`/courses/${courseId}/replays`, formData, {
+  uploadReplay: (courseId, formData, onUploadProgress) => client.post(`/courses/${courseId}/replays`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 30 * 60 * 1000, onUploadProgress,
   }),
   updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
   deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
@@ -54,6 +55,7 @@ export const taskAPI = {
 };
 
 export const studentAPI = {
+  schoolStatus: (id, is_active) => client.put(`/students/schools/${id}/status`, { is_active }),
   list: (params) => client.get('/students', { params }),
   create: (data) => client.post('/students', data),
   detail: (id) => client.get(`/students/${id}`),
@@ -74,6 +76,8 @@ export const studentAPI = {
   deleteSchool: (id) => client.delete(`/students/schools/${id}`),
   createClass: (data) => client.post('/students/classes', data),
   deleteClass: (id) => client.delete(`/students/classes/${id}`),
+  transferClass: (id, data) => client.post(`/students/classes/${id}/transfer`, data),
+  classTransfers: (id) => client.get(`/students/classes/${id}/transfers`),
   createUser: (data) => client.post('/students/users', data),
   updateUser: (id, data) => client.put(`/students/users/${id}`, data),
   deleteUser: (id) => client.delete(`/students/users/${id}`),
@@ -160,6 +164,7 @@ export const learningAPI = {
 };
 
 export const learningManageAPI = {
+  repairLegacy: (lessonId, data) => client.post(`/learning/manage/lessons/${lessonId}/repair-legacy`, data),
   lessons: () => client.get('/learning/manage/lessons'),
   cards: (lessonId) => client.get(`/learning/manage/lessons/${lessonId}/cards`),
   createCard: (lessonId, data) => client.post(`/learning/manage/lessons/${lessonId}/cards`, data),
@@ -172,6 +177,7 @@ export const learningManageAPI = {
 };
 
 export const mentorReviewAPI = {
+  feedback: (reportId, exerciseId, content) => client.post(`/mentor-reviews/${reportId}/exercises/${exerciseId}/feedback`, { content }),
   list: (params) => client.get('/mentor-reviews', { params }),
   detail: (reportId) => client.get(`/mentor-reviews/${reportId}`),
   review: (reportId, data) => client.post(`/mentor-reviews/${reportId}/review`, data),

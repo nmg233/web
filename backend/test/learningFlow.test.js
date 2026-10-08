@@ -52,6 +52,9 @@ before(async () => {
   db.prepare("INSERT INTO enrollments (id,student_id,course_id,status,enrolled_by) VALUES (1,3,1,'active',2)").run();
   db.prepare("INSERT INTO enrollments (id,student_id,course_id,status,enrolled_by) VALUES (2,3,2,'active',2)").run();
   db.prepare("INSERT INTO tasks (id,lesson_id,title,require_upload,status,sort_order) VALUES (1,1,'综合成果',1,'active',1)").run();
+  const video = path.join(dir, 'review.mp4');
+  fs.writeFileSync(video, '0000ftypisom0000');
+  db.prepare("INSERT INTO course_replays (course_id,lesson_id,title,description,video_path,created_by) VALUES (1,1,'课堂视频','本课简介',?,2)").run(video);
   db.prepare("INSERT INTO tasks (id,lesson_id,title,require_upload,status,sort_order) VALUES (3,3,'受邀课程任务',0,'active',1)").run();
   db.prepare(`INSERT INTO knowledge_cards (id,lesson_id,title,content,sort_order,is_required,status,created_by)
               VALUES (1,1,'必修卡片','需要掌握的知识',1,1,'published',2)`).run();
@@ -164,8 +167,8 @@ test('学生学习包校验报名和发布状态，且不泄漏答案', async ()
 
   db.prepare("INSERT INTO lessons (id,course_id,title,status,sort_order,instructor_id) VALUES (4,1,'未配置卡片课时','completed',2,2)").run();
   const emptyLesson = await api('/learning/lessons/4', { token: tokens.student });
-  assert.equal(emptyLesson.status, 200);
-  assert.equal(emptyLesson.body.progress.cards_done, false, '没有已发布卡片时不能默认完成');
+  assert.equal(emptyLesson.status, 409);
+  assert.equal(emptyLesson.body.code, 'LESSON_CONTENT_INCOMPLETE', '没有已发布卡片时禁止进入');
   await api('/learning/lessons/4/review-complete', { method: 'POST', token: tokens.student });
   assert.equal((await api('/learning/lessons/4/report', {
     method: 'POST', token: tokens.student,

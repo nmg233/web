@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Alert, Button, Card, Checkbox, Collapse, Descriptions, Empty, Form, Grid, Input, Modal,
@@ -28,10 +28,10 @@ function nextStage(data) {
 }
 
 function Exercise({ exercise, onDone }) {
-  const [answer, setAnswer] = useState(exercise.question_type === 'multiple_choice' ? [] : '');
+  const [answer, setAnswer] = useState(exercise.student_answer ?? (exercise.question_type === 'multiple_choice' ? [] : exercise.question_type === 'fill_blank' && exercise.blank_count ? Array(exercise.blank_count).fill('') : ''));
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const hasAnswer = Array.isArray(answer) ? answer.length > 0 : typeof answer === 'string' ? answer.trim().length > 0 : answer !== null && answer !== undefined;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 && answer.every((value) => String(value).trim().length > 0) : typeof answer === 'string' ? answer.trim().length > 0 : answer !== null && answer !== undefined;
   const locked = exercise.attempted || Boolean(result) || submitting;
   const submit = async () => {
     if (locked || !hasAnswer) return;
@@ -46,10 +46,15 @@ function Exercise({ exercise, onDone }) {
   const options = (exercise.options || []).map((item, index) => typeof item === 'object'
     ? { label: item.label ?? item.text, value: item.value ?? item.key ?? String(index) }
     : { label: item, value: item });
-  let input = <Input.TextArea value={answer} onChange={(event) => setAnswer(event.target.value)} rows={2} placeholder="填写答案" />;
-  if (exercise.question_type === 'single_choice') input = <Radio.Group options={options} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
-  if (exercise.question_type === 'multiple_choice') input = <Checkbox.Group options={options} value={answer} onChange={setAnswer} />;
-  if (exercise.question_type === 'true_false') input = <Radio.Group options={[{ label: '正确', value: true }, { label: '错误', value: false }]} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
+  let input = <Input.TextArea value={answer} onChange={(event) => setAnswer(event.target.value)} rows={2} disabled={locked} placeholder="填写答案" />;
+  if (exercise.question_type === 'single_choice') input = <Radio.Group options={options} disabled={locked} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
+  if (exercise.question_type === 'multiple_choice') input = <Checkbox.Group disabled={locked} options={options} value={answer} onChange={setAnswer} />;
+  if (exercise.question_type === 'true_false') input = <Radio.Group disabled={locked} options={[{ label: '正确', value: true }, { label: '错误', value: false }]} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
+  if (exercise.question_type === 'fill_blank' && exercise.blank_count) {
+    input = <Space direction="vertical">{Array.from({ length: exercise.blank_count }, (_, i) => <Input key={i} disabled={locked} placeholder={`第 ${i + 1} 空`} value={Array.isArray(answer) ? answer[i] : answer} onChange={(event) => {
+      const values = Array.isArray(answer) ? [...answer] : Array(exercise.blank_count).fill(''); values[i] = event.target.value; setAnswer(values);
+    }} />)}</Space>;
+  }
   return <Card size="small" style={{ marginTop: 12 }}>
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Space><Text strong>{exercise.prompt}</Text><Tag>{exercise.points} 分</Tag></Space>
@@ -77,35 +82,64 @@ export default function LessonLearn() {
   const [draftSaveFailed, setDraftSaveFailed] = useState(false);
   const [reflectionExpanded, setReflectionExpanded] = useState(['reflection']);
   const [form] = Form.useForm();
+  const requests = useRef({ route: String(lessonId), load: 0, play: 0 });
+  const video = useRef(null);
+  const resume = useRef({ position: 0, playing: false });
+  const [videoError, setVideoError] = useState('');
   const draftKey = reportDraftKey(user?.id, lessonId, data?.report?.id);
 
-  const playReplay = async (replayId) => {
-    setActiveReplayId(replayId);
-    try { setReplayUrl((await courseAPI.streamUrl(replayId)).url); }
-    catch { setReplayUrl(''); }
+  const playReplay = async (replayId, refresh = false) => {
+    const state = requests.current;
+    if (state.route !== String(lessonId)) return;
+    const sequence = ++state.play;
+    resume.current = refresh ? { position: video.current?.currentTime || 0, playing: video.current ? !video.current.paused : false } : { position: 0, playing: false };
+    setActiveReplayId(replayId); setVideoError('');
+    try {
+      const result = await courseAPI.streamUrl(replayId);
+      if (state.route === String(lessonId) && sequence === state.play) setReplayUrl(result.url);
+    } catch {
+      if (state.route === String(lessonId) && sequence === state.play) { setReplayUrl(''); setVideoError('视频无法播放，请重新获取播放地址或联系导师。'); }
+    }
   };
 
   const load = async ({ resetReplay = false } = {}) => {
+    const state = requests.current;
+    if (state.route !== String(lessonId)) return;
+    const sequence = ++state.load;
+    const current = () => state.route === String(lessonId) && sequence === state.load;
     setLoading(true); setError('');
+    if (resetReplay) { setData(null); setReplayUrl(''); setActiveReplayId(null); setDraftSaveFailed(false); }
     try {
       const payload = await learningAPI.lesson(lessonId);
-      setData(payload);
-      setActiveStage(nextStage(payload));
-      setCardIndex((current) => Math.min(current, Math.max(0, payload.cards.length - 1)));
-      if (resetReplay) { setReplayUrl(''); setActiveReplayId(null); setDraftSaveFailed(false); }
+      if (!current()) return;
+      setData(payload); setActiveStage(nextStage(payload));
+      setCardIndex((index) => resetReplay ? Math.max(0, payload.cards.findIndex((c) => !c.completed)) : Math.min(index, Math.max(0, payload.cards.length - 1)));
       if ((resetReplay || !activeReplayId) && payload.replays?.length) await playReplay(payload.replays[0].id);
+      if (!current()) return;
       if (!payload.report || payload.report.status === 'rejected') {
         form.resetFields();
         form.setFieldsValue(restoreReportDraft(localStorage, reportDraftKey(user?.id, lessonId, payload.report?.id), payload.report, payload.reflection));
       }
     } catch (err) {
-      setData(null);
-      setError(err?.response?.data?.error || '无法加载本课时，请检查报名和发布状态。');
-    } finally { setLoading(false); }
+      if (!current()) return;
+      setData(null); setError(err?.response?.data?.error || '无法加载本课时，请检查报名和发布状态。');
+    } finally { if (current()) setLoading(false); }
   };
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { load({ resetReplay: true }); }, [lessonId, user?.id]);
+  useEffect(() => {
+    const state = requests.current;
+    state.route = String(lessonId);
+    // 路由切换必须同步清空上一课时，以免展示或操作错误的对象。
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load({ resetReplay: true });
+    return () => { state.route = null; state.load++; state.play++; };
+  }, [lessonId, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!activeReplayId) return undefined;
+    const timer = setInterval(() => playReplay(activeReplayId, true), 480000);
+    return () => clearInterval(timer);
+  }, [activeReplayId, lessonId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finishReview = async () => {
     setSubmitting(true);
@@ -132,7 +166,9 @@ export default function LessonLearn() {
       const blob = await courseAPI.downloadResource(resource.id);
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
-      anchor.href = url; anchor.download = resource.title || '课堂资料'; anchor.click();
+      const extension = resource.download_name?.match(/\.[^.]+$/)?.[0] || '';
+      const title = resource.title || '课堂资料';
+      anchor.href = url; anchor.download = extension && !title.toLowerCase().endsWith(extension.toLowerCase()) ? title + extension : title; anchor.click();
       URL.revokeObjectURL(url);
     } catch { /* handled by the request client */ }
   };
@@ -142,6 +178,7 @@ export default function LessonLearn() {
       title: '确认提交学习报告？',
       content: '提交后进入导师评审；若导师退回，可根据意见提交新版本。',
       onOk: async () => {
+        if (requests.current.route !== String(lessonId)) throw new Error('页面已切换，请重新确认');
         setSubmitting(true);
         try {
           await learningAPI.submitReport(lessonId, { report: values, reflection: values.reflection, base_report_id: data.report?.id ?? null });
@@ -153,7 +190,7 @@ export default function LessonLearn() {
     });
   };
 
-  if (!data) return <PageContainer title="课后学习" extra={<Button onClick={() => navigate('/tasks')}>返回课后任务</Button>}><AsyncPageState loading={loading} error={error} onRetry={load}><Empty /></AsyncPageState></PageContainer>;
+  if (!data || data.lesson.id !== Number(lessonId)) return <PageContainer title="课后学习" extra={<Button onClick={() => navigate('/tasks')}>返回课后任务</Button>}><AsyncPageState loading={loading} error={error} onRetry={load}><Empty /></AsyncPageState></PageContainer>;
 
   const { lesson, cards = [], progress = {}, report } = data;
   const currentStep = nextStage(data);
@@ -165,12 +202,18 @@ export default function LessonLearn() {
     <div className="learning-workbench">
       <Card className="learning-sticky content-card" title="学习流程"><Steps direction={screens.md ? 'vertical' : 'horizontal'} size="small" current={currentStep} onChange={setActiveStage} items={stageItems} /></Card>
       <div>
+        {data.content_version?.legacy_compat && <Alert type="warning" showIcon message="此课时使用兼容快照；部分历史题目可能无法完整还原，原作答与成绩已保留。" description={data.content_version?.repair ? `管理员已补齐缺失内容：${data.content_version.repair.reason}。已有作答与次数保持不变。` : null} style={{ marginBottom: 16 }} />}
         {activeStage === 0 && <Card className="content-card">
           <Title level={4}>第一阶段：课堂回顾</Title>
           <Paragraph type="secondary">观看课堂回放、回顾本课内容，并按需下载配套资料。完成后请在页面底部确认。</Paragraph>
           <Card size="small" title="课堂回放" style={{ marginBottom: 16 }}>
-            {replayUrl ? <video key={replayUrl} controls src={replayUrl} style={{ width: '100%', maxHeight: 460, marginBottom: 16, background: '#000', borderRadius: 8 }} /> : <Empty description="本课时暂无课堂回放" />}
+            {replayUrl ? <video ref={video} key={replayUrl} controls src={replayUrl} onLoadedMetadata={() => {
+              if (video.current && resume.current.position) video.current.currentTime = resume.current.position;
+              if (video.current && resume.current.playing) video.current.play().catch(() => {});
+            }} onError={() => setVideoError('播放中断或链接已过期，请刷新播放地址继续观看。')} style={{ width: '100%', maxHeight: 460, marginBottom: 16, background: '#000', borderRadius: 8 }} /> : <Empty description="本课时暂无课堂回放" />}
             <Space wrap>{data.replays.map((replay) => <Button key={replay.id} type={activeReplayId === replay.id ? 'primary' : 'default'} icon={<PlayCircleOutlined />} onClick={() => playReplay(replay.id)}>{replay.title}</Button>)}</Space>
+            {videoError && <Alert type="warning" message={videoError} action={<Button onClick={() => playReplay(activeReplayId, true)}>刷新播放地址</Button>} />}
+            {data.replays.find((r) => r.id === activeReplayId)?.description && <Paragraph>{data.replays.find((r) => r.id === activeReplayId).description}</Paragraph>}
             <ReplaySummary replay={data.replays.find((replay) => replay.id === activeReplayId)} />
           </Card>
           <Card size="small" title="配套资料" style={{ marginBottom: 24 }}>

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Form, Input, Select, Space, Switch, Typography, Upload, message } from 'antd';
 import { ArrowLeftOutlined, InboxOutlined } from '@ant-design/icons';
 import { feedbackAPI } from '../../api';
 import { feedbackModuleOptions, feedbackTypeOptions } from '../../constants/feedback';
 import { useAuth } from '../../store/AuthContext';
+import { requestKey } from '../../utils/requestKey';
 
 const { Title, Paragraph } = Typography;
 
@@ -14,6 +15,7 @@ export default function FeedbackForm() {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const request = useRef({ fingerprint: '', key: '' });
 
   const submit = async (values) => {
     setSubmitting(true);
@@ -24,6 +26,9 @@ export default function FeedbackForm() {
       });
       data.set('source_path', location.state?.from || '/feedback/new');
       data.set('client_info', navigator.userAgent);
+      const fingerprint = JSON.stringify([values, fileList.map((f) => [f.name, f.size, f.uid, (f.originFileObj || f).lastModified])]);
+      if (request.current.fingerprint !== fingerprint) request.current = { fingerprint, key: requestKey() };
+      data.set('request_key', request.current.key);
       fileList.forEach((file) => data.append('attachments', file.originFileObj || file));
 
       const response = await feedbackAPI.create(data);

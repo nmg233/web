@@ -25,7 +25,9 @@ exports.submitExercise = action((req) => learningService.submitExercise(req.user
 exports.completeCard = action((req) => ({ progress: learningService.completeCard(req.user.id, req.params.cardId) }));
 exports.submitReport = action((req) => ({ report: learningService.submitReport(req.user.id, req.params.lessonId, req.body) }), 201);
 
-exports.manageCards = action((req) => ({ cards: learningService.listManagedCards(req.user, req.params.lessonId) }));
+exports.manageCards = action((req) => ({ cards: learningService.listManagedCards(req.user, req.params.lessonId),
+  context:learningService.managedContext(req.user,req.params.lessonId) }));
+exports.repairLegacy = action((req) => learningService.repairLegacy(req.user,req.params.lessonId,req.body.student_id,req.body.reason));
 exports.manageLessons = action((req) => ({ lessons: learningService.listManagedLessons(req.user) }));
 exports.createCard = action((req) => learningService.createCard(req.user, req.params.lessonId, req.body), 201);
 exports.updateCard = action((req) => learningService.updateCard(req.user, req.params.cardId, req.body));

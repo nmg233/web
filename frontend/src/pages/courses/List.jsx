@@ -36,7 +36,7 @@ export default function CourseList() {
     { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level' },
     { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
     { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
-    ...(canViewOperationalStats(user?.role) ? [{ title: '学习进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
+    ...(canViewOperationalStats(user?.role) ? [{ title: '平均进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
     ...(canViewOperationalStats(user?.role) ? [{ title: '学生数', dataIndex: 'student_count', key: 'student_count' }, { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' }] : []),
     ...(canManage(user?.role) ? [{
       title: '操作', key: 'actions', render: (_, r) => r.can_manage ? (

@@ -25,6 +25,7 @@ function organization(row, role) {
   if (!schools.length) fail('学生/教师必须选择存在的学校');
   if (schools.length !== 1) fail('学校名称重名，请使用学校 ID 或唯一学校代码');
   const school = schools[0];
+  if (!school.is_active) fail('学校已停用，不能新增该校账号');
   let classes;
   if (row.class_id) classes = db.prepare('SELECT * FROM classes WHERE id = ? AND school_id = ?').all(row.class_id, school.id);
   else if (row.grade) classes = db.prepare('SELECT * FROM classes WHERE name = ? AND school_id = ? AND grade = ?').all(row.class_name || '', school.id, row.grade);

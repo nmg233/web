@@ -21,6 +21,12 @@ function taskStatus(task, userId) {
   return 'submitted';
 }
 
+function taskWritable(taskId) {
+  return Boolean(db.prepare(`SELECT 1 FROM tasks t JOIN lessons l ON l.id = t.lesson_id
+    JOIN courses c ON c.id = l.course_id WHERE t.id = ? AND c.status != 'archived'
+    AND l.status != 'cancelled' AND t.status != 'cancelled'`).get(taskId));
+}
+
 function taskStatusFromReview(reviewStatus) {
   if (!reviewStatus) return 'pending';
   if (reviewStatus === 'approved') return 'completed';
@@ -63,9 +69,7 @@ function taskQuery(user) {
   `).all(userId || null, userId || null, userId || null, userId || null, ...scopeParams);
   return tasks.map((task) => ({
     ...task,
-    status: user.role === 'student'
-      ? taskStatusFromLearning(task.learning_progress, task.report_status)
-      : taskStatusFromReview(task.review_status),
+    status: taskStatusFromReview(task.review_status),
   }));
 }
 
@@ -73,7 +77,21 @@ exports.list = (req, res) => {
   try {
     let tasks = taskQuery(req.user);
     if (req.query.status) tasks = tasks.filter((task) => task.status === req.query.status);
-    res.json({ tasks });
+    const lessons = req.user.role === 'student' ? db.prepare(`SELECT l.id AS lesson_id, l.id, l.title, l.title AS lesson_title,
+      c.id AS course_id, c.title AS course_title, COALESCE(lp.progress, 0) AS learning_progress,
+      (SELECT status FROM lesson_learning_reports r WHERE r.student_id = ? AND r.lesson_id = l.id ORDER BY version DESC, id DESC LIMIT 1) AS report_status
+      FROM enrollments e JOIN courses c ON c.id = e.course_id JOIN lessons l ON l.course_id = c.id
+      LEFT JOIN lesson_progress lp ON lp.student_id = e.student_id AND lp.lesson_id = l.id
+      WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published' AND l.status != 'cancelled'
+      ORDER BY c.id, l.sort_order, l.id`).all(req.user.id, req.user.id).map((l) => ({ ...l, kind: 'learning',
+        status: taskStatusFromLearning(l.learning_progress, l.report_status),
+        started: Boolean(require('../helpers/lessonVersions').boundVersion(db, req.user.id, l.id)),
+        readiness: require('../helpers/lessonVersions').readiness(db, l.id) }))
+      .filter((l) => {
+        const state = require('../helpers/lessonVersions').courseState(db, req.user.id, l.course_id);
+        return (!state.completed || state.lesson_ids.includes(l.lesson_id)) && (!req.query.status || l.status === req.query.status);
+      }) : [];
+    res.json({ tasks, lessons });
   } catch (err) {
     console.error('任务列表错误:', err);
     res.status(500).json({ error: '加载任务失败' });
@@ -112,7 +130,7 @@ exports.detail = (req, res) => {
       FROM (SELECT 1) seed
       LEFT JOIN lesson_progress lp ON lp.student_id = ? AND lp.lesson_id = ?
     `).get(userId, task.lesson_id, userId, task.lesson_id) : null;
-    res.json({ task: { ...task, enrollment_id: enrollment?.id || null, status: userId ? taskStatusFromLearning(learning?.progress, learning?.report_status) : taskStatus(task, userId) }, works });
+    res.json({ task: { ...task, enrollment_id: enrollment?.id || null, status: taskStatus(task, userId) }, works });
   } catch (err) {
     console.error('任务详情错误:', err);
     res.status(500).json({ error: '加载任务详情失败' });
@@ -124,6 +142,7 @@ exports.update = (req, res) => {
     if (!canManageTask(req.user, req.params.id)) {
       return res.status(403).json({ error: '无权管理该任务' });
     }
+    if (!taskWritable(req.params.id)) return res.status(409).json({ error: '已归档或取消的任务只允许查看历史' });
     const fields = ['title', 'description', 'task_type', 'require_upload', 'deadline'];
     const sets = [];
     const values = [];
@@ -150,6 +169,7 @@ exports.cancel = (req, res) => {
     if (!canManageTask(req.user, req.params.id)) {
       return res.status(403).json({ error: '无权管理该任务' });
     }
+    if (!taskWritable(req.params.id)) return res.status(409).json({ error: '已归档或取消的任务只允许查看历史' });
     const task = db.prepare('SELECT id, status FROM tasks WHERE id = ?').get(req.params.id);
     if (!task || task.status === 'cancelled') return res.status(400).json({ error: '任务不存在或已取消' });
     const work = db.prepare('SELECT 1 FROM works WHERE task_id = ? LIMIT 1').get(task.id);

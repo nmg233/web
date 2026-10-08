@@ -41,17 +41,17 @@ export default function HeaderBar() {
         >
           意见反馈
         </Button>
-        <Dropdown menu={{
+        <Dropdown trigger={['click']} menu={{
           items: [
             { key: 'change-password', icon: <KeyOutlined />, label: '修改密码', onClick: () => navigate('/change-password') },
             { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout }
           ]
         }}>
-          <Space style={{ cursor: 'pointer' }}>
+          <Button type="text" aria-label="账户菜单" style={{height:'auto'}}><Space>
             <Avatar size="small" icon={<UserOutlined />} />
             <span style={{ fontWeight: 500 }}>{user?.real_name}</span>
             <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
-          </Space>
+          </Space></Button>
         </Dropdown>
       </Space>
     </Header>

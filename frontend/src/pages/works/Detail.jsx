@@ -23,14 +23,19 @@ function getFileType(work) {
 }
 
 export default function WorkDetail() {
+  const { id } = useParams();
+  return <WorkDetailPage key={id} />;
+}
+
+function WorkDetailPage() {
   const { id } = useParams(); const { user } = useAuth(); const navigate = useNavigate();
   const [data, setData] = useState(null); const [loading, setLoading] = useState(true);
-  useEffect(() => { workAPI.detail(id).then(setData).catch(() => message.error('加载失败')).finally(() => setLoading(false)); }, [id]);
+  useEffect(() => { let active=true; workAPI.detail(id).then((payload)=>{if(active)setData(payload);}).catch(()=>{if(active)message.error('加载失败');}).finally(()=>{if(active)setLoading(false);}); return ()=>{active=false;}; }, [id]);
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!data?.work) return <p>作品不存在</p>;
   const { work, review, versions = [] } = data;
   const isOwner = work.student_id === user?.id;
-  const canReview = ['admin', 'academic_mentor'].includes(user?.role);
+  const canReview = !work.read_only && ['admin', 'academic_mentor'].includes(user?.role);
   const statusText = work.review_status === 'rejected' && work.has_newer_version ? '已修改' : work.review_status === 'pending' ? '待评审' : work.review_status === 'approved' ? '通过' : '需修改';
   const download = async () => {
     try {
@@ -47,7 +52,7 @@ export default function WorkDetail() {
     <Descriptions column={2} bordered size="small"><Descriptions.Item label="学生">{work.student_name}</Descriptions.Item><Descriptions.Item label="课程/任务">{work.course_title || '—'} / {work.task_title || '—'}</Descriptions.Item><Descriptions.Item label="状态"><Tag color={work.review_status === 'approved' ? 'green' : work.review_status === 'rejected' && !work.has_newer_version ? 'red' : work.has_newer_version ? 'blue' : 'orange'}>{statusText}</Tag></Descriptions.Item><Descriptions.Item label="提交时间">{formatBeijingTime(work.created_at)}</Descriptions.Item><Descriptions.Item label="版本">第 {work.version || 1} 版</Descriptions.Item><Descriptions.Item label="历史版本"><Select value={Number(id)} onChange={(value) => navigate(`/works/${value}`)} style={{ width: 180 }} options={versions.map((v) => ({ value: v.id, label: `第 ${v.version || 1} 版` }))} /></Descriptions.Item></Descriptions>
     {work.description && <p style={{ marginTop: 12 }}>{work.description}</p>}{work.has_file && <Card title="附件" size="small" style={{ marginTop: 12 }}><Descriptions size="small" column={3}><Descriptions.Item label="名称">{work.file_name || '附件'}</Descriptions.Item><Descriptions.Item label="类型">{getFileType(work)}</Descriptions.Item><Descriptions.Item label="大小">{formatFileSize(work.file_size)}</Descriptions.Item></Descriptions><Button type="primary" icon={<DownloadOutlined />} onClick={download}>下载附件</Button></Card>}
     {review && <Card title="导师评审" size="small" style={{ marginTop: 16 }}><p>{review.comment || '暂无评语'}</p><p>修改建议：{review.suggestion || '无'}</p>{work.review_status === 'approved' && <Space wrap>{dimensions.map(([key, label]) => <Tag key={key} color="blue">{label} {review[key]} 分</Tag>)}</Space>}</Card>}
-    {isOwner && work.review_status === 'rejected' && !work.has_newer_version && <Button type="primary" style={{ marginTop: 16 }} onClick={() => navigate(`/works/upload?parent_work_id=${work.id}&task_id=${work.task_id || ''}&enrollment_id=${work.enrollment_id || ''}`)}>修改后重新提交</Button>}
+    {isOwner && !work.read_only && work.review_status === 'rejected' && !work.has_newer_version && <Button type="primary" style={{ marginTop: 16 }} onClick={() => navigate(`/works/upload?parent_work_id=${work.id}&task_id=${work.task_id || ''}&enrollment_id=${work.enrollment_id || ''}`)}>修改后重新提交</Button>}
     {canReview && work.review_status === 'pending' && <ReviewForm id={id} setData={setData} />}
   </Card></div>;
 }

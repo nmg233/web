@@ -15,6 +15,8 @@ bootstrapDb.close();
 process.env.DB_PATH = testDbPath;
 process.env.JWT_SECRET = 'test-jwt-secret';
 process.env.NODE_ENV = 'test';
+const uploads = fs.mkdtempSync(path.join(os.tmpdir(), 'pbl-glider-files-'));
+process.env.UPLOAD_PATH = uploads;
 
 const app = require('../app');
 const db = require('../config/database');
@@ -78,6 +80,7 @@ before(async () => {
 after(() => {
   server?.close();
   db.close();
+  fs.rmSync(uploads, { recursive: true, force: true });
   for (const suffix of ['', '-wal', '-shm']) {
     const file = testDbPath + suffix;
     if (fs.existsSync(file)) fs.unlinkSync(file);
@@ -211,4 +214,25 @@ test('引擎能力探测返回结构化结果', async () => {
   assert.equal(typeof body.maxActive, 'number');
   assert.equal(typeof body.retentionDays, 'number');
   assert.ok(body.probe === null || typeof body.probe === 'object', 'probe 应为对象或 null');
+});
+
+test('滑翔机签名受账号版本、强制改密、停用和归档约束，Bearer 不能绕过', async () => {
+  const directory = path.join(uploads, 'glider/1');
+  fs.mkdirSync(directory, { recursive: true });
+  fs.writeFileSync(path.join(directory, 'flight_replay.mp4'), '0000ftypisom0000');
+  const token = await tokenFor('学生A');
+  const result = await (await authed(token, 'GET', '/api/glider/simulations/1/stream-url', null)).json();
+  const signed = `${baseUrl}${result.url}`;
+  assert.equal((await fetch(signed)).status, 200);
+  for (const change of ["auth_version = auth_version + 1", 'force_reset_password = 1', 'is_active = 0', 'archived_at = CURRENT_TIMESTAMP']) {
+    const original = db.prepare('SELECT auth_version, force_reset_password, is_active, archived_at FROM users WHERE id=4').get();
+    db.prepare(`UPDATE users SET ${change} WHERE id=4`).run();
+    try {
+      assert.equal((await fetch(signed)).status, 401);
+      assert.ok([401,403].includes((await authed(token, 'GET', result.url, null)).status));
+    } finally {
+      db.prepare('UPDATE users SET auth_version=?,force_reset_password=?,is_active=?,archived_at=? WHERE id=4')
+        .run(original.auth_version,original.force_reset_password,original.is_active,original.archived_at);
+    }
+  }
 });

@@ -31,6 +31,7 @@ function replayForm(summary) {
   const form = new FormData();
   form.append('file', new Blob([video], { type: 'video/mp4' }), 'replay.mp4');
   form.append('title', '课后回放');
+  form.append('lesson_id', '1');
   form.append('description', '原简介');
   form.append('duration_seconds', '1800');
   form.append('recording_date', '2026-10-07');
@@ -49,17 +50,20 @@ const reports = () => db.prepare('SELECT * FROM lesson_learning_reports WHERE le
 
 before(async () => {
   const hash = bcrypt.hashSync('Test!1234', 4);
-  for (const [id, username, role] of [[1,'admin','admin'],[2,'mentor','academic_mentor'],[3,'student','student'],[4,'outsider','student'],[5,'teacher','teacher'],[6,'othermentor','academic_mentor']]) {
+  for (const [id, username, role] of [[1,'admin','admin'],[2,'mentor','academic_mentor'],[3,'student','student'],[4,'outsider','student'],[5,'teacher','teacher'],[6,'othermentor','academic_mentor'],[7,'newstudent','student']]) {
     db.prepare('INSERT INTO users (id,username,password_hash,real_name,role) VALUES (?,?,?,?,?)').run(id,username,hash,username,role);
   }
   db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (1,'测试课程','primary','basic','published',2)").run();
   db.prepare("INSERT INTO lessons (id,course_id,title,status) VALUES (1,1,'测试课时','completed'),(2,1,'另一个课时','completed')").run();
   db.prepare("INSERT INTO enrollments (id,student_id,course_id,status) VALUES (1,3,1,'active')").run();
   db.prepare("INSERT INTO knowledge_cards (id,lesson_id,title,content,status,created_by) VALUES (1,1,'知识卡片','原内容','published',2)").run();
+  db.prepare("INSERT INTO knowledge_cards (id,lesson_id,title,content,status,created_by) VALUES (2,2,'第二课卡片','内容','published',2)").run();
+  for (const card of [1,2]) db.prepare("INSERT INTO card_exercises (card_id,question_type,prompt,answer_json,explanation) VALUES (?,'true_false','判断','true','详解')").run(card);
+  db.prepare("INSERT INTO enrollments (student_id,course_id,status) VALUES (7,1,'active')").run();
   server = app.listen(0, '127.0.0.1');
   await new Promise((resolve) => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
-  for (const user of ['admin','mentor','student','outsider','teacher','othermentor']) {
+  for (const user of ['admin','mentor','student','outsider','teacher','othermentor','newstudent']) {
     const login = await api('/auth/login', 'POST', { username:user,password:'Test!1234' }, null);
     assert.equal(login.status, 200); tokens[user] = login.body.token;
   }
@@ -84,6 +88,8 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
       { version:17,name:'017_account_batches.sql' },
+      { version:18,name:'018_learning_versions.sql' },
+      { version:19,name:'019_operations_safety.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -112,6 +118,8 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
       { version:17,name:'017_account_batches.sql' },
+      { version:18,name:'018_learning_versions.sql' },
+      { version:19,name:'019_operations_safety.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -157,7 +165,7 @@ test('上传时可附带Markdown课程纪要，列表和学生课时接口原样
   const lesson = await api('/learning/lessons/1');
   assert.equal(lesson.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),summary);
   db.prepare('UPDATE course_replays SET lesson_id=2 WHERE id=?').run(created.body.id);
-  assert.equal((await api('/learning/lessons/1')).body.replays.some((item) => item.id === created.body.id),false);
+  assert.equal((await api('/learning/lessons/1')).body.replays.some((item) => item.id === created.body.id),true,'已开始学生固定原视频绑定');
   assert.equal((await api('/learning/lessons/2')).body.replays.some((item) => item.id === created.body.id),true);
 });
 
@@ -185,12 +193,17 @@ test('Markdown知识卡片源码完整保存，草稿隐藏，发布后学生获
   const created = await api('/learning/manage/lessons/1/cards','POST',{title:'Markdown卡片',content:markdown,status:'draft'},'admin');
   assert.equal(created.status,201);
   assert.equal((await api('/learning/lessons/1')).body.cards.some((item) => item.id === created.body.id),false);
+  await api(`/learning/manage/cards/${created.body.id}/exercises`,'POST',{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'},'admin');
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{status:'published'},'admin')).status,200);
-  assert.equal((await api('/learning/lessons/1')).body.cards.find((item) => item.id === created.body.id).content,markdown);
+  assert.equal((await api('/learning/lessons/1','GET',undefined,'newstudent')).body.cards.find((item) => item.id === created.body.id).content,markdown);
+  assert.equal((await api('/learning/lessons/1')).body.cards.some((item) => item.id === created.body.id),false,'旧版不加入新卡');
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{content:markdown+'\n\n> 继续探究'},'othermentor')).status,403);
   assert.equal(db.prepare('SELECT content FROM knowledge_cards WHERE id=?').get(created.body.id).content,markdown);
   await api('/learning/lessons/1/review-complete','POST');
-  for (const card of (await api('/learning/lessons/1')).body.cards) assert.equal((await api(`/learning/cards/${card.id}/complete`,'POST')).status,200);
+  for (const card of (await api('/learning/lessons/1')).body.cards) {
+    for (const exercise of card.exercises) assert.equal((await api(`/learning/exercises/${exercise.id}/submit`,'POST',{answer:true})).status,200);
+    assert.equal((await api(`/learning/cards/${card.id}/complete`,'POST')).status,200);
+  }
 });
 
 test('缺少或空白反思无法提交，首次提交保存四项反思并进入待评审', async () => {
@@ -251,4 +264,36 @@ test('再次通过后最新版本完成课时，旧版本意见与反思保留�
   assert.deepEqual(reports().map((item) => item.status),['rejected','rejected','approved']);
   assert.equal(db.prepare('SELECT COUNT(*) AS count FROM reflections WHERE lesson_id=1').get().count,3);
   assert.equal(db.pragma('integrity_check',{simple:true}),'ok'); assert.deepEqual(db.pragma('foreign_key_check'),[]);
+});
+
+test('指定课时回放上传重试幂等，同一请求标识不能提交不同文件内容', async () => {
+  const form=(bytes)=>{
+    const value=new FormData();
+    value.append('file',new Blob([bytes],{type:'video/mp4'}),'same.mp4');
+    value.append('title','幂等回放'); value.append('description','简介');
+    value.append('lesson_id','2'); value.append('request_key','replay-retry-test-key'); return value;
+  };
+  const bytes=Buffer.concat([video,Buffer.from('A')]);
+  const first=await api('/courses/1/replays','POST',form(bytes),'mentor');
+  assert.equal(first.status,200);
+  const row=db.prepare('SELECT * FROM course_replays WHERE id=?').get(first.body.id);
+  assert.equal(row.lesson_id,2);
+  const files=fs.readdirSync(path.join(dir,'uploads/course-replays')).sort();
+  const repeated=await api('/courses/1/replays','POST',form(bytes),'mentor');
+  assert.equal(repeated.status,200);assert.equal(repeated.body.id,first.body.id);
+  assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
+  assert.equal((await api('/courses/1/replays','POST',form(Buffer.concat([video,Buffer.from('B')])),'mentor')).status,409);
+  assert.deepEqual(fs.readFileSync(row.video_path),bytes);
+  assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
+});
+
+test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
+  const healthy=await api('/health','GET',undefined,null);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,19);
+  const prepare=db.prepare;
+  try {
+    db.prepare=function(sql){if(sql==='SELECT 1')throw Error('模拟数据库不可用');return prepare.call(this,sql);};
+    const failed=await api('/health','GET',undefined,null);
+    assert.equal(failed.status,503);assert.equal(failed.body.database,'unavailable');
+  } finally {db.prepare=prepare;}
 });
