@@ -181,7 +181,7 @@ export default function LessonLearn() {
 
         {activeStage === 1 && <><Title level={4}>第二阶段：知识卡片与配套练习</Title>
           {!progress.review_completed && <Alert type="warning" showIcon message="请先完成课堂回顾" />}
-          {cards.length === 0 ? <Alert type="warning" showIcon message="导师尚未发布知识卡片" description="本阶段不会自动完成。请联系执行导师发布本课时的知识卡片后再继续。" /> : <>
+          {cards.length === 0 ? <Alert type="warning" showIcon message="管理员尚未发布知识卡片" description="本阶段不会自动完成。请联系管理员发布本课时的知识卡片后再继续。" /> : <>
             <Card size="small" style={{ marginBottom: 12 }}><Space wrap>{cards.map((card, index) => <Button key={card.id} type={index === cardIndex ? 'primary' : 'default'} icon={card.completed ? <CheckCircleOutlined /> : null} onClick={() => setCardIndex(index)} disabled={index > 0 && !cards[index - 1].completed}>{index + 1}. {card.title}</Button>)}</Space></Card>
             <Card className="content-card" title={<Space>{activeCard.completed && <CheckCircleOutlined style={{ color: '#52c41a' }} />}{activeCard.title}<Tag color="blue">{cardIndex + 1}/{cards.length}</Tag></Space>}>
               {activeCard.summary && <Paragraph type="secondary">{activeCard.summary}</Paragraph>}
