@@ -8,6 +8,7 @@ const req = createRequire(path.join(repo, 'backend/package.json'));
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pbl-revision-ui-'));
 Object.assign(process.env, {
   DB_PATH: path.join(dir,'test.db'), UPLOAD_PATH: path.join(dir,'uploads'),
+  MAINTENANCE_FILE:path.join(dir,'maintenance.lock'),
   FEEDBACK_UPLOAD_PATH: path.join(dir,'feedback'), NODE_ENV:'test',
   JWT_SECRET:'revision-ui-synthetic', LOGIN_RATE_LIMIT_IP:'1000',
 });

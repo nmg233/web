@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Alert, Button, Card, Checkbox, Collapse, Descriptions, Empty, Form, Grid, Input, Modal,
   Progress, Radio, Space, Steps, Tag, Typography, message,
@@ -82,6 +82,9 @@ export default function LessonLearn() {
 function LessonLearnContent() {
   const { courseId, lessonId } = useParams();
   const { user } = useAuth();
+  const location=useLocation();
+  const page=location.pathname+location.search;
+  const onPage=()=>page===window.location.pathname+window.location.search;
   const navigate = useNavigate();
   const screens = Grid.useBreakpoint();
   const [data, setData] = useState(null);
@@ -104,23 +107,23 @@ function LessonLearnContent() {
 
   const playReplay = async (replayId, refresh = false) => {
     const state = requests.current;
-    if (state.route !== String(lessonId)) return;
+    if (state.route !== String(lessonId) || !onPage()) return;
     const sequence = ++state.play;
     resume.current = refresh ? { position: video.current?.currentTime || 0, playing: video.current ? !video.current.paused : false } : { position: 0, playing: false };
     setActiveReplayId(replayId); setVideoError('');
     try {
       const result = await courseAPI.streamUrl(replayId);
-      if (state.route === String(lessonId) && sequence === state.play) setReplayUrl(result.url);
+      if (state.route === String(lessonId) && sequence === state.play && onPage()) setReplayUrl(result.url);
     } catch {
-      if (state.route === String(lessonId) && sequence === state.play) { setReplayUrl(''); setVideoError('视频无法播放，请重新获取播放地址或联系导师。'); }
+      if (state.route === String(lessonId) && sequence === state.play && onPage()) { setReplayUrl(''); setVideoError('视频无法播放，请重新获取播放地址或联系导师。'); }
     }
   };
 
   const load = async ({ resetReplay = false } = {}) => {
     const state = requests.current;
-    if (state.route !== String(lessonId)) return;
+    if (state.route !== String(lessonId) || !onPage()) return;
     const sequence = ++state.load;
-    const current = () => state.route === String(lessonId) && sequence === state.load;
+    const current = () => state.route === String(lessonId) && sequence === state.load && onPage();
     setLoading(true); setError('');
     if (resetReplay) { setData(null); setReplayUrl(''); setActiveReplayId(null); setDraftSaveFailed(false); }
     try {
@@ -161,7 +164,7 @@ function LessonLearnContent() {
 
   const finishReview = async () => {
     const state=requests.current,epoch=state.epoch;
-    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch && onPage();
     setSubmitting(true);
     try {
       await learningAPI.completeReview(lessonId);
@@ -173,7 +176,7 @@ function LessonLearnContent() {
 
   const finishCard = async (card) => {
     const state=requests.current,epoch=state.epoch;
-    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch && onPage();
     setSubmitting(true);
     try {
       await learningAPI.completeCard(card.id);
@@ -199,7 +202,7 @@ function LessonLearnContent() {
 
   const submitReport = (values) => {
     const state=requests.current,epoch=state.epoch;
-    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch && onPage();
     reportDialog.current = Modal.confirm({
       title: '确认提交学习报告？',
       content: '提交后进入导师评审；若导师退回，可根据意见提交新版本。',
