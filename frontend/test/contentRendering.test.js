@@ -4,12 +4,13 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
 
-let server, MarkdownContent, ReportHistory, ReplaySummary;
+let server, MarkdownContent, ReportHistory, ReplaySummary, OutboxPanel;
 before(async () => {
   server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
   MarkdownContent = (await server.ssrLoadModule('/src/components/common/MarkdownContent.jsx')).default;
   ReportHistory = (await server.ssrLoadModule('/src/components/common/ReportHistory.jsx')).default;
   ReplaySummary = (await server.ssrLoadModule('/src/components/common/ReplaySummary.jsx')).default;
+  OutboxPanel = (await server.ssrLoadModule('/src/components/notifications/OutboxPanel.jsx')).default;
 });
 after(async () => { await server?.close(); });
 const markdown = (source) => renderToStaticMarkup(createElement(MarkdownContent, null, source));
@@ -54,4 +55,9 @@ test('多版本评审历史实际组件可渲染状态与评语，当前版本�
   }));
   for (const fragment of ['提交与评审历史','第 2 版','第 1 版','待评审','已退回','请补充反思','disabled']) assert.ok(html.includes(fragment),fragment);
   assert.equal(renderToStaticMarkup(createElement(ReportHistory,{history:[{id:1,version:1}]})),'');
+});
+
+test('管理员通知投递面板渲染积压、隔离、失败原因与重放说明', () => {
+  const html=renderToStaticMarkup(createElement(OutboxPanel));
+  for(const text of ['通知投递监控（仅管理员）','刷新队列','未投递','已隔离','连续失败 8 次后隔离','失败次数','最近错误','重放']) assert.ok(html.includes(text),text);
 });

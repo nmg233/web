@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const Database = require('better-sqlite3');
 const { runMigrations } = require('../database/migrate');
 
-const newTables = ['class_school_transfers','request_results','notification_outbox','enrollment_completions','lesson_version_repairs','report_content_versions','exercise_feedback','retired_exercises','student_lesson_versions','lesson_content_versions'];
+const newTables = ['report_replacements','student_school_transfers','class_school_transfers','request_results','notification_outbox','enrollment_completions','lesson_version_repairs','report_content_versions','exercise_feedback','retired_exercises','student_lesson_versions','lesson_content_versions'];
 function legacyFixture() {
   const db = new Database(':memory:'); db.pragma('foreign_keys=ON'); runMigrations(db);
   for (const table of newTables) db.exec(`DROP TABLE ${table}`);
@@ -57,7 +57,7 @@ test('兼容快照回填失败时整个018迁移回滚，修复故障后可重�
     assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='lesson_content_versions'").get(),undefined);
     assert.equal(db.prepare('SELECT answer_json,attempt_no FROM card_exercise_attempts').get().answer_json,'false');
     runMigrations(db);
-    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,19);
+    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,20);
     assert.equal(db.prepare('SELECT COUNT(*) n FROM card_exercise_attempts').get().n,1);
   } finally {db.prepare=prepare;db.close();}
 });
