@@ -17,6 +17,7 @@ router.post('/manage/cards/:cardId/exercises', requireRole('admin'), controller.
 router.put('/manage/exercises/:exerciseId', requireRole('admin'), controller.updateExercise);
 router.delete('/manage/exercises/:exerciseId', requireRole('admin'), controller.deleteExercise);
 
+router.get('/lessons/:lessonId/preview', requireRole('admin', 'academic_mentor', 'teacher'), controller.preview);
 router.get('/lessons/:lessonId', requireRole('student'), controller.lesson);
 router.post('/lessons/:lessonId/review-complete', requireRole('student'), controller.completeReview);
 router.post('/exercises/:exerciseId/submit', requireRole('student'), controller.submitExercise);
