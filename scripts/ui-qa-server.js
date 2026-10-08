@@ -28,21 +28,21 @@ const attachment=path.join(root,'qa-work.stl');
 fs.writeFileSync(attachment,'solid qa\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid qa\n');
 console.log(`QA_ATTACHMENT=${attachment}`);
 db.prepare("INSERT INTO resources (course_id,lesson_id,title,resource_type,file_path,upload_by) VALUES (1,1,'配套资料','other',?,2)").run(resource);
-const learning = require('../backend/services/learningService'); const mentor={id:2,role:'academic_mentor'};
-const card=learning.createCard(mentor,1,{title:'五题型验收卡片',content:'## 学习目标\n\n- 查看卡片并逐题作答\n- 提交后查看详解',status:'published'}).id;
+const learning = require('../backend/services/learningService'); const admin={id:1,role:'admin'};
+const card=learning.createCard(admin,1,{title:'五题型验收卡片',content:'## 学习目标\n\n- 查看卡片并逐题作答\n- 提交后查看详解',status:'published'}).id;
 for (const [type,answer,options] of [ ['single_choice','A',['A','B']], ['multiple_choice',['A','B'],['A','B','C']], ['true_false',true,[]], ['fill_blank',{blanks:[['ABC','Abc'],['句号。']]},[]], ['short_answer','参考表达',[]] ]) {
-  learning.createExercise(mentor,card,{question_type:type,prompt:`验收${type}`,answer,options,explanation:'导师提前设置的答案详解'});
+  learning.createExercise(admin,card,{question_type:type,prompt:`验收${type}`,answer,options,explanation:'导师提前设置的答案详解'});
 }
 db.prepare("INSERT INTO tasks (lesson_id,title,status) VALUES (1,'独立成果验收任务','active')").run();
 // 两课时切换验收夹具：第二课时也完整发布，不能用无法进入的页面充当隔离成功证据。
 db.prepare("INSERT INTO course_replays (course_id,lesson_id,title,description,video_path,created_by) VALUES (1,2,'第二课时回放夹具','第二课时简介',?,2)").run(video);
-const second=learning.createCard(mentor,2,{title:'第二课时唯一卡片',content:'此内容只属于第二课时',status:'published'}).id;
-learning.createExercise(mentor,second,{question_type:'true_false',prompt:'第二课时判断题',answer:true,explanation:'第二课时详解'});
+const second=learning.createCard(admin,2,{title:'第二课时唯一卡片',content:'此内容只属于第二课时',status:'published'}).id;
+learning.createExercise(admin,second,{question_type:'true_false',prompt:'第二课时判断题',answer:true,explanation:'第二课时详解'});
 if(process.argv.includes('--route-race')) {
   // 第一课时有三个卡片，前两张完成，最后一张已答题但未确认；用于索引越界及迟到写响应。
   for(const i of [2,3]) {
-    const id=learning.createCard(mentor,1,{title:`切换验收卡片${i}`,content:`第一课时第${i}张`,status:'published'}).id;
-    learning.createExercise(mentor,id,{question_type:'true_false',prompt:`判断${i}`,answer:true,explanation:'详解'});
+    const id=learning.createCard(admin,1,{title:`切换验收卡片${i}`,content:`第一课时第${i}张`,status:'published'}).id;
+    learning.createExercise(admin,id,{question_type:'true_false',prompt:`判断${i}`,answer:true,explanation:'详解'});
   }
   learning.lessonPackage(4,1);learning.completeReview(4,1);
   for(const card of learning.lessonPackage(4,1).cards) {

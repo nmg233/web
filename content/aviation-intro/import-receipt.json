@@ -1,0 +1,125 @@
+{
+  "database": "C:\\Users\\admin\\Desktop\\web\\backend\\database\\pbl_platform.db",
+  "admin": {
+    "id": 1,
+    "username": "adminpbl"
+  },
+  "backup": "C:\\Users\\admin\\Desktop\\web\\backend\\database\\backups\\before-aviation-draft-1791427916430.db",
+  "course": {
+    "id": 4,
+    "title": "航空航天启蒙",
+    "status": "draft"
+  },
+  "lesson": {
+    "id": 4,
+    "title": "滑翔机与空气动力学"
+  },
+  "cards": [
+    {
+      "id": 1,
+      "title": "知识卡 01｜四种作用",
+      "exercises": [
+        {
+          "source_id": "选择题2",
+          "id": 1
+        },
+        {
+          "source_id": "填空题1a",
+          "id": 2
+        },
+        {
+          "source_id": "填空题1b",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "知识卡 02｜升力",
+      "exercises": [
+        {
+          "source_id": "选择题1",
+          "id": 4
+        },
+        {
+          "source_id": "选择题7",
+          "id": 5
+        },
+        {
+          "source_id": "选择题8",
+          "id": 6
+        },
+        {
+          "source_id": "填空题6",
+          "id": 7
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "知识卡 03｜重心",
+      "exercises": [
+        {
+          "source_id": "选择题4",
+          "id": 8
+        },
+        {
+          "source_id": "填空题4",
+          "id": 9
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "知识卡 04｜上反角",
+      "exercises": [
+        {
+          "source_id": "选择题5",
+          "id": 10
+        },
+        {
+          "source_id": "填空题3",
+          "id": 11
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "知识卡 05｜速度",
+      "exercises": [
+        {
+          "source_id": "选择题3",
+          "id": 12
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "知识卡 06｜科学试飞",
+      "exercises": [
+        {
+          "source_id": "选择题6",
+          "id": 13
+        },
+        {
+          "source_id": "填空题2",
+          "id": 14
+        },
+        {
+          "source_id": "填空题5",
+          "id": 15
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "cards": 6,
+    "single_choice": 8,
+    "fill_blank": 7,
+    "questions": 15,
+    "points": 15
+  },
+  "source_sha256": "5886f03c54812633f524887ca713d7d098d443547522e8dcd1b4657463930891",
+  "existing_business_rows_unchanged": true,
+  "created_at": "2026-10-08T02:51:57.338Z"
+}

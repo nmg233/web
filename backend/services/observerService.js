@@ -154,7 +154,11 @@ function studentDetail(user, studentId) {
     LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = e.student_id
     WHERE e.student_id = ? AND e.status = 'active'
     GROUP BY e.id, c.id ORDER BY e.enrolled_at DESC
-  `).all(student.id).map((c) => ({ ...c, completion: versions.courseState(db, student.id, c.id) }));
+  `).all(student.id).map((course) => ({
+    ...course,
+    completion: versions.courseState(db, student.id, course.id),
+    lessons: db.prepare('SELECT id, title, status FROM lessons WHERE course_id = ? ORDER BY sort_order, id').all(course.id),
+  }));
   const lessons = db.prepare(`
     SELECT l.id AS lesson_id, COALESCE(lp.progress, 0) AS progress, lp.completed_at, lp.updated_at,
            l.title AS lesson_title, c.id AS course_id, c.title AS course_title,

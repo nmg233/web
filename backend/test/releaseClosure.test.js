@@ -23,8 +23,8 @@ function fixture(withExercise=true){
   db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(3,?,'active')").run(course);
   const file=path.join(tmp,course+'.mp4');fs.writeFileSync(file,'0000ftypisom0000');
   const replay=Number(db.prepare("INSERT INTO course_replays(course_id,lesson_id,title,description,video_path,created_by) VALUES(?,?,'视频','简介',?,2)").run(course,lesson,file).lastInsertRowid);
-  const card=learning.createCard(mentor,lesson,{title:'卡片',content:'正文',status:'published'}).id;
-  const exercise=withExercise ? learning.createExercise(mentor,card,{question_type:'single_choice',prompt:'题干',options:['A','B'],answer:'A',explanation:'详解'}).id : null;
+  const card=learning.createCard(admin,lesson,{title:'卡片',content:'正文',status:'published'}).id;
+  const exercise=withExercise ? learning.createExercise(admin,card,{question_type:'single_choice',prompt:'题干',options:['A','B'],answer:'A',explanation:'详解'}).id : null;
   return {course,lesson,replay,card,exercise,file};
 }
 function finish(f){learning.lessonPackage(3,f.lesson);learning.completeReview(3,f.lesson);learning.submitExercise(3,f.exercise,'A');learning.completeCard(3,f.card);return learning.submitReport(3,f.lesson,{report:{summary:'报告'},reflection:{difficulty:'反思'}});}
@@ -78,7 +78,7 @@ test('N03：补题后旧待评报告只读，补学重提新版通过才持久�
   const report=Number(db.prepare("INSERT INTO lesson_learning_reports(student_id,lesson_id,summary,status) VALUES(3,?,'旧报告','submitted')").run(f.lesson).lastInsertRowid);
   db.prepare('INSERT INTO report_content_versions(report_id,content_version_id) VALUES(?,?)').run(report,old.id);
   const original=db.prepare('SELECT * FROM lesson_learning_reports WHERE id=?').get(report);
-  const exercise=learning.createExercise(mentor,f.card,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
+  const exercise=learning.createExercise(admin,f.card,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
   learning.repairLegacy(admin,f.lesson,3,'缺题补齐');
   assert.equal(versions.courseState(db,3,f.course).completed,false);
   assert.throws(()=>review.review(mentor,report,{status:'approved',score:90}),e=>e.code==='REPORT_REPLACEMENT_REQUIRED');
@@ -127,14 +127,18 @@ test('N07：取消且没有快照的课时视频仍只读，文件与记录保�
   assert.ok(db.prepare('SELECT 1 FROM course_replays WHERE id=?').get(f.replay));
 });
 
-test('N09/N10：退役题不计入当前题数，无历史卡删除不会触发外键',()=>{
-  const f=fixture();learning.deleteExercise(mentor,f.exercise);
+test('N09/N10：退役题不计入当前题数，含题卡保留归档，空卡可删除且无外键异常',()=>{
+  const f=fixture();learning.deleteExercise(admin,f.exercise);
   assert.equal(learning.listManagedLessons(mentor).find(x=>x.id===f.lesson).exercise_count,0);
-  assert.equal(learning.deleteCard(mentor,f.card).deleted,true);assert.deepEqual(db.pragma('foreign_key_check'),[]);
+  assert.equal(learning.deleteCard(admin,f.card).archived,true);
+  assert.equal(db.prepare('SELECT status FROM knowledge_cards WHERE id=?').get(f.card).status,'archived');
+  assert.ok(db.prepare('SELECT 1 FROM retired_exercises WHERE exercise_id=?').get(f.exercise));
+  const empty=learning.createCard(admin,f.lesson,{title:'空卡片',content:'正文',status:'draft'}).id;
+  assert.equal(learning.deleteCard(admin,empty).deleted,true);assert.deepEqual(db.pragma('foreign_key_check'),[]);
 });
 
 test('N11：标签型选项创建成功后完整性检查一致，可完成一次作答',()=>{
-  const f=fixture(false),exercise=learning.createExercise(mentor,f.card,{question_type:'single_choice',prompt:'题',options:[{label:'一'},{label:'二'}],answer:'0',explanation:'详解'}).id;
+  const f=fixture(false),exercise=learning.createExercise(admin,f.card,{question_type:'single_choice',prompt:'题',options:[{label:'一'},{label:'二'}],answer:'0',explanation:'详解'}).id;
   assert.equal(versions.readiness(db,f.lesson).ready,true);learning.lessonPackage(3,f.lesson);learning.completeReview(3,f.lesson);
   assert.equal(learning.submitExercise(3,exercise,'0').correct,true);
 });

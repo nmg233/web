@@ -19,6 +19,7 @@ function action(handler, successStatus = 200) {
 }
 
 exports.lesson = action((req) => learningService.lessonPackage(req.user.id, req.params.lessonId));
+exports.preview = action((req) => learningService.previewLesson(req.user, req.params.lessonId));
 exports.completeReview = action((req) => ({ progress: learningService.completeReview(req.user.id, req.params.lessonId) }));
 exports.submitExercise = action((req) => learningService.submitExercise(req.user.id, req.params.exerciseId, req.body.answer));
 exports.completeCard = action((req) => ({ progress: learningService.completeCard(req.user.id, req.params.cardId) }));
