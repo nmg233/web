@@ -10,6 +10,12 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const API_PREFIX = process.env.API_PREFIX || '/api';
+const RELEASE_SHA = process.env.RELEASE_SHA || (() => {
+  try {
+    const value = fs.readFileSync(path.resolve(__dirname, '../.release-sha'), 'utf8').trim();
+    return /^[a-f0-9]{40,64}$/.test(value) ? value : 'development';
+  } catch { return 'development'; }
+})();
 
 // ============================================
 // JWT 密钥
@@ -88,10 +94,22 @@ app.use(`${API_PREFIX}/observer`, require('./routes/observer'));
 // 服务重启后继续处理尚未完成的课程资料索引；失败项由课程管理者手动重试。
 require('./services/aiDocumentService').resumePending();
 require('./services/accountImportService').resumePending();
+const notificationRetry = setInterval(() => {
+  try { require('./services/notificationService').retryOutbox(); } catch (err) { console.error('通知重试失败:', err.message); }
+}, 30000);
+notificationRetry.unref();
 
 // 健康检查
 app.get(`${API_PREFIX}/health`, (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  try {
+    const db = require('./config/database');
+    db.prepare('SELECT 1').get();
+    const migration = db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get();
+    res.json({ status: 'ok', database: 'ready', schema_version: migration.version,
+      release: RELEASE_SHA, timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'unavailable', database: 'unavailable' });
+  }
 });
 
 // 404
@@ -115,7 +133,7 @@ app.use((err, req, res, _next) => {
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
     console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
     console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
   });

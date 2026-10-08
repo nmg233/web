@@ -120,12 +120,33 @@ function createForUsers(payload, recipientIds) {
 }
 
 function safeCreateForUsers(payload, recipientIds) {
+  const key = payload.dedupeKey || require('crypto').randomUUID();
+  // 业务事务中的入队失败必须向上传递，使业务一起回滚，不能产生没有通知事件的成功记录。
   try {
-    return createForUsers(payload, recipientIds);
+    db.prepare(`INSERT OR IGNORE INTO notification_outbox (event_key, payload_json, recipients_json) VALUES (?, ?, ?)`)
+      .run(key, JSON.stringify({ ...payload, dedupeKey: key }), JSON.stringify(recipientIds));
   } catch (err) {
+    if (db.inTransaction) throw err;
+    console.error('通知事件无法持久化:', err);
+    return null;
+  }
+  try {
+    const row = db.prepare('SELECT * FROM notification_outbox WHERE event_key = ?').get(key);
+    if (row.delivered_at) return null;
+    const result = createForUsers(JSON.parse(row.payload_json), JSON.parse(row.recipients_json));
+    db.prepare('UPDATE notification_outbox SET delivered_at = CURRENT_TIMESTAMP, last_error = NULL WHERE event_key = ?').run(key);
+    return result;
+  } catch (err) {
+    try { db.prepare('UPDATE notification_outbox SET attempts = attempts + 1, last_error = ? WHERE event_key = ?').run(String(err.message).slice(0, 500), key); }
+    catch { /* 数据库不可写时必须告警；不能伪称已入队。 */ }
     console.error('创建站内通知失败:', err);
     return null;
   }
+}
+
+function retryOutbox() {
+  const rows = db.prepare('SELECT * FROM notification_outbox WHERE delivered_at IS NULL ORDER BY created_at LIMIT 100').all();
+  for (const row of rows) safeCreateForUsers(JSON.parse(row.payload_json), JSON.parse(row.recipients_json));
 }
 
 function buildListWhere(userId, query = {}) {
@@ -264,6 +285,7 @@ function hideRead(user) {
 }
 
 module.exports = {
+  retryOutbox,
   NotificationError,
   NOTIFICATION_EVENTS,
   createForUsers,
