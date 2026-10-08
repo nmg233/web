@@ -85,6 +85,7 @@ export default function ReviewDetail() {
     description={`${data.course.title} · 学习报告第 ${report.version} 版 · ${report.status === 'submitted' ? '待评审' : report.status === 'approved' ? '已通过' : '需修改'}`}
     extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/mentor/reviews')}>返回评审队列</Button>}
   >
+    {data.replacement && <Alert type="warning" showIcon message="此旧报告仅保留历史，不再评审" description="教学内容已补齐，学生完成补学并提交新版后，导师评审新版报告。" />}
     <div className="mentor-review-layout">
       <div>
         <Card className="content-card" title="学习报告" style={{ marginBottom: 16 }}><Descriptions column={1} bordered size="small">

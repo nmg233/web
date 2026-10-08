@@ -74,6 +74,12 @@ function Exercise({ exercise, onDone }) {
 }
 
 export default function LessonLearn() {
+  const {courseId,lessonId}=useParams();
+  const {user}=useAuth();
+  return <LessonLearnContent key={`${user?.id}:${courseId}:${lessonId}`} />;
+}
+
+function LessonLearnContent() {
   const { courseId, lessonId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -89,7 +95,8 @@ export default function LessonLearn() {
   const [draftSaveFailed, setDraftSaveFailed] = useState(false);
   const [reflectionExpanded, setReflectionExpanded] = useState(['reflection']);
   const [form] = Form.useForm();
-  const requests = useRef({ route: String(lessonId), load: 0, play: 0 });
+  const reportDialog = useRef(null);
+  const requests = useRef({ route: String(lessonId), load: 0, play: 0, epoch:0 });
   const video = useRef(null);
   const resume = useRef({ position: 0, playing: false });
   const [videoError, setVideoError] = useState('');
@@ -136,10 +143,14 @@ export default function LessonLearn() {
   useEffect(() => {
     const state = requests.current;
     state.route = String(lessonId);
+    state.epoch++;
     // 路由切换必须同步清空上一课时，以免展示或操作错误的对象。
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load({ resetReplay: true });
-    return () => { state.route = null; state.load++; state.play++; };
+    return () => {
+      state.route = null; state.load++; state.play++; state.epoch++;
+      reportDialog.current?.destroy(); reportDialog.current=null;
+    };
   }, [lessonId, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -149,23 +160,29 @@ export default function LessonLearn() {
   }, [activeReplayId, lessonId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finishReview = async () => {
+    const state=requests.current,epoch=state.epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
     setSubmitting(true);
     try {
       await learningAPI.completeReview(lessonId);
+      if(!current()) return;
       message.success('课堂回顾已完成，继续学习知识卡片');
       await load();
-    } finally { setSubmitting(false); }
+    } finally { if(current()) setSubmitting(false); }
   };
 
   const finishCard = async (card) => {
+    const state=requests.current,epoch=state.epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
     setSubmitting(true);
     try {
       await learningAPI.completeCard(card.id);
+      if(!current()) return;
       const isLast = cardIndex === data.cards.length - 1;
       if (!isLast) setCardIndex(cardIndex + 1);
       message.success(isLast ? '全部知识卡片已完成' : '本卡片已完成，继续下一张');
       await load();
-    } finally { setSubmitting(false); }
+    } finally { if(current()) setSubmitting(false); }
   };
 
   const downloadResource = async (resource) => {
@@ -181,18 +198,21 @@ export default function LessonLearn() {
   };
 
   const submitReport = (values) => {
-    Modal.confirm({
+    const state=requests.current,epoch=state.epoch;
+    const current=()=>state.route===String(lessonId) && state.epoch===epoch;
+    reportDialog.current = Modal.confirm({
       title: '确认提交学习报告？',
       content: '提交后进入导师评审；若导师退回，可根据意见提交新版本。',
       onOk: async () => {
-        if (requests.current.route !== String(lessonId)) throw new Error('页面已切换，请重新确认');
+        if (!current()) throw new Error('页面已切换，请重新确认');
         setSubmitting(true);
         try {
           await learningAPI.submitReport(lessonId, { report: values, reflection: values.reflection, base_report_id: data.report?.id ?? null });
+          if(!current()) return;
           message.success('学习报告已提交，等待执行导师评审');
           clearReportDraft(localStorage, draftKey);
           form.resetFields(); await load();
-        } finally { setSubmitting(false); }
+        } finally { if(current()) setSubmitting(false); }
       },
     });
   };
@@ -201,7 +221,7 @@ export default function LessonLearn() {
 
   const { lesson, cards = [], progress = {}, report } = data;
   const currentStep = nextStage(data);
-  const activeCard = cards[cardIndex];
+  const activeCard = cards[Math.min(Math.max(cardIndex,0),Math.max(cards.length-1,0))];
   const cardExercisesDone = activeCard?.exercises?.every((exercise) => exercise.attempted) ?? false;
   const stageItems = LEARNING_STEPS.map((title, index) => ({ title, status: index < currentStep ? 'finish' : index === currentStep ? 'process' : 'wait', disabled: index > currentStep }));
 
@@ -209,6 +229,7 @@ export default function LessonLearn() {
     <div className="learning-workbench">
       <Card className="learning-sticky content-card" title="学习流程"><Steps direction={screens.md ? 'vertical' : 'horizontal'} size="small" current={currentStep} onChange={setActiveStage} items={stageItems} /></Card>
       <div>
+        {report?.resubmission_required && <Alert type="warning" showIcon message="历史内容已补齐，请先完成新增学习，再提交新版报告" description="旧报告保留在历史中，不再进行评审；已有作答和成绩不变。" style={{marginBottom:16}} />}
         {data.content_version?.legacy_compat && <Alert type="warning" showIcon message="此课时使用兼容快照；部分历史题目可能无法完整还原，原作答与成绩已保留。" description={data.content_version?.repair ? `管理员已补齐缺失内容：${data.content_version.repair.reason}。已有作答与次数保持不变。` : null} style={{ marginBottom: 16 }} />}
         {activeStage === 0 && <Card className="content-card">
           <Title level={4}>第一阶段：课堂回顾</Title>

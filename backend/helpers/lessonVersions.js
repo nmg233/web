@@ -22,7 +22,7 @@ function validReference(exercise) {
     const answer = JSON.parse(exercise.answer_json);
     const options = JSON.parse(exercise.options_json || '[]');
     const nonempty = (v) => typeof v === 'string' && Boolean(v.trim());
-    const values = options.map((o) => typeof o === 'object' && o ? o.value ?? o.key : o);
+    const values = options.map((o, i) => typeof o === 'object' && o ? o.value ?? o.key ?? String(i) : o);
     if (['single_choice','multiple_choice'].includes(exercise.question_type)) {
       if (values.length < 2 || values.length > 20 || new Set(values).size !== values.length || !values.every(nonempty)) return false;
       if (exercise.question_type === 'single_choice') return values.includes(answer);
@@ -118,18 +118,40 @@ function studentCards(db, studentId, lessonId, contentVersionId = null) {
   });
 }
 
+function replacement(db, reportId) {
+  if (!reportId || !db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='report_replacements'").get()) return null;
+  return db.prepare('SELECT * FROM report_replacements WHERE report_id=?').get(reportId) || null;
+}
+
+function completionEvidence(db, studentId, lessonId) {
+  const version = boundVersion(db, studentId, lessonId);
+  const stored = db.prepare('SELECT completed_at FROM lesson_progress WHERE student_id=? AND lesson_id=?').get(studentId,lessonId);
+  const report = db.prepare('SELECT * FROM lesson_learning_reports WHERE student_id=? AND lesson_id=? ORDER BY version DESC,id DESC LIMIT 1').get(studentId,lessonId);
+  const needsRevision = Boolean(replacement(db,report?.id));
+  const legacyCompleted = Boolean(version?.legacy_compat && stored?.completed_at && report?.status === 'approved' && !needsRevision);
+  const reviewCompleted = Boolean(db.prepare('SELECT 1 FROM lesson_review_completions WHERE student_id=? AND lesson_id=?').get(studentId,lessonId));
+  const cards = studentCards(db,studentId,lessonId);
+  const cardsCompleted = cards.filter(c=>c.completed_at).length;
+  const cardsDone = cards.length > 0 && cardsCompleted === cards.length;
+  const submitted = Boolean(report && ['submitted','approved'].includes(report.status) && !needsRevision);
+  const approved = report?.status === 'approved' && !needsRevision;
+  const completed = legacyCompleted || (reviewCompleted && cardsDone && approved);
+  const percent = legacyCompleted ? 100 : (reviewCompleted ? 25 : 0) + (cards.length ? Math.round(cardsCompleted/cards.length*35) : 0) + (submitted ? 25 : 0) + (approved ? 15 : 0);
+  return { percent, review_completed:reviewCompleted, cards_total:cards.length, cards_completed:cardsCompleted,
+    cards_done:cardsDone, cards_unlocked:reviewCompleted, report_unlocked:reviewCompleted && cardsDone,
+    report_status:needsRevision ? 'rejected' : report?.status || null, resubmission_required:needsRevision,
+    status:completed ? 'completed' : needsRevision || report?.status === 'rejected' ? 'revision'
+      : submitted ? 'reviewing' : cardsDone ? 'reporting' : reviewCompleted ? 'learning' : 'reviewing_lesson', completed };
+}
+
 function courseState(db, studentId, courseId, persist = false) {
   const enrollment = db.prepare("SELECT * FROM enrollments WHERE student_id = ? AND course_id = ? AND status = 'active'").get(studentId, courseId);
   if (!enrollment) return { percent: 0, completed: false, completed_at: null, lesson_ids: [] };
   const closure = db.prepare('SELECT * FROM enrollment_completions WHERE enrollment_id = ?').get(enrollment.id);
   if (closure) return { percent: 100, completed: true, completed_at: closure.completed_at, lesson_ids: JSON.parse(closure.lesson_manifest_json) };
   const lessons = db.prepare("SELECT id FROM lessons WHERE course_id = ? AND status != 'cancelled' ORDER BY sort_order, id").all(courseId);
-  const states = lessons.map((l) => {
-    const report = db.prepare('SELECT status FROM lesson_learning_reports WHERE student_id = ? AND lesson_id = ? ORDER BY version DESC, id DESC LIMIT 1').get(studentId, l.id);
-    const lp = db.prepare('SELECT progress FROM lesson_progress WHERE student_id = ? AND lesson_id = ?').get(studentId, l.id);
-    return { approved: report?.status === 'approved', percent: lp?.progress || 0 };
-  });
-  const completed = lessons.length > 0 && states.every((s) => s.approved);
+  const states = lessons.map((l) => completionEvidence(db,studentId,l.id));
+  const completed = lessons.length > 0 && states.every((s) => s.completed);
   const lessonIds = lessons.map((l) => l.id);
   if (persist && completed) {
     db.prepare('INSERT OR IGNORE INTO enrollment_completions (enrollment_id, lesson_manifest_json) VALUES (?, ?)').run(enrollment.id, JSON.stringify(lessonIds));
@@ -192,8 +214,12 @@ function repairLegacy(db, actorId, studentId, lessonId, reason) {
     const fixed = db.prepare('SELECT id FROM lesson_content_versions WHERE lesson_id = ? AND fingerprint = ?').get(lessonId,fingerprint);
     db.prepare('UPDATE student_lesson_versions SET content_version_id = ? WHERE student_id = ? AND lesson_id = ?').run(fixed.id,studentId,lessonId);
     db.prepare('INSERT INTO lesson_version_repairs (student_id,lesson_id,old_version_id,new_version_id,actor_id,reason) VALUES (?,?,?,?,?,?)').run(studentId,lessonId,old.id,fixed.id,actorId,reason);
+    const report = db.prepare('SELECT id FROM lesson_learning_reports WHERE student_id=? AND lesson_id=? ORDER BY version DESC,id DESC LIMIT 1').get(studentId,lessonId);
+    if (report) db.prepare(`INSERT INTO report_replacements(report_id,content_version_id,actor_id,reason) VALUES(?,?,?,?)
+      ON CONFLICT(report_id) DO UPDATE SET content_version_id=excluded.content_version_id,actor_id=excluded.actor_id,reason=excluded.reason`)
+      .run(report.id,fixed.id,actorId,reason);
     return { old_version_id:old.id, new_version_id:fixed.id };
   }).immediate();
 }
 
-module.exports = { currentContent, readiness, saveVersion, boundVersion, bind, studentCards, courseState, migrateLegacy, repairLegacy };
+module.exports = { currentContent, readiness, saveVersion, boundVersion, bind, studentCards, courseState, migrateLegacy, repairLegacy, completionEvidence, replacement };

@@ -15,6 +15,7 @@ const learningGate = require('../helpers/learningGate');
 const requests = require('../helpers/requestResults');
 const versions = require('../helpers/lessonVersions');
 const aiDocuments = require('../services/aiDocumentService');
+const lifecycle = require('../helpers/courseLifecycle');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -32,13 +33,6 @@ function writable(courseId, lessonId = null) {
   if (!course || course.status === 'archived') return false;
   if (lessonId && !db.prepare("SELECT 1 FROM lessons WHERE id = ? AND course_id = ? AND status != 'cancelled'").get(lessonId, courseId)) return false;
   return true;
-}
-
-function pendingReports(courseId, lessonId = null) {
-  return db.prepare(`SELECT 1 FROM lesson_learning_reports r JOIN lessons l ON l.id = r.lesson_id
-    WHERE l.course_id = ? AND (? IS NULL OR l.id = ?) AND r.status IN ('submitted', 'rejected')
-    AND r.id = (SELECT latest.id FROM lesson_learning_reports latest WHERE latest.student_id = r.student_id AND latest.lesson_id = r.lesson_id
-      ORDER BY latest.version DESC, latest.id DESC LIMIT 1) LIMIT 1`).get(courseId, lessonId, lessonId);
 }
 
 function validateLessonBinding(courseId, value) {
@@ -244,7 +238,8 @@ exports.detail = (req, res) => {
       : [];
 
     res.json({ title: course.title, course: { ...course, can_manage: coursePolicy.canManageCourse(req.user, course),
-      can_enroll: course.status !== 'archived' && canEnrollCourse(req.user, course.id), completion }, lessons, tasks, progress, resources, enrollments, teachers });
+      can_enroll: course.status !== 'archived' && canEnrollCourse(req.user, course.id), completion,
+      has_learning_history:coursePolicy.canManageCourse(req.user,course) ? lifecycle.hasLearningHistory(course.id) : undefined }, lessons, tasks, progress, resources, enrollments, teachers });
   } catch (err) {
     console.error('课程详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -277,7 +272,9 @@ exports.update = (req, res) => {
     }
     const current = db.prepare('SELECT status FROM courses WHERE id = ?').get(id);
     if (current?.status === 'archived') return res.status(409).json({ error: '已归档课程只允许查看历史' });
-    if (req.body.status === 'archived' && pendingReports(id)) return res.status(409).json({ error: '请先处理全部待评或待修改的最新报告再归档' });
+    if (req.body.status !== undefined && !['draft','published','archived'].includes(req.body.status)) return res.status(400).json({error:'课程状态无效'});
+    if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) return res.status(409).json({error:'已有学生学习记录，不能撤回草稿；关闭课程请使用归档'});
+    if (req.body.status === 'archived') lifecycle.assertCanClose(id);
     const fields = ['title','theme','description','driving_question','story_line',
                     'grade_level','difficulty','total_hours','materials_needed','status'];
     const sets = [];
@@ -295,12 +292,17 @@ exports.update = (req, res) => {
     }
 
     values.push(id);
-    db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
+    db.transaction(() => {
+      if (!writable(id)) throw Object.assign(new Error('已归档课程只允许查看历史'),{status:409});
+      if (req.body.status === 'archived') lifecycle.assertCanClose(id);
+      if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) throw Object.assign(new Error('已有学习记录，不能撤回草稿'),{status:409});
+      db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
+    }).immediate();
 
     res.json({ message: '课程更新成功' });
   } catch (err) {
-    console.error('更新课程错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    if (!err.status) console.error('更新课程错误:', err);
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试',items:err.items });
   }
 };
 
@@ -424,17 +426,19 @@ exports.cancelLesson = (req, res) => {
       return res.status(404).json({ error: '课时不存在' });
     }
     if (!writable(lesson.course_id, lesson.id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
-    if (pendingReports(lesson.course_id, lesson.id)) return res.status(409).json({ error: '请先处理全部待评或待修改的最新报告再取消课时' });
+    lifecycle.assertCanClose(lesson.course_id,lesson.id);
     const reason = String(req.body.reason || '').trim();
     if (!reason) return res.status(400).json({ error: '请填写取消原因' });
     if (lesson.status === 'cancelled') return res.status(400).json({ error: '课时已取消' });
-    db.prepare(
-      "UPDATE lessons SET status = 'cancelled', cancel_reason = ?, cancelled_at = CURRENT_TIMESTAMP WHERE id = ?"
-    ).run(reason, lesson.id);
+    db.transaction(() => {
+      lifecycle.assertCanClose(lesson.course_id,lesson.id);
+      db.prepare("UPDATE lessons SET status='cancelled',cancel_reason=?,cancelled_at=CURRENT_TIMESTAMP WHERE id=?").run(reason,lesson.id);
+      for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id=? AND status='active'").all(lesson.course_id)) versions.courseState(db,e.student_id,lesson.course_id,true);
+    }).immediate();
     res.json({ message: '课时已取消' });
   } catch (err) {
     console.error('取消课时错误:', err);
-    res.status(500).json({ error: '取消课时失败' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '取消课时失败', items:err.items });
   }
 };
 
@@ -700,7 +704,7 @@ exports.updateReplay = (req, res) => {
 
 exports.deleteReplay = (req, res) => {
   try {
-    const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
+    const replay = db.prepare('SELECT id, course_id, lesson_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
     // 先删记录，提交后再删物理文件（失败进清理队列）
     if (!writable(replay.course_id, replay.lesson_id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });

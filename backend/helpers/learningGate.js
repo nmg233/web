@@ -52,40 +52,7 @@ function canSubmitLessonReport(studentId, lessonId) {
 }
 
 function getLessonLearningState(studentId, lessonId) {
-  const version = versions.boundVersion(db, studentId, lessonId);
-  const stored = db.prepare('SELECT completed_at FROM lesson_progress WHERE student_id = ? AND lesson_id = ?').get(studentId, lessonId);
-  // 历史兼容内容可能无法还原；已经通过评审并完成的旧课时不因迁移缺题而回退。
-  const legacyCompleted = Boolean(version?.legacy_compat && stored?.completed_at && latestReport(studentId, lessonId)?.status === 'approved');
-  const reviewCompleted = isReviewCompleted(studentId, lessonId);
-  const cards = cardStats(studentId, lessonId);
-  const report = latestReport(studentId, lessonId);
-  const cardsCompleted = Number(cards.completed || 0);
-  const cardsDone = cards.total > 0 && cardsCompleted === cards.total;
-  const cardPercent = cards.total === 0 ? 0 : Math.round((cardsCompleted / cards.total) * 35);
-  const reportSubmitted = Boolean(report && report.status !== 'rejected');
-  const percent = legacyCompleted ? 100 : Math.min(100,
-    (reviewCompleted ? 25 : 0)
-      + cardPercent
-      + (reportSubmitted ? 25 : 0)
-      + (report?.status === 'approved' ? 15 : 0));
-  const completed = legacyCompleted || (reviewCompleted && cardsDone && report?.status === 'approved');
-
-  return {
-    percent,
-    review_completed: reviewCompleted,
-    cards_total: cards.total,
-    cards_completed: cardsCompleted,
-    cards_done: cardsDone,
-    cards_unlocked: reviewCompleted,
-    report_unlocked: reviewCompleted && cardsDone,
-    report_status: report?.status || null,
-    status: completed ? 'completed'
-      : report?.status === 'rejected' ? 'revision'
-        : reportSubmitted ? 'reviewing'
-          : cardsDone ? 'reporting'
-            : reviewCompleted ? 'learning' : 'reviewing_lesson',
-    completed,
-  };
+  return versions.completionEvidence(db,studentId,lessonId);
 }
 
 function recalculateLessonProgress(studentId, lessonId) {

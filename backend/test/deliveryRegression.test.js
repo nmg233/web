@@ -72,6 +72,8 @@ after(async () => {
 });
 
 test('取消课时同时停止待办、任务、提交和 AI 上下文，保留历史并对齐进度', async () => {
+  assert.equal((await api('/courses/lessons/1/cancel', { method:'POST', user:'mentor', body:{reason:'取消演练'} })).status,409,'独立成果待修改时必须阻断取消');
+  db.prepare("UPDATE works SET review_status='approved' WHERE id=1").run();
   const original = db.prepare('SELECT * FROM works WHERE id=1').get();
   assert.equal((await api('/courses/lessons/1/cancel', { method:'POST', user:'mentor', body:{reason:'取消演练'} })).status,200);
   const dashboard = await api('/dashboard', {user:'student'});
@@ -86,7 +88,8 @@ test('取消课时同时停止待办、任务、提交和 AI 上下文，保留�
   assert.equal((await api('/learning/lessons/1',{user:'student'})).status,404);
   assert.equal((await api('/courses/lessons/1/tasks',{method:'POST',user:'mentor',body:{title:'新任务'}})).status,409);
   const course = await api('/courses/1',{user:'student'});
-  assert.equal(course.body.progress,100);
+  assert.equal(course.body.progress,0,'孤立的旧进度数值不能替代回顾、答题及评审证据');
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM enrollment_completions WHERE enrollment_id=1').get().n,0);
   assert.equal(course.body.tasks.some(t=>t.id===1),false);
   const sources = answers.structuredSources(db.prepare('SELECT * FROM courses WHERE id=1').get(),'课程任务卡片');
   assert.equal(sources.some(s=>s.type==='task'&&s.id===1),false);

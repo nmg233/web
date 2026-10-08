@@ -208,6 +208,7 @@ function CourseDetailPage() {
 
   // 发布/撤回：不强制课程须有课时，仅在 0 课时时给提示
   const handleChangeStatus = (targetStatus) => {
+    if(targetStatus==='draft' && course.has_learning_history) return message.warning('已有学生学习记录，不能撤回草稿；请先处理待评/待修改报告及成果，再归档。');
     const apply = async () => {
       try {
         await courseAPI.update(id, { status: targetStatus });
@@ -485,7 +486,7 @@ function CourseDetailPage() {
           <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>发布课程</Button>
         )}
         {canEdit && course.status === 'published' && (
-          <Button size="small" onClick={() => handleChangeStatus('draft')}>撤回为草稿</Button>
+          <Button size="small" disabled={course.has_learning_history} title={course.has_learning_history ? '已有学习记录，请使用归档并先处理待评/待修改内容' : undefined} onClick={() => handleChangeStatus('draft')}>撤回为草稿</Button>
         )}
         {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
         {isStudent && isEnrolled && firstLearningLesson && <Button type="primary" onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>进入课时学习</Button>}

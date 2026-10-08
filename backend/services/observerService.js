@@ -60,7 +60,8 @@ function students(user, query = {}, all = false) {
     learning: `EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = s.id AND e.status = 'active'
       AND NOT EXISTS (SELECT 1 FROM enrollment_completions ec WHERE ec.enrollment_id = e.id))`,
     completed: `EXISTS (SELECT 1 FROM enrollments e JOIN enrollment_completions ec ON ec.enrollment_id = e.id WHERE e.student_id = s.id AND e.status = 'active')`,
-    revision: `EXISTS (SELECT 1 FROM lesson_learning_reports r WHERE r.student_id = s.id AND r.status = 'rejected'
+    revision: `EXISTS (SELECT 1 FROM lesson_learning_reports r WHERE r.student_id = s.id AND (r.status = 'rejected'
+      OR EXISTS (SELECT 1 FROM report_replacements rr WHERE rr.report_id=r.id))
       AND r.id = (SELECT last.id FROM lesson_learning_reports last WHERE last.student_id = s.id AND last.lesson_id = r.lesson_id ORDER BY version DESC,id DESC LIMIT 1))`,
   };
   if (statusSql[query.learning_status]) where.push(statusSql[query.learning_status]);
@@ -80,9 +81,11 @@ function students(user, query = {}, all = false) {
             JOIN lessons l ON l.id = lp.lesson_id
             WHERE lp.student_id = s.id AND lp.completed_at IS NULL AND lp.progress > 0) AS pending_lessons,
            (SELECT COUNT(*) FROM lesson_learning_reports r
-            WHERE r.student_id = s.id AND r.status = 'rejected'
+            WHERE r.student_id = s.id AND (r.status = 'rejected'
+              OR EXISTS (SELECT 1 FROM report_replacements rr WHERE rr.report_id=r.id))
             AND r.id=(SELECT latest.id FROM lesson_learning_reports latest WHERE latest.student_id=r.student_id AND latest.lesson_id=r.lesson_id ORDER BY latest.version DESC,latest.id DESC LIMIT 1)) AS rejected_reports,
-           (SELECT r.status FROM lesson_learning_reports r WHERE r.student_id = s.id
+           (SELECT CASE WHEN EXISTS(SELECT 1 FROM report_replacements rr WHERE rr.report_id=r.id)
+             THEN 'rejected' ELSE r.status END FROM lesson_learning_reports r WHERE r.student_id = s.id
             ORDER BY r.updated_at DESC, r.id DESC LIMIT 1) AS latest_report_status
     FROM users s
     LEFT JOIN schools school ON school.id = s.school_id
@@ -117,7 +120,8 @@ function dashboard(user) {
     WHERE student_id IN (${placeholders}) AND completed_at >= datetime('now', '-7 days')
   `).get(...ids).count : 0;
   const recentReports = ids.length ? db.prepare(`
-    SELECT r.id, r.student_id, r.status, r.version, r.submitted_at,
+    SELECT r.id, r.student_id, CASE WHEN EXISTS(SELECT 1 FROM report_replacements rr WHERE rr.report_id=r.id)
+             THEN 'rejected' ELSE r.status END AS status, r.version, r.submitted_at,
            s.real_name AS student_name, l.title AS lesson_title, c.title AS course_title
     FROM lesson_learning_reports r
     JOIN users s ON s.id = r.student_id
@@ -168,7 +172,9 @@ function studentDetail(user, studentId) {
   `).all(student.id).filter((l) => {
     const state = versions.courseState(db, student.id, l.course_id);
     return !state.completed || state.lesson_ids.includes(l.lesson_id);
-  }).map((l) => ({ ...l, stages: learningGate.getLessonLearningState(student.id, l.lesson_id),
+  }).map((l) => ({ ...l, original_report_status:l.report_status,
+    report_status:learningGate.getLessonLearningState(student.id,l.lesson_id).report_status,
+    stages: learningGate.getLessonLearningState(student.id, l.lesson_id),
     content_version: versions.boundVersion(db, student.id, l.lesson_id)?.id || null,
     cards: versions.studentCards(db, student.id, l.lesson_id).map((c) => ({
       id: c.id, title: c.title, completed_at: c.completed_at, best_score: c.best_score,
