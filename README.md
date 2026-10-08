@@ -649,7 +649,7 @@ DISK_WARN_PERCENT=85                      # doctor.sh 磁盘使用率告警阈�
 
 ## 服务器部署
 
-部署分两档：**快速一键部署**（`deploy.sh`，适合测试/演示环境）与 **正式生产发布**（推荐：以 Git Release Tag 为基线，目录规范 + systemd + nginx + 独立数据目录 + 正式库初始化）。正式环境请遵循三条铁律：
+部署分两档：**快速一键部署**（`deploy.sh`，仅测试/演示环境）与 **正式生产发布**（版本目录 + current 原子切换 + 外置数据；详见下文）。正式环境请遵循三条铁律：
 
 1. **代码 / 数据 / 配置分离**：代码可删重建，用户文件与数据库必须持久在数据盘，配置含密钥不进仓库；
 2. **迁移 ≠ 重置**：正式库用 `db:provision` 幂等初始化，严禁 `db:reset` / `db:init`；
@@ -664,9 +664,10 @@ DISK_WARN_PERCENT=85                      # doctor.sh 磁盘使用率告警阈�
 # Ubuntu / Debian 系
 sudo apt-get update && sudo apt-get install -y build-essential python3 nginx sqlite3
 # Alibaba Cloud Linux / RHEL 系
-sudo dnf install -y gcc gcc-c++ make python3 nginx
+sudo dnf install -y gcc gcc-c++ make nginx sqlite
 ```
 
+- 另行准备可用的 Python ≥3.9，并在安装后端依赖前明确指定 PYTHON；不能只安装旧系统默认的 python3 后就认定满足 node-gyp 要求。新发布脚本会先检查版本。
 - 滑翔机引擎 Python 环境（仅需要该功能时）：见“滑翔机模拟（学生科创）”章节，例如 `/opt/novaphy`（Python 3.11 + novaphy wheel + numpy/matplotlib）。
 
 ### 1. 快速一键部署（测试/演示环境）
@@ -684,211 +685,43 @@ RESET_DB=1 ./deploy.sh main # 重置数据库并恢复默认测试账号（仅�
 - 默认对应当前 ECS 测试环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`；
 - 可覆盖的环境变量：`NGINX_ROOT`、`SERVICE`、`SYNC_DELETE=1`（同步删除旧文件）、`HEALTH_URL`。
 
-### 2. 正式生产发布（推荐）
+### 2. 正式生产发布（版本目录 + current）
 
-#### 2.1 发布基线：用 Release Tag，不直接部署 main
-
-```bash
-# 本地：测试通过后打正式版本号并推送
-git checkout main && git pull
-git tag -a v1.0.0 -m "PBL production v1.0.0"
-git push origin v1.0.0
-```
-
-生产服务器只部署固定 Tag，保证“现在跑的是哪一版”永远可回答。
-
-#### 2.2 首次服务器目录规范（示例，可按团队约定调整）
+本轮已按确认方案准备 [部署与恢复说明](docs/部署与恢复.md) 和 `scripts/deploy-release.sh`。服务器尚未由本轮操作或迁移，请先完成说明中的一次性布局配置，再运行发布脚本。保留现有服务用户 deploy，不要求另建系统用户。
 
 ```text
-代码：   /opt/pbl-platform/releases/<版本号>   # 每版本独立目录
-运行软链：/opt/pbl-platform/current           # -> releases/<版本号>，升级时指回新版本
-数据：   /datadisk/pbl-platform/{database,uploads,private_uploads/feedback,backups}
-配置：   /etc/pbl-platform/backend.env        # root:pbl 640
+代码仓库：/opt/pbl-platform/repo
+发行目录：/opt/pbl-platform/releases/<commit-SHA>-<时间>
+运行入口：/opt/pbl-platform/current -> 发行目录
+外置配置：/etc/pbl-platform/backend.env
+持久数据：/var/lib/pbl-platform/{pbl_platform.db,uploads,private_uploads,backups}
 ```
+
+systemd 工作目录为 `/opt/pbl-platform/current/backend`，Nginx 静态根为 `/opt/pbl-platform/current/frontend/dist`。环境文件必须明确设置 DB_PATH、UPLOAD_PATH、FEEDBACK_UPLOAD_PATH 为上述持久数据目录内的绝对路径，HOST 默认绑定 127.0.0.1；保留原有 JWT_SECRET、PORT、CORS 等配置，不覆盖整个文件。
 
 ```bash
-sudo mkdir -p /opt/pbl-platform/releases /datadisk/pbl-platform/{database,uploads,backups} \
-             /datadisk/pbl-platform/private_uploads/feedback /etc/pbl-platform
-sudo useradd --system --create-home --home-dir /home/pbl --shell /usr/sbin/nologin pbl
-sudo chown -R pbl:pbl /opt/pbl-platform /datadisk/pbl-platform
-sudo chmod 750 /etc/pbl-platform
+cd /opt/pbl-platform/repo
+PYTHON=/usr/bin/python3.11 bash scripts/deploy-release.sh main
 ```
 
-#### 2.3 拉取固定版本并构建
+参数为实际发布分支；发布 xzx-2 时明确传入 xzx-2。脚本 fetch 后固定该次 commit SHA，导出干净发行目录，不带入工作区未提交改动。发布记录及健康接口返回实际 SHA，不再将“必须使用 Tag”与分支发布脚本混用。代码须先提交到实际发布分支。
+
+发布前核对 Python ≥3.9 和原生编译工具；老系统默认 Python 3.6 不可用于本轮 node-gyp。脚本在新目录安装依赖、验证原生 SQLite、执行前端测试/lint/build，并在数据库副本上迁移和检查。停止旧服务并成功备份数据库、公开上传和私有反馈附件后，才原子替换 current，启动并核对健康响应的数据库、schema 和 SHA。
+
+构建失败不动旧服务；备份失败不切换；健康失败恢复旧链接。自动恢复仅针对代码链接，**不覆盖数据库或附件**，避免丢失新写入。旧代码不理解新版本学习/结课规则时，应限制写入并人工评估，不将重新启动旧版等同于安全业务回滚。完整恢复必须先在隔离环境演练，步骤见部署说明。
+
+全新正式库才使用 `npm run db:provision` 幂等建表及创建管理员（ADMIN_REAL_NAME 必填，账号采用 BUAA_admin_姓名拼音_流水号，初始密码为姓名拼音@123，首登改密）；已有生产库只做备份和增量迁移，不能用空库替换，也不能执行 db:reset/db:init。本轮包含 018/019 增量迁移，保留历史作答、报告和成绩。
+
+定时备份从 current 的逻辑路径安装，以后跟随发行版切换：
 
 ```bash
-export PATH=/opt/node-v22/bin:$PATH
-cd /opt/pbl-platform/releases
-git clone --depth 1 --branch v1.0.0 <你的仓库地址> v1.0.0
-sudo ln -sfn /opt/pbl-platform/releases/v1.0.0 /opt/pbl-platform/current
-
-# 后端
-cd /opt/pbl-platform/current/backend
-npm ci --omit=dev
-BETTER_DIR="node_modules/better-sqlite3"
-PYTHON_BIN="${PYTHON:-/usr/bin/python3.11}"
-NODE_GYP="${NODE_GYP:-$(command -v node-gyp || true)}"
-if [ -z "$NODE_GYP" ]; then
-  NODE_GYP="/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js"
-fi
-(
-  cd "$BETTER_DIR"
-  PYTHON="$PYTHON_BIN" node "$NODE_GYP" rebuild --release --force_build=1
-  if [ -f prebuilds/linux-x64.node ]; then
-    mv prebuilds/linux-x64.node prebuilds/linux-x64.node.incompatible
-  fi
-)
-npm test                       # 必须 PASS，失败即停止发布
-
-# 前端（API 走同源 /api，由 nginx 反代）
-cd /opt/pbl-platform/current/frontend
-npm ci
-VITE_API_BASE=/api npm run build
-test -f dist/index.html && echo "frontend build OK"
+cd /opt/pbl-platform/current
+sudo BACKUP_APP_DIR=/opt/pbl-platform/current bash scripts/install-cron.sh
 ```
 
-#### 2.4 生产配置 `/etc/pbl-platform/backend.env`
+数据库、公开上传、私有反馈附件分别保留最近七份。每周完整备份复用同一保留策略；“保留四周”或异地灾备需另行配置，不能仅凭七份本机副本认定恢复可靠。私有附件和备份目录不得公开。
 
-```dotenv
-NODE_ENV=production
-HOST=127.0.0.1
-PORT=3000
-API_PREFIX=/api
-
-JWT_SECRET=<openssl rand -hex 64 生成，勿入库>
-CORS_ORIGIN=https://你的正式域名
-
-DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db
-UPLOAD_PATH=/datadisk/pbl-platform/uploads
-FEEDBACK_UPLOAD_PATH=/datadisk/pbl-platform/private_uploads/feedback
-
-# 滑翔机引擎（真 novaPhy）
-GLIDER_PYTHON=/opt/novaphy/bin/python
-GLIDER_BACKEND=auto
-
-# 登录安全
-LOGIN_RATE_LIMIT_IP=10
-LOGIN_RATE_LIMIT_USER=5
-ACCOUNT_LOCK_THRESHOLD=10
-ACCOUNT_LOCK_DURATION=15
-```
-
-> `UPLOAD_PATH` / `DB_PATH` / `FEEDBACK_UPLOAD_PATH` 支持绝对路径（平台按绝对路径直接使用），务必指向数据盘，避免用户文件随代码 Release 一起被删除。
-
-#### 2.5 正式库初始化（只执行一次；安全、幂等、无测试种子）
-
-```bash
-cd /opt/pbl-platform/current/backend
-DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db \
-ADMIN_REAL_NAME='<管理员真实姓名>' \
-npm run db:provision
-```
-
-- 只建表 + 创建正式管理员（首登强制改密），**不会**写入 `admin123` 等测试账号；
-- 缺省自动生成 BUAA_admin_姓名拼音_流水号；可选 ADMIN_USERNAME 保留固定账号兼容。初始密码为 ADMIN_REAL_NAME 的拼音加 @123，ADMIN_PASSWORD 不再覆盖该规则；已有管理员不会被覆盖，账号占用但不是管理员时明确报错。
-- 之后学校的组织/课程通过平台界面导入维护；正式环境**严禁** `npm run db:reset` 与 `npm run db:init`。
-
-#### 2.6 systemd 服务（`/etc/systemd/system/pbl-backend.service`）
-
-```ini
-[Unit]
-Description=PBL Production Backend
-After=network.target
-
-[Service]
-Type=simple
-User=pbl
-Group=pbl
-WorkingDirectory=/opt/pbl-platform/current/backend
-EnvironmentFile=/etc/pbl-platform/backend.env
-ExecStart=/opt/node-v22/bin/node app.js
-Restart=on-failure
-RestartSec=5
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ReadWritePaths=/datadisk/pbl-platform
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### 2.7 Nginx（`/etc/nginx/sites-available/pbl-platform`）
-
-```nginx
-server {
-    listen 80;
-    server_name 你的正式域名;
-    root /opt/pbl-platform/current/frontend/dist;
-    index index.html;
-    # 课程回放视频单文件最大 500MB，上限需大于该值
-    client_max_body_size 520M;
-
-    location / {
-        try_files $uri $uri/ /index.html;   # SPA 路由
-    }
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-启用并检查：`ln -s /etc/nginx/sites-available/pbl-platform /etc/nginx/sites-enabled/`，`nginx -t`；按域名/入口决定 HTTPS（网关或本机 443 + 证书）。
-
-#### 2.8 上线检查与回滚
-
-```bash
-# 四层健康检查
-curl -fsS http://127.0.0.1:3000/api/health   # 直接访问后端
-curl -fsS http://127.0.0.1/api/health          # 经 nginx
-curl -I  http://127.0.0.1/                     # 前端静态
-curl -I  http://127.0.0.1/login                # SPA fallback
-```
-
-正式发布前完成业务冒烟（管理员/学术导师/教师/学生登录、执行导师/管理员选课导入与管理员异常修正移除、知识卡片与练习、课后任务和报告提交、导师作品/报告评审、教师只读观察、课程回放、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
-
-**回滚**：`sudo ln -sfn /opt/pbl-platform/releases/<上一版本> /opt/pbl-platform/current && sudo systemctl restart pbl-backend`；数据库回滚需先停服、恢复 pre-deploy 备份、校验后再启动。
-
-#### 2.9 备份规划（建议）
-
-| 类型 | 策略 |
-| --- | --- |
-| 每日数据库备份 | 保留 7 天 |
-| 每周完整备份 | 保留 4 周 |
-| 每次部署前 | 强制备份 |
-| 数据盘 uploads/private_uploads | 与数据库一起备份，并另存异机/NAS/对象存储 |
-
-#### 2.10 自动备份
-
-在项目根目录安装（服务器需安装 cron、tar 和 sqlite3，并启动 cron 服务）：
-
-```bash
-sudo bash scripts/install-cron.sh
-tail -f /var/log/pbl-backup.log
-```
-
-脚本管理执行用户的 crontab：每天 02:00 备份数据库、每天 03:00 备份上传文件、每周日 04:00 依次执行数据库与上传文件完整备份，时间使用服务器时区。重复安装会跳过相同任务，更新项目路径会替换旧任务，其他定时任务保留。使用 sudo 安装时，日志由 root 写入 `/var/log/pbl-backup.log`；日志在第一次任务执行后生成。非 root 安装需确保该日志可写。
-
-任务从项目 `backend` 目录执行，读取 `/etc/pbl-platform/backend.env` 的 `DB_PATH` 和 `UPLOAD_PATH`。建议配置绝对路径；`UPLOAD_PATH` 缺省为 `uploads`，相对路径以 `backend` 为基准。上传备份存于上传目录同级的 `backups/uploads-YYYYMMDD-HHMMSS.tar.gz`，数据库使用现有 `pre-deploy-*.db` 备份，两者各保留最近 7 份。每周任务复用这套备份与保留策略；上节“保留 4 周”的建议需另行归档实现。生产环境应从稳定的项目路径安装，Release 路径变更后重新安装。
-
-手动触发（完整备份依次运行以下两条命令）：
-
-```bash
-cd backend
-sudo bash ../scripts/backup-db.sh
-sudo bash ../scripts/backup-uploads.sh
-```
-
-卸载本项目的定时任务（以安装时的同一用户执行）：
-
-```bash
-sudo bash scripts/install-cron.sh --uninstall
-```
+近期整改实现与验收边界见 [本轮整改验收记录](docs/本轮整改验收记录_2026-10-08.md)。上线仍须完成真实 Linux 发布恢复、HTTPS/网络暴露、长视频及弱网上传验收。
 
 ### 3. 服务器部署滑翔机引擎（如需该功能）
 
