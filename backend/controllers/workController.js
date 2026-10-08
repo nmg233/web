@@ -12,6 +12,14 @@ const notificationService = require('../services/notificationService');
 const { NOTIFICATION_EVENTS } = notificationService;
 const learningGate = require('../helpers/learningGate');
 
+function isHistoricalWork(workId) {
+  const scope = db.prepare(`SELECT c.status AS course_status, l.status AS lesson_status
+    FROM works w LEFT JOIN enrollments e ON e.id=w.enrollment_id
+    LEFT JOIN courses c ON c.id=e.course_id LEFT JOIN tasks t ON t.id=w.task_id
+    LEFT JOIN lessons l ON l.id=t.lesson_id WHERE w.id=?`).get(workId);
+  return scope?.course_status === 'archived' || scope?.lesson_status === 'cancelled';
+}
+
 function notifyWorkRecipients(work, payload, recipientIds) {
   return notificationService.safeCreateForUsers({
     category: 'work',
@@ -149,6 +157,7 @@ exports.showUpload = (req, res) => {
 
 // 处理作品上传（仅学生本人；教师/导师/管理员代录功能已下线）
 exports.upload = (req, res) => {
+  let committed = false;
   try {
     if (!req.file && !req.body.description?.trim()) {
       return res.status(400).json({ error: '请填写成果内容或选择文件' });
@@ -254,6 +263,7 @@ exports.upload = (req, res) => {
     // 唯一根索引（idx_works_root）兜底：并发双请求同时通过预检时，由约束拒绝第二个
     let insertResult;
     try {
+      db.transaction(() => {
       insertResult = db.prepare(
         `INSERT INTO works (student_id, enrollment_id, task_id, title, description,
           file_path, file_name, file_type, file_size, parent_work_id, version)
@@ -261,21 +271,15 @@ exports.upload = (req, res) => {
       ).run(actualStudentId, resolvedEnrollmentId, task_id || null, title,
             description || null, req.file?.path || null, decodeOriginalName(req.file?.originalname) || null,
             displayType, req.file?.size || null, parentId, version);
-    } catch (err) {
-      if (String(err.code).startsWith('SQLITE_CONSTRAINT')) {
-        removeUploadedFile(req.file);
-        return res.status(409).json({ error: '该任务已有作品，请通过重新提交创建新版本' });
-      }
-      throw err;
-    }
-
-    const workId = Number(insertResult.lastInsertRowid);
-    // 成长事件关联 work_id（时间轴按 work_id 去重，见决策 D-3）
-    db.prepare("INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)").run(actualStudentId, `提交作品《${title}》`, workId);
-    // 作品数按版本根去重（v2/v3 不计入新作品）；仅首次提交触发里程碑
-    const workCount = db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) count FROM works WHERE student_id=?').get(actualStudentId).count;
-    if (!parentId && workCount % 3 === 0) db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)").run(actualStudentId, `累计完成 ${workCount} 个作品`);
-
+      const id = Number(insertResult.lastInsertRowid);
+      db.prepare("INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)")
+        .run(actualStudentId, `提交作品《${title}》`, id);
+      const count = db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) count FROM works WHERE student_id=?').get(actualStudentId).count;
+      if (!parentId && count % 3 === 0) db.prepare("INSERT INTO growth_records (student_id,event_type,description) VALUES (?,'system',?)")
+        .run(actualStudentId, `累计完成 ${count} 个作品`);
+      const submittedTask = db.prepare('SELECT lesson_id FROM tasks WHERE id = ?').get(task_id);
+      if (submittedTask) learningGate.recalculateLessonProgress(actualStudentId, submittedTask.lesson_id);
+      const workId = id;
     const courseOwner = resolvedEnrollmentId ? db.prepare(`
       SELECT c.created_by, l.instructor_id
       FROM enrollments e
@@ -296,13 +300,24 @@ exports.upload = (req, res) => {
       level: resubmitted ? 'important' : 'normal',
       createdBy: user.id,
     }, [...new Set([actualStudentId, courseOwner?.created_by, courseOwner?.instructor_id].filter(Boolean))]);
-    const submittedTask = db.prepare('SELECT lesson_id FROM tasks WHERE id = ?').get(task_id);
-    if (submittedTask) learningGate.recalculateLessonProgress(actualStudentId, submittedTask.lesson_id);
+      }).immediate();
+      committed = true;
+    } catch (err) {
+      if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+        removeUploadedFile(req.file);
+        return res.status(409).json({ error: '该任务已有作品，请通过重新提交创建新版本' });
+      }
+      throw err;
+    }
+
+    const workId = Number(insertResult.lastInsertRowid);
+
+
 
     res.json({ message: '作品上传成功！', id: workId });
   } catch (err) {
     console.error('上传作品错误:', err);
-    removeUploadedFile(req.file);
+    if (!committed) removeUploadedFile(req.file);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };
@@ -333,6 +348,7 @@ exports.detail = (req, res) => {
     }
 
     const review = db.prepare(`SELECT r.*, u.real_name reviewer_name FROM work_reviews r JOIN users u ON u.id=r.reviewer_id WHERE r.work_id=?`).get(work.id);
+    work.read_only = isHistoricalWork(work.id);
     work.file_name = decodeOriginalName(work.file_name);
     const rootId = work.parent_work_id || work.id;
     const versions = db.prepare(`SELECT id, version, title, review_status, created_at FROM works WHERE id=? OR parent_work_id=? ORDER BY version DESC`).all(rootId, rootId);
@@ -394,7 +410,9 @@ exports.delete = (req, res) => {
       return res.status(403).json({ error: '无权删除该作品' });
     }
 
+    if (isHistoricalWork(work.id)) return res.status(409).json({ error: '归档课程或取消课时的作品仅可查看历史' });
     // 先删数据库记录（评审关联经外键级联清理），提交后再删物理文件
+    db.transaction(() => {
     db.prepare('DELETE FROM works WHERE id = ?').run(req.params.id);
     notifyWorkRecipients(work, {
       eventKey: NOTIFICATION_EVENTS.WORK_DELETED,
@@ -408,6 +426,7 @@ exports.delete = (req, res) => {
     }, [work.student_id]);
     const deletedTask = db.prepare('SELECT lesson_id FROM tasks WHERE id = ?').get(work.task_id);
     if (deletedTask) learningGate.recalculateLessonProgress(work.student_id, deletedTask.lesson_id);
+    }).immediate();
     removeFilesAfterCommit([work.file_path], UPLOAD_ROOT);
     res.json({ message: '作品已删除' });
   } catch (err) {
@@ -422,18 +441,18 @@ exports.reject = (req, res) => {
     if (!work) {
       return res.status(400).json({ error: '作品不存在' });
     }
+    if (isHistoricalWork(work.id)) return res.status(409).json({ error: '归档课程或取消课时的作品仅可查看历史' });
     if (work.review_status !== 'pending') return res.status(409).json({ error: '该版本作品已评审，不能修改评审结果' });
 
     const reason = (req.body.reason || '').trim() || '作品不符合要求，请修改后重新提交';
-    const growthId = db.transaction(() => {
+    db.transaction(() => {
       db.prepare(
         "UPDATE works SET review_status = 'rejected', reject_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
       ).run(reason, req.params.id);
       const growth = db.prepare(
         "INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)"
       ).run(work.student_id, `作品《${work.title}》被打回修改`, req.params.id);
-      return Number(growth.lastInsertRowid);
-    })();
+      const growthId = Number(growth.lastInsertRowid);
 
     notifyWorkRecipients(work, {
       eventKey: NOTIFICATION_EVENTS.WORK_REVIEWED,
@@ -445,6 +464,7 @@ exports.reject = (req, res) => {
       createdBy: req.user.id,
     }, [work.student_id]);
 
+    }).immediate();
     res.json({ message: '作品已打回' });
   } catch (err) {
     console.error('打回作品错误:', err);
@@ -462,20 +482,20 @@ exports.review = (req, res) => {
       WHERE w.id = ?
     `).get(req.params.id);
     if (!work || !canReviewWork(req.user, work)) return res.status(403).json({ error: '无权评审该作品' });
+    if (isHistoricalWork(work.id)) return res.status(409).json({ error: '归档课程或取消课时的作品仅可查看历史' });
     if (work.review_status !== 'pending') return res.status(409).json({ error: '该版本作品已评审，不能修改评审结果' });
     const keys = ['problem_discovery', 'solution_design', 'hands_on', 'data_analysis', 'presentation'];
     if (!['approved', 'rejected'].includes(req.body.status)) return res.status(400).json({ error: '请选择评审结果' });
     const status = req.body.status;
     if (status === 'approved' && keys.some((key) => !Number.isInteger(Number(req.body[key])) || Number(req.body[key]) < 1 || Number(req.body[key]) > 5)) return res.status(400).json({ error: '选择通过时，五项评分均须为1-5的整数' });
     const scores = status === 'approved' ? keys.map((key) => Number(req.body[key])) : keys.map(() => null);
-    const growthId = db.transaction(() => {
+    db.transaction(() => {
       db.prepare(`INSERT INTO work_reviews (work_id,reviewer_id,comment,suggestion,problem_discovery,solution_design,hands_on,data_analysis,presentation)
         VALUES (?,?,?,?,?,?,?,?,?)`)
         .run(work.id, req.user.id, req.body.comment || null, req.body.suggestion || null, ...scores);
       db.prepare('UPDATE works SET review_status=?, reject_reason=?, updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status, status === 'rejected' ? (req.body.suggestion || '请修改后重新提交') : null, work.id);
       const growth = db.prepare("INSERT INTO growth_records (student_id,event_type,description,work_id) VALUES (?,'system',?,?)").run(work.student_id, `作品《${work.title}》完成导师评审`, work.id);
-      return Number(growth.lastInsertRowid);
-    })();
+      const growthId = Number(growth.lastInsertRowid);
     notifyWorkRecipients(work, {
       eventKey: NOTIFICATION_EVENTS.WORK_REVIEWED,
       dedupeKey: `work.reviewed:${work.id}:${growthId}`,
@@ -492,6 +512,7 @@ exports.review = (req, res) => {
       learningGate.recalculateLessonProgress(work.student_id, lesson.lesson_id);
       learningGate.recordCompletionGrowth(work.student_id, lesson.lesson_id, req.user.id);
     }
+    }).immediate();
     res.json({ message: '评审已保存' });
   } catch (err) { console.error(err); res.status(500).json({ error: '保存评审失败' }); }
 };

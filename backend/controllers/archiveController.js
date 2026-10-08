@@ -69,6 +69,11 @@ function loadStudentArchive(studentId, user) {
      WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
   ).all(studentId)
     .filter((ev) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(ev.enrollment_id));
+  const learningReports = db.prepare(`SELECT r.*, l.title AS lesson_title, c.title AS course_title,
+    u.real_name AS reviewer_name FROM lesson_learning_reports r JOIN lessons l ON l.id = r.lesson_id
+    JOIN courses c ON c.id = l.course_id LEFT JOIN users u ON u.id = r.reviewer_id
+    WHERE r.student_id = ? ORDER BY r.submitted_at DESC, r.id DESC`).all(studentId)
+    .filter((r) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id));
 
   // 能力评分口径与作品可见性一致：教师仅统计其可见（approved）作品，其余角色全量
   const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=? AND w.id IN (SELECT value FROM json_each(?))`).get(studentId, JSON.stringify(works.map((w) => w.id)));
@@ -86,7 +91,7 @@ function loadStudentArchive(studentId, user) {
     growthRecords.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
   }
 
-  return { student: safeStudent, courses, works, reflections, evaluations, ability, growthRecords };
+  return { student: safeStudent, courses, works, reflections, evaluations, learningReports, ability, growthRecords };
 }
 
 // 供 studentController 等复用（统一档案数据组装与角色过滤）
@@ -154,6 +159,7 @@ exports.generate = (req, res) => {
       works: archive.works,
       reflections: archive.reflections,
       evaluations: archive.evaluations,
+      learningReports: archive.learningReports,
       ability: archive.ability,
       growthRecords: archive.growthRecords,
       generatedAt: new Date().toLocaleString('zh-CN')

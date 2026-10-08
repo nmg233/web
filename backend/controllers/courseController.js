@@ -12,6 +12,8 @@ const { NOTIFICATION_EVENTS } = require('../constants/notification');
 const coursePolicy = require('../policies/coursePolicy');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
+const requests = require('../helpers/requestResults');
+const versions = require('../helpers/lessonVersions');
 const aiDocuments = require('../services/aiDocumentService');
 
 function removeUploadedFile(file) {
@@ -25,10 +27,35 @@ function canManageCourse(user, courseId) {
   return coursePolicy.canManageCourse(user, course);
 }
 
+function writable(courseId, lessonId = null) {
+  const course = db.prepare('SELECT status FROM courses WHERE id = ?').get(courseId);
+  if (!course || course.status === 'archived') return false;
+  if (lessonId && !db.prepare("SELECT 1 FROM lessons WHERE id = ? AND course_id = ? AND status != 'cancelled'").get(lessonId, courseId)) return false;
+  return true;
+}
+
+function pendingReports(courseId, lessonId = null) {
+  return db.prepare(`SELECT 1 FROM lesson_learning_reports r JOIN lessons l ON l.id = r.lesson_id
+    WHERE l.course_id = ? AND (? IS NULL OR l.id = ?) AND r.status IN ('submitted', 'rejected')
+    AND r.id = (SELECT latest.id FROM lesson_learning_reports latest WHERE latest.student_id = r.student_id AND latest.lesson_id = r.lesson_id
+      ORDER BY latest.version DESC, latest.id DESC LIMIT 1) LIMIT 1`).get(courseId, lessonId, lessonId);
+}
+
+function validateLessonBinding(courseId, value) {
+  if (value === null || value === undefined || value === '') return null;
+  const id = Number(value);
+  if (!Number.isSafeInteger(id) || id < 1 || !writable(courseId, id)) {
+    const err = new Error('请选择当前课程中未取消的课时'); err.status = 400; throw err;
+  }
+  return id;
+}
+
 // 上传前鉴权，避免无权限请求先写入资源或视频文件。
 exports.requireCourseManagement = (req, res, next) => {
   try {
     if (!canManageCourse(req.user, req.params.id)) return res.status(403).json({ error: '无权管理该课程' });
+    if (!writable(req.params.id)) return res.status(409).json({ error: '已归档课程只允许查看历史' });
+    // 在文件写盘之前验证课时归属（multipart 字段在控制器中再次核实）。
     next();
   } catch (err) { next(err); }
 };
@@ -79,7 +106,13 @@ exports.list = (req, res) => {
     const courses = db.prepare(sql).all(...params).map((course) => req.user.role === 'media'
       ? { id: course.id, title: course.title, theme: course.theme, grade_level: course.grade_level,
           difficulty: course.difficulty, status: course.status, can_manage: false }
-      : { ...course, progress: 0, can_manage: coursePolicy.canManageCourse(req.user, course) });
+      : (() => {
+          const states = req.user.role === 'student' ? [versions.courseState(db, req.user.id, course.id)]
+            : db.prepare("SELECT e.student_id FROM enrollments e JOIN users u ON u.id = e.student_id WHERE e.course_id = ? AND e.status = 'active' AND u.is_active = 1 AND u.archived_at IS NULL").all(course.id).map((e) => versions.courseState(db, e.student_id, course.id));
+          return { ...course, progress: states.length ? Math.round(states.reduce((sum, x) => sum + x.percent, 0) / states.length) : 0,
+            progress_label: req.user.role === 'student' ? '学习进度' : '平均进度', completed: req.user.role === 'student' && states[0]?.completed,
+            can_manage: coursePolicy.canManageCourse(req.user, course) };
+        })());
     const themes = req.user.role === 'admin'
       ? db.prepare('SELECT DISTINCT theme FROM courses WHERE theme IS NOT NULL').all()
       : [...new Set(courses.map((course) => course.theme).filter(Boolean))].map((theme) => ({ theme }));
@@ -163,17 +196,21 @@ exports.detail = (req, res) => {
       LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = ?
       LEFT JOIN users u ON u.id = l.instructor_id
       WHERE l.course_id = ? ORDER BY l.sort_order`).all(req.user.role === 'student' ? req.user.id : null, id);
+    const completion = req.user.role === 'student' ? versions.courseState(db, req.user.id, Number(id)) : null;
+    for (const l of lessons) {
+      l.readiness = versions.readiness(db, l.id);
+      l.learning_in_scope = !completion?.completed || completion.lesson_ids.includes(l.id);
+    }
     const tasks = db.prepare(`SELECT t.*, l.title AS lesson_title FROM tasks t
       JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ?
       ${req.user.role === 'student' ? "AND l.status != 'cancelled' AND t.status = 'active'" : ''}
       ORDER BY l.sort_order, t.sort_order`).all(id);
-    const progress = req.user.role === 'student'
-      ? db.prepare(`SELECT COALESCE(ROUND(AVG(COALESCE(lp.progress, 0))), 0) AS progress
-          FROM lessons l LEFT JOIN lesson_progress lp
-            ON lp.lesson_id = l.id AND lp.student_id = ?
-          WHERE l.course_id = ? AND l.status != 'cancelled'`).get(req.user.id, id).progress
-      : 0;
-    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(toFileDto);
+    const progress = completion?.percent || 0;
+    const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map((r) => {
+      const ext = path.extname(r.file_path || '');
+      const title = decodeOriginalName(r.title) || '课程资料';
+      return { ...toFileDto(r), download_name: title.toLowerCase().endsWith(ext.toLowerCase()) ? title : title + ext };
+    });
     const enrollments = (() => {
       if (COURSE_MANAGER_ROLES.includes(req.user.role)) {
         return db.prepare(
@@ -207,7 +244,7 @@ exports.detail = (req, res) => {
       : [];
 
     res.json({ title: course.title, course: { ...course, can_manage: coursePolicy.canManageCourse(req.user, course),
-      can_enroll: course.status !== 'archived' && canEnrollCourse(req.user, course.id) }, lessons, tasks, progress, resources, enrollments, teachers });
+      can_enroll: course.status !== 'archived' && canEnrollCourse(req.user, course.id), completion }, lessons, tasks, progress, resources, enrollments, teachers });
   } catch (err) {
     console.error('课程详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -238,6 +275,9 @@ exports.update = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(403).json({ error: '无权管理该课程' });
     }
+    const current = db.prepare('SELECT status FROM courses WHERE id = ?').get(id);
+    if (current?.status === 'archived') return res.status(409).json({ error: '已归档课程只允许查看历史' });
+    if (req.body.status === 'archived' && pendingReports(id)) return res.status(409).json({ error: '请先处理全部待评或待修改的最新报告再归档' });
     const fields = ['title','theme','description','driving_question','story_line',
                     'grade_level','difficulty','total_hours','materials_needed','status'];
     const sets = [];
@@ -310,6 +350,9 @@ exports.addLesson = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(403).json({ error: '无权管理该课程' });
     }
+    if (!writable(id)) return res.status(409).json({ error: '已归档课程不能新增课时' });
+    // 冻结已经满足结课条件的历史报名，新增课时不会撤销结课结果。
+    for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id = ? AND status = 'active'").all(id)) versions.courseState(db, e.student_id, Number(id), true);
     const { title, description, duration, start_at, end_at, location, instructor_id } = req.body;
 
     if (!title) {
@@ -348,6 +391,7 @@ exports.updateLesson = (req, res) => {
     if (!lesson || !canManageCourse(req.user, lesson.course_id)) {
       return res.status(404).json({ error: '课时不存在' });
     }
+    if (!writable(lesson.course_id, lesson.id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
     const fields = ['title', 'description', 'duration', 'start_at', 'end_at', 'location', 'instructor_id'];
     const sets = [];
     const values = [];
@@ -379,6 +423,8 @@ exports.cancelLesson = (req, res) => {
     if (!lesson || !canManageCourse(req.user, lesson.course_id)) {
       return res.status(404).json({ error: '课时不存在' });
     }
+    if (!writable(lesson.course_id, lesson.id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
+    if (pendingReports(lesson.course_id, lesson.id)) return res.status(409).json({ error: '请先处理全部待评或待修改的最新报告再取消课时' });
     const reason = String(req.body.reason || '').trim();
     if (!reason) return res.status(400).json({ error: '请填写取消原因' });
     if (lesson.status === 'cancelled') return res.status(400).json({ error: '课时已取消' });
@@ -404,11 +450,13 @@ exports.uploadResource = (req, res) => {
       return res.status(400).json({ error: '请选择要上传的文件' });
     }
 
+    if (!writable(id)) { removeUploadedFile(req.file); return res.status(409).json({ error: '归档课程只允许查看历史' }); }
+    const lessonId = validateLessonBinding(id, req.body.lesson_id);
     const { resource_type, title } = req.body;
     const displayTitle = title || decodeOriginalName(req.file.originalname) || req.file.originalname;
     const result = db.prepare(
-      'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(id, resource_type || 'other', displayTitle,
+      'INSERT INTO resources (course_id, lesson_id, resource_type, title, description, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(id, lessonId, resource_type || 'other', displayTitle, req.body.description || null,
          req.file.path, req.file.size, req.user.id);
 
     try { aiDocuments.registerResource(Number(result.lastInsertRowid)); }
@@ -418,7 +466,7 @@ exports.uploadResource = (req, res) => {
   } catch (err) {
     removeUploadedFile(req.file);
     console.error('上传资源错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -426,12 +474,14 @@ exports.uploadResource = (req, res) => {
 exports.deleteResource = (req, res) => {
   try {
     const resource = db.prepare(
-      'SELECT id, course_id, file_path FROM resources WHERE id = ?'
+      'SELECT id, course_id, lesson_id, file_path FROM resources WHERE id = ?'
     ).get(req.params.resource_id);
     if (!resource || !canManageCourse(req.user, resource.course_id)) {
       return res.status(404).json({ error: '资源不存在' });
     }
 
+    if (!writable(resource.course_id, resource.lesson_id)) return res.status(409).json({ error: '归档或取消的课时只允许查看历史' });
+    if (db.prepare('SELECT 1 FROM lesson_content_versions v JOIN lessons l ON l.id = v.lesson_id WHERE l.course_id = ? LIMIT 1').get(resource.course_id)) return res.status(409).json({ error: '课程已有学习快照，资料须保留供历史学习下载' });
     db.prepare('DELETE FROM resources WHERE id = ?').run(resource.id);
     removeFilesAfterCommit([resource.file_path], UPLOAD_ROOT);
     res.json({ message: '资源已删除' });
@@ -469,7 +519,9 @@ exports.downloadResource = (req, res) => {
     if (relativePath.startsWith('..') || path.isAbsolute(relativePath) || !fs.existsSync(resolvedPath)) {
       return res.status(404).json({ error: '附件文件不存在' });
     }
-    return res.download(resolvedPath, decodeOriginalName(resource.title) || path.basename(resolvedPath));
+    const ext = path.extname(resolvedPath);
+    const title = decodeOriginalName(resource.title) || path.basename(resolvedPath);
+    return res.download(resolvedPath, title.toLowerCase().endsWith(ext.toLowerCase()) ? title : title + ext);
   } catch (err) {
     console.error('下载课程资源错误:', err);
     return res.status(500).json({ error: '下载附件失败' });
@@ -494,7 +546,7 @@ exports.addTask = (req, res) => {
       return res.status(403).json({ error: '无权管理该课程' });
     }
 
-    if (lesson.status === 'cancelled') return res.status(409).json({ error: '不能向已取消课时添加任务' });
+    if (!writable(lesson.course_id, lesson_id)) return res.status(409).json({ error: '不能向归档或取消的课时添加任务' });
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM tasks WHERE lesson_id = ?').get(lesson_id);
 
@@ -525,7 +577,7 @@ exports.updateProgress = (req, res) => {
       WHERE c.id = ? AND c.status = 'published'
     `).get(req.user.id, req.params.id);
     if (!enrollment) return res.status(403).json({ error: '请先选课后再学习' });
-    const lesson = db.prepare('SELECT id FROM lessons WHERE id = ? AND course_id = ?').get(lessonId, req.params.id);
+    const lesson = db.prepare("SELECT id FROM lessons WHERE id = ? AND course_id = ? AND status != 'cancelled'").get(lessonId, req.params.id);
     if (!lesson) return res.status(400).json({ error: '课时不属于当前课程' });
     const state = db.transaction(() => {
       const calculated = learningGate.recalculateLessonProgress(req.user.id, lessonId);
@@ -571,7 +623,10 @@ exports.uploadReplay = (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: '请选择回放视频' });
     }
+    if (!writable(req.params.id)) { removeUploadedFile(req.file); return res.status(409).json({ error: '归档课程只允许查看历史' }); }
+    const lessonId = validateLessonBinding(req.params.id, req.body.lesson_id);
     const { title, description, summary, duration_seconds, recording_date, sort_order } = req.body;
+    if (!String(description || '').trim()) { removeUploadedFile(req.file); return res.status(400).json({ error: '请填写视频简介' }); }
     if (summary !== undefined && (typeof summary !== 'string' || summary.length > 10000)) {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
@@ -580,11 +635,16 @@ exports.uploadReplay = (req, res) => {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '请填写回放标题' });
     }
-    const result = db.prepare(
-      `INSERT INTO course_replays (course_id, title, description, summary, video_path, duration_seconds, recording_date, sort_order, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    const identity = requests.identity(req.user, `replay:${req.params.id}`, req.body, [req.file]);
+    const prior = requests.existing(db, identity);
+    if (prior) { removeUploadedFile(req.file); return res.json({ message:'回放已上传', id:prior.id }); }
+    const result = db.transaction(() => {
+    const inserted = db.prepare(
+      `INSERT INTO course_replays (course_id, lesson_id, title, description, summary, video_path, duration_seconds, recording_date, sort_order, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       req.params.id,
+      lessonId,
       title.trim(),
       description || null,
       summary?.trim() || null,
@@ -594,11 +654,14 @@ exports.uploadReplay = (req, res) => {
       Number(sort_order) || 0,
       req.user.id
     );
-    res.json({ message: '课程回放上传成功', id: Number(result.lastInsertRowid) });
+    const result = { id:Number(inserted.lastInsertRowid) };
+    requests.save(db, identity, result); return result;
+    }).immediate();
+    res.json({ message: '课程回放上传成功', id: result.id });
   } catch (err) {
     removeUploadedFile(req.file);
     console.error('上传课程回放错误:', err);
-    res.status(500).json({ error: '上传课程回放失败' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '上传课程回放失败' });
   }
 };
 
@@ -606,16 +669,20 @@ exports.updateReplay = (req, res) => {
   try {
     const replay = db.prepare('SELECT * FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
+    if (!writable(replay.course_id, replay.lesson_id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
+    const lessonId = req.body.lesson_id === undefined ? replay.lesson_id : validateLessonBinding(replay.course_id, req.body.lesson_id);
     const { title, description, summary, duration_seconds, recording_date, sort_order } = req.body;
+    if (description !== undefined && !String(description || '').trim()) return res.status(400).json({ error: '请填写视频简介' });
     if (summary !== undefined && (typeof summary !== 'string' || summary.length > 10000)) {
       return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
     }
     if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: '回放标题不能为空' });
     db.prepare(
       `UPDATE course_replays
-       SET title = COALESCE(?, title), description = ?, summary = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
+       SET lesson_id = ?, title = COALESCE(?, title), description = ?, summary = ?, duration_seconds = ?, recording_date = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
     ).run(
+      lessonId,
       title ? String(title).trim() : null,
       description === undefined ? replay.description : description || null,
       summary === undefined ? replay.summary : summary.trim() || null,
@@ -636,6 +703,8 @@ exports.deleteReplay = (req, res) => {
     const replay = db.prepare('SELECT id, course_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
     // 先删记录，提交后再删物理文件（失败进清理队列）
+    if (!writable(replay.course_id, replay.lesson_id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
+    if (db.prepare('SELECT 1 FROM lesson_content_versions v JOIN lessons l ON l.id = v.lesson_id WHERE l.course_id = ? LIMIT 1').get(replay.course_id)) return res.status(409).json({ error: '课程已有学习快照，回放须保留供历史学习播放' });
     db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
     removeFilesAfterCommit([replay.video_path], UPLOAD_ROOT);
     res.json({ message: '课程回放已删除' });
@@ -755,7 +824,7 @@ exports.enroll = (req, res) => {
         status = 'active',
         enrolled_by = excluded.enrolled_by,
         enrolled_at = CURRENT_TIMESTAMP,
-        completed_at = NULL,
+        completed_at = enrollments.completed_at,
         removed_at = NULL,
         removed_by = NULL,
         remove_reason = NULL
@@ -868,6 +937,14 @@ exports.removeEnrollment = (req, res) => {
       { label: '作品', count: db.prepare('SELECT COUNT(*) c FROM works WHERE enrollment_id = ?').get(enrollment.id).c },
       { label: '评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE enrollment_id = ?').get(enrollment.id).c },
       { label: '反思日志', count: db.prepare('SELECT COUNT(*) c FROM reflections WHERE enrollment_id = ?').get(enrollment.id).c },
+      { label: '学习记录', count: db.prepare(`SELECT COUNT(*) c FROM (
+        SELECT p.student_id FROM lesson_progress p JOIN lessons l ON l.id = p.lesson_id WHERE p.student_id = ? AND l.course_id = ?
+        UNION ALL SELECT p.student_id FROM lesson_review_completions p JOIN lessons l ON l.id = p.lesson_id WHERE p.student_id = ? AND l.course_id = ?
+        UNION ALL SELECT p.student_id FROM student_lesson_versions p JOIN lessons l ON l.id = p.lesson_id WHERE p.student_id = ? AND l.course_id = ?
+        UNION ALL SELECT p.student_id FROM student_card_progress p JOIN knowledge_cards c ON c.id = p.card_id JOIN lessons l ON l.id = c.lesson_id WHERE p.student_id = ? AND l.course_id = ?
+        UNION ALL SELECT p.student_id FROM card_exercise_attempts p JOIN card_exercises e ON e.id = p.exercise_id JOIN knowledge_cards c ON c.id = e.card_id JOIN lessons l ON l.id = c.lesson_id WHERE p.student_id = ? AND l.course_id = ?
+        UNION ALL SELECT student_id FROM lesson_learning_reports WHERE student_id = ? AND lesson_id IN (SELECT id FROM lessons WHERE course_id = ?)
+      )`).get(...Array.from({ length: 6 }, () => [enrollment.student_id, enrollment.course_id]).flat()).c },
     ].filter((b) => b.count > 0);
     if (blockers.length > 0) {
       return res.status(400).json({
@@ -884,8 +961,6 @@ exports.removeEnrollment = (req, res) => {
       db.prepare(
         "INSERT INTO growth_records (student_id, event_type, description, recorded_by) VALUES (?, 'system', ?, ?)"
       ).run(enrollment.student_id, `已移除课程《${enrollment.course_title}》报名（原因：${reason.slice(0, 200)}）`, req.user.id);
-    })();
-
     notificationService.safeCreateForUsers({
       eventKey: NOTIFICATION_EVENTS.ENROLLMENT_REMOVED,
       dedupeKey: `course.enrollment_removed:${enrollment.id}`,
@@ -899,6 +974,7 @@ exports.removeEnrollment = (req, res) => {
       businessId: enrollment.id,
       createdBy: req.user.id,
     }, [enrollment.student_id]);
+    })();
 
     res.json({ message: `已移除 ${enrollment.student_name} 的报名（审计已记录）` });
   } catch (err) {

@@ -3,6 +3,8 @@ const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
 const notificationService = require('./notificationService');
 
+const versions = require('../helpers/lessonVersions');
+
 const QUESTION_TYPES = ['single_choice', 'multiple_choice', 'true_false', 'fill_blank', 'short_answer'];
 
 class LearningError extends Error {
@@ -84,6 +86,7 @@ function assertWritableLesson(user, lessonId) {
   if (lesson.course_status === 'archived') {
     throw new LearningError('已归档课程不能修改学习内容', 409, 'COURSE_ARCHIVED');
   }
+  if (lesson.status === 'cancelled') throw new LearningError('已取消课时只允许查看历史', 409, 'LESSON_CANCELLED');
   return lesson;
 }
 
@@ -110,49 +113,17 @@ function assertManageExercise(user, exerciseId, writable = false) {
 function lessonPackage(studentId, lessonId) {
   const enrollment = assertStudentLesson(studentId, lessonId);
   const lesson = lessonContext(lessonId);
-  const cards = db.prepare(`
-    SELECT c.*, p.viewed_at, p.completed_at, COALESCE(p.best_score, 0) AS best_score
-    FROM knowledge_cards c
-    LEFT JOIN student_card_progress p ON p.card_id = c.id AND p.student_id = ?
-    WHERE c.lesson_id = ? AND c.status = 'published'
-    ORDER BY c.sort_order, c.id
-  `).all(studentId, lessonId);
-  const cardIds = cards.map((card) => card.id);
-  const exercises = cardIds.length ? db.prepare(`
-    SELECT id, card_id, question_type, prompt, options_json, answer_json, explanation,
-           points, sort_order, is_required, max_attempts
-    FROM card_exercises
-    WHERE card_id IN (${cardIds.map(() => '?').join(',')})
-    ORDER BY sort_order, id
-  `).all(...cardIds) : [];
-  const attempts = cardIds.length ? db.prepare(`
-    SELECT e.card_id, a.exercise_id, COUNT(*) AS attempts,
-           MAX(a.is_correct) AS passed, MAX(a.score) AS best_score
-    FROM card_exercise_attempts a
-    JOIN card_exercises e ON e.id = a.exercise_id
-    WHERE a.student_id = ? AND e.card_id IN (${cardIds.map(() => '?').join(',')})
-    GROUP BY e.card_id, a.exercise_id
-  `).all(studentId, ...cardIds) : [];
-  const attemptMap = new Map(attempts.map((item) => [item.exercise_id, item]));
-  const exerciseMap = new Map();
-  exercises.forEach((item) => {
-    const list = exerciseMap.get(item.card_id) || [];
-    const attempt = attemptMap.get(item.id);
-    list.push({
-      ...item,
-      options: parseStoredJson(item.options_json, []),
-      options_json: undefined,
-      answer_json: undefined,
-      attempts: attempt?.attempts || 0,
-      attempted: Boolean(attempt?.attempts),
-      passed: Boolean(attempt?.passed),
-      best_score: attempt?.best_score || 0,
-      correct_answer: attempt ? parseStoredJson(item.answer_json) : null,
-      explanation: attempt ? item.explanation : null,
-    });
-    exerciseMap.set(item.card_id, list);
-  });
-
+  let version = versions.boundVersion(db, studentId, lessonId);
+  if (!version) {
+    const ready = versions.readiness(db, lessonId);
+    if (!ready.ready) throw new LearningError(`课后学习尚未开放：${ready.issues.join('；')}`, 409, 'LESSON_CONTENT_INCOMPLETE');
+    const closure = versions.courseState(db, studentId, lesson.course_id);
+    if (closure.completed && !closure.lesson_ids.includes(Number(lessonId))) {
+      throw new LearningError('该新增课时不属于你的已结课学习范围', 409, 'COURSE_ALREADY_COMPLETED');
+    }
+    version = versions.bind(db, studentId, lessonId);
+  }
+  const cards = versions.studentCards(db, studentId, lessonId);
   const tasks = db.prepare(`
     SELECT t.*,
       (SELECT w.id FROM works w WHERE w.student_id = ? AND w.task_id = t.id
@@ -164,17 +135,10 @@ function lessonPackage(studentId, lessonId) {
   `).all(studentId, studentId, lessonId);
   const report = learningGate.latestReport(studentId, lessonId);
   const reflection = report ? db.prepare('SELECT * FROM reflections WHERE report_id = ?').get(report.id) || null : null;
-  const replays = db.prepare(`
-    SELECT id, course_id, lesson_id, title, description, summary, duration_seconds, recording_date, sort_order
-    FROM course_replays WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL)
-    ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, sort_order, id
-  `).all(lesson.course_id, lessonId, lessonId);
-  const resources = db.prepare(`
-    SELECT id, course_id, lesson_id, resource_type, title, description, file_size, created_at,
-           CASE WHEN file_path IS NOT NULL THEN 1 ELSE 0 END AS has_file
-    FROM resources WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL)
-    ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, created_at DESC
-  `).all(lesson.course_id, lessonId, lessonId);
+  const replays = version.content.replays.map(({ file_path, ...r }) => r);
+  const resources = version.content.resources.map(({ file_path, ...r }) => ({
+    ...r, has_file: Boolean(file_path), download_name: file_path ? require('path').basename(file_path) : null,
+  }));
 
   return {
     course: { id: lesson.course_id, title: lesson.course_title },
@@ -183,13 +147,23 @@ function lessonPackage(studentId, lessonId) {
       duration: lesson.duration, start_at: lesson.start_at, end_at: lesson.end_at,
     },
     enrollment_id: enrollment.enrollment_id,
+    content_version: { id: version.id, legacy_compat: Boolean(version.legacy_compat), repair: version.content.repair || null },
+    course_completion: versions.courseState(db, studentId, lesson.course_id),
     replays,
     resources,
     cards: cards.map((card) => ({
       ...card,
       required: Boolean(card.is_required),
       completed: Boolean(card.completed_at),
-      exercises: exerciseMap.get(card.id) || [],
+      exercises: card.exercises.map(({ attempt, feedback, answer_json, options_json, ...e }) => ({
+        ...e, options: parseStoredJson(options_json, []), attempted: Boolean(attempt),
+        attempts: attempt?.attempt_no || 0, passed: attempt?.is_correct === 1,
+        best_score: attempt?.score || 0, student_answer: attempt ? parseStoredJson(attempt.answer_json) : null,
+        auto_graded: e.question_type !== 'short_answer',
+        blank_count: parseStoredJson(answer_json)?.blanks?.length || 0,
+        correct_answer: attempt ? parseStoredJson(answer_json) : null,
+        explanation: attempt ? e.explanation : null, feedback: feedback || null,
+      })),
     })),
     consolidation_tasks: tasks,
     report,
@@ -200,6 +174,7 @@ function lessonPackage(studentId, lessonId) {
 
 function completeReview(studentId, lessonId) {
   assertStudentLesson(studentId, lessonId);
+  requireStarted(studentId, lessonId);
   db.prepare(`
     INSERT INTO lesson_review_completions (student_id, lesson_id, completed_at, updated_at)
     VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -220,48 +195,66 @@ function answersEqual(type, actual, expected) {
     const normalizeBoolean = (value) => value === true || value === 1 || value === '1' || value === 'true';
     return normalizeBoolean(actual) === normalizeBoolean(expected);
   }
-  const normalize = (value) => String(value ?? '').trim().toLocaleLowerCase('zh-CN');
+  const normalize = (value) => String(value ?? '').trim();
+  if (type === 'fill_blank' && expected?.blanks) {
+    return Array.isArray(actual) && actual.length === expected.blanks.length
+      && expected.blanks.every((accepted, i) => accepted.some((s) => normalize(s) === normalize(actual[i])));
+  }
   if (Array.isArray(expected)) return expected.some((item) => normalize(item) === normalize(actual));
   return normalize(actual) === normalize(expected);
 }
 
-function refreshCardProgress(studentId, cardId) {
-  const stats = db.prepare(`
-    SELECT COUNT(*) AS total,
-           SUM(CASE WHEN EXISTS (
-             SELECT 1 FROM card_exercise_attempts a
-             WHERE a.student_id = ? AND a.exercise_id = e.id
-           ) THEN 1 ELSE 0 END) AS answered,
-           SUM(CASE WHEN EXISTS (
-             SELECT 1 FROM card_exercise_attempts a
-             WHERE a.student_id = ? AND a.exercise_id = e.id AND a.is_correct = 1
-           ) THEN 1 ELSE 0 END) AS passed,
-           COALESCE(SUM(e.points), 0) AS total_points,
-           COALESCE(SUM((SELECT MAX(a.score) FROM card_exercise_attempts a
-             WHERE a.student_id = ? AND a.exercise_id = e.id)), 0) AS earned
-    FROM card_exercises e WHERE e.card_id = ? AND e.is_required = 1
-  `).get(studentId, studentId, studentId, cardId);
-  const bestScore = stats.total_points > 0 ? Math.round((stats.earned / stats.total_points) * 100) : 100;
-  db.prepare(`
-    INSERT INTO student_card_progress (student_id, card_id, best_score, updated_at)
-    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(student_id, card_id) DO UPDATE SET
-      best_score = MAX(student_card_progress.best_score, excluded.best_score),
-      updated_at = CURRENT_TIMESTAMP
-  `).run(studentId, cardId, bestScore);
-  return Number(stats.answered || 0) === Number(stats.total || 0);
+function requireStarted(studentId, lessonId) {
+  const version = versions.boundVersion(db, studentId, lessonId);
+  if (!version) throw new LearningError('请先进入本课时学习总界面', 409, 'LESSON_NOT_STARTED');
+  return version;
+}
+
+function assertCardOrder(studentId, lessonId, cardId) {
+  const cards = versions.studentCards(db, studentId, lessonId);
+  const index = cards.findIndex((c) => c.id === Number(cardId));
+  if (index < 0) throw new LearningError('知识卡片不属于当前学习版本', 404);
+  if (cards.slice(0, index).some((c) => !c.completed_at)) throw new LearningError('请按顺序完成前面的知识卡片', 409, 'CARD_ORDER_REQUIRED');
+  return cards[index];
+}
+
+// 创建题目与学生提交使用同一套类型/选项校验，避免把无效选项当成错误答案消耗机会。
+function validateAnswer(type, options, answer, reference = false, expected = null) {
+  const values = options.map((o, i) => typeof o === 'object' && o !== null ? (o.value ?? o.key ?? String(i)) : o);
+  if (type === 'single_choice' && !values.includes(answer)) throw new LearningError('单选题答案必须是有效选项');
+  if (type === 'multiple_choice' && (!Array.isArray(answer) || !answer.length || new Set(answer).size !== answer.length || answer.some((v) => !values.includes(v)))) {
+    throw new LearningError('多选题答案必须是不重复的有效选项');
+  }
+  if (type === 'true_false' && typeof answer !== 'boolean') throw new LearningError('判断题答案必须是 true 或 false');
+  if (type === 'short_answer' && (typeof answer !== 'string' || !answer.trim())) throw new LearningError('请填写简答题内容');
+  if (type === 'fill_blank') {
+    if (reference) {
+      const groups = answer?.blanks || (Array.isArray(answer) ? [answer] : [[answer]]);
+      if (!Array.isArray(groups) || !groups.length || groups.length > 20
+        || groups.some((g) => !Array.isArray(g) || !g.length || g.some((s) => typeof s !== 'string' || !s.trim()))) {
+        throw new LearningError('每个空需要至少一个非空的可接受答案');
+      }
+    } else if (expected?.blanks) {
+      if (!Array.isArray(answer) || answer.length !== expected.blanks.length || answer.some((s) => typeof s !== 'string' || !s.trim())) throw new LearningError('请填写每个空的答案');
+    } else if (typeof answer !== 'string' || !answer.trim()) throw new LearningError('请填写答案');
+  }
 }
 
 function submitExercise(studentId, exerciseId, answer) {
-  const exercise = db.prepare(`
+  const current = db.prepare(`
     SELECT e.*, c.lesson_id, c.status AS card_status
     FROM card_exercises e JOIN knowledge_cards c ON c.id = e.card_id
     WHERE e.id = ?
   `).get(exerciseId);
-  if (!exercise || exercise.card_status !== 'published') {
+  if (!current) {
     throw new LearningError('练习不存在', 404, 'EXERCISE_NOT_FOUND');
   }
-  assertStudentLesson(studentId, exercise.lesson_id);
+  assertStudentLesson(studentId, current.lesson_id);
+  requireStarted(studentId, current.lesson_id);
+  const card = assertCardOrder(studentId, current.lesson_id, current.card_id);
+  const exercise = card.exercises.find((e) => e.id === Number(exerciseId));
+  if (!exercise) throw new LearningError('练习不属于当前学习版本', 404);
+  exercise.lesson_id = current.lesson_id;
   if (!learningGate.isReviewCompleted(studentId, exercise.lesson_id)) {
     throw new LearningError('请先完成课堂回顾', 409, 'LESSON_REVIEW_REQUIRED');
   }
@@ -273,6 +266,7 @@ function submitExercise(studentId, exerciseId, answer) {
   if (exercise.question_type === 'multiple_choice' && !Array.isArray(submitted.value)) {
     throw new LearningError('多选题答案必须是数组');
   }
+  validateAnswer(exercise.question_type, parseStoredJson(exercise.options_json, []), submitted.value, false, parseStoredJson(exercise.answer_json));
   const attemptCount = db.prepare(
     'SELECT COUNT(*) AS count FROM card_exercise_attempts WHERE student_id = ? AND exercise_id = ?'
   ).get(studentId, exercise.id).count;
@@ -280,7 +274,7 @@ function submitExercise(studentId, exerciseId, answer) {
     throw new LearningError('每道题只有一次作答机会', 409, 'MAX_ATTEMPTS_REACHED');
   }
   const expected = parseStoredJson(exercise.answer_json);
-  const correct = answersEqual(exercise.question_type, submitted.value, expected);
+  const correct = exercise.question_type === 'short_answer' ? null : answersEqual(exercise.question_type, submitted.value, expected);
   const attemptNo = attemptCount + 1;
   const score = correct ? exercise.points : 0;
   let cardCompleted;
@@ -289,8 +283,12 @@ function submitExercise(studentId, exerciseId, answer) {
       INSERT INTO card_exercise_attempts
         (student_id, exercise_id, answer_json, is_correct, score, attempt_no)
       VALUES (?, ?, ?, ?, ?, ?)
-    `).run(studentId, exercise.id, submitted.encoded, correct ? 1 : 0, score, attemptNo);
-    cardCompleted = refreshCardProgress(studentId, exercise.card_id);
+    `).run(studentId, exercise.id, submitted.encoded, correct === null ? null : correct ? 1 : 0, score, attemptNo);
+    const state = versions.studentCards(db, studentId, current.lesson_id).find((c) => c.id === current.card_id);
+    db.prepare(`INSERT INTO student_card_progress (student_id, card_id, best_score) VALUES (?, ?, ?)
+      ON CONFLICT(student_id, card_id) DO UPDATE SET best_score = excluded.best_score, updated_at = CURRENT_TIMESTAMP`)
+      .run(studentId, current.card_id, state.best_score ?? 0);
+    cardCompleted = state.exercises.every((e) => e.attempt);
   })();
   const progress = learningGate.recalculateLessonProgress(studentId, exercise.lesson_id);
   return {
@@ -306,30 +304,24 @@ function submitExercise(studentId, exerciseId, answer) {
 
 function completeCard(studentId, cardId) {
   const card = db.prepare('SELECT id, lesson_id, status FROM knowledge_cards WHERE id = ?').get(cardId);
-  if (!card || card.status !== 'published') throw new LearningError('知识卡片不存在', 404, 'CARD_NOT_FOUND');
+  if (!card) throw new LearningError('知识卡片不存在', 404, 'CARD_NOT_FOUND');
   assertStudentLesson(studentId, card.lesson_id);
+  requireStarted(studentId, card.lesson_id);
+  const snapshot = assertCardOrder(studentId, card.lesson_id, cardId);
   if (!learningGate.isReviewCompleted(studentId, card.lesson_id)) {
     throw new LearningError('请先完成课堂回顾', 409, 'LESSON_REVIEW_REQUIRED');
   }
-  const exercises = db.prepare(`
-    SELECT COUNT(*) AS total,
-           SUM(CASE WHEN EXISTS (
-             SELECT 1 FROM card_exercise_attempts a
-             WHERE a.student_id = ? AND a.exercise_id = e.id
-           ) THEN 1 ELSE 0 END) AS answered
-    FROM card_exercises e WHERE e.card_id = ?
-  `).get(studentId, card.id);
-  if (Number(exercises.answered || 0) !== Number(exercises.total || 0)) {
+  if (!snapshot.exercises.length || !snapshot.exercises.every((e) => e.attempt)) {
     throw new LearningError('请先作答本卡片的全部练习', 409, 'CARD_EXERCISES_REQUIRED');
   }
   db.prepare(`
     INSERT INTO student_card_progress (student_id, card_id, viewed_at, completed_at, best_score, updated_at)
-    VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 100, CURRENT_TIMESTAMP)
+    VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(student_id, card_id) DO UPDATE SET
       viewed_at = COALESCE(student_card_progress.viewed_at, CURRENT_TIMESTAMP),
       completed_at = COALESCE(student_card_progress.completed_at, CURRENT_TIMESTAMP),
-      best_score = 100, updated_at = CURRENT_TIMESTAMP
-  `).run(studentId, card.id);
+      best_score = excluded.best_score, updated_at = CURRENT_TIMESTAMP
+  `).run(studentId, card.id, snapshot.best_score ?? 0);
   return learningGate.recalculateLessonProgress(studentId, card.lesson_id);
 }
 
@@ -355,6 +347,7 @@ function validateReport(data) {
 
 function submitReport(studentId, lessonId, data) {
   const enrollment = assertStudentLesson(studentId, lessonId);
+  requireStarted(studentId, lessonId);
   if (!learningGate.canSubmitLessonReport(studentId, lessonId)) {
     throw new LearningError('请先完成课堂回顾、全部知识卡片和配套练习', 409, 'REPORT_LOCKED');
   }
@@ -382,6 +375,7 @@ function submitReport(studentId, lessonId, data) {
       payload.report.next_plan, parentId, version,
     );
     const id = Number(result.lastInsertRowid);
+    db.prepare('INSERT INTO report_content_versions (report_id, content_version_id) VALUES (?, ?)').run(id, requireStarted(studentId,lessonId).id);
     db.prepare(`
       INSERT INTO reflections (
         student_id, enrollment_id, lesson_id, report_id,
@@ -393,20 +387,21 @@ function submitReport(studentId, lessonId, data) {
       payload.reflection.improvement, payload.reflection.new_question,
     );
     learningGate.recalculateLessonProgress(studentId, lessonId);
-    return id;
-  }).immediate();
   const context = lessonContext(lessonId);
   notificationService.safeCreateForUsers({
     eventKey: 'lesson.report_submitted',
-    dedupeKey: `lesson.report_submitted:${reportId}`,
+    dedupeKey: `lesson.report_submitted:${id}`,
     title: '收到新的学习报告',
     summary: `${context.course_title} · ${context.title}`,
     content: `学生提交了第 ${version} 版课时学习报告，请及时评审。`,
     category: 'course', level: 'important',
-    actionUrl: `/mentor/reviews/${reportId}`,
-    businessType: 'lesson_report', businessId: reportId,
+    actionUrl: `/mentor/reviews/${id}`,
+    businessType: 'lesson_report', businessId: id,
     createdBy: studentId,
   }, [...new Set([context.course_created_by, context.instructor_id].filter(Boolean))]);
+    return id;
+  }).immediate();
+
   return db.prepare('SELECT * FROM lesson_learning_reports WHERE id = ?').get(reportId);
 }
 
@@ -415,7 +410,7 @@ function listManagedCards(user, lessonId) {
   const cards = db.prepare('SELECT * FROM knowledge_cards WHERE lesson_id = ? ORDER BY sort_order, id').all(lessonId);
   if (!cards.length) return [];
   const ids = cards.map((item) => item.id);
-  const exercises = db.prepare(`SELECT * FROM card_exercises WHERE card_id IN (${ids.map(() => '?').join(',')}) ORDER BY sort_order, id`).all(...ids);
+  const exercises = db.prepare(`SELECT * FROM card_exercises WHERE NOT EXISTS (SELECT 1 FROM retired_exercises x WHERE x.exercise_id = card_exercises.id) AND card_id IN (${ids.map(() => '?').join(',')}) ORDER BY sort_order, id`).all(...ids);
   return cards.map((card) => ({
     ...card,
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
@@ -445,7 +440,7 @@ function listManagedLessons(user) {
     GROUP BY l.id, c.id
     ORDER BY CASE c.status WHEN 'published' THEN 1 WHEN 'draft' THEN 2 ELSE 3 END,
              c.updated_at DESC, l.sort_order, l.id
-  `).all(...params);
+  `).all(...params).map((l) => ({ ...l, readiness: versions.readiness(db, l.id) }));
 }
 
 function cardPayload(data) {
@@ -499,7 +494,7 @@ function deleteCard(user, cardId) {
   const card = assertManageCard(user, cardId, true);
   const hasProgress = db.prepare('SELECT 1 FROM student_card_progress WHERE card_id = ? LIMIT 1').get(card.id)
     || db.prepare(`SELECT 1 FROM card_exercise_attempts a JOIN card_exercises e ON e.id = a.exercise_id WHERE e.card_id = ? LIMIT 1`).get(card.id);
-  if (hasProgress) {
+  if (hasProgress || db.prepare('SELECT 1 FROM lesson_content_versions WHERE lesson_id = ? LIMIT 1').get(card.lesson_id)) {
     db.prepare("UPDATE knowledge_cards SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(card.id);
     return { id: card.id, archived: true };
   }
@@ -517,6 +512,13 @@ function exercisePayload(data) {
     : data.answer;
   const optionJson = jsonValue(options, '选项');
   const answerJson = jsonValue(answer, '标准答案');
+  if (!Array.isArray(options)) throw new LearningError('选项必须是数组');
+  if (['single_choice', 'multiple_choice'].includes(data.question_type)) {
+    const values = options.map((o, i) => typeof o === 'object' && o !== null ? (o.value ?? o.key ?? String(i)) : o);
+    if (values.some((v) => typeof v !== 'string' || !v.trim()) || new Set(values).size !== values.length
+      || options.some((o) => typeof o === 'object' && (!o || !String(o.label ?? o.text ?? '').trim()))) throw new LearningError('选项不能为空或重复');
+  }
+  validateAnswer(data.question_type, options, answer, true);
   if (['single_choice', 'multiple_choice'].includes(data.question_type)
       && (!Array.isArray(optionJson.value) || optionJson.value.length < 2 || optionJson.value.length > 20)) {
     throw new LearningError('选择题需要 2–20 个选项');
@@ -570,10 +572,8 @@ function updateExercise(user, exerciseId, data) {
 
 function deleteExercise(user, exerciseId) {
   const exercise = assertManageExercise(user, exerciseId, true);
-  if (db.prepare('SELECT 1 FROM card_exercise_attempts WHERE exercise_id = ? LIMIT 1').get(exercise.id)) {
-    throw new LearningError('该练习已有作答记录，不能删除，可改为非必修', 409, 'EXERCISE_HAS_ATTEMPTS');
-  }
-  db.prepare('DELETE FROM card_exercises WHERE id = ?').run(exercise.id);
+  // 题库逻辑删除，旧版本仍引用同一题号且唯一作答机会不增加。
+  db.prepare('INSERT OR IGNORE INTO retired_exercises (exercise_id) VALUES (?)').run(exercise.id);
   return { id: exercise.id };
 }
 
@@ -592,6 +592,23 @@ function reorderCards(user, lessonId, cardIds) {
 }
 
 module.exports = {
+  managedContext(user, lessonId) {
+    const lesson = assertManageLesson(user, lessonId);
+    return { lesson_id:lesson.id, course_id:lesson.course_id,
+      read_only:lesson.course_status === 'archived' || lesson.status === 'cancelled' };
+  },
+  repairLegacy(user, lessonId, studentId, reason) {
+    if (user.role !== 'admin') throw new LearningError('仅管理员可以修复兼容快照',403);
+    assertWritableLesson(user,lessonId);
+    const explanation = text(reason,500,true);
+    try {
+      return db.transaction(() => {
+        const result = versions.repairLegacy(db,user.id,Number(studentId),Number(lessonId),explanation);
+        learningGate.recalculateLessonProgress(Number(studentId),Number(lessonId));
+        return result;
+      }).immediate();
+    } catch (err) { if (err.status) throw new LearningError(err.message,err.status); throw err; }
+  },
   LearningError,
   lessonPackage,
   completeReview,

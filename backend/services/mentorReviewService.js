@@ -2,6 +2,7 @@ const db = require('../config/database');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
 const notificationService = require('./notificationService');
+const versions = require('../helpers/lessonVersions');
 
 class MentorReviewError extends Error {
   constructor(message, status = 400, code = 'MENTOR_REVIEW_INVALID') {
@@ -20,7 +21,7 @@ function reportContext(reportId) {
   const report = db.prepare(`
     SELECT r.*, s.real_name AS student_name, s.avatar_url AS student_avatar,
            l.title AS lesson_title, l.course_id, c.title AS course_title,
-           c.created_by AS course_created_by
+           c.created_by AS course_created_by, c.status AS course_status, l.status AS lesson_status
     FROM lesson_learning_reports r
     JOIN users s ON s.id = r.student_id
     JOIN lessons l ON l.id = r.lesson_id
@@ -46,7 +47,9 @@ function pagination(query = {}) {
 
 function list(user, query = {}) {
   const { page, pageSize, offset } = pagination(query);
-  const where = ['1 = 1'];
+  const where = [`r.id = (SELECT latest.id FROM lesson_learning_reports latest
+    WHERE latest.student_id = r.student_id AND latest.lesson_id = r.lesson_id
+    ORDER BY latest.version DESC, latest.id DESC LIMIT 1)`];
   const params = [];
   if (user.role !== 'admin') {
     where.push('(c.created_by = ? OR EXISTS (SELECT 1 FROM lessons own_l WHERE own_l.course_id = c.id AND own_l.instructor_id = ?))');
@@ -93,25 +96,27 @@ function list(user, query = {}) {
              r.submitted_at DESC, r.id DESC
     LIMIT ? OFFSET ?
   `).all(...params, pageSize, offset);
-  return { items, pagination: { page, pageSize, total } };
+  return { items: items.map((r) => {
+    const cards = versions.studentCards(db, r.student_id, r.lesson_id);
+    return { ...r, cards_total: cards.length, cards_completed: cards.filter((c) => c.completed_at).length };
+  }), pagination: { page, pageSize, total } };
 }
 
 function detail(user, reportId) {
   const report = reportContext(reportId);
   assertReviewAccess(user, report);
   const reflection = db.prepare('SELECT * FROM reflections WHERE report_id = ?').get(report.id) || null;
-  const cards = db.prepare(`
-    SELECT c.id, c.title, c.is_required, p.completed_at, p.best_score,
-           COUNT(DISTINCT e.id) AS exercise_count,
-           COUNT(a.id) AS attempt_count,
-           SUM(CASE WHEN a.is_correct = 1 THEN 1 ELSE 0 END) AS correct_attempts
-    FROM knowledge_cards c
-    LEFT JOIN student_card_progress p ON p.card_id = c.id AND p.student_id = ?
-    LEFT JOIN card_exercises e ON e.card_id = c.id
-    LEFT JOIN card_exercise_attempts a ON a.exercise_id = e.id AND a.student_id = ?
-    WHERE c.lesson_id = ? AND c.status != 'archived'
-    GROUP BY c.id ORDER BY c.sort_order, c.id
-  `).all(report.student_id, report.student_id, report.lesson_id);
+  const contentVersionId = db.prepare('SELECT content_version_id FROM report_content_versions WHERE report_id = ?').get(report.id)?.content_version_id || null;
+  const cards = versions.studentCards(db, report.student_id, report.lesson_id, contentVersionId).map((c) => ({
+    ...c, exercise_count: c.exercises.length, attempt_count: c.exercises.filter((e) => e.attempt).length,
+    exercises: c.exercises.map((e) => ({
+      id: e.id, question_type: e.question_type, prompt: e.prompt,
+      options: parseJson(e.options_json), reference_answer: parseJson(e.answer_json), explanation: e.explanation,
+      student_answer: e.attempt ? parseJson(e.attempt.answer_json) : null,
+      attempted: Boolean(e.attempt), correct: e.question_type === 'short_answer' ? null : e.attempt?.is_correct,
+      score: e.question_type === 'short_answer' ? null : e.attempt?.score, feedback: e.feedback,
+    })),
+  }));
   const tasks = db.prepare(`
     SELECT t.id, t.title, t.description, t.require_upload, t.deadline,
            w.id AS work_id, w.title AS work_title, w.review_status, w.version,
@@ -140,6 +145,8 @@ function detail(user, reportId) {
     cards,
     consolidation_tasks: tasks,
     history,
+    content_version: contentVersionId || versions.boundVersion(db, report.student_id, report.lesson_id)?.id || null,
+    read_only: report.course_status === 'archived' || report.lesson_status === 'cancelled',
     progress: learningGate.getLessonLearningState(report.student_id, report.lesson_id),
   };
 }
@@ -147,6 +154,9 @@ function detail(user, reportId) {
 function review(user, reportId, payload = {}) {
   const report = reportContext(reportId);
   assertReviewAccess(user, report);
+  if (report.course_status === 'archived' || report.lesson_status === 'cancelled') {
+    throw new MentorReviewError('归档课程或取消课时只允许查看历史', 409, 'REVIEW_READ_ONLY');
+  }
   if (report.status !== 'submitted') {
     throw new MentorReviewError('只能评审待评审报告', 409, 'REPORT_ALREADY_REVIEWED');
   }
@@ -184,7 +194,6 @@ function review(user, reportId, payload = {}) {
     `).run(payload.status, user.id, comment || null, score, dimensionsJson, report.id);
     state = learningGate.recalculateLessonProgress(report.student_id, report.lesson_id);
     learningGate.recordCompletionGrowth(report.student_id, report.lesson_id, user.id);
-  }).immediate();
 
   const approved = payload.status === 'approved';
   notificationService.safeCreateForUsers({
@@ -211,7 +220,23 @@ function review(user, reportId, payload = {}) {
       createdBy: user.id,
     }, [report.student_id]);
   }
+  }).immediate();
   return { report: reportContext(report.id), progress: state };
 }
 
-module.exports = { MentorReviewError, list, detail, review };
+function feedback(user, reportId, exerciseId, payload) {
+  const report = reportContext(reportId);
+  assertReviewAccess(user, report);
+  if (report.course_status === 'archived' || report.lesson_status === 'cancelled') throw new MentorReviewError('历史课时只读', 409);
+  if (learningGate.latestReport(report.student_id, report.lesson_id)?.id !== report.id) throw new MentorReviewError('请在最新报告中填写反馈', 409);
+  const exercise = versions.studentCards(db, report.student_id, report.lesson_id).flatMap((c) => c.exercises).find((e) => e.id === Number(exerciseId));
+  if (!exercise?.attempt) throw new MentorReviewError('未找到本课时的作答记录', 404);
+  const content = String(payload.content || '').trim();
+  if (!content || content.length > 5000) throw new MentorReviewError('请填写 1–5000 字的反馈');
+  db.prepare(`INSERT INTO exercise_feedback (student_id, exercise_id, mentor_id, content) VALUES (?, ?, ?, ?)
+    ON CONFLICT(student_id, exercise_id) DO UPDATE SET mentor_id = excluded.mentor_id, content = excluded.content, updated_at = CURRENT_TIMESTAMP`)
+    .run(report.student_id, exercise.id, user.id, content);
+  return { message: '习题反馈已保存' };
+}
+
+module.exports = { MentorReviewError, list, detail, review, feedback };
