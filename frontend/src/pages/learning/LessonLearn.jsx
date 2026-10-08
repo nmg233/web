@@ -15,17 +15,10 @@ import { LEARNING_STEPS, REPORT_STATUS } from '../../constants/status';
 import { useAuth } from '../../store/AuthContext';
 import MarkdownContent from '../../components/common/MarkdownContent';
 import ReplaySummary from '../../components/common/ReplaySummary';
+import ExerciseFeedback from '../../components/learning/ExerciseFeedback';
 import { clearReportDraft, reportDraftKey, restoreReportDraft, saveReportDraft } from '../../utils/reportDraft';
 
 const { Paragraph, Text, Title } = Typography;
-
-function answerText(value) {
-  if (value?.blanks) return value.blanks.map((g, i) => `第 ${i + 1} 空：${g.join(' / ')}`).join('；');
-  if (Array.isArray(value)) return value.join('、');
-  if (value === true) return '正确';
-  if (value === false) return '错误';
-  return String(value ?? '-');
-}
 
 function nextStage(data) {
   if (!data?.progress?.review_completed) return 0;
@@ -38,9 +31,10 @@ function Exercise({ exercise, onDone }) {
   const [answer, setAnswer] = useState(exercise.student_answer ?? (exercise.question_type === 'multiple_choice' ? [] : exercise.question_type === 'fill_blank' && exercise.blank_count ? Array(exercise.blank_count).fill('') : ''));
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const locked = exercise.attempted || submitting || Boolean(result);
-  const hasAnswer = Array.isArray(answer) ? answer.length > 0 && answer.every((v) => String(v).trim()) : answer !== '' && answer !== null && answer !== undefined;
+  const hasAnswer = Array.isArray(answer) ? answer.length > 0 && answer.every((value) => String(value).trim().length > 0) : typeof answer === 'string' ? answer.trim().length > 0 : answer !== null && answer !== undefined;
+  const locked = exercise.attempted || Boolean(result) || submitting;
   const submit = async () => {
+    if (locked || !hasAnswer) return;
     setSubmitting(true);
     try {
       const next = await learningAPI.submitExercise(exercise.id, answer);
@@ -63,12 +57,11 @@ function Exercise({ exercise, onDone }) {
   }
   return <Card size="small" style={{ marginTop: 12 }}>
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Text strong>{exercise.prompt}</Text>{input}
-      {!exercise.attempted && <Alert type="info" showIcon message="本题只有一次作答机会，提交后不能修改" />}
-      <Button type="primary" size="small" onClick={submit} loading={submitting} disabled={locked || !hasAnswer}>提交答案</Button>
-      {exercise.attempted && <Alert type={!exercise.auto_graded ? 'info' : exercise.passed ? 'success' : 'warning'} showIcon message={!exercise.auto_graded ? '已提交，不自动判对错' : exercise.passed ? '回答正确' : '已作答，本题回答不正确'} description={<Space direction="vertical" size={2}><Text>标准答案：{answerText(exercise.correct_answer)}</Text><Text>答案详解：{exercise.explanation || '导师暂未设置答案详解。'}</Text></Space>} />}
-      {exercise.feedback && <Alert type="info" message="导师反馈" description={exercise.feedback.content} />}
-      {result && !exercise.attempted && <Alert type={result.correct === null ? 'info' : result.correct ? 'success' : 'warning'} showIcon message={result.correct === null ? '已提交，不自动判对错' : result.correct ? '回答正确' : '回答不正确'} description={<Space direction="vertical" size={2}><Text>标准答案：{answerText(result.correct_answer)}</Text><Text>答案详解：{result.explanation || '导师暂未设置答案详解。'}</Text></Space>} />}
+      <Space><Text strong>{exercise.prompt}</Text><Tag>{exercise.points} 分</Tag></Space>
+      {!exercise.attempted && <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, width: '100%' }}>{input}</fieldset>}
+      {!exercise.attempted && !result && <Alert type="info" showIcon message="本题只有一次作答机会，提交后不能修改" />}
+      {!exercise.attempted && !result && <Button type="primary" size="small" onClick={submit} loading={submitting} disabled={locked || !hasAnswer}>提交答案</Button>}
+      <ExerciseFeedback exercise={exercise} result={result} />
     </Space>
   </Card>;
 }
@@ -231,7 +224,7 @@ export default function LessonLearn() {
 
         {activeStage === 1 && <><Title level={4}>第二阶段：知识卡片与配套练习</Title>
           {!progress.review_completed && <Alert type="warning" showIcon message="请先完成课堂回顾" />}
-          {cards.length === 0 ? <Alert type="warning" showIcon message="导师尚未发布知识卡片" description="本阶段不会自动完成。请联系执行导师发布本课时的知识卡片后再继续。" /> : <>
+          {cards.length === 0 ? <Alert type="warning" showIcon message="管理员尚未发布知识卡片" description="本阶段不会自动完成。请联系管理员发布本课时的知识卡片后再继续。" /> : <>
             <Card size="small" style={{ marginBottom: 12 }}><Space wrap>{cards.map((card, index) => <Button key={card.id} type={index === cardIndex ? 'primary' : 'default'} icon={card.completed ? <CheckCircleOutlined /> : null} onClick={() => setCardIndex(index)} disabled={index > 0 && !cards[index - 1].completed}>{index + 1}. {card.title}</Button>)}</Space></Card>
             <Card className="content-card" title={<Space>{activeCard.completed && <CheckCircleOutlined style={{ color: '#52c41a' }} />}{activeCard.title}<Tag color="blue">{cardIndex + 1}/{cards.length}</Tag></Space>}>
               {activeCard.summary && <Paragraph type="secondary">{activeCard.summary}</Paragraph>}

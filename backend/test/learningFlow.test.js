@@ -41,6 +41,7 @@ before(async () => {
   user.run(4, 'outsider', password, '未报名学生', 'student');
   user.run(5, 'teacher', password, '观察教师', 'teacher');
   user.run(6, 'othermentor', password, '其他导师', 'academic_mentor');
+  user.run(7, 'media', password, '新媒体', 'media');
   db.prepare('UPDATE users SET teacher_id = 5 WHERE id = 3').run();
   db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (1,'课后巩固课','primary','basic','published',2)").run();
   db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (2,'草稿课','primary','basic','draft',2)").run();
@@ -64,13 +65,73 @@ before(async () => {
   server = app.listen(0, '127.0.0.1');
   await new Promise((resolve) => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
-  for (const username of ['admin', 'mentor', 'student', 'outsider', 'teacher', 'othermentor']) tokens[username] = await login(username);
+  for (const username of ['admin', 'mentor', 'student', 'outsider', 'teacher', 'othermentor', 'media']) tokens[username] = await login(username);
 });
 
 after(async () => {
   await new Promise((resolve) => server.close(resolve));
   db.close();
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('只读预览按角色和课程归属授权，学生和新媒体不可访问', async () => {
+  const preview = (id, role) => api(`/learning/lessons/${id}/preview`, { token: tokens[role] });
+  assert.equal((await preview(1)).status, 401);
+  for (const role of ['student', 'outsider', 'media']) assert.equal((await preview(1, role)).status, 403);
+  for (const role of ['admin', 'mentor', 'teacher']) assert.equal((await preview(1, role)).status, 200);
+  assert.equal((await preview(1, 'othermentor')).status, 403);
+  assert.equal((await preview(3, 'othermentor')).status, 200, '受邀授课导师可预览');
+  assert.equal((await preview(3, 'mentor')).status, 403);
+  assert.equal((await preview(3, 'teacher')).status, 403, '公开课程不等于教师有权限');
+  assert.equal((await preview(999999, 'admin')).status, 404);
+  const detail = await api('/observer/students/3', { token: tokens.teacher });
+  assert.deepEqual(detail.body.courses.find((course) => course.id === 1).lessons.map((lesson) => lesson.id), [1]);
+  assert.equal(detail.body.courses.some((course) => course.id === 3), false);
+  assert.equal((await api('/observer/students/4', { token: tokens.teacher })).status, 404);
+  assert.equal((await preview(3, 'admin')).body.cards.length, 0);
+  assert.throws(() => require('../services/learningService').previewLesson({ id: 3, role: 'student' }, 1),
+    (error) => error.status === 403);
+});
+
+test('教师预览权限实时检查学生分配、有效报名及学生生命周期', async () => {
+  const preview = () => api('/learning/lessons/1/preview', { token: tokens.teacher });
+  for (const change of [
+    "UPDATE users SET teacher_id = NULL WHERE id = 3",
+    "UPDATE users SET is_active = 0 WHERE id = 3",
+    "UPDATE users SET archived_at = CURRENT_TIMESTAMP WHERE id = 3",
+    "UPDATE enrollments SET status = 'removed' WHERE id = 1",
+  ]) {
+    db.exec('SAVEPOINT preview_scope');
+    try {
+      db.exec(change);
+      assert.equal((await preview()).status, 403, change);
+    } finally {
+      db.exec('ROLLBACK TO preview_scope; RELEASE preview_scope');
+    }
+    assert.equal((await preview()).status, 200);
+  }
+});
+
+test('预览只返回已发布内容，不泄漏答案、解析或学生记录且不写数据库', async () => {
+  const snapshot = () => Object.fromEntries(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name").all()
+    .map(({ name }) => [name, db.prepare(`SELECT * FROM "${name}"`).all().map((row) => JSON.stringify(row)).sort()]));
+  const original = snapshot();
+  for (const role of ['admin', 'mentor', 'teacher']) {
+    for (let repeat = 0; repeat < 2; repeat += 1) {
+      const result = await api('/learning/lessons/1/preview?student_id=3', { token: tokens[role] });
+      assert.equal(result.status, 200);
+      assert.equal(result.body.read_only, true);
+      assert.deepEqual(Object.keys(result.body).sort(), ['cards', 'course', 'lesson', 'read_only']);
+      assert.deepEqual(result.body.cards.map((card) => card.id), [1]);
+      assert.equal(result.body.cards[0].content, '需要掌握的知识');
+      const exercise = result.body.cards[0].exercises[0];
+      assert.deepEqual(exercise.options, ['A', 'B']);
+      for (const field of ['answer', 'answer_json', 'correct_answer', 'explanation', 'attempts', 'attempted', 'passed', 'best_score']) {
+        assert.equal(Object.hasOwn(exercise, field), false, field);
+      }
+    }
+  }
+  assert.deepEqual(snapshot(), original, '反复预览不能写入任何数据库表');
 });
 
 test('旧进度接口只保存播放位置，不能由客户端伪造课时完成', async () => {
@@ -212,10 +273,71 @@ test('导师评审和内容管理严格按课程归属授权', async () => {
   assert.equal((await api('/learning/manage/lessons/1/cards', { token: tokens.othermentor })).status, 403);
   assert.equal((await api('/learning/manage/lessons/1/cards', { token: tokens.teacher })).status, 403);
   const created = await api('/learning/manage/lessons/1/cards', {
-    method: 'POST', token: tokens.mentor,
+    method: 'POST', token: tokens.admin,
     body: { title: '补充卡片', content: '补充学习内容', status: 'draft' },
   });
   assert.equal(created.status, 201);
+});
+
+test('题库七个写接口拒绝导师、教师和学生且不改变历史数据', async () => {
+  const writes = [
+    ['POST', '/learning/manage/lessons/1/cards', { title: '禁止新增', content: '内容' }],
+    ['POST', '/learning/manage/lessons/1/cards/reorder', { card_ids: [2, 1] }],
+    ['PUT', '/learning/manage/cards/1', { title: '禁止修改', status: 'archived' }],
+    ['DELETE', '/learning/manage/cards/1'],
+    ['POST', '/learning/manage/cards/1/exercises', { question_type: 'fill_blank', prompt: '题目', answer: '答案', explanation: '解析' }],
+    ['PUT', '/learning/manage/exercises/1', { answer: 'B', explanation: '禁止修改' }],
+    ['DELETE', '/learning/manage/exercises/1'],
+  ];
+  const snapshot = () => Object.fromEntries([
+    'knowledge_cards', 'card_exercises', 'card_exercise_attempts', 'student_card_progress',
+    'lesson_progress', 'lesson_learning_reports', 'courses', 'enrollments',
+  ].map((table) => [table, db.prepare(`SELECT * FROM ${table} ORDER BY id`).all()]));
+  const original = snapshot();
+  for (const role of ['mentor', 'othermentor', 'teacher', 'student']) {
+    for (const [method, url, body] of writes) {
+      assert.equal((await api(url, { method, body, token: tokens[role] })).status, 403, `${role}: ${method} ${url}`);
+    }
+  }
+  assert.deepEqual(snapshot(), original);
+});
+
+test('服务层直接调用也拒绝导师写题库，导师只读接口隐藏答案和解析', async () => {
+  const service = require('../services/learningService');
+  const mentor = { id: 2, role: 'academic_mentor' };
+  for (const write of [
+    () => service.createCard(mentor, 1, {}),
+    () => service.updateCard(mentor, 1, {}),
+    () => service.deleteCard(mentor, 1),
+    () => service.reorderCards(mentor, 1, [1, 2]),
+    () => service.createExercise(mentor, 1, {}),
+    () => service.updateExercise(mentor, 1, {}),
+    () => service.deleteExercise(mentor, 1),
+  ]) {
+    assert.throws(write, (error) => error.status === 403 && error.code === 'LEARNING_CONTENT_READ_ONLY');
+  }
+  const result = await api('/learning/manage/lessons/1/cards', { token: tokens.mentor });
+  assert.equal(result.status, 200);
+  const exercise = result.body.cards.find((card) => card.id === 1).exercises[0];
+  for (const field of ['answer_json', 'answer', 'correct_answer', 'explanation']) {
+    assert.equal(Object.hasOwn(exercise, field), false, field);
+  }
+  const admin = await api('/learning/manage/lessons/1/cards', { token: tokens.admin });
+  assert.equal(admin.body.cards.find((card) => card.id === 1).exercises[0].answer, 'A');
+});
+
+test('管理员仍可创建、修改、排序和删除知识卡片与练习', async () => {
+  const request = (url, method, body) => api(url, { method, body, token: tokens.admin });
+  const card = await request('/learning/manage/lessons/3/cards', 'POST', { title: '管理员卡片', content: '正文', status: 'draft' });
+  assert.equal(card.status, 201);
+  const id = card.body.id;
+  assert.equal((await request(`/learning/manage/cards/${id}`, 'PUT', { title: '更新标题' })).status, 200);
+  assert.equal((await request('/learning/manage/lessons/3/cards/reorder', 'POST', { card_ids: [id] })).status, 200);
+  const exercise = await request(`/learning/manage/cards/${id}/exercises`, 'POST', { question_type: 'fill_blank', prompt: '作用力', answer: '重力', explanation: '地球吸引' });
+  assert.equal(exercise.status, 201);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`, 'PUT', { explanation: '更新解析' })).status, 200);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`, 'DELETE')).status, 200);
+  assert.equal((await request(`/learning/manage/cards/${id}`, 'DELETE')).status, 200);
 });
 
 test('内容编排中心列出导师创建或受邀授课课程的课时', async () => {

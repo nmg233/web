@@ -37,6 +37,7 @@ const NotificationList = lazy(() => import('./pages/notifications/List'));
 const NotificationDetail = lazy(() => import('./pages/notifications/Detail'));
 const GliderSimulator = lazy(() => import('./pages/glider/Simulator'));
 const LessonLearn = lazy(() => import('./pages/learning/LessonLearn'));
+const LessonPreview = lazy(() => import('./pages/learning/LessonPreview'));
 const MentorReviewList = lazy(() => import('./pages/mentor/ReviewList'));
 const MentorReviewDetail = lazy(() => import('./pages/mentor/ReviewDetail'));
 const LessonContentEditor = lazy(() => import('./pages/mentor/LessonContentEditor'));
@@ -90,7 +91,8 @@ function App() {
                 <Route path="courses/:courseId/ai-knowledge" element={guard(<AIKnowledge />, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id/learn" element={guard(<Learning />, ['student'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/learn" element={guard(<LessonLearn />, ['student'])} />
-                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin', 'academic_mentor'])} />
+                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin'])} />
+                <Route path="courses/:courseId/lessons/:lessonId/preview" element={guard(<LessonPreview />, ['admin', 'academic_mentor', 'teacher'])} />
                 <Route path="courses/:id/edit" element={guard(<CourseForm />, ['admin', 'academic_mentor'])} />
                 <Route path="students" element={guard(<StudentList />, ['admin', 'academic_mentor'])} />
                 <Route path="students/:id" element={guard(<StudentDetail />, ['admin', 'academic_mentor'])} />

@@ -364,8 +364,9 @@ function CourseDetailPage() {
             <Card key={lesson.id} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
                 {isEnrolled && lesson.status !== 'cancelled' && lesson.learning_in_scope !== false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>进入课后学习</Button>}
-                {canEdit && lesson.status !== 'cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>设置知识卡片与习题</Button>}
-                {canEdit && lesson.status !== 'cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>添加任务</Button>}
+                {course.can_manage && user.role === 'admin' && lesson.status !== 'cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>设置知识卡片与习题</Button>}
+                {course.can_manage && <Button size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}
+                {course.can_manage && lesson.status !== 'cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>添加任务</Button>}
               </Space>}
             >
               {lesson.status === 'cancelled' && <Tag color="red">已取消，仅保留历史</Tag>}

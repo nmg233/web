@@ -155,6 +155,7 @@ export const notificationAPI = {
 };
 
 export const learningAPI = {
+  preview: (lessonId) => client.get(`/learning/lessons/${lessonId}/preview`),
   lesson: (lessonId) => client.get(`/learning/lessons/${lessonId}`),
   completeReview: (lessonId) => client.post(`/learning/lessons/${lessonId}/review-complete`),
   submitExercise: (exerciseId, answer) => client.post(`/learning/exercises/${exerciseId}/submit`, { answer }),

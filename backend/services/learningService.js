@@ -82,6 +82,9 @@ function assertManageLesson(user, lessonId) {
 }
 
 function assertWritableLesson(user, lessonId) {
+  if (user.role !== 'admin') {
+    throw new LearningError('仅管理员可编辑知识卡片和练习', 403, 'LEARNING_CONTENT_READ_ONLY');
+  }
   const lesson = assertManageLesson(user, lessonId);
   if (lesson.course_status === 'archived') {
     throw new LearningError('已归档课程不能修改学习内容', 409, 'COURSE_ARCHIVED');
@@ -169,6 +172,53 @@ function lessonPackage(studentId, lessonId) {
     report,
     reflection,
     progress: learningGate.recalculateLessonProgress(studentId, lessonId),
+  };
+}
+
+// 独立只读内容包：不调用学生学习包，避免重算进度或返回作答历史。
+function previewLesson(user, lessonId) {
+  if (!['admin', 'academic_mentor', 'teacher'].includes(user.role)) {
+    throw new LearningError('无权预览该课时', 403, 'LESSON_FORBIDDEN');
+  }
+  const lesson = lessonContext(lessonId);
+  if (user.role === 'academic_mentor' && !courseBelongsToMentor(user.id, lesson.course_id)) {
+    throw new LearningError('无权预览该课时', 403, 'LESSON_FORBIDDEN');
+  }
+  if (user.role === 'teacher' && !db.prepare(`
+    SELECT 1 FROM enrollments e JOIN users s ON s.id = e.student_id
+    WHERE e.course_id = ? AND e.status = 'active'
+      AND s.teacher_id = ? AND s.role = 'student'
+      AND s.is_active = 1 AND s.archived_at IS NULL LIMIT 1
+  `).get(lesson.course_id, user.id)) {
+    throw new LearningError('无权预览该课时', 403, 'LESSON_FORBIDDEN');
+  }
+  const cards = db.prepare(`
+    SELECT id, lesson_id, title, summary, content, key_points, common_mistakes,
+           example_content, sort_order, is_required, estimated_minutes, status
+    FROM knowledge_cards WHERE lesson_id = ? AND status = 'published'
+    ORDER BY sort_order, id
+  `).all(lessonId);
+  // 显式选择可公开字段，答案和解析不进入预览数据。
+  const exercises = db.prepare(`
+    SELECT e.id, e.card_id, e.question_type, e.prompt, e.options_json,
+           e.points, e.sort_order, e.is_required, e.max_attempts
+    FROM card_exercises e JOIN knowledge_cards c ON c.id = e.card_id
+    WHERE c.lesson_id = ? AND c.status = 'published' ORDER BY e.sort_order, e.id
+  `).all(lessonId);
+  return {
+    read_only: true,
+    course: { id: lesson.course_id, title: lesson.course_title },
+    lesson: {
+      id: lesson.id, title: lesson.title, description: lesson.description,
+      duration: lesson.duration, start_at: lesson.start_at, end_at: lesson.end_at,
+    },
+    cards: cards.map((card) => ({
+      ...card,
+      required: Boolean(card.is_required),
+      exercises: exercises.filter((exercise) => exercise.card_id === card.id).map(({ options_json, ...exercise }) => ({
+        ...exercise, options: parseStoredJson(options_json, []),
+      })),
+    })),
   };
 }
 
@@ -416,7 +466,9 @@ function listManagedCards(user, lessonId) {
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
       ...item,
       options: parseStoredJson(item.options_json, []),
-      answer: parseStoredJson(item.answer_json),
+      answer_json: user.role === 'admin' ? item.answer_json : undefined,
+      answer: user.role === 'admin' ? parseStoredJson(item.answer_json) : undefined,
+      explanation: user.role === 'admin' ? item.explanation : undefined,
     })),
   }));
 }
@@ -494,7 +546,7 @@ function deleteCard(user, cardId) {
   const card = assertManageCard(user, cardId, true);
   const hasProgress = db.prepare('SELECT 1 FROM student_card_progress WHERE card_id = ? LIMIT 1').get(card.id)
     || db.prepare(`SELECT 1 FROM card_exercise_attempts a JOIN card_exercises e ON e.id = a.exercise_id WHERE e.card_id = ? LIMIT 1`).get(card.id);
-  if (hasProgress || db.prepare('SELECT 1 FROM lesson_content_versions WHERE lesson_id = ? LIMIT 1').get(card.lesson_id)) {
+  if (hasProgress || db.prepare('SELECT 1 FROM card_exercises WHERE card_id = ? LIMIT 1').get(card.id) || db.prepare('SELECT 1 FROM lesson_content_versions WHERE lesson_id = ? LIMIT 1').get(card.lesson_id)) {
     db.prepare("UPDATE knowledge_cards SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(card.id);
     return { id: card.id, archived: true };
   }
@@ -611,6 +663,7 @@ module.exports = {
   },
   LearningError,
   lessonPackage,
+  previewLesson,
   completeReview,
   submitExercise,
   completeCard,

@@ -31,8 +31,8 @@ function fixture(type = 'single_choice', answer = 'A', options = ['A','B']) {
   for (const student of [3,4]) db.prepare("INSERT INTO enrollments (student_id,course_id,status) VALUES (?,?,'active')").run(student,course);
   const file = path.join(tmp,`video-${course}.mp4`); fs.writeFileSync(file, '0000ftypisom0000');
   db.prepare("INSERT INTO course_replays (course_id,lesson_id,title,description,video_path,created_by) VALUES (?,?,'回放','视频简介',?,2)").run(course,lesson,file);
-  const card = learning.createCard(mentor, lesson, { title:'卡片',content:'正文',status:'published' }).id;
-  const exercise = learning.createExercise(mentor, card, { question_type:type,prompt:'问题',options,answer,explanation:'旧详解',points:2 }).id;
+  const card = learning.createCard(admin, lesson, { title:'卡片',content:'正文',status:'published' }).id;
+  const exercise = learning.createExercise(admin, card, { question_type:type,prompt:'问题',options,answer,explanation:'旧详解',points:2 }).id;
   return { course, lesson, card, exercise };
 }
 function runController(handler, req) {
@@ -48,7 +48,7 @@ test('内容缺失禁止首次进入，失败不产生绑定；预览不会消�
   const f=fixture(); db.prepare('DELETE FROM course_replays WHERE course_id=?').run(f.course);
   assert.throws(()=>learning.lessonPackage(3,f.lesson),e=>e.code==='LESSON_CONTENT_INCOMPLETE');
   assert.equal(versions.boundVersion(db,3,f.lesson),null);
-  assert.equal(learning.listManagedCards(mentor,f.lesson)[0].exercises[0].answer,'A');
+  assert.equal(learning.listManagedCards(admin,f.lesson)[0].exercises[0].answer,'A');
   assert.equal(db.prepare('SELECT COUNT(*) n FROM card_exercise_attempts').get().n,0);
 });
 
@@ -67,7 +67,7 @@ test('无效选项、重复多选、非布尔判断和空参考答案被拒绝',
     {question_type:'true_false',answer:'false'},
     {question_type:'fill_blank',answer:{blanks:[[]]}},
     {question_type:'short_answer',answer:' '},
-  ]) assert.throws(()=>learning.createExercise(mentor,f.card,{prompt:'问题',explanation:'详解',...data}));
+  ]) assert.throws(()=>learning.createExercise(admin,f.card,{prompt:'问题',explanation:'详解',...data}));
   learning.lessonPackage(3,f.lesson); learning.completeReview(3,f.lesson);
   assert.throws(()=>learning.submitExercise(3,f.exercise,'C'));
   assert.equal(db.prepare('SELECT COUNT(*) n FROM card_exercise_attempts WHERE exercise_id=?').get(f.exercise).n,0);
@@ -92,21 +92,21 @@ test('填空题多空多答案，只忽略首尾空格；简答提交即完成�
 });
 test('服务端强制卡片顺序，不能先答第二张卡或直接完成空卡片', () => {
   const f=fixture();
-  const card=learning.createCard(mentor,f.lesson,{title:'第二张',content:'内容',status:'published'}).id;
-  const exercise=learning.createExercise(mentor,card,{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'}).id;
+  const card=learning.createCard(admin,f.lesson,{title:'第二张',content:'内容',status:'published'}).id;
+  const exercise=learning.createExercise(admin,card,{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'}).id;
   learning.lessonPackage(3,f.lesson); learning.completeReview(3,f.lesson);
   assert.throws(()=>learning.submitExercise(3,exercise,true),e=>e.code==='CARD_ORDER_REQUIRED');
   assert.throws(()=>learning.completeCard(3,card),e=>e.code==='CARD_ORDER_REQUIRED');
 });
 test('开始后改题、新增卡片及删除题库不改变旧版本；新学生使用新版本', () => {
   const f=fixture(); const old=learning.lessonPackage(3,f.lesson);
-  learning.updateExercise(mentor,f.exercise,{answer:'B',explanation:'新详解',prompt:'新题目'});
+  learning.updateExercise(admin,f.exercise,{answer:'B',explanation:'新详解',prompt:'新题目'});
   const fresh=learning.lessonPackage(4,f.lesson);
   assert.notEqual(old.content_version.id,fresh.content_version.id);
   learning.completeReview(3,f.lesson);
   const answer=learning.submitExercise(3,f.exercise,'A');
   assert.equal(answer.correct,true); assert.equal(answer.explanation,'旧详解');
-  learning.deleteExercise(mentor,f.exercise);
+  learning.deleteExercise(admin,f.exercise);
   learning.completeCard(3,f.card);
   assert.equal(learning.lessonPackage(3,f.lesson).cards[0].exercises[0].student_answer,'A');
   assert.equal(learning.listManagedCards(mentor,f.lesson)[0].exercises.length,0);
@@ -200,7 +200,7 @@ test('数据库完整性与外键检查通过', () => {
 
 test('历史缺题定向修复只影响指定学生，不重置已有作答、分数或报告快照', () => {
   const f=fixture();
-  const second=learning.createCard(mentor,f.lesson,{title:'旧缺题卡',content:'内容',status:'published'}).id;
+  const second=learning.createCard(admin,f.lesson,{title:'旧缺题卡',content:'内容',status:'published'}).id;
   const old=versions.saveVersion(db,f.lesson,true);
   for(const student of [3,4]) db.prepare('INSERT INTO student_lesson_versions (student_id,lesson_id,content_version_id) VALUES (?,?,?)').run(student,f.lesson,old.id);
   learning.completeReview(3,f.lesson);
@@ -208,7 +208,7 @@ test('历史缺题定向修复只影响指定学生，不重置已有作答、�
   const attempt=db.prepare('SELECT * FROM card_exercise_attempts WHERE student_id=3 AND exercise_id=?').get(f.exercise);
   const report=Number(db.prepare("INSERT INTO lesson_learning_reports (student_id,lesson_id,enrollment_id,summary,status,version) VALUES (3,?,?, '历史报告','rejected',1)").run(f.lesson,db.prepare('SELECT id FROM enrollments WHERE student_id=3 AND course_id=?').get(f.course).id).lastInsertRowid);
   db.prepare('INSERT INTO report_content_versions (report_id,content_version_id) VALUES (?,?)').run(report,old.id);
-  const added=learning.createExercise(mentor,second,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
+  const added=learning.createExercise(admin,second,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
   assert.throws(()=>learning.repairLegacy(mentor,f.lesson,3,'补齐'),e=>e.status===403);
   const repaired=learning.repairLegacy(admin,f.lesson,3,'历史缺题修复');
   assert.notEqual(repaired.new_version_id,old.id);
