@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
 import { studentAPI, authAPI, archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import TempPasswordModal from '../../components/TempPasswordModal';
+import {requestKey} from '../../utils/requestKey';
 
 const { Title } = Typography;
 
@@ -16,6 +17,11 @@ const roleMap = {
 };
 
 export default function StudentDetail() {
+  const {id}=useParams();
+  return <StudentDetailContent key={id} />;
+}
+
+function StudentDetailContent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -36,6 +42,10 @@ export default function StudentDetail() {
   const [evalOpen, setEvalOpen] = useState(false);
   const [evalLoading, setEvalLoading] = useState(false);
   const [form] = Form.useForm();
+  const selectedSchool=Form.useWatch('school_id',form);
+  const crossSchool=Boolean(student && selectedSchool && selectedSchool!==student.school_id);
+  const assignmentKey=useRef(requestKey());
+  const [assignSaving,setAssignSaving]=useState(false);
   const [evalForm] = Form.useForm();
   const isAdmin = user?.role === 'admin';
   const canEvaluate = ['admin', 'academic_mentor'].includes(user?.role);
@@ -70,6 +80,7 @@ export default function StudentDetail() {
         teacher_id: student.teacher_id,
         mentor_id: student.mentor_id,
       });
+      assignmentKey.current=requestKey();
       setAssignOpen(true);
     } catch { /* handled */ }
   };
@@ -79,19 +90,22 @@ export default function StudentDetail() {
     setClasses([]);
     if (sid) {
       const c = await studentAPI.getClasses(sid);
-      setClasses(c.classes || []);
+      if(form.getFieldValue('school_id')===sid) setClasses(c.classes || []);
     } else {
       setClasses([]);
     }
   };
 
   const handleAssign = async (values) => {
+    setAssignSaving(true);
     try {
-      await studentAPI.assign(id, values);
+      const moved=values.school_id!==student.school_id;
+      await studentAPI.assign(id, {...values,class_id:values.class_id??null,teacher_id:values.teacher_id??null,
+        mentor_id:moved ? student.mentor_id : values.mentor_id??null,request_key:assignmentKey.current,source_school_id:student.school_id});
       message.success('分配信息已更新');
       setAssignOpen(false);
       load();
-    } catch { /* handled */ }
+    } catch { /* handled */ } finally {setAssignSaving(false);}
   };
 
   // 管理员重置用户密码：临时密码仅通过弹窗返回给管理员，由管理员线下转告
@@ -201,6 +215,13 @@ export default function StudentDetail() {
           {event.created_at}（UTC） · {statusLabels[event.action]} · 操作人：{event.actor_username} · 原因：{event.reason}
         </p>)}
       </Card>}
+      {isAdmin && detail.schoolTransfers?.length > 0 && <Card title="学生跨校迁移记录" style={{ marginTop: 16 }}>
+        {detail.schoolTransfers.map((event) => <p key={event.id}>
+          {event.created_at}（UTC） · {event.source_school_name || '原学校'} → {event.target_school_name || event.context.target_school_name}
+          {' · '}新负责教师：{event.teacher_name} · 操作人：{event.actor_username} · 原因：{event.reason}
+          {' · '}原账号：{event.context.username}，原导师 ID：{event.context.mentor_id || '未分配'}（保持不变）
+        </p>)}
+      </Card>}
       {!isStudentTarget && ((detail.taughtCourses?.length > 0) || (detail.managedCourses?.length > 0)) && (
         <Card title={student.role === 'teacher' ? '历史关联课程' : '管理课程'} style={{ marginTop: 16 }}>
           <Space wrap>
@@ -217,30 +238,32 @@ export default function StudentDetail() {
         <Form form={editForm} layout="vertical" onFinish={saveEdit}>
           <Form.Item name="real_name" label="姓名" rules={[{required:true,whitespace:true}]}><Input maxLength={80}/></Form.Item>
           <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:'学生'},{value:'teacher',label:'教师'},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
-          <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
+          <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select disabled={student.role==='student'} allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
           <Form.Item name="class_id" label="班级" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择班级'})]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item>
           <Form.Item name="email" label="邮箱"><Input/></Form.Item><Form.Item name="phone" label="手机号"><Input/></Form.Item><Form.Item name="profile" label="简介"><Input.TextArea/></Form.Item>
           <p>修改姓名不修改原用户名或现有密码；重置后使用新姓名拼音@123。已有业务历史的账号不能随意更改身份。</p>
+          {student.role==='student' && <p>学生跨校请使用“编辑分配”，指定目标学校新教师并填写原因。</p>}
         </Form>
       </Modal>
-      <Modal title="编辑分配" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} width={500}>
-        <Form form={form} layout="vertical" onFinish={handleAssign}>
-          <Form.Item name="school_id" label="所属学校">
+      <Modal title="编辑分配" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} confirmLoading={assignSaving} closable={!assignSaving} maskClosable={!assignSaving} cancelButtonProps={{disabled:assignSaving}} width={500}>
+        <Form form={form} layout="vertical" onFinish={handleAssign} disabled={assignSaving} onValuesChange={()=>{assignmentKey.current=requestKey();}}>
+          <Form.Item name="school_id" label="所属学校" rules={[{required:true}]}>
             <Select allowClear placeholder="选择学校" onChange={handleSchoolChange}
-              options={options.schools.map((s) => ({ label: s.name, value: s.id }))} />
+              options={options.schools.map((s) => ({ label: s.name, value: s.id,disabled:!s.is_active && s.id!==student.school_id }))} />
           </Form.Item>
-          <Form.Item name="class_id" label="所属班级">
+          <Form.Item name="class_id" label="所属班级" rules={[{required:crossSchool,message:'跨校必须选择目标学校班级'}]}>
             <Select allowClear placeholder="选择班级"
               options={classes.map((c) => ({ label: `${c.grade || ''} ${c.name}`, value: c.id }))} />
           </Form.Item>
-          <Form.Item name="teacher_id" label="负责教师">
+          <Form.Item name="teacher_id" label="负责教师" rules={[{required:crossSchool,message:'跨校必须选择目标学校新负责教师'}]}>
             <Select allowClear placeholder="选择负责教师"
-              options={options.teachers.map((t) => ({ label: t.real_name, value: t.id }))} />
+              options={options.teachers.filter(t=>t.school_id===selectedSchool).map((t) => ({ label: t.real_name, value: t.id }))} />
           </Form.Item>
           <Form.Item name="mentor_id" label="负责导师">
-            <Select allowClear placeholder="选择负责导师"
+            <Select allowClear disabled={crossSchool || assignSaving} placeholder="选择负责导师"
               options={options.mentors.map((m) => ({ label: m.real_name, value: m.id }))} />
           </Form.Item>
+          {crossSchool && <><Form.Item name="reason" label="跨校迁移原因" rules={[{required:true,whitespace:true}]}><Input.TextArea maxLength={1000} /></Form.Item><p>跨校保留用户名、密码、负责导师、全部学习历史和已结课结果；仅变更学校、班级和负责教师。</p></>}
         </Form>
       </Modal>
 
