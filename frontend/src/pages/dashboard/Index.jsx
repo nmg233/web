@@ -207,6 +207,9 @@ export default function Dashboard() {
                       <Title level={5}>{c.title}</Title>
                       <Text type="secondary">作品: {c.my_work_count} | 课时: {c.total_lessons}</Text>
                       <br />
+                      <Text type="secondary">学习进度: {c.progress ?? 0}%</Text>
+                      {c.completion?.completed && <Tag color="green">已结课</Tag>}
+                      <br />
                       <Tag>{c.difficulty}</Tag>
                       <Tag>{c.grade_level}</Tag>
                     </Card>

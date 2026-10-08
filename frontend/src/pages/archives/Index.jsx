@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message, Row, Col, Statistic, Timeline } from 'antd';
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons';
@@ -18,6 +18,8 @@ export default function ArchiveIndex() {
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [recordOpen, setRecordOpen] = useState(false);
   const [record, setRecord] = useState('');
+  const detailRequest = useRef(0);
+  useEffect(() => () => { detailRequest.current++; }, []);
 
   useEffect(() => {
     if (user?.role === 'student') {
@@ -26,7 +28,7 @@ export default function ArchiveIndex() {
     archiveAPI.getTree().then((res) => {
       const tree = res.tree || res;
       if (tree.schools) {
-        setTreeData(tree.schools.map((school) => ({
+        const schools = tree.schools.map((school) => ({
           title: `🏫 ${school.name}`,
           key: `school-${school.id}`,
           children: (school.classes || []).map((cls) => ({
@@ -39,7 +41,10 @@ export default function ArchiveIndex() {
               })),
             ],
           })),
-        })));
+        }));
+        const unassigned = tree.unassigned?.student || [];
+        setTreeData([...schools, ...(unassigned.length ? [{ title: '未分配学校', key: 'unassigned',
+          children: unassigned.map((s) => ({ title: s.real_name, key: `user-${s.id}`, icon: <UserOutlined />, isLeaf: true })) }] : [])]);
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user?.role]);
@@ -49,14 +54,16 @@ export default function ArchiveIndex() {
     const key = keys[0];
     if (!key.startsWith('user-')) return;
     const studentId = key.replace('user-', '');
+    const request = ++detailRequest.current;
+    setRecordOpen(false); setRecord('');
     setSelectedStudentId(studentId);
     setArchive(null);
     setDetailLoading(true);
     try {
       const res = await archiveAPI.generate(studentId);
-      setArchive(res);
+      if (request === detailRequest.current) setArchive(res);
     } catch { /* handled */ }
-    finally { setDetailLoading(false); }
+    finally { if (request === detailRequest.current) setDetailLoading(false); }
   };
 
   // Student view: show own archive
@@ -170,7 +177,9 @@ function ArchiveDetail({ archive }) {
         <List.Item><FileTextOutlined style={{ marginRight: 8 }} />{w.title}</List.Item>
       )} />
 
-      <Title level={5}>反思日志</Title>
+        <Title level={5}>学习报告与导师评分</Title>
+        <List dataSource={archive.learningReports || []} locale={{ emptyText: '暂无学习报告' }} renderItem={(r) => <List.Item><List.Item.Meta title={`${r.course_title} · ${r.lesson_title} · 第 ${r.version} 版`} description={<Space direction="vertical"><Text>{r.summary}</Text><Text>{r.review_comment || '尚无导师意见'}</Text></Space>} /><Tag>{r.status === 'approved' ? `已通过 · ${r.score} 分` : r.status === 'rejected' ? '需修改' : '待评审'}</Tag></List.Item>} />
+        <Title level={5}>反思日志</Title>
       <List dataSource={archive.reflections || []} renderItem={(r) => (
         <List.Item>
           <List.Item.Meta
