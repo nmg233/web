@@ -127,7 +127,7 @@ function studentDetail(user, studentId) {
     SELECT lp.lesson_id, lp.progress, lp.completed_at, lp.updated_at,
            l.title AS lesson_title, c.id AS course_id, c.title AS course_title,
            r.id AS report_id, r.version AS report_version, r.status AS report_status,
-           r.summary, r.review_comment, r.reviewed_at
+           r.summary, r.key_points, r.application, r.difficulties, r.next_plan, r.score, r.review_comment, r.reviewed_at
     FROM lesson_progress lp
     JOIN lessons l ON l.id = lp.lesson_id JOIN courses c ON c.id = l.course_id
     LEFT JOIN lesson_learning_reports r ON r.id = (
@@ -138,7 +138,7 @@ function studentDetail(user, studentId) {
     WHERE lp.student_id = ? ORDER BY lp.updated_at DESC
   `).all(student.id);
   const reflections = db.prepare(`
-    SELECT r.id, r.lesson_id, r.difficulty, r.solution, r.improvement, r.new_question, r.created_at,
+    SELECT r.id, r.lesson_id, r.difficulty, r.solution, r.improvement, r.new_question, r.reflection_version, r.entry_note, r.together_note, r.extra_note, r.report_id, r.created_at,
            l.title AS lesson_title
     FROM reflections r LEFT JOIN lessons l ON l.id = r.lesson_id
     WHERE r.student_id = ? ORDER BY r.created_at DESC LIMIT 50

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "vr",
+    "master": "vr-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "web": [
+      "vr-192.webp",
+      "vr-384.webp"
+    ],
+    "method": "Built-in image_gen; nearest-neighbor resize only; original alpha retained.",
+    "use": "Controlled badge artwork only, no text or interactive page baked into image."
+  },
+  {
+    "id": "theory",
+    "master": "theory-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "web": [
+      "theory-192.webp",
+      "theory-384.webp"
+    ],
+    "method": "Built-in image_gen; nearest-neighbor resize only; original alpha retained.",
+    "use": "Controlled badge artwork only, no text or interactive page baked into image."
+  },
+  {
+    "id": "glider",
+    "master": "glider-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "web": [
+      "glider-192.webp",
+      "glider-384.webp"
+    ],
+    "method": "Built-in image_gen; nearest-neighbor resize only; original alpha retained.",
+    "use": "Controlled badge artwork only, no text or interactive page baked into image."
+  }
+]

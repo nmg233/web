@@ -1,0 +1,2 @@
+export function shiftMonth(month,amount){const [year,index]=month.split('-').map(Number);const date=new Date(Date.UTC(year,index-1+amount,1));return date.toISOString().slice(0,7);}
+export function calendarDays(month){const [year,index]=month.split('-').map(Number),first=new Date(Date.UTC(year,index-1,1)),length=new Date(Date.UTC(year,index,0)).getUTCDate();return [...Array(first.getUTCDay()).fill(null),...Array.from({length},(_,i)=>`${month}-${String(i+1).padStart(2,'0')}`)];}

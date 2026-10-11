@@ -157,7 +157,7 @@ function review(user, reportId, payload = {}) {
   if (payload.status === 'rejected' && !comment) throw new MentorReviewError('退回时必须填写修改意见');
   if (comment.length > 5000) throw new MentorReviewError('评语不能超过 5000 个字符');
   const score = Number(payload.score);
-  if (!Number.isInteger(score) || score < 0 || score > 100) {
+  if (!['number','string'].includes(typeof payload.score) || String(payload.score).trim()==='' || !Number.isInteger(score) || score < 0 || score > 100) {
     throw new MentorReviewError('请填写 0–100 的整数评分');
   }
   const dimensions = {};

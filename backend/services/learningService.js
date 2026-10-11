@@ -1,3 +1,4 @@
+const {contentRevision:hash}=require('../helpers/contentRevision');
 const db = require('../config/database');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
@@ -170,16 +171,18 @@ function lessonPackage(studentId, lessonId) {
     ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, sort_order, id
   `).all(lesson.course_id, lessonId, lessonId);
   const resources = db.prepare(`
-    SELECT id, course_id, lesson_id, resource_type, title, description, file_size, created_at,
+    SELECT id, course_id, lesson_id, resource_type, title, description, display_order, file_size, file_name,file_type,created_at,
            CASE WHEN file_path IS NOT NULL THEN 1 ELSE 0 END AS has_file
     FROM resources WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL)
-    ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, created_at DESC
+    ORDER BY CASE WHEN lesson_id = ? THEN 0 ELSE 1 END, display_order, created_at DESC
   `).all(lesson.course_id, lessonId, lessonId);
 
   return {
     course: { id: lesson.course_id, title: lesson.course_title },
     lesson: {
-      id: lesson.id, title: lesson.title, description: lesson.description,
+      id: lesson.id, title: lesson.title, description: lesson.description,teaching_tip:lesson.teaching_tip,
+      presentation_type:lesson.presentation_type,content_state:lesson.content_state,article_url:lesson.article_url,article_title:lesson.article_title,moments_note:lesson.moments_note,
+      review_content:lesson.review_content,report_guidance:lesson.report_guidance,experiment_guidance:lesson.experiment_guidance,article_blocks:require('./articleBlocks').parse(lesson.article_blocks),location:lesson.location,instructor_name:db.prepare('SELECT real_name FROM users WHERE id=?').get(lesson.instructor_id)?.real_name||null,
       duration: lesson.duration, start_at: lesson.start_at, end_at: lesson.end_at,
     },
     enrollment_id: enrollment.enrollment_id,
@@ -200,6 +203,7 @@ function lessonPackage(studentId, lessonId) {
 
 function completeReview(studentId, lessonId) {
   assertStudentLesson(studentId, lessonId);
+  if(lessonContext(lessonId).content_state==='preparing')throw new LearningError('教学内容尚未准备，不能标记完成',409,'CONTENT_PREPARING');
   db.prepare(`
     INSERT INTO lesson_review_completions (student_id, lesson_id, completed_at, updated_at)
     VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -344,17 +348,13 @@ function validateReport(data) {
       difficulties: text(report.difficulties, 5000),
       next_plan: text(report.next_plan, 5000),
     },
-    reflection: {
-      difficulty: text(reflection.difficulty, 2000, true),
-      solution: text(reflection.solution, 2000),
-      improvement: text(reflection.improvement, 2000),
-      new_question: text(reflection.new_question, 2000),
-    },
+    reflection: (()=>{try{return require('../helpers/reflectionContent').validateReflection(reflection);}catch(e){throw new LearningError(e.message,e.status||400);}})(),
   };
 }
 
 function submitReport(studentId, lessonId, data) {
   const enrollment = assertStudentLesson(studentId, lessonId);
+  if(lessonContext(lessonId).content_state==='preparing')throw new LearningError('教学内容尚未准备，不能提交报告',409,'CONTENT_PREPARING');
   if (!learningGate.canSubmitLessonReport(studentId, lessonId)) {
     throw new LearningError('请先完成课堂回顾、全部知识卡片和配套练习', 409, 'REPORT_LOCKED');
   }
@@ -380,12 +380,13 @@ function submitReport(studentId, lessonId, data) {
     db.prepare(`
       INSERT INTO reflections (
         student_id, enrollment_id, lesson_id, report_id,
-        difficulty, solution, improvement, new_question
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        difficulty, solution, improvement, new_question,reflection_version,entry_note,together_note,extra_note
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       studentId, enrollment.enrollment_id, lessonId, id,
       payload.reflection.difficulty, payload.reflection.solution,
       payload.reflection.improvement, payload.reflection.new_question,
+      payload.reflection.reflection_version,payload.reflection.entry_note,payload.reflection.together_note,payload.reflection.extra_note,
     );
     learningGate.recalculateLessonProgress(studentId, lessonId);
     return id;
@@ -413,8 +414,10 @@ function listManagedCards(user, lessonId) {
   const exercises = db.prepare(`SELECT * FROM card_exercises WHERE card_id IN (${ids.map(() => '?').join(',')}) ORDER BY sort_order, id`).all(...ids);
   return cards.map((card) => ({
     ...card,
+    content_revision:hash(card),
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
       ...item,
+      content_revision:hash(item),
       options: parseStoredJson(item.options_json, []),
       answer: parseStoredJson(item.answer_json),
     })),
@@ -474,11 +477,12 @@ function createCard(user, lessonId, data) {
   `).run(lessonId, value.title, value.summary, value.content, value.key_points,
     value.common_mistakes, value.example_content, value.sort_order, value.is_required,
     value.estimated_minutes, value.status, user.id);
-  return { id: Number(result.lastInsertRowid) };
+  return { id: Number(result.lastInsertRowid), content_revision:hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(result.lastInsertRowid)) };
 }
 
 function updateCard(user, cardId, data) {
   const current = assertManageCard(user, cardId, true);
+  if(data.expected_revision!==undefined&&data.expected_revision!==hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(current.id)))throw new LearningError('内容已由其他维护者修改，请重新读取并核对后保存',409);
   const value = cardPayload({ ...current, ...data });
   db.prepare(`
     UPDATE knowledge_cards SET title = ?, summary = ?, content = ?, key_points = ?,
@@ -487,7 +491,7 @@ function updateCard(user, cardId, data) {
   `).run(value.title, value.summary, value.content, value.key_points, value.common_mistakes,
     value.example_content, value.sort_order, value.is_required, value.estimated_minutes,
     value.status, current.id);
-  return { id: current.id };
+  return { id: current.id,content_revision:hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(current.id)) };
 }
 
 function deleteCard(user, cardId) {
@@ -542,11 +546,12 @@ function createExercise(user, cardId, data) {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(card.id, value.question_type, value.prompt, value.options_json, value.answer_json,
     value.explanation, value.points, value.sort_order, value.is_required, value.max_attempts);
-  return { id: Number(result.lastInsertRowid) };
+  return { id:Number(result.lastInsertRowid),content_revision:hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(result.lastInsertRowid)) };
 }
 
 function updateExercise(user, exerciseId, data) {
   const current = assertManageExercise(user, exerciseId, true);
+  if(data.expected_revision!==undefined&&data.expected_revision!==hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(current.id)))throw new LearningError('内容已由其他维护者修改，请重新读取并核对后保存',409);
   const value = exercisePayload({
     ...current,
     options: parseStoredJson(current.options_json, []),
@@ -560,7 +565,7 @@ function updateExercise(user, exerciseId, data) {
   `).run(value.question_type, value.prompt, value.options_json, value.answer_json,
     value.explanation, value.points, value.sort_order, value.is_required,
     value.max_attempts, current.id);
-  return { id: current.id };
+  return { id:current.id,content_revision:hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(current.id)) };
 }
 
 function deleteExercise(user, exerciseId) {

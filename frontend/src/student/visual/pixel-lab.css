@@ -1,0 +1,124 @@
+.student-pixel .lab-workspace { color: #102d40; min-width: 0; }
+.student-pixel .lab-workspace p { line-height: 1.8; }
+.student-pixel .lab-cycle { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); list-style: none; padding: 0; margin: 28px 0 40px; border-block: 2px solid #bcc8b8; }
+.student-pixel .lab-cycle li { display: flex; align-items: center; gap: 12px; padding: 20px 12px; min-width: 0; }
+.student-pixel .lab-cycle-number { font: 700 24px ui-monospace,Consolas,monospace; color: #087f78; }
+.student-pixel .lab-cycle li > .pixel-icon { margin-left: auto; flex-shrink: 0; }
+.student-pixel .lab-cycle p { color: #526974; font-size: 13px; margin: 4px 0 0; }
+.student-pixel .lab-catalog-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.student-pixel .lab-catalog-heading h3 { font-size: 22px; margin: 0; }
+.student-pixel .lab-catalog-heading > span { color: #526974; font-size: 14px; }
+.student-pixel .lab-catalog { display: grid; gap: 24px; }
+.student-pixel .lab-experiment { display: grid; grid-template-columns: 190px minmax(0,1fr); padding: 0; overflow: hidden; }
+.student-pixel .lab-experiment-emblem { background: #153e50; color: #a4d5c2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; border-right: 4px solid #087f78; font: 700 14px ui-monospace,Consolas,monospace; letter-spacing: 2px; }
+.student-pixel .lab-experiment-content { padding: 28px 32px; }
+.student-pixel .lab-experiment-content h2 { margin: 16px 0 8px; font-size: 26px; }
+.student-pixel .lab-experiment-content > p { color: #526974; margin: 0; }
+.student-pixel .lab-experiment-content dl { display: grid; gap: 16px; margin: 24px 0; }
+.student-pixel .lab-experiment-content dl > div { display: grid; grid-template-columns: 80px minmax(0,1fr); gap: 12px; }
+.student-pixel .lab-experiment-content dt { font-weight: 700; }
+.student-pixel .lab-experiment-content dd { margin: 0; color: #526974; line-height: 1.7; }
+.student-pixel .lab-footnote { display: flex; align-items: flex-start; gap: 14px; margin: 28px 0 8px; padding: 22px; border-left: 4px solid #087f78; background: #e7eee0; }
+.student-pixel .lab-footnote p { margin: 4px 0 0; color: #526974; }
+.student-pixel .flight-context { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; overflow-wrap: anywhere; }
+.student-pixel .flight-boundary,.student-pixel .flight-note { color: #526974; font-size: 14px; }
+.student-pixel .flight-boundary { margin: 12px 0 24px; }
+.student-pixel .flight-layout { display: grid; grid-template-columns: minmax(310px,350px) minmax(0,1fr); gap: 24px; align-items: start; }
+.student-pixel .flight-parameters { padding: 24px; }
+.student-pixel .flight-engine { padding: 12px; background: #f6eedb; border: 1px solid #c4c0a9; margin-bottom: 24px; font-size: 13px; overflow-wrap: anywhere; }
+.student-pixel .flight-engine--ready { background: #e6f0e2; border-color: #96bda3; }
+.student-pixel .flight-engine > span { display: flex; gap: 8px; align-items: flex-start; line-height: 1.7; }
+.student-pixel .flight-engine .ant-btn { margin-top: 10px; }
+.student-pixel .flight-range { display: block; margin-top: 6px; font-size: 12px; color: #526974; }
+.student-pixel .flight-parameters .ant-form-item-extra { font-size: 13px; line-height: 1.7; }
+.student-pixel .flight-parameters .ant-form-item-label label { font-size: 15px; height: auto; }
+.student-pixel .flight-parameters .ant-input-number { min-height: 44px; border: 1px solid #8faaa8; border-radius: 0; background: #fffdf5; }
+.student-pixel .flight-parameters .ant-input-number-input { height: 42px; font-size: 18px; font-variant-numeric: tabular-nums; }
+.student-pixel .flight-association { margin-top: 12px; }
+.student-pixel .flight-submit { border-top: 2px solid #e1d5b7; margin-top: 24px; padding-top: 20px; }
+.student-pixel .flight-submit p { margin: 10px 0 0; color: #526974; font-size: 12px; }
+.student-pixel .flight-result-anchor { min-width: 0; scroll-margin-top: 88px; }
+.student-pixel .flight-record-heading { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #c4c0a9; }
+.student-pixel .flight-record-heading time { color: #526974; font-size: 13px; }
+.student-pixel .flight-record-heading .ant-btn { margin-left: auto; }
+.student-pixel .flight-ready,.student-pixel .flight-running { display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; min-height: 365px; padding: 28px 12px; background: #f3efdc; margin-top: 20px; border: 1px dashed #99b4a3; }
+.student-pixel .flight-ready h4,.student-pixel .flight-running h4 { margin: 24px 0 8px; font-size: 22px; }
+.student-pixel .flight-ready p,.student-pixel .flight-running p { color: #526974; margin: 6px 0; }
+.student-pixel .flight-ready > span:last-child { color: #087168; margin-top: 20px; font-size: 13px; }
+.student-pixel .flight-running .pixel-tag { margin-top: 24px; }
+.student-pixel .flight-record-heading + .ant-alert { margin-top: 20px; }
+.student-pixel .flight-outcome { margin: 24px 0; padding-left: 18px; border-left: 4px solid #087f78; }
+.student-pixel .flight-computed { display: flex; align-items: center; gap: 8px; color: #087168; font-size: 13px; font-weight: 700; }
+.student-pixel .flight-outcome h4 { font-size: 24px; margin: 8px 0; }
+.student-pixel .flight-outcome p { color: #526974; margin: 0; }
+.student-pixel .flight-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1px; background: #c4c0a9; border: 1px solid #c4c0a9; margin: 24px 0 16px; }
+.student-pixel .flight-metrics > div { padding: 16px 12px; background: #f6eedb; min-width: 0; }
+.student-pixel .flight-metrics dt { font-size: 13px; color: #526974; }
+.student-pixel .flight-metrics dd { font: 700 23px/1.8 ui-monospace,Consolas,monospace; margin: 4px 0 0; overflow-wrap: anywhere; }
+.student-pixel .flight-metrics small { font: 400 12px sans-serif; margin-left: 6px; }
+.student-pixel .flight-file { margin: 24px 0; min-width: 0; border: 1px solid #b7b9a6; background: #fff; }
+.student-pixel .flight-file figcaption { background: #e7eee0; font-size: 15px; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid #b7b9a6; }
+.student-pixel .flight-file img,.student-pixel .flight-file video { display: block; width: 100%; height: auto; image-rendering: auto; filter: none; }
+.student-pixel .flight-file video { background: #102d40; }
+.student-pixel .flight-file .ant-alert { margin: 16px; }
+.student-pixel .flight-file-placeholder { padding: 40px 16px; color: #526974; text-align: center; }
+.student-pixel .flight-snapshot-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 16px 0 0; }
+.student-pixel .flight-snapshot-grid dt { font-size: 13px; color: #526974; }
+.student-pixel .flight-snapshot-grid dd { margin: 4px 0 0; font-weight: 700; }
+.student-pixel .flight-history { margin-top: 8px; }
+.student-pixel .flight-history header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+.student-pixel .flight-kicker { font: 700 12px ui-monospace,Consolas,monospace; letter-spacing: 2px; color: #087168; }
+.student-pixel .flight-history h3 { font-size: 22px; margin: 8px 0; }
+.student-pixel .flight-history p { margin: 0; font-size: 14px; color: #526974; }
+.student-pixel .flight-history ul { padding: 0; margin: 0; list-style: none; display: grid; gap: 10px; }
+.student-pixel .flight-history-loading { min-height: 100px; }
+.student-pixel .flight-history-entry { width: 100%; display: grid; grid-template-columns: minmax(140px,.8fr) minmax(220px,1.6fr) minmax(135px,1fr) 90px; align-items: center; gap: 16px; padding: 18px 16px; border: 1px solid #b7b9a6; background: #fffdf5; font: inherit; color: #102d40; text-align: left; cursor: pointer; scroll-margin-block: 88px; }
+.student-pixel .flight-history-entry:hover { background: #e7eee0; border-color: #087f78; }
+.student-pixel .flight-history-entry[aria-pressed='true'] { box-shadow: inset 4px 0 #087f78; background: #e7eee0; }
+.student-pixel .flight-history-entry:focus-visible { outline: 3px solid #087f78; outline-offset: 3px; }
+.student-pixel .flight-history-id { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 700; }
+.student-pixel .flight-history-id .ant-tag { margin: 0; }
+.student-pixel .flight-history-params,.student-pixel .flight-history-entry time { font-size: 13px; color: #526974; }
+.student-pixel .flight-history-open { display: flex; align-items: center; gap: 4px; color: #087168; font-size: 14px; font-weight: 700; }
+@media(max-width:1199px) {
+  .student-pixel .flight-layout { grid-template-columns: minmax(0,1fr); }
+  .student-pixel .flight-parameters .ant-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 24px; align-items: start; }
+  .student-pixel .flight-parameters .ant-collapse,.student-pixel .flight-submit { grid-column: 1/-1; }
+  .student-pixel .flight-history-entry { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .student-pixel .flight-history-open { justify-self: end; }
+  .student-pixel .lab-cycle { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .student-pixel .lab-experiment { grid-template-columns: 120px minmax(0,1fr); }
+  .student-pixel .lab-experiment-content { padding: 24px; }
+}
+@media(max-width:575px) {
+  .student-pixel .lab-cycle { margin: 20px 0 28px; gap: 0; }
+  .student-pixel .lab-cycle li { padding: 14px 4px; gap: 8px; align-items: flex-start; }
+  .student-pixel .lab-cycle li > .pixel-icon { display: none; }
+  .student-pixel .lab-cycle-number { font-size: 18px; }
+  .student-pixel .lab-cycle strong { font-size: 14px; }
+  .student-pixel .lab-cycle p { font-size: 12px; }
+  .student-pixel .lab-experiment { display: block; }
+  .student-pixel .lab-experiment-emblem { flex-direction: row; justify-content: flex-start; gap: 16px; padding: 16px 20px; border-right: 0; border-bottom: 3px solid #087f78; }
+  .student-pixel .lab-experiment-emblem .pixel-icon { width: 36px; height: 36px; }
+  .student-pixel .lab-experiment-content { padding: 20px; }
+  .student-pixel .lab-experiment-content h2 { font-size: 22px; }
+  .student-pixel .lab-experiment-content dl > div { display: block; }
+  .student-pixel .lab-experiment-content dd { margin-top: 4px; }
+  .student-pixel .lab-footnote { padding: 16px; }
+  .student-pixel .flight-parameters { padding: 20px; }
+  .student-pixel .flight-parameters .ant-form { display: block; }
+  .student-pixel .flight-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .student-pixel .flight-ready h4,.student-pixel .flight-running h4 { font-size: 20px; }
+  .student-pixel .flight-ready,.student-pixel .flight-running { min-height: 280px; padding-inline: 8px; }
+  .student-pixel .flight-record-heading .ant-btn { margin-left: 0; }
+  .student-pixel .flight-history header { align-items: flex-start; flex-wrap: wrap; }
+  .student-pixel .flight-history-entry { grid-template-columns: minmax(0,1fr); padding: 16px; }
+  .student-pixel .flight-history-open { justify-self: start; }
+  .student-pixel .flight-file .ant-alert { margin: 8px; }
+  .student-pixel .flight-file .ant-alert-with-description { flex-wrap: wrap; }
+  .student-pixel .flight-file .ant-alert-actions { margin: 12px 0 0; }
+}
+.student-pixel .flight-snapshot { margin-top: 16px; }
+.student-pixel .flight-file,.student-pixel .flight-history { scroll-margin-top: 88px; }
+.student-pixel .flight-file .ant-image { display: block; width: 100%; }
+.student-pixel .flight-zoom { margin: 12px 16px; }

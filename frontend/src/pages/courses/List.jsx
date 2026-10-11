@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Table, Button, Tag, Space, Input, Card, Typography, Popconfirm } from 'antd';
@@ -31,48 +32,48 @@ export default function CourseList() {
   useEffect(() => { loadCourses(); }, []);
 
   const columns = [
-    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
-    { title: '主题', dataIndex: 'theme', key: 'theme' },
-    { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level' },
-    { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
-    ...(canViewOperationalStats(user?.role) ? [{ title: '学习进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
-    ...(canViewOperationalStats(user?.role) ? [{ title: '学生数', dataIndex: 'student_count', key: 'student_count' }, { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' }] : []),
+    { title: siteText("site.a7b37507989cb9bc"), dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
+    { title: siteText("site.8ef2646bdcc1bff5"), dataIndex: 'theme', key: 'theme' },
+    { title: siteText("site.8a0217e77cf8e02d"), dataIndex: 'grade_level', key: 'grade_level' },
+    { title: siteText("site.e8b2df03b912eb21"), dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
+    { title: siteText("site.6cd8d54f39a08720"), dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: siteText("site.3835281eb0da37c4"), draft: siteText("site.c4822a69d1c33223"), archived: siteText("site.e1adc1105dc777ad") })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
+    ...(canViewOperationalStats(user?.role) ? [{ title: siteText("site.8f3c8807ed671814"), dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
+    ...(canViewOperationalStats(user?.role) ? [{ title: siteText("site.15683f1b8f1ab133"), dataIndex: 'student_count', key: 'student_count' }, { title: siteText("site.dd4db7aacf0120c5"), dataIndex: 'creator_name', key: 'creator_name' }] : []),
     ...(canManage(user?.role) ? [{
-      title: '操作', key: 'actions', render: (_, r) => r.can_manage ? (
+      title: siteText("site.802e4d31466b05d9"), key: 'actions', render: (_, r) => r.can_manage ? (
         <Space>
-          <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>编辑</Button>
+          <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>{siteText("site.d735782323a6623c")}</Button>
           {r.status === 'draft' && (
             <Popconfirm
-              title="确定删除该草稿课程？"
-              description="有报名记录或历史作品的课程将无法删除。"
-              okText="删除" cancelText="取消"
+              title={siteText("site.66bfa752eed51c3b")}
+              description={siteText("site.c5892bba73258d10")}
+              okText={siteText("site.353238d6e634038d")} cancelText={siteText("site.5359f3f3d688c85f")}
               onConfirm={async () => {
                 await courseAPI.delete(r.id);
                 loadCourses();
               }}
             >
-              <Button size="small" danger>删除</Button>
+              <Button size="small" danger>{siteText("site.6b9aeead262da420")}</Button>
             </Popconfirm>
           )}
         </Space>
-      ) : '只读'
+      ) : siteText("site.2aafda3179dfd6dc")
     }] : []),
   ];
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>{canManage(user?.role) ? '课程管理' : '课程浏览'}</Title>
+        <Title level={4} style={{ margin: 0 }}>{canManage(user?.role) ? siteText("site.e8852d20ff6054dc") : siteText("site.7f43419faac5a913")}</Title>
         {canManage(user?.role) && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>创建课程</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>{siteText("site.aa67584ea92a428b")}</Button>
         )}
       </div>
       <Card>
         <Space style={{ marginBottom: 16 }}>
-          <Input prefix={<SearchOutlined />} placeholder="搜索课程" value={search} onChange={(e) => setSearch(e.target.value)}
+          <Input prefix={<SearchOutlined />} placeholder={siteText("site.740f701c82b364d5")} value={search} onChange={(e) => setSearch(e.target.value)}
             onPressEnter={() => loadCourses({ search })} style={{ width: 250 }} />
-          <Button onClick={() => { setSearch(''); loadCourses(); }}>重置</Button>
+          <Button onClick={() => { setSearch(''); loadCourses(); }}>{siteText("site.baf22062b7aecb92")}</Button>
         </Space>
         <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
       </Card>

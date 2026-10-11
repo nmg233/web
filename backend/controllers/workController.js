@@ -10,6 +10,7 @@ const { removeFilesAfterCommit } = require('../helpers/fileLifecycle');
 const notificationService = require('../services/notificationService');
 
 const { NOTIFICATION_EVENTS } = notificationService;
+const { bodyMatchesSpace } = require('../helpers/studentCourseAccess');
 const learningGate = require('../helpers/learningGate');
 
 function notifyWorkRecipients(work, payload, recipientIds) {
@@ -51,7 +52,7 @@ exports.pendingTasks = (req, res) => {
 exports.list = (req, res) => {
   try {
     let sql = `
-      SELECT w.*, u.real_name as student_name, c.title as course_title,
+      SELECT w.*, u.real_name as student_name, c.id as course_id, c.title as course_title,
              EXISTS (SELECT 1 FROM works newer
                WHERE newer.parent_work_id = COALESCE(w.parent_work_id, w.id)
                  AND newer.version > w.version) AS has_newer_version,
@@ -72,8 +73,9 @@ exports.list = (req, res) => {
       sql += ' AND (w.title LIKE ? OR w.description LIKE ?)';
       params.push(`%${req.query.search}%`, `%${req.query.search}%`);
     }
+    if (req.courseSpace) { sql += ' AND c.id = ?'; params.push(req.courseSpace); }
     if (req.user.role === 'student') {
-      sql += ' AND w.student_id = ?';
+      sql += " AND w.student_id = ? AND (w.enrollment_id IS NULL OR (e.status='active' AND c.status='published'))";
       params.push(req.user.id);
     } else if (!isStaff(req.user.role)) {
       sql += ' AND w.student_id = ?';
@@ -150,6 +152,7 @@ exports.showUpload = (req, res) => {
 // 处理作品上传（仅学生本人；教师/导师/管理员代录功能已下线）
 exports.upload = (req, res) => {
   try {
+    if (!bodyMatchesSpace(req)) { removeUploadedFile(req.file); return res.status(404).json({error:'作品对象不属于当前课程'}); }
     if (!req.file && !req.body.description?.trim()) {
       return res.status(400).json({ error: '请填写成果内容或选择文件' });
     }

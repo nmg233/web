@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import process from 'node:process'
 
 // ============================================
 // Content-Security-Policy（SPA 侧有效 CSP）
@@ -60,8 +61,8 @@ export default defineConfig({
       'Content-Security-Policy': DEV_CSP,
     },
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/uploads': 'http://localhost:3000',
+      '/api': process.env.API_PROXY_TARGET || 'http://127.0.0.1:3000',
+      '/uploads': process.env.API_PROXY_TARGET || 'http://127.0.0.1:3000',
     },
   },
 })

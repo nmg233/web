@@ -100,6 +100,7 @@ function toDto(row) {
   return {
     id: row.id,
     student_id: row.student_id,
+    course_id: row.course_id, lesson_id: row.lesson_id,
     student_name: row.student_name || null,
     dihedral_deg: row.dihedral_deg,
     cg_x: row.cg_x,
@@ -129,6 +130,7 @@ exports.simulate = async (req, res) => {
     // 课程/课时关联校验（决策 D-7）：先做廉价校验，无效输入不拉起引擎
     const courseId = req.body.course_id ? Number(req.body.course_id) : null;
     const lessonId = req.body.lesson_id ? Number(req.body.lesson_id) : null;
+    if (lessonId && !courseId) return res.status(400).json({error:'课时关联必须提供所属课程'});
     if (courseId) {
       const enrollment = db.prepare(`
         SELECT e.id FROM enrollments e
@@ -280,7 +282,10 @@ exports.list = (req, res) => {
         `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
          LEFT JOIN users u ON u.id = g.student_id ORDER BY g.id DESC LIMIT 200`
       ).all();
-    } else if (req.user.role === 'student' || req.user.role === 'academic_mentor') {
+    } else if (req.user.role === 'student') {
+      const clause = req.courseSpace ? ' AND g.course_id=?' : req.query.unbound === '1' ? ' AND g.course_id IS NULL' : '';
+      rows = db.prepare('SELECT g.* FROM glider_simulations g WHERE g.student_id=?'+clause+' ORDER BY g.id DESC LIMIT 200').all(req.user.id,...(req.courseSpace?[req.courseSpace]:[]));
+    } else if (req.user.role === 'academic_mentor') {
       rows = db.prepare(
         `SELECT g.*, u.real_name AS student_name FROM glider_simulations g
          LEFT JOIN users u ON u.id = g.student_id ORDER BY g.id DESC LIMIT 500`

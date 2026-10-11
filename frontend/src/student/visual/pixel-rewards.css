@@ -1,0 +1,104 @@
+.student-pixel .reward-workspace { font-size:16px; line-height:1.7; }
+.student-pixel .reward-overview { display:flex; align-items:center; gap:24px; padding:0; overflow:hidden; margin-bottom:16px; }
+.student-pixel .reward-balance { background:#102d40; color:#fff9e9; padding:16px 24px; display:flex; gap:18px; align-items:center; align-self:stretch; min-width:288px; }
+.student-pixel .reward-balance>div>span { display:block; font-size:14px; color:#d4e2d7; }
+.student-pixel .reward-balance strong { display:block; font:700 38px/1.25 ui-monospace,Consolas,monospace; letter-spacing:-1px; margin-top:4px; }
+.student-pixel .reward-balance strong:not(:only-child) { overflow-wrap:anywhere; }
+.student-pixel .reward-scope { padding:16px 24px 16px 0; }
+.student-pixel .reward-scope p { margin:8px 0 0; font-size:14px; color:#526974; }
+.student-pixel .reward-tabs>.ant-tabs-nav { margin:0 0 16px; }
+.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-tab { padding:12px 8px; font-size:16px; font-weight:700; }
+.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-tab+.ant-tabs-tab { margin-left:28px; }
+.student-pixel .reward-section-intro { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+.student-pixel .reward-section-intro h3 { margin:0; font-size:20px; }
+.student-pixel .reward-section-intro>span { font-size:14px; color:#526974; }
+.student-pixel .reward-gift-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.student-pixel .reward-gift { padding:0; overflow:hidden; }
+.student-pixel .reward-gift-art { min-height:136px; display:flex; justify-content:center; align-items:center; position:relative; background:#e7edda; border-bottom:2px solid #d5c9a9; }
+.student-pixel .reward-gift[data-gift=model] .reward-gift-art { background:#e0ecdf; }
+.student-pixel .reward-gift[data-gift=sticker] .reward-gift-art { background:#f4ead1; }
+.student-pixel .reward-item-number { position:absolute; top:12px; left:16px; font:700 16px ui-monospace,Consolas,monospace; color:#526974; }
+.student-pixel .reward-art-caption { position:absolute; bottom:10px; right:12px; color:#526974; font-size:12px; }
+.student-pixel .reward-art { display:inline-flex; background:transparent; width:128px; height:128px; flex-shrink:0; }
+.student-pixel .reward-art img { width:100%; height:100%; image-rendering:pixelated; }
+.student-pixel .reward-gift-content { padding:16px; }
+.student-pixel .reward-gift h3,.student-pixel .reward-badge h3 { font-size:18px; margin:0 0 8px; overflow-wrap:anywhere; }
+.student-pixel .reward-cost { display:flex; align-items:center; gap:8px; margin:0 0 16px; }
+.student-pixel .reward-cost strong { font:700 28px/1.4 ui-monospace,Consolas,monospace; }
+.student-pixel .reward-cost>span { font-size:14px; color:#526974; }
+.student-pixel .reward-conditions { display:flex; flex-wrap:wrap; gap:16px 24px; margin:16px 0; }
+.student-pixel .reward-conditions>div { min-width:0; }
+.student-pixel .reward-conditions dt { color:#526974; font-size:14px; }
+.student-pixel .reward-conditions dd { margin:2px 0 0; font-size:16px; font-weight:700; overflow-wrap:anywhere; }
+.student-pixel .reward-condition { padding:8px 12px; background:#efe4cf; border-left:3px solid #96620d; font-size:14px; min-height:40px; margin:16px 0; color:#724a0b; }
+.student-pixel .reward-condition--ready { border-color:#087f78; color:#146157; background:#e4eedb; }
+.student-pixel .reward-footnote { margin:16px 0; color:#526974; font-size:14px; }
+.student-pixel .reward-badge-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.student-pixel .reward-badge { padding:24px; display:flex; align-items:center; gap:20px; }
+.student-pixel .reward-badge>div:last-child { min-width:0; }
+.student-pixel .reward-badge h3 { margin-top:12px; }
+.student-pixel .reward-badge p { color:#526974; margin:8px 0 16px; }
+.student-pixel .reward-badge-art { background:#e5edd9; border:1px solid #ced6b8; padding:8px; }
+.student-pixel .reward-badge--unearned .reward-badge-art { background:#eee6d4; border-style:dashed; }
+.student-pixel .reward-history { padding:24px; }
+.student-pixel .reward-history header { border-bottom:2px solid #d5c9a9; padding-bottom:16px; }
+.student-pixel .reward-history h3 { font-size:20px; margin:0 0 4px; }
+.student-pixel .reward-history header p { margin:0; font-size:14px; color:#526974; }
+.student-pixel .reward-record-list { padding:0; margin:0; list-style:none; }
+.student-pixel .reward-record-list>li { display:flex; gap:16px; padding:20px 0; align-items:center; border-bottom:1px solid #d5c9a9; }
+.student-pixel .reward-record-mark { background:#e4e7d6; padding:12px; display:flex; }
+.student-pixel .reward-record-mark--initial { background:#f6e4b5; }
+.student-pixel .reward-record-text { flex:1; min-width:0; overflow-wrap:anywhere; }
+.student-pixel .reward-record-text p { margin:4px 0; color:#526974; font-size:14px; }
+.student-pixel .reward-amount { text-align:right; min-width:80px; }
+.student-pixel .reward-amount strong { display:block; font:700 26px/1.4 ui-monospace,Consolas,monospace; }
+.student-pixel .reward-amount--positive strong { color:#286c49; }
+.student-pixel .reward-amount>span { font-size:13px; color:#526974; }
+.student-pixel .reward-current-record { margin-left:12px; font-size:14px; color:#146157; font-weight:700; }
+.student-pixel li.reward-record--highlight { background:#e8efdd; padding-inline:12px; }
+.student-pixel .reward-history .ant-pagination { margin-top:20px; flex-wrap:wrap; }
+.student-pixel .reward-notice { margin-bottom:20px; }
+.student-pixel .reward-loading { padding:48px; text-align:center; }
+.student-pixel .reward-workspace .pixel-tag { white-space:normal; height:auto; }
+.student-pixel .reward-workspace button,.student-pixel .reward-tabs,.student-pixel .reward-workspace a { scroll-margin-top:88px; }
+/* Modal portals carry this scope explicitly; no global Ant Design overrides. */
+.student-pixel.reward-modal-root .ant-modal-container { padding:0; border:3px solid #102d40; box-shadow:6px 6px 0 #102d4040; border-radius:2px; overflow:hidden; }
+.student-pixel.reward-modal-root .ant-modal-header { padding:18px 52px 18px 24px; background:#102d40; margin:0; }
+.student-pixel.reward-modal-root .ant-modal-title { color:#fff9e9; font-size:20px; }
+.student-pixel.reward-modal-root .ant-modal-close { color:#fff9e9; top:18px; right:16px; }
+.student-pixel.reward-modal-root .ant-modal-body { padding:24px; max-height:calc(100dvh - 240px); overflow-y:auto; overscroll-behavior:contain; }
+.student-pixel.reward-modal-root .ant-modal-footer { padding:16px 24px; margin:0; border-top:2px solid #d5c9a9; display:flex; gap:12px; justify-content:flex-end; background:#f5ecd6; }
+.student-pixel.reward-modal-root .ant-modal-footer>* { margin:0; }
+.student-pixel.reward-modal-root .ant-btn { min-height:40px; height:auto; white-space:normal; }
+.student-pixel .reward-dialog-body { outline:none; line-height:1.7; }
+.student-pixel .reward-dialog-demo { font-size:14px; font-weight:700; color:#526974; }
+.student-pixel .reward-detail-heading { display:flex; align-items:center; gap:20px; padding:16px 0; }
+.student-pixel .reward-detail-heading h3 { margin:0 0 8px; font-size:20px; }
+.student-pixel .reward-detail-heading .reward-cost { margin:0; }
+.student-pixel .reward-confirm-note { padding:16px; background:#f0e7d3; border-left:3px solid #bd8c50; }
+.student-pixel .reward-badge-detail { display:flex; flex-direction:column; align-items:center; gap:16px; padding:20px 0 8px; }
+.student-pixel .reward-success-mark { display:grid; place-items:center; margin:20px auto 16px; width:72px; height:64px; background:#d8e8d5; border:2px solid #286c49; color:#286c49; }
+.student-pixel .reward-success-title,.student-pixel .reward-success-copy { text-align:center; }
+.student-pixel .reward-success-title { font-size:20px; }
+.student-pixel .reward-success-copy { color:#526974; }
+.student-pixel .reward-operation-error { margin-top:20px; }
+@media(max-width:1199px) { .student-pixel .reward-badge { flex-direction:column; align-items:flex-start; }.student-pixel .reward-gift-content { padding:16px; } }
+@media(max-width:767px) { .student-pixel .reward-overview { gap:0; }.student-pixel .reward-balance { min-width:200px; padding:20px; }.student-pixel .reward-scope { padding:16px; }.student-pixel .reward-gift-grid { grid-template-columns:1fr; }.student-pixel .reward-gift { display:grid; grid-template-columns:128px minmax(0,1fr); }.student-pixel .reward-gift-art { border-bottom:0; border-right:2px solid #d5c9a9; }.student-pixel .reward-gift-art .reward-art { width:112px; height:112px; }.student-pixel .reward-badge-grid { grid-template-columns:1fr; }.student-pixel .reward-badge { flex-direction:row; align-items:center; }.student-pixel .reward-badge-art { padding:0; }.student-pixel .reward-badge-art .reward-art { width:96px; height:96px; } }
+@media(max-width:560px) {
+.student-pixel .reward-overview { flex-direction:column; align-items:stretch; margin-bottom:16px; }.student-pixel .reward-balance { padding:16px 20px; }.student-pixel .reward-balance>div { display:flex; align-items:center; gap:20px; flex:1; justify-content:space-between; }.student-pixel .reward-balance strong { font-size:30px; letter-spacing:0; }.student-pixel .reward-scope { padding:12px 16px; }.student-pixel .reward-scope p { font-size:14px; }
+.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-nav-list { display:grid;grid-template-columns:repeat(4,1fr);width:100%; }.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-tab { margin:0!important; padding:12px 2px; justify-content:center; font-size:14px; }.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-tab-active { background:#d7ecda;box-shadow:inset 0 -3px #087f78; }.student-pixel .reward-tabs>.ant-tabs-nav .ant-tabs-ink-bar { display:none; }
+.student-pixel .reward-gift { grid-template-columns:96px minmax(0,1fr); }.student-pixel .reward-gift-art .reward-art { width:88px; height:88px; }.student-pixel .reward-gift-content { padding:16px 12px; }.student-pixel .reward-gift h3 { font-size:16px; }.student-pixel .reward-conditions { gap:12px; }.student-pixel .reward-conditions dt { font-size:13px; }.student-pixel .reward-cost { gap:4px; }.student-pixel .reward-gift-art .reward-item-number { left:12px; }.student-pixel .reward-art-caption { right:16px; }
+.student-pixel .reward-badge { padding:16px; gap:16px; }.student-pixel .reward-badge h3 { font-size:16px; }.student-pixel .reward-badge-art .reward-art { width:80px;height:80px; }.student-pixel .reward-badge p { font-size:14px; }
+.student-pixel .reward-history { padding:16px; }.student-pixel .reward-record-list>li { flex-wrap:wrap; gap:12px; }.student-pixel .reward-record-mark { display:none; }.student-pixel .reward-record-text { flex-basis:calc(100% - 96px); }.student-pixel .reward-amount { min-width:72px; }.student-pixel .reward-record-text .pixel-tag { font-size:12px; }.student-pixel .reward-current-record { display:block; margin:8px 0 0; }
+.student-pixel.reward-modal-root .ant-modal { max-width:calc(100vw - 24px);margin:12px auto;padding:0; }.student-pixel.reward-modal-root .ant-modal-header { padding:16px 48px 16px 16px; }.student-pixel.reward-modal-root .ant-modal-title { font-size:18px; }.student-pixel.reward-modal-root .ant-modal-body { padding:16px;max-height:calc(100dvh - 220px); }.student-pixel.reward-modal-root .ant-modal-footer { padding:16px 12px;gap:8px; }.student-pixel.reward-modal-root .ant-modal-footer>* { flex:1; padding-inline:8px; }.student-pixel .reward-detail-heading { gap:12px; }.student-pixel .reward-detail-heading .reward-art { width:88px;height:88px; }.student-pixel .reward-detail-heading h3 { font-size:18px; }.student-pixel .reward-notice { flex-wrap:wrap;gap:8px; }.student-pixel .reward-notice .ant-alert-actions { margin-left:0; }
+}
+
+
+.student-pixel .reward-workspace .study-header { margin-bottom:20px; padding-bottom:16px; }
+.student-pixel .reward-workspace .study-header-main { display:flex; gap:16px; }
+.student-pixel .reward-workspace .study-header-actions { margin-top:0; }
+.student-pixel .reward-gift .reward-conditions { margin:12px 0; }
+.student-pixel .reward-gift .reward-condition { margin:12px 0; }
+@media(max-width:560px){.student-pixel .reward-workspace .study-header-main{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.student-pixel .reward-workspace .study-header-actions{align-self:start}.student-pixel .reward-workspace .study-header-actions .pixel-button{font-size:13px;padding-inline:8px}.student-pixel .reward-workspace .study-header p{font-size:14px}.student-pixel .reward-balance strong{font-size:28px}}
+
+@media(min-width:768px){.student-pixel .reward-gift-art{min-height:112px}.student-pixel .reward-gift-art .reward-art{width:96px;height:96px}.student-pixel .reward-gift .reward-cost{margin-bottom:8px}.student-pixel .reward-gift .reward-conditions,.student-pixel .reward-gift .reward-condition{margin:8px 0}.student-pixel .reward-scope{padding-block:12px}.student-pixel .reward-balance{padding-block:12px}}

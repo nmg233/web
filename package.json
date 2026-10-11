@@ -2,5 +2,42 @@
   "dependencies": {
     "express": "^5.2.1",
     "mammoth": "^1.12.0"
+  },
+  "name": "star-voyage-student",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev -- --host 127.0.0.1",
+    "server": "node scripts/local-server.cjs",
+    "db:init": "npm --prefix backend run db:init",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "test": "npm --prefix frontend test",
+    "test:backend": "npm --prefix backend test",
+    "test:e2e": "node --test tests/browser.test.js",
+    "test:e2e:round2": "node --test tests/round2.browser.test.js",
+    "test:e2e:round3": "node --test tests/round3.browser.test.js",
+    "test:e2e:round4": "node --test tests/round4.browser.test.js",
+    "test:e2e:round5": "node --test tests/round5.browser.test.js",
+    "test:e2e:access": "node --test tests/access.browser.test.js",
+    "test:e2e:round6": "node --test tests/round6.browser.test.js",
+    "test:e2e:round7": "node --test tests/round7.browser.test.js",
+    "test:e2e:round8": "node --test tests/round8.browser.test.js",
+    "test:e2e:round9": "node --test tests/round9.browser.test.js",
+    "test:e2e:round10": "node --test --test-concurrency=1 tests/round10.browser.test.js tests/round10-rewards.browser.test.js",
+    "test:e2e:round11": "node --test tests/round11.browser.test.js",
+    "test:e2e:round12": "node --test tests/round12.browser.test.js",
+    "test:acceptance": "node --test --test-concurrency=1 tests/access.browser.test.js tests/round3.browser.test.js tests/round5.browser.test.js tests/round6.browser.test.js tests/round7.browser.test.js tests/round8.browser.test.js tests/round9.browser.test.js tests/round10.browser.test.js tests/round10-rewards.browser.test.js tests/round11.browser.test.js tests/round12.browser.test.js",
+    "preview:v2": "node scripts/preview-v2.mjs",
+    "test:e2e:v2": "node --test --test-concurrency=1 tests/redesign-v2.browser.test.js tests/redesign-v2.states.browser.test.js",
+    "test:e2e:v2:patch": "node --test tests/redesign-v2.patch.browser.test.js",
+    "test:e2e:v2:step02": "node --test --test-concurrency=1 tests/redesign-v2.step02.browser.test.js tests/redesign-v2.step02-states.browser.test.js tests/redesign-v2.step02-copy.browser.test.js",
+    "build:teaching": "npm --prefix frontend run build -- --outDir ../build/teaching",
+    "teaching": "node scripts/teaching.mjs",
+    "test:teaching": "node --test tests/teaching.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }

@@ -1,0 +1,18 @@
+.maintenance-workspace {font-family:'ChillReunion','Microsoft YaHei',sans-serif; max-width:1100px; margin:auto; color:#17354c;}
+.maintenance-workspace>header {display:flex; gap:16px; align-items:center; flex-wrap:wrap; border-bottom:3px solid #254f69; padding-bottom:12px;}
+.maintenance-workspace>header h2 {margin:0;}
+.maintenance-workspace>header p {flex-basis:100%; margin:0;}
+.maintenance-workspace .ant-card {border:2px solid #b8c7ce; border-radius:0; background:#fffffff0; box-shadow:3px 3px 0 #c7d5da;}
+.maintenance-list {display:grid; gap:16px; margin-top:16px;}
+.maintenance-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.maintenance-upload {margin:20px 0;}
+.maintenance-queue-actions {display:flex; flex-wrap:wrap;gap:10px; margin:16px 0;}
+.maintenance-workspace .ant-alert {margin:12px 0;}
+.maintenance-editor .ant-modal-body {max-height:calc(100dvh - 170px);overflow:auto; padding:4px;}
+.maintenance-workspace .ant-btn, .maintenance-workspace .ant-input, .maintenance-workspace .ant-select-selector {border-radius:0;}
+.course-maintenance-page .course-detail-header {position:sticky;top:0;z-index:5; background:#f4f8f9; padding:10px;display:flex;flex-wrap:wrap; box-shadow:0 2px 0 #b8c7ce;}
+@media(max-width:600px){.maintenance-fields {grid-template-columns:1fr;} .maintenance-workspace .ant-card-body{padding:12px;} .maintenance-workspace .ant-card-head{padding:0 12px;} .maintenance-workspace .ant-tabs-content-holder{min-width:0;} .maintenance-workspace .ant-card-head-title{white-space:normal;} .maintenance-editor .ant-modal-body{max-height:calc(100dvh - 135px);} .course-maintenance-page .ant-space{flex-wrap:wrap;}}
+@media(max-width:600px){.maintenance-workspace>.ant-tabs>.ant-tabs-nav .ant-tabs-nav-list{transform:none!important;flex-wrap:wrap;gap:8px;}.maintenance-workspace>.ant-tabs>.ant-tabs-nav .ant-tabs-nav-wrap{overflow:visible;}.maintenance-workspace>.ant-tabs>.ant-tabs-nav .ant-tabs-nav-operations{display:none;}.maintenance-workspace>.ant-tabs>.ant-tabs-nav .ant-tabs-tab{margin:0;padding:10px 8px;background:#edf3f6;}.maintenance-workspace>.ant-tabs>.ant-tabs-nav .ant-tabs-ink-bar{display:none;}.maintenance-workspace .ant-tabs-tab-active{outline:2px solid #254f69;outline-offset:-2px;}}
+
+/* Keep course controls below the staff header; authoring toolbar stays in normal flow. */
+.course-maintenance-page .course-detail-header{top:64px}

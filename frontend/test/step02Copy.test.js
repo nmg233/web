@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {applyStep02Edits} from '../../scripts/step02-copy.mjs';
+const copy={'next2.note':{text:'原文',enabled:true,optional:false},'fortune.good.ask':{text:'原冻结运势',enabled:true}};
+test('第二步独立改稿只改 next2、保护旧冻结稿并识别冲突',()=>{const e={id:'next2.note',text:'人工修改',enabled:true,baseText:'原文',baseEnabled:true};const next=applyStep02Edits(copy,{format:'step02-review-v1',edits:[e]});assert.equal(next['next2.note'].text,'人工修改');assert.deepEqual(next['fortune.good.ask'],copy['fortune.good.ask']);for(const change of [{...e,id:'fortune.good.ask'},{...e,baseText:'旧基线'},{...e,enabled:false},{...e,text:''},{...e,script:'alert(1)'}])assert.throws(()=>applyStep02Edits(copy,{format:'step02-review-v1',edits:[change]}));});

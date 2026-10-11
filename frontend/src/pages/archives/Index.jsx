@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
+import { useState, useEffect, useRef } from 'react';
 import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message, Row, Col, Statistic, Timeline } from 'antd';
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons';
 import { archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import { formatBeijingTime } from '../../utils/date';
+import StudentArchive from '../../student/StudentArchive';
+
+import {ReflectionFields} from '../../student/ArchiveRecords';
 
 const { Title, Text } = Typography;
 
 export default function ArchiveIndex() {
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  return user?.role === 'student' ? <StudentArchive /> : <StaffArchive key={user?.id} />;
+}
+
+function StaffArchive() {
   const { user } = useAuth();
   const [treeData, setTreeData] = useState([]);
   const [archive, setArchive] = useState(null);
@@ -17,7 +24,10 @@ export default function ArchiveIndex() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [recordOpen, setRecordOpen] = useState(false);
-  const [record, setRecord] = useState('');
+  const [record,setRecord]=useState(''),[detailError,setDetailError]=useState('');
+  const requestSequence=useRef(0);
+  // A request counter, invalidated on unmount.
+  useEffect(()=>()=>{requestSequence.current++;},[]);
 
   useEffect(() => {
     if (user?.role === 'student') {
@@ -49,54 +59,31 @@ export default function ArchiveIndex() {
     const key = keys[0];
     if (!key.startsWith('user-')) return;
     const studentId = key.replace('user-', '');
-    setSelectedStudentId(studentId);
+    const ticket=++requestSequence.current;setDetailError('');setSelectedStudentId(studentId);
     setArchive(null);
     setDetailLoading(true);
     try {
       const res = await archiveAPI.generate(studentId);
-      setArchive(res);
-    } catch { /* handled */ }
-    finally { setDetailLoading(false); }
+      if(ticket===requestSequence.current)setArchive(res);
+    } catch(e) {if(ticket===requestSequence.current)setDetailError(e.response?.data?.error||siteText("site.8b6efdf05e5bb8c1"));}
+    finally {if(ticket===requestSequence.current)setDetailLoading(false);}
   };
-
-  // Student view: show own archive
-  if (user?.role === 'student') {
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Title level={4} style={{ margin: 0 }}>📂 我的成长档案</Title>
-          <Button type="primary" onClick={() => navigate('/archives/reflection')}>✏️ 写反思日志</Button>
-        </div>
-        {detailLoading ? <Spin /> : archive ? (
-          <ArchiveDetail archive={archive} />
-        ) : (
-          <Card>
-            <Button type="primary" onClick={async () => {
-              setDetailLoading(true);
-              try { const res = await archiveAPI.generate(user.id); setArchive(res); } catch { /* handled */ }
-              finally { setDetailLoading(false); }
-            }}>查看我的档案</Button>
-          </Card>
-        )}
-      </div>
-    );
-  }
 
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
 
   return (
     <div>
-      <Title level={4}>📂 成长档案</Title>
-      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>仅展示您创建或受邀授课的课程相关学生，包含历史报名关系；停用或归档不会删除历史档案。</Text>}
+      <Title level={4}>{siteText("site.5330d00929bd9bd3")}</Title>{detailError&&<p role="alert">{detailError}<Button onClick={()=>handleSelect(['user-'+selectedStudentId])}>{siteText("site.c1fda00380fb315b")}</Button></p>}
+      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{siteText("site.4e0d8d6dd08d4d48")}</Text>}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <Card title="学生列表" style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }}>
-          {treeData.length ? <Tree treeData={treeData} onSelect={handleSelect} showIcon defaultExpandAll={false} /> : <Text type="secondary">暂无可查看的学生</Text>}
+        <Card title={siteText("site.eaeca9de1adec4d2")} style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }}>
+          {treeData.length ? <Tree treeData={treeData} onSelect={handleSelect} showIcon defaultExpandAll={false} /> : <Text type="secondary">{siteText("site.4184c59ba4eb038a")}</Text>}
         </Card>
-        <Card title="档案详情" style={{ flex: 1, minWidth: 320 }}>
-          {detailLoading ? <Spin /> : archive ? <><Space style={{ marginBottom: 16 }}><Button onClick={() => window.print()}>导出 PDF</Button>{['admin', 'academic_mentor'].includes(user?.role) && <Button type="primary" onClick={() => setRecordOpen(true)}>添加成长记录</Button>}</Space><ArchiveDetail archive={archive} /></> : <Text type="secondary">请从左侧选择学生查看档案</Text>}
+        <Card title={siteText("site.1775f3b4867300f1")} style={{ flex: 1, minWidth: 320 }}>
+          {detailLoading ? <Spin /> : archive ? <><Space style={{ marginBottom: 16 }}><Button onClick={() => window.print()}>{siteText("site.000aeaa34ca2d479")}</Button>{['admin', 'academic_mentor'].includes(user?.role) && <Button type="primary" onClick={() => setRecordOpen(true)}>{siteText("site.a7663d2129e84ba0")}</Button>}</Space><ArchiveDetail archive={archive} /></> : <Text type="secondary">{siteText("site.603d5764cc2d68c1")}</Text>}
         </Card>
       </div>
-      <Modal title="添加成长记录" open={recordOpen} onCancel={() => setRecordOpen(false)} onOk={async () => { if (!record.trim()) return; await archiveAPI.addGrowthRecord({ student_id: selectedStudentId, description: record }); message.success('成长记录已添加'); setRecord(''); setRecordOpen(false); handleSelect([`user-${selectedStudentId}`]); }}><Input.TextArea rows={4} value={record} onChange={(e) => setRecord(e.target.value)} /></Modal>
+      <Modal title={siteText("site.60652218f102109a")} open={recordOpen} onCancel={() => setRecordOpen(false)} onOk={async () => { if (!record.trim()) return; await archiveAPI.addGrowthRecord({ student_id: selectedStudentId, description: record }); message.success(siteText("site.6cdae16cb5483a96")); setRecord(''); setRecordOpen(false); handleSelect([`user-${selectedStudentId}`]); }}><Input.TextArea rows={4} value={record} onChange={(e) => setRecord(e.target.value)} /></Modal>
     </div>
   );
 }
@@ -105,11 +92,11 @@ function ArchiveDetail({ archive }) {
   if (!archive) return null;
   // 概览统计：参与课程 / 项目作品（版本根去重） / 作品迭代（版本数） / 反思 / 评价
   const overview = [
-    { label: '参与课程', value: archive.courses?.length ?? 0 },
-    { label: '项目作品', value: new Set((archive.works || []).map((w) => w.parent_work_id || w.id)).size },
-    { label: '作品迭代', value: (archive.works || []).filter((w) => w.parent_work_id).length },
-    { label: '反思日志', value: archive.reflections?.length ?? 0 },
-    { label: '导师评价', value: archive.evaluations?.length ?? 0 },
+    { label: siteText("site.2773c15ed88ef987"), value: archive.courses?.length ?? 0 },
+    { label: siteText("site.3295aa700d615d88"), value: new Set((archive.works || []).map((w) => w.parent_work_id || w.id)).size },
+    { label: siteText("site.b171dbd2f01adf98"), value: (archive.works || []).filter((w) => w.parent_work_id).length },
+    { label: siteText("site.2a611bfb54c353e9"), value: archive.reflections?.length ?? 0 },
+    { label: siteText("site.44c9c020c5bbd655"), value: archive.evaluations?.length ?? 0 },
   ];
   // 时间轴：成长记录为唯一事件源；作品仅在无对应成长记录时兜底合成（按 work_id 匹配，遗留数据按标题+时间完全匹配）
   const timeline = [
@@ -117,32 +104,32 @@ function ArchiveDetail({ archive }) {
     ...(archive.works || [])
       .filter((w) => !(archive.growthRecords || []).some((g) => g.work_id === w.id
         || (g.work_id == null && g.created_at === w.created_at && g.description === `提交作品《${w.title}》`)))
-      .map((w) => ({ at: w.created_at, text: `提交作品《${w.title}》`, kind: 'work' })),
-    ...(archive.reflections || []).map((r) => ({ at: r.created_at, text: `提交反思：${r.lesson_title || '课程反思'}`, kind: 'reflection' })),
+      .map((w) => ({ at: w.created_at, text: siteTemplate("site.b805e9ffcfd8bf7d", {slot0: (w.title)}), kind: 'work' })),
+    ...(archive.reflections || []).map((r) => ({ at: r.created_at, text: siteTemplate("site.1a93d354c5ecf81f", {slot0: (r.lesson_title || '课程反思')}), kind: 'reflection' })),
   ].filter((t) => t.at).sort((a, b) => String(b.at).localeCompare(String(a.at)));
   const kindColor = (kind) => (kind === 'work' ? 'blue' : kind === 'reflection' ? 'green' : 'gray');
   return (
     <div>
       <Descriptions column={2} size="small" bordered style={{ marginBottom: 16 }}>
-        <Descriptions.Item label="姓名">{archive.student?.real_name}</Descriptions.Item>
-        <Descriptions.Item label="学校">{archive.student?.school_name}</Descriptions.Item>
-        <Descriptions.Item label="班级">{archive.student?.class_name}</Descriptions.Item>
-        <Descriptions.Item label="生成时间">{archive.generatedAt}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.da1a8366bd7004fd")}>{archive.student?.real_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.fb6dc8df5c3062a9")}>{archive.student?.school_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.942c771c6aa04b96")}>{archive.student?.class_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.0ec6d2832e01ab07")}>{archive.generatedAt}</Descriptions.Item>
       </Descriptions>
 
       {/* 概览统计 */}
-      <Title level={5}>成长概览</Title>
+      <Title level={5}>{siteText("site.4b67dde2fcced3e5")}</Title>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {overview.map((o) => (
           <Col xs={12} sm={6} key={o.label}><Card size="small"><Statistic title={o.label} value={o.value} /></Card></Col>
         ))}
       </Row>
 
-      <Title level={5}>能力评分</Title>
+      <Title level={5}>{siteText("site.5af9f5975fc10d8f")}</Title>
       <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>{[['problem_discovery','问题发现'],['solution_design','方案设计'],['hands_on','动手操作'],['data_analysis','数据分析'],['presentation','表达展示']].map(([key,label]) => <div key={key}><Text>{label}：{archive.ability?.[key] || 0} / 5</Text><Progress percent={(archive.ability?.[key] || 0) * 20} showInfo={false} /></div>)}</Space>
 
       {/* 成长时间轴 */}
-      <Title level={5}>成长时间轴</Title>
+      <Title level={5}>{siteText("site.73a28b4ada50cad4")}</Title>
       {timeline.length > 0 ? (
         <Timeline style={{ marginBottom: 16 }}
           items={timeline.map((t) => ({
@@ -157,31 +144,26 @@ function ArchiveDetail({ archive }) {
           }))}
         />
       ) : (
-        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>暂无成长记录</Text>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>{siteText("site.66186b9b0ca8de79")}</Text>
       )}
 
-      <Title level={5}>参与课程</Title>
+      <Title level={5}>{siteText("site.4a4584ef52775150")}</Title>
       <List dataSource={archive.courses || []} renderItem={(c) => (
         <List.Item><Tag>{c.difficulty}</Tag> {c.title}</List.Item>
       )} />
 
-      <Title level={5}>提交作品</Title>
+      <Title level={5}>{siteText("site.b05b178d73339e7e")}</Title>
       <List dataSource={archive.works || []} renderItem={(w) => (
         <List.Item><FileTextOutlined style={{ marginRight: 8 }} />{w.title}</List.Item>
       )} />
 
-      <Title level={5}>反思日志</Title>
+      <Title level={5}>{siteText("site.87a6be2a4246bd37")}</Title>
       <List dataSource={archive.reflections || []} renderItem={(r) => (
         <List.Item>
           <List.Item.Meta
             title={r.lesson_title || '—'}
             description={
-              <Space direction="vertical" size={0}>
-                {r.difficulty && <Text>困难：{r.difficulty}</Text>}
-                {r.solution && <Text>解决方式：{r.solution}</Text>}
-                {r.improvement && <Text>改进收获：{r.improvement}</Text>}
-                {r.new_question && <Text>新问题：{r.new_question}</Text>}
-              </Space>
+              <ReflectionFields reflection={r}/>
             }
           />
         </List.Item>
@@ -189,11 +171,11 @@ function ArchiveDetail({ archive }) {
 
       {archive.evaluations?.length > 0 && (
         <>
-          <Title level={5}>导师评价</Title>
+          <Title level={5}>{siteText("site.192e66010be3ebf5")}</Title>
           <List dataSource={archive.evaluations} renderItem={(ev) => (
             <List.Item>
               <List.Item.Meta
-                title={`${ev.evaluator_name} 的评价`}
+                title={siteTemplate("site.a74e19dea1afc5ed", {slot0: (ev.evaluator_name)})}
                 description={`${ev.eval_type ? `${ev.eval_type} · ` : ''}${ev.score != null ? `得分 ${ev.score}` : ''}${ev.comment ? `：${ev.comment}` : ''}`}
               />
             </List.Item>

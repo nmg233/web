@@ -1,0 +1,72 @@
+{
+  "baseline": "1d9954df96b3dedf4369a3e2526271eb93d520a0",
+  "pages": [
+    {
+      "title": "真实金币余额与来源明细",
+      "route": "/me",
+      "ids": [
+        "coins.title",
+        "coins.unit",
+        "coins.accountScope",
+        "coins.refresh",
+        "coins.loading",
+        "coins.shortLoading",
+        "coins.shortError",
+        "coins.readFailed",
+        "coins.retry",
+        "coins.settlementFailed",
+        "coins.ledgerTitle",
+        "coins.snapshot",
+        "coins.ledgerFailed",
+        "coins.ledgerEmpty",
+        "coins.checkinSource",
+        "coins.reportSource",
+        "coins.lesson",
+        "coins.history",
+        "coins.streakSource",
+        "coins.more",
+        "coins.pending"
+      ],
+      "shot": "ledger-1440x900.png"
+    },
+    {
+      "title": "连续签到与真实月历",
+      "route": "/me",
+      "ids": [
+        "coins.checkinTitle",
+        "coins.serverDate",
+        "coins.done",
+        "coins.checkin",
+        "coins.checkedState",
+        "coins.nextState",
+        "coins.total",
+        "coins.rule",
+        "coins.success",
+        "coins.already",
+        "coins.uncertain",
+        "coins.previous",
+        "coins.next",
+        "coins.current",
+        "coins.calendarLabel",
+        "coins.calendarFailed",
+        "coins.calendarLoading",
+        "coins.calendarEmpty",
+        "coins.weekdays",
+        "coins.retry"
+      ],
+      "shot": "calendar-390x844.png"
+    },
+    {
+      "title": "独立演示余额边界",
+      "route": "/me",
+      "ids": [
+        "coins.demoTitle",
+        "coins.demoBalance",
+        "next3.exchange.scope",
+        "next3.exchange.demo"
+      ],
+      "shot": "me-1440x900.png"
+    }
+  ],
+  "scope": "Incremental snapshots only; original 46 HTML files unchanged; same IDs and changed-only validation."
+}

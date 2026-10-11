@@ -1,0 +1,269 @@
+{
+  "hero-voyage": {
+    "width": 2162,
+    "height": 727,
+    "variants": [
+      {
+        "file": "web/hero-voyage-640.webp",
+        "width": 640,
+        "height": 215,
+        "bytes": 154088,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 89.47
+      },
+      {
+        "file": "web/hero-voyage-960.webp",
+        "width": 960,
+        "height": 323,
+        "bytes": 304102,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 79.22
+      },
+      {
+        "file": "web/hero-voyage-1280.webp",
+        "width": 1280,
+        "height": 430,
+        "bytes": 481262,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 67.11
+      },
+      {
+        "file": "web/hero-voyage-2162.webp",
+        "width": 2162,
+        "height": 727,
+        "bytes": 1146438,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 21.65
+      }
+    ]
+  },
+  "course-voyage": {
+    "width": 1536,
+    "height": 1024,
+    "variants": [
+      {
+        "file": "web/course-voyage-320.webp",
+        "width": 320,
+        "height": 213,
+        "bytes": 113768,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 94.02
+      },
+      {
+        "file": "web/course-voyage-640.webp",
+        "width": 640,
+        "height": 427,
+        "bytes": 361932,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 80.97
+      },
+      {
+        "file": "web/course-voyage-960.webp",
+        "width": 960,
+        "height": 640,
+        "bytes": 697994,
+        "alphaRange": [
+          255,
+          255
+        ],
+        "reductionPercentVsMaster": 63.29
+      }
+    ]
+  },
+  "island-observatory": {
+    "width": 1312,
+    "height": 1199,
+    "variants": [
+      {
+        "file": "web/island-observatory-192.webp",
+        "width": 192,
+        "height": 175,
+        "bytes": 19266,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 96.78
+      },
+      {
+        "file": "web/island-observatory-384.webp",
+        "width": 384,
+        "height": 351,
+        "bytes": 59086,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 90.13
+      },
+      {
+        "file": "web/island-observatory-576.webp",
+        "width": 576,
+        "height": 526,
+        "bytes": 114054,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 80.95
+      }
+    ]
+  },
+  "island-relay": {
+    "width": 1213,
+    "height": 1296,
+    "variants": [
+      {
+        "file": "web/island-relay-192.webp",
+        "width": 192,
+        "height": 205,
+        "bytes": 33112,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 96.18
+      },
+      {
+        "file": "web/island-relay-384.webp",
+        "width": 384,
+        "height": 410,
+        "bytes": 99136,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 88.56
+      },
+      {
+        "file": "web/island-relay-576.webp",
+        "width": 576,
+        "height": 615,
+        "bytes": 192988,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 77.73
+      }
+    ]
+  },
+  "companion-cat": {
+    "width": 1254,
+    "height": 1254,
+    "variants": [
+      {
+        "file": "web/companion-cat-32.webp",
+        "width": 32,
+        "height": 32,
+        "bytes": 1240,
+        "alphaRange": [
+          0,
+          254
+        ],
+        "reductionPercentVsMaster": 99.85
+      },
+      {
+        "file": "web/companion-cat-48.webp",
+        "width": 48,
+        "height": 48,
+        "bytes": 2524,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 99.69
+      },
+      {
+        "file": "web/companion-cat-64.webp",
+        "width": 64,
+        "height": 64,
+        "bytes": 4342,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 99.47
+      },
+      {
+        "file": "web/companion-cat-96.webp",
+        "width": 96,
+        "height": 96,
+        "bytes": 9060,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 98.89
+      },
+      {
+        "file": "web/companion-cat-144.webp",
+        "width": 144,
+        "height": 144,
+        "bytes": 17726,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 97.82
+      },
+      {
+        "file": "web/companion-cat-192.webp",
+        "width": 192,
+        "height": 192,
+        "bytes": 28422,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 96.51
+      }
+    ]
+  },
+  "planet-ring-v2": {
+    "width": 1448,
+    "height": 1086,
+    "variants": [
+      {
+        "file": "web/planet-ring-v2-192.webp",
+        "width": 192,
+        "height": 144,
+        "bytes": 10132,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 97.42
+      },
+      {
+        "file": "web/planet-ring-v2-384.webp",
+        "width": 384,
+        "height": 288,
+        "bytes": 30402,
+        "alphaRange": [
+          0,
+          255
+        ],
+        "reductionPercentVsMaster": 92.25
+      }
+    ]
+  }
+}

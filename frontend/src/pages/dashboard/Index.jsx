@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Card, Statistic, Table, Tag, List, Typography, Button, Space, Spin, Modal, Form, Input, message } from 'antd';
@@ -24,7 +25,7 @@ export default function Dashboard() {
   const handleAddSchool = async (values) => {
     try {
       await dashboardAPI.addSchool(values);
-      message.success('学校添加成功');
+      message.success(siteText("site.c612b6191419163d"));
       setAddSchoolOpen(false);
       schoolForm.resetFields();
       loadData();
@@ -32,24 +33,24 @@ export default function Dashboard() {
   };
 
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
-  if (!data) return <Text type="danger">加载失败</Text>;
+  if (!data) return <Text type="danger">{siteText("site.16279ec1bdee4bdf")}</Text>;
 
   const { prompt, stats } = data;
 
   return (
     <div>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4} style={{ margin: 0 }}>👋 欢迎回来，{user?.real_name}</Title>
+        <Title level={4} style={{ margin: 0 }}>{siteText("site.75493d3a1d4919b6")}{user?.real_name}</Title>
         <Text type="secondary">{data.today}</Text>
       </div>
 
       {/* 统计卡片 */}
       {stats && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? '加盟学校' : '相关学校'} value={stats.schoolCount} prefix={<BankOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? '平台用户' : '相关学生'} value={stats.userCount} prefix={<TeamOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? '在线课程' : '负责课程'} value={stats.courseCount} prefix={<BookOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title="学生作品" value={stats.workCount} prefix={<FileTextOutlined />} /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.6bd53bff0cade4bc") : siteText("site.1779ace1d1d111d7")} value={stats.schoolCount} prefix={<BankOutlined />} /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.c1d4876d33408f87") : siteText("site.049f257b97e2144c")} value={stats.userCount} prefix={<TeamOutlined />} /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.31180b7602e0e948") : siteText("site.0241cd4b8f7a74a4")} value={stats.courseCount} prefix={<BookOutlined />} /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={siteText("site.fa552b28516a8ce3")} value={stats.workCount} prefix={<FileTextOutlined />} /></Card></Col>
         </Row>
       )}
 
@@ -59,7 +60,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 32 }}>{prompt.emoji}</span>
             <div>
-              <Text strong style={{ fontSize: 16, color: prompt.color }}>今日项目提示</Text>
+              <Text strong style={{ fontSize: 16, color: prompt.color }}>{siteText("site.bb38e12e8201834b")}</Text>
               <br />
               <Text type="secondary">{prompt.desc}</Text>
             </div>
@@ -71,13 +72,13 @@ export default function Dashboard() {
         {user?.role === 'admin' && data.feedbackStats && (
           <Col span={24} style={{ marginBottom: 16 }}>
             <Card
-              title={<Space><MessageOutlined />用户反馈</Space>}
-              extra={<Button type="link" onClick={() => navigate('/feedback/manage')}>进入反馈管理</Button>}
+              title={<Space><MessageOutlined />{siteText("site.6b5dda31bdc685be")}</Space>}
+              extra={<Button type="link" onClick={() => navigate('/feedback/manage')}>{siteText("site.c5f8b7526fc56f9a")}</Button>}
             >
               <Row gutter={16}>
-                <Col xs={8}><Statistic title="待处理" value={data.feedbackStats.pending || 0} /></Col>
-                <Col xs={8}><Statistic title="处理中" value={data.feedbackStats.processing || 0} /></Col>
-                <Col xs={8}><Statistic title="紧急未结" value={data.feedbackStats.urgent || 0} valueStyle={{ color: data.feedbackStats.urgent ? '#cf1322' : undefined }} /></Col>
+                <Col xs={8}><Statistic title={siteText("site.329b48d945ade5b8")} value={data.feedbackStats.pending || 0} /></Col>
+                <Col xs={8}><Statistic title={siteText("site.e4e05a01c3127270")} value={data.feedbackStats.processing || 0} /></Col>
+                <Col xs={8}><Statistic title={siteText("site.7ac79c55829a7733")} value={data.feedbackStats.urgent || 0} valueStyle={{ color: data.feedbackStats.urgent ? '#cf1322' : undefined }} /></Col>
               </Row>
             </Card>
           </Col>
@@ -86,26 +87,26 @@ export default function Dashboard() {
         {/* 管理员：学校列表 */}
         {user?.role === 'admin' && data.schools && (
           <Col span={24}>
-            <Card title="加盟学校" extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setAddSchoolOpen(true)}>添加学校</Button>}>
+            <Card title={siteText("site.6bd53bff0cade4bc")} extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setAddSchoolOpen(true)}>{siteText("site.bb89ab68b1ecb420")}</Button>}>
               <Table dataSource={data.schools} rowKey="id" pagination={false} size="small"
                 columns={[
-                  { title: '学校名称', dataIndex: 'name', key: 'name', render: (text, r) => <Link to={`/dashboard/schools/${r.id}`}>{text}</Link> },
-                  { title: '班级数', dataIndex: 'class_count', key: 'class_count' },
-                  { title: '用户数', dataIndex: 'user_count', key: 'user_count' },
-                  { title: '地区', dataIndex: 'region', key: 'region' },
+                  { title: siteText("site.212aa2cb72b9aeb6"), dataIndex: 'name', key: 'name', render: (text, r) => <Link to={`/dashboard/schools/${r.id}`}>{text}</Link> },
+                  { title: siteText("site.5f503668858cd280"), dataIndex: 'class_count', key: 'class_count' },
+                  { title: siteText("site.f42a737b0fb96f93"), dataIndex: 'user_count', key: 'user_count' },
+                  { title: siteText("site.e4be2e7ce1a1aa9c"), dataIndex: 'region', key: 'region' },
                 ]}
               />
             </Card>
 
-            <Modal title="添加加盟学校" open={addSchoolOpen} onCancel={() => setAddSchoolOpen(false)} onOk={() => schoolForm.submit()}>
+            <Modal title={siteText("site.18746a6ddccc63aa")} open={addSchoolOpen} onCancel={() => setAddSchoolOpen(false)} onOk={() => schoolForm.submit()}>
               <Form form={schoolForm} layout="vertical" onFinish={handleAddSchool}>
-                <Form.Item name="name" label="学校名称" rules={[{ required: true, message: '请输入学校名称' }]}>
-                  <Input placeholder="如：北京市第一小学" />
+                <Form.Item name="name" label={siteText("site.212aa2cb72b9aeb6")} rules={[{ required: true, message: siteText("site.0bb70fa347bf75a9") }]}>
+                  <Input placeholder={siteText("site.97938c473576614b")} />
                 </Form.Item>
-                <Form.Item name="region" label="地区"><Input placeholder="如：北京市海淀区" /></Form.Item>
-                <Form.Item name="contact_person" label="联系人"><Input /></Form.Item>
-                <Form.Item name="contact_phone" label="联系电话"><Input /></Form.Item>
-                <Form.Item name="description" label="简介"><Input.TextArea rows={3} /></Form.Item>
+                <Form.Item name="region" label={siteText("site.e4be2e7ce1a1aa9c")}><Input placeholder={siteText("site.6355ea2766b55799")} /></Form.Item>
+                <Form.Item name="contact_person" label={siteText("site.736af10ea58bd5ae")}><Input /></Form.Item>
+                <Form.Item name="contact_phone" label={siteText("site.5f46c39e7e8efeb5")}><Input /></Form.Item>
+                <Form.Item name="description" label={siteText("site.1f4cbbbe80cef460")}><Input.TextArea rows={3} /></Form.Item>
               </Form>
             </Modal>
           </Col>
@@ -114,9 +115,9 @@ export default function Dashboard() {
         {/* 教师/导师：我的课程和最近作品 */}
         {data.myCourses && data.myCourses.length > 0 && (
           <Col xs={24} lg={12}>
-            <Card title="我的课程" style={{ marginBottom: 16 }}>
+            <Card title={siteText("site.fd67de636300817e")} style={{ marginBottom: 16 }}>
               <List dataSource={data.myCourses.slice(0, 5)} renderItem={(c) => (
-                <List.Item extra={<Tag color="blue">{c.student_count} 名学生</Tag>}>
+                <List.Item extra={<Tag color="blue">{c.student_count}{siteText("site.d1f885aefbbe4967")}</Tag>}>
                   <Link to={`/courses/${c.id}`}>{c.title}</Link>
                 </List.Item>
               )} />
@@ -126,10 +127,10 @@ export default function Dashboard() {
 
         {data.recentWorks && data.recentWorks.length > 0 && (
           <Col xs={24} lg={12}>
-            <Card title="最近作品" style={{ marginBottom: 16 }}>
+            <Card title={siteText("site.dd5f79c16186739a")} style={{ marginBottom: 16 }}>
               <List dataSource={data.recentWorks.slice(0, 5)} renderItem={(w) => (
                 <List.Item>
-                  <List.Item.Meta title={<Link to={`/works/${w.id}`}>{w.title}</Link>} description={`${w.student_name} · ${w.course_title || '—'} · ${w.review_status === 'pending' ? '待评审' : w.review_status === 'approved' ? '已通过' : '需修改'}`} />
+                  <List.Item.Meta title={<Link to={`/works/${w.id}`}>{w.title}</Link>} description={`${w.student_name} · ${w.course_title || '—'} · ${w.review_status === 'pending' ? siteText("site.f7bb025c7a1ec661") : w.review_status === 'approved' ? siteText("site.9c74a2d81bfdd157") : siteText("site.5cb9d1c01b5cd79f")}`} />
                 </List.Item>
               )} />
             </Card>
@@ -139,34 +140,33 @@ export default function Dashboard() {
         {/* 学生：下一节课 + 待办 */}
         {user?.role === 'student' && (
           <Col xs={24} lg={12}>
-            <Card title="📅 下一节课" style={{ marginBottom: 16 }}>
+            <Card title={siteText("site.7ff0d075e6b53c9d")} style={{ marginBottom: 16 }}>
               {data.nextLesson ? (
                 <div>
                   <Text strong style={{ fontSize: 16 }}>{data.nextLesson.course_title} · {data.nextLesson.lesson_title}</Text>
                   <br />
-                  <Text type="secondary">
-                    上课时间：{data.nextLesson.start_at.replace('T', ' ')}
+                  <Text type="secondary">{siteText("site.9dd9e8b5d4c04541")}{data.nextLesson.start_at.replace('T', ' ')}
                     {data.nextLesson.location ? ` · 📍 ${data.nextLesson.location}` : ''}
                     {data.nextLesson.instructor_name ? ` · 👨‍🏫 ${data.nextLesson.instructor_name}` : ''}
                   </Text>
                   <br />
-                  <Button size="small" type="link" style={{ paddingLeft: 0 }} onClick={() => navigate(`/courses/${data.nextLesson.course_id}`)}>查看课程</Button>
+                  <Button size="small" type="link" style={{ paddingLeft: 0 }} onClick={() => navigate(`/courses/${data.nextLesson.course_id}`)}>{siteText("site.854a0c4f64aa838e")}</Button>
                 </div>
               ) : (
-                <Text type="secondary">暂无排课安排</Text>
+                <Text type="secondary">{siteText("site.a712d99f0329d511")}</Text>
               )}
             </Card>
-            <Card title="📌 待办" style={{ marginBottom: 16 }}>
+            <Card title={siteText("site.aa74ef8cc8161b6c")} style={{ marginBottom: 16 }}>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <div>
                   <Text strong>{data.pendingTasks?.length ?? 0}</Text>
-                  <Text type="secondary"> 个待提交任务</Text>
-                  {data.pendingTasks?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/tasks')}>去完成</Button>}
+                  <Text type="secondary">{siteText("site.9dbdd2478dc0cb76")}</Text>
+                  {data.pendingTasks?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/tasks')}>{siteText("site.1a30b4273301ce0e")}</Button>}
                 </div>
                 <div>
                   <Text strong>{data.revisions?.length ?? 0}</Text>
-                  <Text type="secondary"> 个作品需修改</Text>
-                  {data.revisions?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/works')}>去修改</Button>}
+                  <Text type="secondary">{siteText("site.c2758e99601292c9")}</Text>
+                  {data.revisions?.length > 0 && <Button size="small" type="link" onClick={() => navigate('/works')}>{siteText("site.70bbb4bfd659f6bb")}</Button>}
                 </div>
               </Space>
             </Card>
@@ -185,12 +185,12 @@ export default function Dashboard() {
                 <Space>
                   <span style={{ fontSize: 32 }}>🛩️</span>
                   <div>
-                    <Text strong style={{ fontSize: 16 }}>滑翔机模拟实验室</Text>
+                    <Text strong style={{ fontSize: 16 }}>{siteText("site.5756f0fb2b7b366d")}</Text>
                     <br />
-                    <Text type="secondary">设计上反角、重心位置与初始速度，用物理引擎试飞你的滑翔机，看它能滑多远</Text>
+                    <Text type="secondary">{siteText("site.326bddbbaff54a6c")}</Text>
                   </div>
                 </Space>
-                <Button type="primary" icon={<RocketOutlined />}>进入试飞</Button>
+                <Button type="primary" icon={<RocketOutlined />}>{siteText("site.526fa1b43097357b")}</Button>
               </Space>
             </Card>
           </Col>
@@ -199,13 +199,13 @@ export default function Dashboard() {
         {/* 学生：我的课程 */}
         {user?.role === 'student' && data.myCourses && (
           <Col span={24}>
-            <Card title="我的课程" extra={data.canSubmitReflection && <Button type="link" onClick={() => navigate('/archives/reflection')}>✏️ 写反思日志</Button>}>
+            <Card title={siteText("site.fd67de636300817e")} extra={data.canSubmitReflection && <Button type="link" onClick={() => navigate('/archives/reflection')}>{siteText("site.0ec9d9b3eec1c69e")}</Button>}>
               <Row gutter={16}>
                 {data.myCourses.map((c) => (
                   <Col xs={24} sm={12} md={8} key={c.id} style={{ marginBottom: 16 }}>
                     <Card size="small" hoverable onClick={() => navigate(`/courses/${c.id}`)}>
                       <Title level={5}>{c.title}</Title>
-                      <Text type="secondary">作品: {c.my_work_count} | 课时: {c.total_lessons}</Text>
+                      <Text type="secondary">{siteText("site.d1c7b900046cebd3")}{c.my_work_count}{siteText("site.a618b20c2e8377b4")}{c.total_lessons}</Text>
                       <br />
                       <Tag>{c.difficulty}</Tag>
                       <Tag>{c.grade_level}</Tag>

@@ -1,0 +1,18 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import path from 'node:path';
+const file=path.resolve(import.meta.dirname,'../frontend/src/content/uiCopy.jsx'),data=JSON.parse(readFileSync(file,'utf8').split(/export const uiCopy\s*=\s*/)[1].trim().replace(/;$/,''));
+const entries={
+ 'metadata.error':'暂时无法读取课程显示','metadata.loading':'正在读取课程显示',
+ title:'课程内容维护',intro:'课程介绍与显示',chapters:'章节与课时',tasks:'任务要求与教学提示',resources:'教学资料与回放',experiments:'实验关联',
+ purpose:'填写真实教学内容；学生在课程地图和对应课时读取。不会改变学习门槛、评分或作品历史',save:'保存',saved:'已保存',saving:'正在保存',retryRead:'重新读取',readFailed:'已保存，列表读取失败；请重新读取，不要重复提交',uploadReadFailed:'已上传，列表读取失败；请重新读取，不要重新上传',loadFailed:'维护内容读取失败',unauthorized:'当前课程已不可维护，内容已清除',archived:'课程已归档，当前只能查看',back:'返回课程详情',discard:'有未保存文字或待上传文件，确定离开并放弃吗？',
+ 'field.title':'名称','field.description':'说明','field.theme':'教学主题（原含义）','field.presentation_theme':'界面主题','field.driving_question':'驱动问题','field.story_line':'故事线','field.materials_needed':'所需材料','field.cover_image':'课程封面','field.chapter_id':'所属章节','field.teaching_tip':'教学提示','field.label':'关联入口名称','field.lesson_id':'所属课时','field.stage':'学习阶段','field.cardId':'知识卡片','field.enabled':'启用关联',
+ 'theme.campus':'北航校园','theme.voyage':'星海远航','cover.none':'不指定封面','cover.campus':'现有校园场景','cover.voyage':'现有宇宙场景','cover.uploaded':'保留已上传封面','cover.upload':'上传私有封面','cover.note':'JPG/PNG/WebP，最多 5 MB、1600 万像素；仅授权账号可读取',
+ required:'请填写名称（最多 120 字）',optional:'可选；清空后学生不再显示此说明',unassigned:'未分组',public:'课程公共资料',free:'课程自由入口',newChapter:'新增章节',edit:'编辑',remove:'删除',moveUp:'上移',moveDown:'下移',empty:'尚未配置',chapterDelete:'仅空章节可删除，课时和学习记录不会删除',lessonEdit:'编辑课时说明与归属',cardsEdit:'设置知识卡片与习题',tasksEdit:'编辑任务文字',noTasks:'本课时没有作品任务；可继续原学习流程',originalTasks:'添加任务与排课沿用课程详情原入口',addExperiment:'新增滑翔机关联',experimentNote:'仅关联已有滑翔机；自由入口不指定课时，指定卡片时选择知识卡片阶段。不会自动提交成果',
+ 'stage.none':'不限定阶段','stage.0':'课堂回顾','stage.1':'知识卡片','stage.2':'学习报告','stage.3':'反馈与反思','card.none':'不指定卡片',confirmRemove:'确认解除该关联？不会删除试飞与学习历史',
+ 'upload.resource':'课程资料','upload.replay':'课堂回放','upload.cover':'封面图片','upload.choose':'选择文件','upload.start':'上传待处理文件','upload.retry':'只重试失败项','upload.cancel':'取消待上传文件','upload.confirmCancel':'取消待上传项；正在上传的请求停止后结果需核对列表，已成功记录不会删除',
+ 'upload.pending':'待上传','upload.uploading':'上传中','upload.success':'上传成功','upload.failed':'上传失败，可重试','upload.invalid':'文件类型或大小不符合本入口规则','upload.cancelled':'已取消','upload.uncertain':'请求结果未确认，请先核对列表','upload.id':'已保存对象 ID','upload.bound':'队列已绑定当前课程及选择时的课时和类型，之后改变选择不会修改已有队列','upload.limit':'每次最多选择 20 份资料','upload.formatTitle':'可上传、预览与 AI 解析说明','upload.filename':'原始文件名','upload.size':'大小','upload.status':'状态','upload.type':'资料用途','upload.description':'资料说明','upload.download':'下载','upload.edit':'修改资料说明与归属','upload.ai':'AI 文字索引','upload.videoNote':'MP4/WebM，最多 500 MB；学生在公共或对应课时课堂回顾中播放','upload.resourceNote':'每份最多 50 MB，学生在课程资料总览及本课时＋公共资料中下载','upload.parseNote':'上传和索引是不同状态；解析失败只重试索引，不重复上传。扫描 PDF 没有 OCR','upload.index':'查看索引与重试','upload.mime':'类型','upload.preview':'学生预览','upload.max':'上限','upload.scope':'显示位置',
+ 'type.courseware':'课件','type.lesson_plan':'教案','type.guide_card':'指导卡','type.template':'模板','type.video':'视频资料','type.other':'其他',
+ 'index.not_added':'未加入','index.pending':'等待解析','index.processing':'解析中','index.ready':'可检索','index.failed':'解析失败','index.unsupported':'格式不支持',teachingTip:'教学提示',selectedLesson:'选择课时',selectTask:'选择任务',finish:'完成',close:'关闭',
+};
+for(const [suffix,text]of Object.entries(entries)){const id='maintenance.'+suffix;if(!Object.hasOwn(data,id))data[id]={text,enabled:true,page:'课程内容维护',position:suffix,purpose:'第三步维护入口与状态',scope:'system',optional:false,futureTeacher:false};}
+writeFileSync(file,'export const uiCopy = '+JSON.stringify(data,null,2)+';\n');console.log('System IDs:',Object.keys(data).length,'; existing entries preserved');

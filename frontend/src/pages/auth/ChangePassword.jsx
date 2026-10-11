@@ -1,111 +1,56 @@
-import { useState } from 'react';
+import {copyText as siteText} from "../../content/copy";
+import Alert from '../../content/RoleAlert';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Button, Typography, Alert, message } from 'antd';
-import { LockOutlined, KeyOutlined } from '@ant-design/icons';
+import { Card, Form, Button} from 'antd';
 import { useAuth } from '../../store/AuthContext';
 import { homeForRole } from '../../utils/roleNavigation';
-
-const { Title, Text } = Typography;
+import { requestError } from '../../utils/requestError';
+import PasswordInput from '../../components/PasswordInput';
+import { StudyHeader } from '../../student/visual/StudyUI';
+import { PixelPanel } from '../../student/visual/PixelUI';
+import '../../student/visual/pixel-service.css';
 
 export default function ChangePassword() {
+  const { user, changePassword, logout } = useAuth();
   const navigate = useNavigate();
-  const { user, changePassword } = useAuth();
-  const [loading, setLoading] = useState(false);
-
-  const isForced = !!user?.force_reset_password;
-
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const pending = useRef(false);
+  const forced = !!user?.force_reset_password, student = user?.role === 'student';
+  const Panel = student ? PixelPanel : Card;
   const onFinish = async (values) => {
-    setLoading(true);
+    if (pending.current) return;
+    pending.current = true; setBusy(true); setError('');
     try {
-      const updatedUser = await changePassword({ old_password: values.old_password, new_password: values.new_password });
-      message.success('密码修改成功');
-      navigate(homeForRole(updatedUser?.role || user?.role), { replace: true });
-    } catch {
-      // 错误已由拦截器提示
-    } finally {
-      setLoading(false);
-    }
+      const next = await changePassword({ old_password: values.old_password, new_password: values.new_password });
+      navigate(homeForRole(next.role), { replace: true });
+    } catch (err) { setError(requestError(err, { action: siteText("site.7db6a36f08beda4a"), write: true })); }
+    finally { pending.current = false; setBusy(false); }
   };
-
-  return (
-    <div style={{ maxWidth: 440, margin: '40px auto' }}>
-      <Card>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <Title level={4} style={{ marginBottom: 4 }}>
-            <KeyOutlined /> 修改密码
-          </Title>
-          <Text type="secondary">{isForced ? '管理员已重置您的密码，首次登录请设置新密码' : '定期更换密码可以提升账号安全性'}</Text>
-        </div>
-
-        {isForced && (
-          <Alert
-            style={{ marginBottom: 16 }}
-            type="warning"
-            showIcon
-            message="修改成功后，方可继续使用其他功能"
-          />
-        )}
-
-        <Form layout="vertical" onFinish={onFinish} size="large">
-          <Form.Item
-            name="old_password"
-            label="原密码"
-            rules={[{ required: true, message: '请输入原密码' }]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="请输入原密码" />
-          </Form.Item>
-
-          <Form.Item
-            name="new_password"
-            label="新密码"
-            extra="至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类"
-            rules={[
-              { required: true, message: '请输入新密码' },
-              { min: 8, message: '密码至少 8 位' },
-              () => ({
-                validator(_, value) {
-                  if (!value) return Promise.resolve();
-                  const classes = [
-                    /[A-Z]/.test(value),
-                    /[a-z]/.test(value),
-                    /\d/.test(value),
-                    /[^A-Za-z0-9]/.test(value),
-                  ].filter(Boolean).length;
-                  if (classes < 3) {
-                    return Promise.reject(new Error('需包含大小写字母、数字、特殊字符中的至少 3 类'));
-                  }
-                  return Promise.resolve();
-                },
-              }),
-            ]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="请输入新密码" />
-          </Form.Item>
-
-          <Form.Item
-            name="confirm_password"
-            label="确认新密码"
-            dependencies={['new_password']}
-            rules={[
-              { required: true, message: '请再次输入新密码' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('new_password') === value) return Promise.resolve();
-                  return Promise.reject(new Error('两次输入的密码不一致'));
-                },
-              }),
-            ]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="请再次输入新密码" />
-          </Form.Item>
-
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Button type="primary" htmlType="submit" block loading={loading}>
-              确认修改
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-    </div>
-  );
+  return <div className={student ? 'service-page password-page' : ''} style={!student ? { maxWidth: 520, margin: '32px auto', padding: 16 } : undefined}>
+    {student ? <StudyHeader eyebrow={siteText("site.9c6b2351aaf29f3e")} title={forced ? siteText("site.87490434b0078a33") : siteText("site.7db6a36f08beda4a")} description={forced ? siteText("site.7cb0a1884ad56264") : siteText("site.b082fb9f023321c6")} /> : <h2>{siteText("site.8df185604987f98b")}</h2>}
+    <Panel className="password-panel">
+      {forced && <Alert type="info" showIcon title={siteText("site.aab5f0fb0e0893f0")} />}
+      {error && <Alert role="alert" type="error" showIcon title={error} />}
+      <Form layout="vertical" size="large" onFinish={onFinish}>
+        <Form.Item name="old_password" label={siteText("site.3da3927dbfcde53c")} rules={[{ required: true, message: siteText("site.9bf86ee91fbd01cc") }]}><PasswordInput autoComplete="current-password" /></Form.Item>
+        <Form.Item name="new_password" label={siteText("site.cdcc70d7ccb21622")} dependencies={['old_password']}
+          extra={siteText("site.d53afa6d83aaa8dc")}
+          rules={[{ required: true, message: siteText("site.85937292483df5fe") }, { min: 8, message: siteText("site.815bdef0d88e214f") }, ({ getFieldValue }) => ({
+            validator(_, value) {
+              if (!value) return Promise.resolve();
+              if (value === getFieldValue('old_password')) return Promise.reject(new Error(siteText("site.9346ebcb46f169fd")));
+              if ([/[A-Z]/, /[a-z]/, /\d/, /[^A-Za-z0-9]/].filter((pattern) => pattern.test(value)).length < 3) return Promise.reject(new Error(siteText("site.415235d5e5858e30")));
+              return Promise.resolve();
+            },
+          })]}><PasswordInput autoComplete="new-password" /></Form.Item>
+        <Form.Item name="confirm_password" label={siteText("site.ca9124491631e504")} dependencies={['new_password']} rules={[{ required: true, message: siteText("site.6c9b40e61e0de243") }, ({ getFieldValue }) => ({
+          validator: (_, value) => !value || value === getFieldValue('new_password') ? Promise.resolve() : Promise.reject(new Error(siteText("site.ba998d46f78ac46d"))),
+        })]}><PasswordInput autoComplete="new-password" /></Form.Item>
+        <Button type="primary" htmlType="submit" loading={busy} block aria-label={siteText("site.e39c768ddee4d6fd")}>{siteText("site.5118582e4b5ce527")}</Button>
+      </Form>
+      <div className="password-footer">{!forced && <Button onClick={() => navigate(homeForRole(user.role))}>{siteText("site.fa9d43f28f2eb2b3")}</Button>}<Button onClick={() => { logout(); navigate('/login'); }}>{siteText("site.826cccbbd27b4f4a")}</Button></div>
+    </Panel>
+  </div>;
 }

@@ -1,0 +1,2966 @@
+[
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 46,
+    "text": "问题长度须为 1—1000 字",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 47,
+    "text": "请先选择一门课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 49,
+    "text": "无权向该课程提问",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 55,
+    "text": "账号或课程权限已变化，请刷新后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 74,
+    "text": "无权管理该课程资料",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 82,
+    "text": "资料不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 91,
+    "text": "资料不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/aiController.js",
+    "line": 92,
+    "text": "enabled 必须是布尔值",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 103,
+    "text": "无权访问成长档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 128,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 143,
+    "text": "无权查看成长档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 147,
+    "text": "只能查看自己课程相关学生档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 152,
+    "text": "学生不存在或无权访问",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 167,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 175,
+    "text": "请选择学生并填写记录内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 177,
+    "text": "只能为自己课程相关学生添加成长记录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 179,
+    "text": "无权记录该学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 181,
+    "text": "成长记录已添加",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 182,
+    "text": "添加成长记录失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 188,
+    "text": "无权访问成长档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 194,
+    "text": "请选择学校或班级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 244,
+    "text": "批量导出失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 260,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 270,
+    "text": "请选择有效课程报名记录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 278,
+    "text": "所选课程报名记录不属于该学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 286,
+    "text": "所选课时不属于当前课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 310,
+    "text": "今日已提交过反思日志，每人每日限提交1篇。明天再来吧！",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 313,
+    "text": "反思日志提交成功！",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 317,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 327,
+    "text": "无权提交评价",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 335,
+    "text": "学生不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 339,
+    "text": "请选择评价课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 345,
+    "text": "课程报名记录不属于该学生或已失效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 348,
+    "text": "无权评价该课程的学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 353,
+    "text": "请选择过程性评价或成果评价",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 357,
+    "text": "评分需为1-100的整数",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 366,
+    "text": "评价提交成功！",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/archiveController.js",
+    "line": 369,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 77,
+    "text": "获取学校列表失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 92,
+    "text": "获取班级列表失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 102,
+    "text": "请输入账号和密码",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 110,
+    "text": "账号或密码错误",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 115,
+    "text": "账号或密码错误",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 139,
+    "text": "登录失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 150,
+    "text": "公开注册仅支持学生账号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 154,
+    "text": "请填写真实姓名",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 160,
+    "text": "密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 164,
+    "text": "两次密码输入不一致",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 168,
+    "text": "请输入正确的11位手机号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 172,
+    "text": "请输入正确的邮箱地址",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 176,
+    "text": "学生必须选择学校和班级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 182,
+    "text": "所选班级不属于当前学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 193,
+    "text": "注册成功，请登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 197,
+    "text": "注册失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 209,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 226,
+    "text": "获取用户信息失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 235,
+    "text": "缺少 refresh_token",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 247,
+    "text": "登录已过期，请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 251,
+    "text": "登录已过期，请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 260,
+    "text": "刷新成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 275,
+    "text": "刷新失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 286,
+    "text": "已退出登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 289,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 298,
+    "text": "缺少目标用户",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 302,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 305,
+    "text": "不能重置管理员自己的密码",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 328,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 339,
+    "text": "请填写原密码和新密码",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 342,
+    "text": "尝试次数过多，请 1 分钟后再试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 346,
+    "text": "新密码至少 8 位，且需包含大写字母、小写字母、数字、特殊字符中的至少 3 类",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 350,
+    "text": "新密码不能与原密码相同",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 355,
+    "text": "原密码不正确",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 373,
+    "text": "密码修改成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/authController.js",
+    "line": 376,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 33,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 34,
+    "text": "课程已归档，不能上传",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 93,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 110,
+    "text": "课程名称、适用学段和难度等级为必填项",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 122,
+    "text": "课程创建成功（草稿），补充课时后即可发布",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 126,
+    "text": "创建失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 142,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 150,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 155,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 159,
+    "text": "无权查看该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 163,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 219,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 228,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 231,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 236,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 245,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 260,
+    "text": "没有需要更新的内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 271,
+    "text": "课程更新成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 275,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 284,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 288,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 291,
+    "text": "已发布/已归档课程不能删除，请先撤回为草稿",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 301,
+    "text": "该课程存在历史作品记录，不可删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 312,
+    "text": "课程已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 315,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 324,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 329,
+    "text": "课时名称不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 338,
+    "text": "授课人不存在或不可用（仅启用中的执行导师可授课）",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 351,
+    "text": "课时添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 354,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 362,
+    "text": "课时不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 377,
+    "text": "授课人不存在或不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 379,
+    "text": "没有需要更新的内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 382,
+    "text": "课时更新成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 385,
+    "text": "更新课时失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 393,
+    "text": "课时不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 396,
+    "text": "请填写取消原因",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 397,
+    "text": "课时已取消",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 401,
+    "text": "课时已取消",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 404,
+    "text": "取消课时失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 414,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 417,
+    "text": "请选择要上传的文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 429,
+    "text": "资源已上传",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 438,
+    "text": "资源上传成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 443,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 454,
+    "text": "资源不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 459,
+    "text": "资源已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 462,
+    "text": "删除资源失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 475,
+    "text": "附件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 477,
+    "text": "附件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 485,
+    "text": "附件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 492,
+    "text": "附件文件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 497,
+    "text": "下载附件失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 508,
+    "text": "任务名称不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 513,
+    "text": "课时不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 516,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 519,
+    "text": "不能向已取消课时添加任务",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 532,
+    "text": "任务添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 535,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 549,
+    "text": "请先选课后再学习",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 551,
+    "text": "课时不属于当前课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 558,
+    "text": "学习进度已保存",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 561,
+    "text": "保存学习进度失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 576,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 583,
+    "text": "获取课程回放失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 591,
+    "text": "无权管理该课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 594,
+    "text": "请选择回放视频",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 601,
+    "text": "请填写回放标题",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 616,
+    "text": "课程回放上传成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 621,
+    "text": "上传课程回放失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 628,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 634,
+    "text": "回放标题不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 647,
+    "text": "课程回放已更新",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 651,
+    "text": "更新课程回放失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 658,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 662,
+    "text": "课程回放已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 665,
+    "text": "删除课程回放失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 683,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 691,
+    "text": "生成播放地址失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 703,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 711,
+    "text": "播放链接无效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 713,
+    "text": "播放链接已过期，请重新进入课程详情",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 715,
+    "text": "播放链接无效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 717,
+    "text": "账号状态已变化，请重新登录后获取播放链接",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 722,
+    "text": "课程回放不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 727,
+    "text": "回放文件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 732,
+    "text": "播放课程回放失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 747,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 750,
+    "text": "已归档课程不能导入学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 753,
+    "text": "仅执行导师或管理员可导入学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 759,
+    "text": "请选择学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 789,
+    "text": "无效的学生ID",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 794,
+    "text": "学生不存在或已禁用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 812,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 822,
+    "text": "课程不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 825,
+    "text": "已归档课程不能导入学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 828,
+    "text": "仅执行导师或管理员可导入学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 860,
+    "text": "加载失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 876,
+    "text": "报名记录不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 879,
+    "text": "该报名已被移除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 884,
+    "text": "请填写移除原因（将记录在审计中）",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/courseController.js",
+    "line": 927,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 254,
+    "text": "加载数据失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 264,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 272,
+    "text": "学校名称不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 275,
+    "text": "学校添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 278,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 285,
+    "text": "学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 287,
+    "text": "学校已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 290,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 305,
+    "text": "学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 319,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 327,
+    "text": "班级名称不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 331,
+    "text": "学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 333,
+    "text": "班级添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 336,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 343,
+    "text": "班级不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 345,
+    "text": "班级已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/dashboardController.js",
+    "line": 348,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/feedbackController.js",
+    "line": 11,
+    "text": "反馈服务暂时不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/feedbackController.js",
+    "line": 140,
+    "text": "单个附件不能超过10MB",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/feedbackController.js",
+    "line": 143,
+    "text": "最多只能上传3个附件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 133,
+    "text": "课时关联必须提供所属课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 141,
+    "text": "请选择已报名且已发布的课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 146,
+    "text": "课时不属于所选课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 154,
+    "text": "模拟引擎不可用，请稍后再试或联系管理员检查引擎环境",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 252,
+    "text": "未生成 summary.json",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 269,
+    "text": "模拟已开始，请稍候查看结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 272,
+    "text": "启动模拟失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 300,
+    "text": "加载失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 311,
+    "text": "模拟记录不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 315,
+    "text": "加载失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 323,
+    "text": "不支持的文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 330,
+    "text": "未登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 332,
+    "text": "播放链接已过期",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 335,
+    "text": "播放链接无效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 337,
+    "text": "账号不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 341,
+    "text": "模拟记录不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 347,
+    "text": "结果文件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 352,
+    "text": "下载失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 362,
+    "text": "不支持的文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 364,
+    "text": "模拟记录不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 374,
+    "text": "生成播放地址失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 384,
+    "text": "ftrc 数据过短",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 385,
+    "text": "不是 ftrc 数据（magic 不符）",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 391,
+    "text": "ftrc 数据不完整",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 424,
+    "text": "模拟记录不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 428,
+    "text": "该记录暂无轨迹数据",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/gliderController.js",
+    "line": 454,
+    "text": "轨迹数据读取失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/learningController.js",
+    "line": 8,
+    "text": "学习服务暂时不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/mentorReviewController.js",
+    "line": 8,
+    "text": "导师评审服务暂时不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/notificationController.js",
+    "line": 10,
+    "text": "通知服务暂时不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/observerController.js",
+    "line": 8,
+    "text": "观察数据暂时不可用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 20,
+    "text": "无效的账号操作",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 22,
+    "text": "无效的账号操作",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 40,
+    "text": "请保留账号及状态历史",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 58,
+    "text": "请保留账号及历史档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 60,
+    "text": "请保留账号及历史档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 61,
+    "text": "请保留账号及历史档案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 62,
+    "text": "请先转移或删除课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 63,
+    "text": "请先调整授课教师",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 64,
+    "text": "请先移交负责学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 65,
+    "text": "请先移交负责学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 66,
+    "text": "请保留评审人身份",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 67,
+    "text": "请先转移或删除资源",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 68,
+    "text": "请先转移或删除回放",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 69,
+    "text": "评审记录将随删除丢失",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 70,
+    "text": "成长记录将随删除丢失",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 71,
+    "text": "评价记录将被级联删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 142,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 160,
+    "text": "姓名为必填项",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 166,
+    "text": "教师只能在本校添加学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 170,
+    "text": "班级必须属于当前学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 175,
+    "text": "学校和班级为必填项",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 180,
+    "text": "初始密码由系统随机生成，请勿传入 password",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 204,
+    "text": "添加失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 251,
+    "text": "文件至少需要表头和一行数据",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 292,
+    "text": "仅支持 .csv / .xlsx / .xls 文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 306,
+    "text": "请上传 .csv / .xlsx 文件或提供 data",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 381,
+    "text": "学校名称不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 384,
+    "text": "学校添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 387,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 394,
+    "text": "学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 396,
+    "text": "学校已删除，关联班级已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 399,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 407,
+    "text": "班级名称和所属学校不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 410,
+    "text": "所属学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 412,
+    "text": "班级添加成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 415,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 422,
+    "text": "班级不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 424,
+    "text": "班级已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 427,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 436,
+    "text": "姓名和身份不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 440,
+    "text": "学生和教师必须选择学校和班级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 444,
+    "text": "初始密码由系统随机生成，请勿传入 password",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 450,
+    "text": "班级不存在或不属于所选学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 472,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 482,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 487,
+    "text": "加载失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 497,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 498,
+    "text": "不能通过此接口修改管理员账号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 502,
+    "text": "请先通过学生状态管理功能恢复或停用账号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 507,
+    "text": "账号已有业务历史或职责关联，请保留原身份；需要新身份时另建账号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 513,
+    "text": "姓名和身份不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 517,
+    "text": "学生和教师必须选择学校和班级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 523,
+    "text": "班级不存在或不属于所选学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 529,
+    "text": "请使用重置密码功能，系统将生成随机临时密码",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 550,
+    "text": "用户信息已更新",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 553,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 561,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 564,
+    "text": "不能删除管理员账号",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 574,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 589,
+    "text": "请选择要删除的用户",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 618,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 633,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 645,
+    "text": "学生不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 652,
+    "text": "所选学校不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 656,
+    "text": "选择班级前请先选择学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 658,
+    "text": "所选班级不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 660,
+    "text": "所选班级不属于所选学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 667,
+    "text": "所选负责教师不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 669,
+    "text": "负责教师必须与学生同校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 676,
+    "text": "所选负责导师不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 688,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 700,
+    "text": "学生不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 706,
+    "text": "无权编辑其他学校学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 709,
+    "text": "教师只能编辑本校学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 716,
+    "text": "班级不存在或不属于所选学校",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 721,
+    "text": "学生信息已更新",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 724,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 734,
+    "text": "学生不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 737,
+    "text": "无权删除其他学校学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 744,
+    "text": "学生已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 747,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 769,
+    "text": "用户不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 774,
+    "text": "只能查看自己课程相关学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 778,
+    "text": "学生不存在或无权访问",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 783,
+    "text": "无权查看该用户",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 820,
+    "text": "学生不存在或无权访问",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 831,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 839,
+    "text": "无权访问该学校班级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/studentController.js",
+    "line": 847,
+    "text": "获取失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 79,
+    "text": "加载任务失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 91,
+    "text": "任务不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 97,
+    "text": "任务不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 99,
+    "text": "任务不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 118,
+    "text": "加载任务详情失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 125,
+    "text": "无权管理该任务",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 138,
+    "text": "没有需要更新的内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 141,
+    "text": "任务更新成功",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 144,
+    "text": "更新任务失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 151,
+    "text": "无权管理该任务",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 154,
+    "text": "任务不存在或已取消",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 156,
+    "text": "已有作品提交的任务不能取消",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 158,
+    "text": "任务已取消",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/taskController.js",
+    "line": 161,
+    "text": "取消任务失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 48,
+    "text": "加载待办任务失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 129,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 148,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 155,
+    "text": "作品对象不属于当前课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 157,
+    "text": "请填写成果内容或选择文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 165,
+    "text": "请从课后任务进入提交作品",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 170,
+    "text": "请填写作品名称",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 180,
+    "text": "所选学生不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 191,
+    "text": "所选课程报名记录不属于该学生",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 205,
+    "text": "所选任务不属于当前课程",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 209,
+    "text": "该任务当前不可提交",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 218,
+    "text": "请先选课后再提交该任务",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 227,
+    "text": "该任务已有作品，请通过重新提交创建新版本",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 252,
+    "text": "该作品不可重新提交",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 270,
+    "text": "该任务已有作品，请通过重新提交创建新版本",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 305,
+    "text": "作品上传成功！",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 309,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 331,
+    "text": "作品不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 335,
+    "text": "无权查看该作品",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 345,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 359,
+    "text": "附件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 360,
+    "text": "无权下载该附件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 365,
+    "text": "附件文件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 370,
+    "text": "下载附件失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 387,
+    "text": "作品不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 392,
+    "text": "已通过评审的作品不能删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 395,
+    "text": "已有后续版本的作品不能删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 397,
+    "text": "无权删除该作品",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 415,
+    "text": "作品已删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 418,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 426,
+    "text": "作品不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 428,
+    "text": "该版本作品已评审，不能修改评审结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 451,
+    "text": "作品已打回",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 454,
+    "text": "操作失败，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 467,
+    "text": "无权评审该作品",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 468,
+    "text": "该版本作品已评审，不能修改评审结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 470,
+    "text": "请选择评审结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 472,
+    "text": "选择通过时，五项评分均须为1-5的整数",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 498,
+    "text": "评审已保存",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/controllers/workController.js",
+    "line": 499,
+    "text": "保存评审失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 24,
+    "text": "未登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 24,
+    "text": "请先登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 33,
+    "text": "登录已过期",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 33,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 35,
+    "text": "无效的认证信息",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 35,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 46,
+    "text": "服务器内部错误",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 46,
+    "text": "请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 50,
+    "text": "账号已被禁用或删除",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 50,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 53,
+    "text": "账号状态已变更，请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 53,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 56,
+    "text": "账号权限已变更，请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 56,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 60,
+    "text": "账号所属学校已变更，请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 60,
+    "text": "请重新登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 72,
+    "text": "未登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 72,
+    "text": "请先登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 75,
+    "text": "无权限",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 75,
+    "text": "您没有权限执行此操作",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 85,
+    "text": "未登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 85,
+    "text": "请先登录",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 92,
+    "text": "服务器内部错误",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 92,
+    "text": "请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/auth.js",
+    "line": 97,
+    "text": "请先修改初始密码",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/feedbackUpload.js",
+    "line": 37,
+    "text": "反馈附件仅支持 PNG、JPG、WEBP 和 PDF",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/loginRateLimit.js",
+    "line": 44,
+    "text": "登录尝试过于频繁，请 1 分钟后再试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/loginRateLimit.js",
+    "line": 60,
+    "text": "登录失败次数过多，请 1 分钟后再试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/upload.js",
+    "line": 131,
+    "text": "读取上传文件失败",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/upload.js",
+    "line": 150,
+    "text": "封面仅支持 JPG/PNG/WebP，最多 5 MB",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/middleware/upload.js",
+    "line": 156,
+    "text": "回放仅支持 MP4/WebM，最多 500 MB",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 14,
+    "text": "提问过于频繁，请稍后再试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 83,
+    "text": "AI 助手已停用，请联系管理员",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 91,
+    "text": "课程资料已更新或停用，请重新提问",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 121,
+    "text": "灵境小智暂未启用",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 124,
+    "text": "灵境小智尚未配置 API Key",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 136,
+    "text": "AI_TIMEOUT_MS 不能超过 30000 毫秒",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 168,
+    "text": "AI 服务返回了无法解析的结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 172,
+    "text": "AI 回答超出长度限制，请缩小问题范围后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 176,
+    "text": "AI 服务返回了无法解析的结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 179,
+    "text": "AI 服务返回了无效答案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 193,
+    "text": "AI 服务响应超时，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiAnswerService.js",
+    "line": 194,
+    "text": "无法连接 AI 服务，请稍后重试",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiDocumentService.js",
+    "line": 97,
+    "text": "幻灯片超过 300 页，请拆分文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiDocumentService.js",
+    "line": 101,
+    "text": "幻灯片内容过大，请拆分文件",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiDocumentService.js",
+    "line": 116,
+    "text": "文件不在课程资料目录内",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiDocumentService.js",
+    "line": 117,
+    "text": "文件超过 50 MB",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiDocumentService.js",
+    "line": 120,
+    "text": "未提取到文字。扫描版 PDF 请先进行 OCR 后再上传。",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 30,
+    "text": "请先在后端设置 64 位十六进制 AI_CONFIG_SECRET，再保存 API Key",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 40,
+    "text": "AI_CONFIG_SECRET 未配置，无法读取已保存的 API Key",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 47,
+    "text": "AI 密钥无法解密，请管理员检查 AI_CONFIG_SECRET 或重新录入 API Key",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 58,
+    "text": "API Base URL 无效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 63,
+    "text": "API Base URL 必须是 AI_ALLOWED_BASE_URLS 中允许的 HTTPS 地址",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 83,
+    "text": "AI 配置参数无效",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiSettingsService.js",
+    "line": 90,
+    "text": "启用助手前请配置 API Key 和 AI_CONFIG_SECRET",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiUsageService.js",
+    "line": 7,
+    "text": "AI 服务限额配置无效，请联系管理员",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/aiUsageService.js",
+    "line": 19,
+    "text": "今日 AI 提问额度已用完，请次日再试或联系管理员",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 31,
+    "text": "仅管理员可以执行该操作",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 44,
+    "text": "反馈不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 55,
+    "text": "无权查看该反馈",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 105,
+    "text": "请选择有效的反馈类型",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 108,
+    "text": "请选择有效的关联模块",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 111,
+    "text": "反馈标题至少需要5个字",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 114,
+    "text": "反馈描述至少需要10个字",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 275,
+    "text": "该反馈已结束，请先申请重新处理",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 278,
+    "text": "回复内容不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 309,
+    "text": "内部备注不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 322,
+    "text": "无效的反馈状态",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 325,
+    "text": "标记为已处理时必须填写处理结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 363,
+    "text": "无效的反馈优先级",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 383,
+    "text": "请填写处理结果",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 385,
+    "text": "当前状态不能直接标记为已处理",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 420,
+    "text": "只有反馈提交人可以确认解决",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 423,
+    "text": "只有已处理的反馈可以确认解决",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 451,
+    "text": "当前反馈无需重新打开",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 454,
+    "text": "请说明重新打开的原因",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/feedbackService.js",
+    "line": 499,
+    "text": "附件不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 20,
+    "text": "请填写所有必填内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 29,
+    "text": "数字字段格式不正确",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 53,
+    "text": "课时不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 70,
+    "text": "课时不存在或尚未报名",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 78,
+    "text": "无权管理该课时",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 86,
+    "text": "已归档课程不能修改学习内容",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 96,
+    "text": "知识卡片不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 106,
+    "text": "练习不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 205,
+    "text": "教学内容尚未准备，不能标记完成",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 265,
+    "text": "练习不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 269,
+    "text": "请先完成课堂回顾",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 274,
+    "text": "请选择或填写答案",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 277,
+    "text": "多选题答案必须是数组",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 283,
+    "text": "每道题只有一次作答机会",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 312,
+    "text": "知识卡片不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 315,
+    "text": "请先完成课堂回顾",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 326,
+    "text": "请先作答本卡片的全部练习",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 356,
+    "text": "教学内容尚未准备，不能提交报告",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 358,
+    "text": "请先完成课堂回顾、全部知识卡片和配套练习",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 363,
+    "text": "当前报告已提交或通过，不能覆盖",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 449,
+    "text": "无效的卡片状态",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 483,
+    "text": "内容已由其他维护者修改，请重新读取并核对后保存",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 508,
+    "text": "无效的练习题型",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 519,
+    "text": "选择题需要 2–20 个选项",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 552,
+    "text": "内容已由其他维护者修改，请重新读取并核对后保存",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 572,
+    "text": "该练习已有作答记录，不能删除，可改为非必修",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 580,
+    "text": "排序数据格式不正确",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 582,
+    "text": "排序数据包含重复卡片",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/learningService.js",
+    "line": 585,
+    "text": "排序数据必须包含本课时全部卡片",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 30,
+    "text": "学习报告不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 37,
+    "text": "无权访问该学习报告",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 151,
+    "text": "只能评审待评审报告",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 154,
+    "text": "请选择通过或退回修改",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 157,
+    "text": "退回时必须填写修改意见",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 158,
+    "text": "评语不能超过 5000 个字符",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 161,
+    "text": "请填写 0–100 的整数评分",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/mentorReviewService.js",
+    "line": 169,
+    "text": "维度评分必须是 0–100 的整数",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 35,
+    "text": "通知跳转地址必须是站内路径",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 71,
+    "text": "通知事件代码不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 72,
+    "text": "通知标题不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 73,
+    "text": "通知正文不能为空",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 74,
+    "text": "无效的通知分类",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 75,
+    "text": "无效的通知级别",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 108,
+    "text": "通知幂等记录异常",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/notificationService.js",
+    "line": 207,
+    "text": "通知不存在",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/observerService.js",
+    "line": 14,
+    "text": "无权访问观察工作台",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  },
+  {
+    "file": "backend/services/observerService.js",
+    "line": 29,
+    "text": "学生不存在或未分配给当前教师",
+    "policy": "固定后端提示，纯文本审阅；涉及错误分类，修改需语义核对，CLI不直接写后端"
+  }
+]

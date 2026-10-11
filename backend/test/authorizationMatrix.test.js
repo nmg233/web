@@ -180,7 +180,7 @@ test('禁用/恢复、归档/恢复、重置及修改密码后旧签名播放链
   assert.equal(changed.status, 200);
   const { saveAuthSession } = await import('../../frontend/src/utils/authSession.js');
   const stored = new Map([['token',tokens.studentA],['user',JSON.stringify({force_reset_password:1})]]);
-  const nextUser = saveAuthSession({setItem:(key,value)=>stored.set(key,value)}, changed.body);
+  const nextUser = saveAuthSession({setItem:(key,value)=>stored.set(key,value),getItem:key=>stored.get(key)??null,removeItem:key=>stored.delete(key)}, changed.body);
   assert.equal(nextUser.force_reset_password,0);
   assert.equal(JSON.parse(stored.get('user')).force_reset_password,0);
   assert.equal((await api('/auth/me', {token:stored.get('token')})).status,200);

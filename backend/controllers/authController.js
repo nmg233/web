@@ -202,7 +202,7 @@ exports.register = (req, res) => {
 exports.me = (req, res) => {
   try {
     const user = db.prepare(
-      'SELECT id, username, real_name, email, phone, role, school_id, class_id, avatar_url, is_active, force_reset_password FROM users WHERE id = ?'
+      'SELECT id, username, real_name, email, phone, role, school_id, class_id, avatar_url, avatar_preset, is_active, force_reset_password FROM users WHERE id = ?'
     ).get(req.user.id);
 
     if (!user) {

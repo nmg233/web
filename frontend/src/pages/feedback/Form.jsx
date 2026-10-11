@@ -1,117 +1,72 @@
-import { useState } from 'react';
+import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
+import Alert from '../../content/RoleAlert';
+import RoleSentence from '../../content/RoleSentence';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, Form, Input, Select, Space, Switch, Typography, Upload, message } from 'antd';
-import { ArrowLeftOutlined, InboxOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Select, Switch } from 'antd';
 import { feedbackAPI } from '../../api';
 import { feedbackModuleOptions, feedbackTypeOptions } from '../../constants/feedback';
 import { useAuth } from '../../store/AuthContext';
+import { feedbackFileError, studentFeedbackModules } from '../../utils/feedbackFiles';
+import { requestError } from '../../utils/requestError';
+import { ServicePage, ServicePanel } from '../../components/ServiceUI';
 
-const { Title, Paragraph } = Typography;
-
-export default function FeedbackForm() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
-  const [submitting, setSubmitting] = useState(false);
-  const [fileList, setFileList] = useState([]);
-
+function CreateForm({ user }) {
+  const navigate = useNavigate(), location = useLocation();
+  const [busy, setBusy] = useState(false), [files, setFiles] = useState([]);
+  const [error, setError] = useState(''), [fileError, setFileError] = useState('');
+  const pending = useRef(false), alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const selectFiles = (event) => {
+    const next = [...files], errors = [];
+    for (const file of event.target.files) {
+      const problem = feedbackFileError(file, next.length);
+      if (problem) errors.push(`${file.name}：${problem}`); else next.push(file);
+    }
+    setFiles(next); setFileError(errors.join('\n')); event.target.value = '';
+  };
   const submit = async (values) => {
-    setSubmitting(true);
+    if (pending.current) return;
+    pending.current = true; setBusy(true); setError('');
     try {
       const data = new FormData();
-      Object.entries(values).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) data.append(key, value);
-      });
+      Object.entries(values).forEach(([key, value]) => { if (value !== undefined && value !== null) data.append(key, typeof value === 'string' ? value.trim() : value); });
       data.set('source_path', location.state?.from || '/feedback/new');
       data.set('client_info', navigator.userAgent);
-      fileList.forEach((file) => data.append('attachments', file.originFileObj || file));
-
+      files.forEach((file) => data.append('attachments', file));
       const response = await feedbackAPI.create(data);
-      const feedback = response.data.feedback;
-      message.success(`反馈已提交：${feedback.feedback_no}`);
-      navigate(`/feedback/${feedback.id}`);
-    } catch {
-      // API 拦截器统一展示错误。
-    } finally {
-      setSubmitting(false);
-    }
+      if (alive.current) navigate(`/feedback/${response.data.feedback.id}`, { state: { submitted: true } });
+    } catch (err) { if (alive.current) setError(requestError(err, { action: siteText("site.677210fb94b7f4bd"), write: true })); }
+    finally { if (alive.current) { pending.current = false; setBusy(false); } }
   };
-
-  return (
-    <div style={{ maxWidth: 760, margin: '0 auto' }}>
-      <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/feedback')}>返回</Button>
-        <Title level={4} style={{ margin: 0 }}>提交反馈</Title>
-      </Space>
-
-      <Card>
-        <Paragraph type="secondary">
-          请尽量说明操作步骤、实际结果和期望结果。管理员处理后，你可以在“我的反馈”中查看进度。
-        </Paragraph>
-        <Form
-          layout="vertical"
-          initialValues={{ allow_contact: true, contact: user?.email || user?.phone || '' }}
-          onFinish={submit}
-        >
-          <Space align="start" wrap style={{ width: '100%' }}>
-            <Form.Item name="type" label="反馈类型" rules={[{ required: true, message: '请选择反馈类型' }]}>
-              <Select options={feedbackTypeOptions} placeholder="请选择" style={{ width: 220 }} />
-            </Form.Item>
-            <Form.Item name="module" label="关联模块">
-              <Select allowClear options={feedbackModuleOptions} placeholder="请选择" style={{ width: 220 }} />
-            </Form.Item>
-          </Space>
-
-          <Form.Item
-            name="title"
-            label="反馈标题"
-            rules={[
-              { required: true, message: '请输入反馈标题' },
-              { min: 5, max: 100, message: '标题长度为5到100字' },
-            ]}
-          >
-            <Input showCount maxLength={100} placeholder="用一句话概括问题或建议" />
-          </Form.Item>
-
-          <Form.Item
-            name="description"
-            label="详细描述"
-            rules={[
-              { required: true, message: '请输入详细描述' },
-              { min: 10, max: 5000, message: '描述长度为10到5000字' },
-            ]}
-          >
-            <Input.TextArea
-              rows={8}
-              showCount
-              maxLength={5000}
-              placeholder={'建议包含：\n1. 进行了什么操作\n2. 实际出现什么情况\n3. 期望达到什么结果'}
-            />
-          </Form.Item>
-
-          <Form.Item label="附件（最多3个，单个不超过10MB）">
-            <Upload.Dragger
-              multiple
-              accept=".png,.jpg,.jpeg,.webp,.pdf"
-              beforeUpload={() => false}
-              fileList={fileList}
-              onChange={({ fileList: next }) => setFileList(next.slice(-3))}
-            >
-              <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-              <p>上传截图或 PDF</p>
-            </Upload.Dragger>
-          </Form.Item>
-
-          <Form.Item name="contact" label="联系方式">
-            <Input maxLength={200} placeholder="选填，手机号或邮箱" />
-          </Form.Item>
-          <Form.Item name="allow_contact" label="允许管理员进一步联系" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-
-          <Button type="primary" htmlType="submit" loading={submitting}>提交反馈</Button>
-        </Form>
-      </Card>
-    </div>
-  );
+  const moduleOptions = user.role === 'student' ? Object.entries(studentFeedbackModules).map(([value, label]) => ({ value, label })) : feedbackModuleOptions;
+  return <ServicePage title={siteText("site.677210fb94b7f4bd")} eyebrow={siteText("site.f852fcc1636d6b23")} description={siteText("site.746e14975561c9cd")} actions={<Button onClick={() => navigate('/feedback')}>{siteText("site.480493da8adfbe64")}</Button>}>
+    <ServicePanel className="feedback-form-panel">
+      <RoleSentence className="service-note">{siteText("site.b7cbbf9899572ee6")}</RoleSentence>
+      <Form layout="vertical" initialValues={{ allow_contact: true, contact: user.email || user.phone || '' }} onFinish={submit}>
+        <div className="service-form-pair">
+          <Form.Item name="type" label={siteText("site.8db704912e8e00b0")} rules={[{ required: true, message: siteText("site.1d88594808686b0d") }]}><Select aria-label={siteText("site.8db704912e8e00b0")} options={feedbackTypeOptions} placeholder={siteText("site.1d88594808686b0d")} /></Form.Item>
+          <Form.Item name="module" label={siteText("site.1498807bd478d570")}><Select aria-label={siteText("site.9188f27c9d09085f")} allowClear options={moduleOptions} placeholder={siteText("site.cbab05a9bfed0004")} /></Form.Item>
+        </div>
+        <Form.Item name="title" label={siteText("site.880688316a275399")} extra={siteText("site.26b66cdf08dc8c76")} rules={[{ required: true, whitespace: true, message: siteText("site.16b051955814d4a7") }, { transform: (value) => value?.trim(), min: 5, max: 100, message: siteText("site.0cb73015656498cf") }]}><Input maxLength={100} showCount placeholder={siteText("site.16e86ac6d6ff83b6")} /></Form.Item>
+        <Form.Item name="description" label={siteText("site.212f218e102cf88d")} extra={siteText("site.643d9d346b25df61")} rules={[{ required: true, whitespace: true, message: siteText("site.ca7234198120ba71") }, { transform: (value) => value?.trim(), min: 10, max: 5000, message: siteText("site.4a0f1ab070af1a09") }]}>
+          <Input.TextArea rows={6} maxLength={5000} showCount placeholder={siteText("site.e1689b101da78577")} />
+        </Form.Item>
+        <div className="feedback-file-picker">
+          <label htmlFor="feedback-files">{siteText("site.e63403fea4e9cc13")}</label><RoleSentence id="feedback-files-help">{siteText("site.1c4c7e5713995156")}</RoleSentence>
+          <input id="feedback-files" aria-describedby="feedback-files-help" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf" onChange={selectFiles} disabled={busy} />
+          {fileError && <Alert type="error" role="alert" title={fileError} />}
+          {files.length > 0 && <ul>{files.map((file, index) => <li key={`${file.name}:${index}`}><span><strong>{file.name}</strong><small>{(file.size / 1024).toFixed(1)}{siteText("site.87323ff68bad1f5b")}</small></span><Button disabled={busy} aria-label={siteTemplate("site.9fbdf09ef5c171f0", {slot0: (file.name)})} onClick={() => setFiles((value) => value.filter((_, i) => i !== index))}>{siteText("site.edaf334db6f568df")}</Button></li>)}</ul>}
+        </div>
+        <Form.Item name="contact" label={siteText("site.b6a8246609a81715")} rules={[{ max: 200, message: siteText("site.00821f6d1839fabb") }]}><Input autoComplete="off" maxLength={200} placeholder={siteText("site.4cfce5b3f8f85408")} /></Form.Item>
+        <Form.Item name="allow_contact" label={siteText("site.02a445217c1cca73")} valuePropName="checked"><Switch /></Form.Item>
+        {error && <Alert role="alert" type="error" showIcon title={error} />}
+        <div className="service-submit"><Button type="primary" htmlType="submit" loading={busy} aria-label={siteText("site.677210fb94b7f4bd")}>{siteText("site.7674c9fa5f174194")}</Button><span>{siteText("site.2ddcd6e4515a1c5f")}</span></div>
+      </Form>
+    </ServicePanel>
+  </ServicePage>;
+}
+export default function FeedbackForm() {
+  const { user } = useAuth();
+  return <CreateForm key={user.id} user={user} />;
 }

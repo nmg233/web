@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {calendarDays,shiftMonth} from '../src/student/coinCalendar.js';
+test('签到日历按月生成合法日期，闰年与跨年只读月份切换',()=>{assert.equal(calendarDays('2028-02').filter(Boolean).length,29);assert.equal(calendarDays('2027-02').filter(Boolean).length,28);assert.equal(shiftMonth('2027-12',1),'2028-01');assert.equal(shiftMonth('2028-01',-1),'2027-12');assert.ok(calendarDays('2028-02').includes('2028-02-29'));});

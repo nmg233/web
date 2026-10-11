@@ -1,17 +1,19 @@
-import client from './client';
+import defaultClient from './client';
 
-export const authAPI = {
-  login: (username, password) => client.post('/auth/login', { username, password }),
-  me: () => client.get('/auth/me'),
+export function createAPIs(client) {
+
+const authAPI = {
+  login: (username, password) => client.post('/auth/login', { username, password }, { silent: true }),
+  me: () => client.get('/auth/me', { silent: true }),
   refresh: (refresh_token) => client.post('/auth/refresh', { refresh_token }),
-  logout: (refresh_token) => client.post('/auth/logout', { refresh_token }),
-  changePassword: (data) => client.post('/auth/change-password', data),
+  logout: (refresh_token) => client.post('/auth/logout', { refresh_token }, { silent: true }),
+  changePassword: (data) => client.post('/auth/change-password', data, { silent: true }),
   adminResetPassword: (userId) => client.post('/auth/admin/reset-password', { user_id: userId }),
   getSchools: () => client.get('/auth/schools'),
   getClasses: (schoolId) => client.get(`/auth/classes?school_id=${schoolId}`),
 };
 
-export const dashboardAPI = {
+const dashboardAPI = {
   getIndex: () => client.get('/dashboard'),
   getSchools: () => client.get('/dashboard/schools'),
   addSchool: (data) => client.post('/dashboard/schools', data),
@@ -21,7 +23,7 @@ export const dashboardAPI = {
   deleteClass: (schoolId, classId) => client.post(`/dashboard/schools/${schoolId}/classes/${classId}/delete`),
 };
 
-export const courseAPI = {
+const courseAPI = {
   list: (params) => client.get('/courses', { params }),
   create: (data) => client.post('/courses', data),
   detail: (id) => client.get(`/courses/${id}`),
@@ -48,12 +50,12 @@ export const courseAPI = {
   updateProgress: (courseId, data) => client.post(`/courses/${courseId}/progress`, data),
 };
 
-export const taskAPI = {
+const taskAPI = {
   list: (params) => client.get('/tasks', { params }),
   detail: (id) => client.get(`/tasks/${id}`),
 };
 
-export const studentAPI = {
+const studentAPI = {
   list: (params) => client.get('/students', { params }),
   create: (data) => client.post('/students', data),
   detail: (id) => client.get(`/students/${id}`),
@@ -77,8 +79,8 @@ export const studentAPI = {
   changeStatus: (id, data) => client.post(`/students/${id}/status`, data),
 };
 
-export const workAPI = {
-  list: (params) => client.get('/works', { params }),
+const workAPI = {
+  list: (params, options = {}) => client.get('/works', { ...options, params }),
   uploadOptions: () => client.get('/works/upload-options'),
   // 不能手动指定 multipart Content-Type：浏览器需要自行补充 boundary，
   // 否则 Multer 无法解析附件字段。
@@ -93,7 +95,7 @@ export const workAPI = {
   review: (id, data) => client.post(`/works/${id}/review`, data),
 };
 
-export const archiveAPI = {
+const archiveAPI = {
   getTree: (params) => client.get('/archives/tree', { params }),
   generate: (studentId) => client.get('/archives/generate', { params: { student_id: studentId } }),
   generateBatch: (params) => client.get('/archives/generate-batch', { params }),
@@ -103,7 +105,7 @@ export const archiveAPI = {
   addGrowthRecord: (data) => client.post('/archives/growth-records', data),
 };
 
-export const aiAPI = {
+const aiAPI = {
   getCourses: () => client.get('/dashboard/ai/courses'),
   ask: (question, course_id) => client.post('/dashboard/ai/ask', { question, course_id }, { timeout: 45000 }),
   getSettings: () => client.get('/dashboard/ai/settings'),
@@ -113,38 +115,38 @@ export const aiAPI = {
   setDocumentEnabled: (documentId, enabled) => client.patch(`/dashboard/ai/documents/${documentId}`, { enabled }),
 };
 
-export const feedbackAPI = {
+const feedbackAPI = {
   options: () => client.get('/feedback/options'),
   create: (formData) => client.post('/feedback', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    silent: true, headers: { 'Content-Type': 'multipart/form-data' },
   }),
-  mine: (params) => client.get('/feedback/mine', { params }),
-  detail: (id) => client.get(`/feedback/${id}`),
-  reply: (id, content) => client.post(`/feedback/${id}/messages`, { content }),
-  confirm: (id) => client.post(`/feedback/${id}/confirm`),
-  reopen: (id, reason) => client.post(`/feedback/${id}/reopen`, { reason }),
+  mine: (params) => client.get('/feedback/mine', { params, silent: true }),
+  detail: (id) => client.get(`/feedback/${id}`, { silent: true }),
+  reply: (id, content) => client.post(`/feedback/${id}/messages`, { content }, { silent: true }),
+  confirm: (id) => client.post(`/feedback/${id}/confirm`, undefined, { silent: true }),
+  reopen: (id, reason) => client.post(`/feedback/${id}/reopen`, { reason }, { silent: true }),
   manageList: (params) => client.get('/feedback/manage/list', { params }),
   stats: () => client.get('/feedback/manage/stats'),
-  updateStatus: (id, status) => client.patch(`/feedback/${id}/status`, { status }),
-  updatePriority: (id, priority) => client.patch(`/feedback/${id}/priority`, { priority }),
-  addInternalNote: (id, content) => client.post(`/feedback/${id}/internal-notes`, { content }),
-  resolve: (id, resolution) => client.post(`/feedback/${id}/resolve`, { resolution }),
-  downloadAttachment: (id) => client.get(`/feedback/attachments/${id}`, { responseType: 'blob' }),
+  updateStatus: (id, status) => client.patch(`/feedback/${id}/status`, { status }, { silent: true }),
+  updatePriority: (id, priority) => client.patch(`/feedback/${id}/priority`, { priority }, { silent: true }),
+  addInternalNote: (id, content) => client.post(`/feedback/${id}/internal-notes`, { content }, { silent: true }),
+  resolve: (id, resolution) => client.post(`/feedback/${id}/resolve`, { resolution }, { silent: true }),
+  downloadAttachment: (id) => client.get(`/feedback/attachments/${id}`, { responseType: 'blob', silent: true }),
 };
 
-export const notificationAPI = {
-  list: (params) => client.get('/notifications', { params }),
-  recent: (limit = 10) => client.get('/notifications/recent', { params: { limit } }),
-  unreadCount: () => client.get('/notifications/unread-count'),
-  detail: (id) => client.get(`/notifications/${id}`),
-  markRead: (id) => client.patch(`/notifications/${id}/read`),
-  markUnread: (id) => client.patch(`/notifications/${id}/unread`),
-  markAllRead: () => client.post('/notifications/read-all'),
-  hide: (id) => client.patch(`/notifications/${id}/hide`),
-  hideRead: () => client.post('/notifications/hide-read'),
+const notificationAPI = {
+  list: (params) => client.get('/notifications', { params, silent: true }),
+  recent: (limit = 10) => client.get('/notifications/recent', { params: { limit }, silent: true }),
+  unreadCount: () => client.get('/notifications/unread-count', { silent: true }),
+  detail: (id) => client.get(`/notifications/${id}`, { silent: true }),
+  markRead: (id) => client.patch(`/notifications/${id}/read`, undefined, { silent: true }),
+  markUnread: (id) => client.patch(`/notifications/${id}/unread`, undefined, { silent: true }),
+  markAllRead: () => client.post('/notifications/read-all', undefined, { silent: true }),
+  hide: (id) => client.patch(`/notifications/${id}/hide`, undefined, { silent: true }),
+  hideRead: () => client.post('/notifications/hide-read', undefined, { silent: true }),
 };
 
-export const learningAPI = {
+const learningAPI = {
   lesson: (lessonId) => client.get(`/learning/lessons/${lessonId}`),
   completeReview: (lessonId) => client.post(`/learning/lessons/${lessonId}/review-complete`),
   submitExercise: (exerciseId, answer) => client.post(`/learning/exercises/${exerciseId}/submit`, { answer }),
@@ -152,7 +154,7 @@ export const learningAPI = {
   submitReport: (lessonId, data) => client.post(`/learning/lessons/${lessonId}/report`, data),
 };
 
-export const learningManageAPI = {
+const learningManageAPI = {
   lessons: () => client.get('/learning/manage/lessons'),
   cards: (lessonId) => client.get(`/learning/manage/lessons/${lessonId}/cards`),
   createCard: (lessonId, data) => client.post(`/learning/manage/lessons/${lessonId}/cards`, data),
@@ -164,16 +166,19 @@ export const learningManageAPI = {
   deleteExercise: (exerciseId) => client.delete(`/learning/manage/exercises/${exerciseId}`),
 };
 
-export const mentorReviewAPI = {
+const mentorReviewAPI = {
   list: (params) => client.get('/mentor-reviews', { params }),
   detail: (reportId) => client.get(`/mentor-reviews/${reportId}`),
   review: (reportId, data) => client.post(`/mentor-reviews/${reportId}/review`, data),
 };
 
-export const observerAPI = {
+const observerAPI = {
   dashboard: () => client.get('/observer'),
   students: (params) => client.get('/observer/students', { params }),
   student: (studentId) => client.get(`/observer/students/${studentId}`),
 };
 
+return {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI};
+}
+export const {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI} = createAPIs(defaultClient);
 export { gliderAPI } from './glider';

@@ -1,0 +1,725 @@
+-- ============================================
+-- PBL 数字化平台 SQLite 数据库初始化
+-- ============================================
+
+-- 1. 学校表
+CREATE TABLE IF NOT EXISTS schools (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  tags TEXT,
+  region TEXT,
+  contact_person TEXT,
+  contact_phone TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. 班级表
+CREATE TABLE IF NOT EXISTS classes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  school_id INTEGER NOT NULL,
+  grade TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+);
+
+-- 3. 用户表
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  real_name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  profile TEXT,
+  teacher_id INTEGER,
+  mentor_id INTEGER,
+  force_reset_password INTEGER NOT NULL DEFAULT 0,
+  role TEXT NOT NULL CHECK(role IN ('admin','academic_mentor','teacher','student','media')),
+  school_id INTEGER,
+  class_id INTEGER,
+  avatar_url TEXT,
+  is_active INTEGER DEFAULT 1,
+  archived_at DATETIME,
+  auth_version INTEGER NOT NULL DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE SET NULL,
+  FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL
+);
+
+-- 3.1 刷新令牌
+CREATE TABLE IF NOT EXISTS student_status_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id),
+  action TEXT NOT NULL CHECK(action IN ('disable','archive','restore')),
+  reason TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 4. 实践队
+CREATE TABLE IF NOT EXISTS teams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  leader_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (leader_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS team_members (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  team_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  role_in_team TEXT,
+  joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(team_id, user_id)
+);
+
+-- 5. PBL 课程
+CREATE TABLE IF NOT EXISTS courses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  theme TEXT,
+  description TEXT,
+  driving_question TEXT,
+  story_line TEXT,
+  grade_level TEXT NOT NULL CHECK(grade_level IN ('primary','junior','senior')),
+  difficulty TEXT NOT NULL CHECK(difficulty IN ('basic','advanced','challenge')),
+  total_hours INTEGER,
+  materials_needed TEXT,
+  cover_image TEXT,
+  status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- 6. 课时
+CREATE TABLE IF NOT EXISTS lessons (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  sort_order INTEGER DEFAULT 0,
+  duration INTEGER,
+  start_at TEXT,
+  end_at TEXT,
+  location TEXT,
+  instructor_id INTEGER,
+  status TEXT NOT NULL DEFAULT 'scheduled',
+  cancel_reason TEXT,
+  cancelled_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (instructor_id) REFERENCES users(id)
+);
+
+-- 7. 任务
+CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lesson_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  task_type TEXT DEFAULT 'inquiry' CHECK(task_type IN ('inquiry','experiment','creation','reflection','presentation')),
+  sort_order INTEGER DEFAULT 0,
+  require_upload INTEGER DEFAULT 1,
+  deadline DATETIME,
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
+);
+
+-- 8. 课时学习进度
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  lesson_id INTEGER NOT NULL,
+  progress INTEGER DEFAULT 0 CHECK(progress BETWEEN 0 AND 100),
+  last_position INTEGER DEFAULT 0,
+  completed_at DATETIME,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
+  UNIQUE(student_id, lesson_id)
+);
+
+-- 9. 课程资源
+CREATE TABLE IF NOT EXISTS resources (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  lesson_id INTEGER,
+  resource_type TEXT NOT NULL CHECK(resource_type IN ('lesson_plan','guide_card','template','courseware','video','other')),
+  title TEXT NOT NULL,
+  description TEXT,
+  file_path TEXT,
+  file_size INTEGER,
+  upload_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE SET NULL,
+  FOREIGN KEY (upload_by) REFERENCES users(id)
+);
+
+-- 9.1 课程回放
+CREATE TABLE IF NOT EXISTS course_replays (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL,
+  lesson_id INTEGER,
+  title TEXT NOT NULL,
+  description TEXT,
+  video_path TEXT NOT NULL,
+  duration_seconds INTEGER,
+  recording_date DATE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE SET NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- 9. 微课题
+CREATE TABLE IF NOT EXISTS micro_projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  background TEXT,
+  description TEXT,
+  difficulty_level TEXT NOT NULL CHECK(difficulty_level IN ('1','2','3')),
+  suggested_grade TEXT NOT NULL CHECK(suggested_grade IN ('primary','junior','senior')),
+  estimated_hours INTEGER,
+  source_research TEXT,
+  status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','recruiting','in_progress','review','completed','archived')),
+  mentor_id INTEGER NOT NULL,
+  academic_mentor_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (mentor_id) REFERENCES users(id),
+  FOREIGN KEY (academic_mentor_id) REFERENCES users(id)
+);
+
+-- 10. 微课题小组
+CREATE TABLE IF NOT EXISTS project_teams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  micro_project_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  leader_student_id INTEGER NOT NULL,
+  status TEXT DEFAULT 'forming' CHECK(status IN ('forming','active','completed')),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (micro_project_id) REFERENCES micro_projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (leader_student_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS project_team_members (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  team_id INTEGER NOT NULL,
+  student_id INTEGER NOT NULL,
+  role_in_team TEXT,
+  joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (team_id) REFERENCES project_teams(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(team_id, student_id)
+);
+
+-- 11. 课程参与记录（选课由执行导师/教师/管理员统一导入；日常不可退课，
+--     仅管理员可经异常修正通道软删除，removed_* 字段保留审计信息）
+CREATE TABLE IF NOT EXISTS enrollments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  course_id INTEGER NOT NULL,
+  enrolled_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  completed_at DATETIME,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','removed')),
+  enrolled_by INTEGER,
+  removed_at DATETIME,
+  removed_by INTEGER,
+  remove_reason TEXT,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrolled_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (removed_by) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE(student_id, course_id)
+);
+
+-- 12. 学生作品
+CREATE TABLE IF NOT EXISTS works (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  enrollment_id INTEGER,
+  task_id INTEGER,
+  title TEXT NOT NULL,
+  description TEXT,
+  file_path TEXT,
+  file_name TEXT,
+  file_type TEXT,
+  file_size INTEGER,
+  thumbnail_path TEXT,
+  review_status TEXT DEFAULT 'pending' CHECK(review_status IN ('pending','approved','rejected')),
+  reject_reason TEXT,
+  parent_work_id INTEGER,
+  version INTEGER DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL,
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS work_reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  work_id INTEGER NOT NULL UNIQUE,
+  reviewer_id INTEGER NOT NULL,
+  comment TEXT,
+  suggestion TEXT,
+  problem_discovery INTEGER CHECK(problem_discovery BETWEEN 1 AND 5),
+  solution_design INTEGER CHECK(solution_design BETWEEN 1 AND 5),
+  hands_on INTEGER CHECK(hands_on BETWEEN 1 AND 5),
+  data_analysis INTEGER CHECK(data_analysis BETWEEN 1 AND 5),
+  presentation INTEGER CHECK(presentation BETWEEN 1 AND 5),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (work_id) REFERENCES works(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewer_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS growth_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  event_type TEXT NOT NULL DEFAULT 'teacher',
+  description TEXT NOT NULL,
+  recorded_by INTEGER,
+  work_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (recorded_by) REFERENCES users(id)
+);
+
+-- 12.1 课后知识卡片与配套练习
+CREATE TABLE IF NOT EXISTS knowledge_cards (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lesson_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  summary TEXT,
+  content TEXT NOT NULL,
+  key_points TEXT,
+  common_mistakes TEXT,
+  example_content TEXT,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_required INTEGER NOT NULL DEFAULT 1 CHECK(is_required IN (0,1)),
+  estimated_minutes INTEGER,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS card_exercises (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  card_id INTEGER NOT NULL,
+  question_type TEXT NOT NULL CHECK(question_type IN ('single_choice','multiple_choice','true_false','fill_blank','short_answer')),
+  prompt TEXT NOT NULL,
+  options_json TEXT,
+  answer_json TEXT NOT NULL,
+  explanation TEXT,
+  points INTEGER NOT NULL DEFAULT 1,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_required INTEGER NOT NULL DEFAULT 1 CHECK(is_required IN (0,1)),
+  max_attempts INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (card_id) REFERENCES knowledge_cards(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS card_exercise_attempts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  exercise_id INTEGER NOT NULL,
+  answer_json TEXT NOT NULL,
+  is_correct INTEGER CHECK(is_correct IN (0,1)),
+  score INTEGER NOT NULL DEFAULT 0,
+  attempt_no INTEGER NOT NULL,
+  submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (exercise_id) REFERENCES card_exercises(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS student_card_progress (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  card_id INTEGER NOT NULL,
+  viewed_at DATETIME,
+  completed_at DATETIME,
+  best_score INTEGER NOT NULL DEFAULT 0,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(student_id, card_id),
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (card_id) REFERENCES knowledge_cards(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS lesson_review_completions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  lesson_id INTEGER NOT NULL,
+  completed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(student_id, lesson_id),
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS lesson_learning_reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  lesson_id INTEGER NOT NULL,
+  enrollment_id INTEGER,
+  summary TEXT NOT NULL,
+  key_points TEXT,
+  application TEXT,
+  difficulties TEXT,
+  next_plan TEXT,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','submitted','approved','rejected')),
+  parent_report_id INTEGER,
+  version INTEGER NOT NULL DEFAULT 1,
+  reviewer_id INTEGER,
+  review_comment TEXT,
+  score INTEGER CHECK(score BETWEEN 0 AND 100),
+  score_dimensions_json TEXT,
+  submitted_at DATETIME,
+  reviewed_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL,
+  FOREIGN KEY (parent_report_id) REFERENCES lesson_learning_reports(id) ON DELETE SET NULL,
+  FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE SET NULL,
+  UNIQUE(student_id, lesson_id, version)
+);
+
+-- 13. 反思日志
+CREATE TABLE IF NOT EXISTS reflections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  enrollment_id INTEGER,
+  lesson_id INTEGER,
+  report_id INTEGER,
+  difficulty TEXT,
+  solution TEXT,
+  improvement TEXT,
+  new_question TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE SET NULL,
+  FOREIGN KEY (report_id) REFERENCES lesson_learning_reports(id) ON DELETE SET NULL
+);
+
+-- 14. 评价
+CREATE TABLE IF NOT EXISTS evaluations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  evaluator_id INTEGER NOT NULL,
+  student_id INTEGER NOT NULL,
+  enrollment_id INTEGER,
+  eval_type TEXT NOT NULL CHECK(eval_type IN ('process','outcome','peer','self')),
+  score INTEGER,
+  comment TEXT,
+  dimensions TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (evaluator_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL
+);
+
+-- 15. 微课题里程碑
+CREATE TABLE IF NOT EXISTS project_milestones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  micro_project_id INTEGER NOT NULL,
+  team_id INTEGER,
+  title TEXT NOT NULL,
+  content TEXT,
+  next_steps TEXT,
+  recorded_by INTEGER NOT NULL,
+  meeting_date DATE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (micro_project_id) REFERENCES micro_projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (team_id) REFERENCES project_teams(id) ON DELETE SET NULL,
+  FOREIGN KEY (recorded_by) REFERENCES users(id)
+);
+
+-- 16. 素材共享库
+CREATE TABLE IF NOT EXISTS media_assets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  asset_type TEXT NOT NULL CHECK(asset_type IN ('image','video','document','other')),
+  file_path TEXT NOT NULL,
+  file_size INTEGER,
+  course_id INTEGER,
+  school_id INTEGER,
+  tags TEXT,
+  upload_by INTEGER NOT NULL,
+  usage_count INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE SET NULL,
+  FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE SET NULL,
+  FOREIGN KEY (upload_by) REFERENCES users(id)
+);
+
+-- 17. 用户反馈
+CREATE TABLE IF NOT EXISTS feedbacks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  feedback_no TEXT UNIQUE,
+  user_id INTEGER,
+  type TEXT NOT NULL CHECK(type IN ('suggestion','bug','question','content','other')),
+  module TEXT CHECK(module IS NULL OR module IN ('auth','dashboard','courses','students','works','archives','assistant','other')),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  contact TEXT,
+  allow_contact INTEGER NOT NULL DEFAULT 1 CHECK(allow_contact IN (0, 1)),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','processing','waiting_user','resolved','closed','rejected')),
+  priority TEXT NOT NULL DEFAULT 'normal' CHECK(priority IN ('low','normal','high','urgent')),
+  resolution TEXT,
+  source_path TEXT,
+  client_info TEXT,
+  satisfaction INTEGER CHECK(satisfaction IS NULL OR satisfaction BETWEEN 1 AND 5),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  resolved_at DATETIME,
+  closed_at DATETIME,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS feedback_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  feedback_id INTEGER NOT NULL,
+  sender_id INTEGER,
+  message_type TEXT NOT NULL DEFAULT 'reply' CHECK(message_type IN ('reply','note','system')),
+  content TEXT NOT NULL,
+  is_internal INTEGER NOT NULL DEFAULT 0 CHECK(is_internal IN (0, 1)),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (feedback_id) REFERENCES feedbacks(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS feedback_attachments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  feedback_id INTEGER NOT NULL,
+  message_id INTEGER,
+  original_name TEXT NOT NULL,
+  stored_name TEXT NOT NULL,
+  file_path TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  file_size INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (feedback_id) REFERENCES feedbacks(id) ON DELETE CASCADE,
+  FOREIGN KEY (message_id) REFERENCES feedback_messages(id) ON DELETE SET NULL
+);
+
+-- 18. 站内通知
+CREATE TABLE IF NOT EXISTS notifications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_key TEXT NOT NULL,
+  dedupe_key TEXT UNIQUE,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  summary TEXT,
+  category TEXT NOT NULL CHECK(category IN ('feedback','course','task','work','archive','account','system','security')),
+  level TEXT NOT NULL DEFAULT 'normal' CHECK(level IN ('normal','important','urgent','security')),
+  status TEXT NOT NULL DEFAULT 'published' CHECK(status IN ('draft','scheduled','published','withdrawn')),
+  action_url TEXT,
+  business_type TEXT,
+  business_id INTEGER,
+  target_type TEXT NOT NULL DEFAULT 'users',
+  target_config TEXT,
+  created_by INTEGER,
+  is_forced INTEGER NOT NULL DEFAULT 0 CHECK(is_forced IN (0, 1)),
+  published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  withdrawn_at DATETIME,
+  withdrawn_by INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (withdrawn_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_notifications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  notification_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  is_read INTEGER NOT NULL DEFAULT 0 CHECK(is_read IN (0, 1)),
+  read_at DATETIME,
+  is_hidden INTEGER NOT NULL DEFAULT 0 CHECK(is_hidden IN (0, 1)),
+  received_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(notification_id, user_id),
+  FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 滑翔机模拟记录（学生提交参数 -> 后端运行 -> 落库结果）
+CREATE TABLE IF NOT EXISTS glider_simulations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL,
+  dihedral_deg REAL NOT NULL DEFAULT 0,
+  cg_x REAL NOT NULL DEFAULT 0,
+  speed REAL NOT NULL DEFAULT 36,
+  alt REAL NOT NULL DEFAULT 150,
+  wing_area REAL NOT NULL DEFAULT 17.5,   -- 机翼面积 (m²)，相对基准 17.5 等比缩放
+  mass REAL NOT NULL DEFAULT 420,         -- 整机质量 (kg)，课程组“重力”参数
+  elevator_deg REAL NOT NULL DEFAULT 0,   -- 水平尾翼偏角 (°)，>0 上抬（抬头）
+  rudder_deg REAL NOT NULL DEFAULT 0,     -- 垂直尾翼偏角 (°)，>0 机头右偏
+  status TEXT NOT NULL DEFAULT 'running' CHECK(status IN ('running','success','error')),
+  state TEXT,
+  glide_time REAL,
+  summary_json TEXT,
+  error TEXT,
+  course_id INTEGER,
+  lesson_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 滑翔机轨迹数据（每帧位置/姿态；最小向量接口 ftrc 格式，zlib 压缩存储）
+-- 模拟产物 flight_trace.bin 入库；接口读库供前端（three.js）与独立渲染程序使用。
+CREATE TABLE IF NOT EXISTS glider_trajectories (
+  simulation_id INTEGER PRIMARY KEY,
+  format TEXT NOT NULL DEFAULT 'ftrc-f32/1',
+  frame_count INTEGER NOT NULL,
+  state_dim INTEGER NOT NULL,
+  frames BLOB NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (simulation_id) REFERENCES glider_simulations(id) ON DELETE CASCADE
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_school ON users(school_id);
+CREATE INDEX IF NOT EXISTS idx_users_teacher ON users(teacher_id, role, is_active);
+CREATE INDEX IF NOT EXISTS idx_courses_theme ON courses(theme);
+CREATE INDEX IF NOT EXISTS idx_courses_grade ON courses(grade_level);
+CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status);
+CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
+CREATE INDEX IF NOT EXISTS idx_works_student ON works(student_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_works_root ON works(student_id, task_id) WHERE parent_work_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_growth_records_work ON growth_records(work_id);
+CREATE INDEX IF NOT EXISTS idx_reflections_student ON reflections(student_id);
+CREATE INDEX IF NOT EXISTS idx_reflections_report ON reflections(report_id);
+CREATE INDEX IF NOT EXISTS idx_course_replays_lesson ON course_replays(lesson_id, sort_order, id);
+CREATE INDEX IF NOT EXISTS idx_resources_lesson ON resources(lesson_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_knowledge_cards_lesson ON knowledge_cards(lesson_id, status, sort_order, id);
+CREATE INDEX IF NOT EXISTS idx_card_exercises_card ON card_exercises(card_id, sort_order, id);
+CREATE INDEX IF NOT EXISTS idx_card_attempts_student_exercise ON card_exercise_attempts(student_id, exercise_id, attempt_no DESC);
+CREATE INDEX IF NOT EXISTS idx_student_card_progress_student ON student_card_progress(student_id, card_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_review_completions_student ON lesson_review_completions(student_id, lesson_id);
+CREATE INDEX IF NOT EXISTS idx_learning_reports_student_lesson ON lesson_learning_reports(student_id, lesson_id, version DESC);
+CREATE INDEX IF NOT EXISTS idx_learning_reports_review_queue ON lesson_learning_reports(status, submitted_at);
+CREATE INDEX IF NOT EXISTS idx_evaluations_student ON evaluations(student_id);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status, priority, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_messages_feedback ON feedback_messages(feedback_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_glider_sims_student ON glider_simulations(student_id, id DESC);
+CREATE INDEX IF NOT EXISTS idx_glider_sims_course ON glider_simulations(course_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_attachments_feedback ON feedback_attachments(feedback_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_event ON notifications(event_key, business_type, business_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_published ON notifications(status, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_notifications_user ON user_notifications(user_id, is_hidden, received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_notifications_unread ON user_notifications(user_id, is_read, is_hidden);
+
+-- 灵境小智：与 012_ai_assistant.sql 保持一致，新库由此创建，旧库走增量迁移。
+CREATE TABLE IF NOT EXISTS ai_settings (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+  model TEXT NOT NULL DEFAULT 'deepseek-flash',
+  base_url TEXT NOT NULL DEFAULT 'https://api.deepseek.com',
+  api_key_encrypted TEXT,
+  system_prompt TEXT NOT NULL,
+  retrieval_enabled INTEGER NOT NULL DEFAULT 1 CHECK (retrieval_enabled IN (0, 1)),
+  show_sources INTEGER NOT NULL DEFAULT 1 CHECK (show_sources IN (0, 1)),
+  expansion_level TEXT NOT NULL DEFAULT 'balanced' CHECK (expansion_level IN ('strict', 'balanced', 'open')),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS ai_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  resource_id INTEGER NOT NULL UNIQUE,
+  course_id INTEGER NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'ready', 'failed', 'unsupported')),
+  error_message TEXT,
+  indexed_at DATETIME,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS ai_chunks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  document_id INTEGER NOT NULL,
+  course_id INTEGER NOT NULL,
+  chunk_index INTEGER NOT NULL,
+  locator TEXT,
+  text TEXT NOT NULL,
+  FOREIGN KEY (document_id) REFERENCES ai_documents(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  UNIQUE (document_id, chunk_index)
+);
+CREATE VIRTUAL TABLE IF NOT EXISTS ai_chunks_fts USING fts5(text, content='ai_chunks', content_rowid='id', tokenize='trigram');
+CREATE TRIGGER IF NOT EXISTS ai_chunks_ai AFTER INSERT ON ai_chunks BEGIN
+  INSERT INTO ai_chunks_fts(rowid, text) VALUES (new.id, new.text);
+END;
+CREATE TRIGGER IF NOT EXISTS ai_chunks_ad AFTER DELETE ON ai_chunks BEGIN
+  INSERT INTO ai_chunks_fts(ai_chunks_fts, rowid, text) VALUES ('delete', old.id, old.text);
+END;
+CREATE TRIGGER IF NOT EXISTS ai_chunks_au AFTER UPDATE ON ai_chunks BEGIN
+  INSERT INTO ai_chunks_fts(ai_chunks_fts, rowid, text) VALUES ('delete', old.id, old.text);
+  INSERT INTO ai_chunks_fts(rowid, text) VALUES (new.id, new.text);
+END;
+CREATE INDEX IF NOT EXISTS idx_ai_documents_course ON ai_documents(course_id, enabled, status);
+CREATE INDEX IF NOT EXISTS idx_ai_chunks_document ON ai_chunks(document_id);
+
+-- AI 调用运行记录，不保存原始提问、课程资料、回答或密钥。
+CREATE TABLE IF NOT EXISTS ai_usage (
+  id TEXT PRIMARY KEY,
+  user_id INTEGER,
+  course_id INTEGER,
+  request_day TEXT NOT NULL,
+  model TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','succeeded','failed')),
+  error_code TEXT,
+  provider_request_id TEXT,
+  prompt_tokens INTEGER,
+  completion_tokens INTEGER,
+  total_tokens INTEGER,
+  duration_ms INTEGER,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  finished_at DATETIME,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY(course_id) REFERENCES courses(id) ON DELETE SET NULL
+);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_day_user ON ai_usage(request_day, user_id);
+
+-- 016: 头像为本人当前课程偏好，不参与学习判定。
+CREATE TABLE IF NOT EXISTS course_avatar_preferences (
+  student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  avatar_id TEXT NOT NULL CHECK (avatar_id IN ('navigator','pathfinder','maker','decoder','collaborator','guardian')),
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (student_id, course_id)
+);

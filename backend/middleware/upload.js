@@ -142,19 +142,18 @@ const uploadWork = multer({
 
 const uploadResource = multer({
   storage: makeStorage('resource', 'resources'),
-  fileFilter: (req, file, cb) => {
-    if (path.extname(file.originalname).toLowerCase() === '.txt') {
-      if (file.mimetype === 'text/plain' || file.mimetype === 'application/octet-stream') return cb(null, true);
-      return cb(Object.assign(new Error('TXT 文件类型无效'), { status: 400 }), false);
-    }
-    return fileFilter(req, file, cb);
-  },
+  fileFilter: require('../services/courseUploadPolicy').filter,
   limits: { fileSize: 50 * 1024 * 1024 }
 });
+const uploadCover=multer({storage:makeStorage('cover','course-covers'),fileFilter:(req,file,cb)=>{
+ const ext=path.extname(file.originalname).toLowerCase();
+ if(!['.jpg','.jpeg','.png','.webp'].includes(ext))return cb(Object.assign(new Error('封面仅支持 JPG/PNG/WebP，最多 5 MB'),{status:400}),false);
+ fileFilter(req,file,cb);
+},limits:{fileSize:5*1024*1024}});
 
 const uploadReplay = multer({
   storage: makeStorage('replay', 'course-replays'),
-  fileFilter,
+  fileFilter:(req,file,cb)=>['.mp4','.webm'].includes(path.extname(file.originalname).toLowerCase())?fileFilter(req,file,cb):cb(Object.assign(new Error('回放仅支持 MP4/WebM，最多 500 MB'),{status:400}),false),
   limits: { fileSize: 500 * 1024 * 1024 }
 });
 
@@ -164,4 +163,4 @@ const uploadImport = multer({
   limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-module.exports = { uploadWork, uploadResource, uploadReplay, uploadImport, validateUploadedFiles, UPLOAD_ROOT };
+module.exports = { uploadWork, uploadResource, uploadReplay, uploadCover, uploadImport, validateUploadedFiles, UPLOAD_ROOT };
