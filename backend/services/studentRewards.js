@@ -30,7 +30,7 @@ function reconcile(studentId){return db.transaction(()=>{
 }) ();}
 function profile(studentId){
  const grants=db.prepare('SELECT id,lesson_id,course_id,name,art_id,description,lesson_title,course_title,earned_at,shown_at FROM student_badge_grants WHERE student_id=? ORDER BY earned_at,id').all(studentId).map(g=>({...g,source:'lesson',accessible:Boolean(db.prepare(`SELECT 1 FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE l.id=? AND c.status='published' AND l.status!='cancelled' AND e.student_id=? AND e.status='active'`).get(g.lesson_id,studentId))}));
- return {grants,locked:visibleLessons(studentId).map(l=>eligibility(studentId,l.id)),exchanges:exchanges(studentId)};
+ return {grants:[...grants,...require('./rewardRedemptions').badges(studentId)],locked:visibleLessons(studentId).map(l=>eligibility(studentId,l.id)),exchanges:exchanges(studentId)};
 }
 function present(studentId,body){fields(body,['grantId']);if(typeof body.grantId!=='string')invalid('缺少已读取的徽章编号');return db.transaction(()=>{
  const grant=db.prepare('SELECT id,name,art_id FROM student_badge_grants WHERE id=? AND student_id=? AND shown_at IS NULL').get(body.grantId,studentId);if(!grant)return {grant:null};

@@ -75,6 +75,12 @@ app.use((req, res, next) => {
 app.use(`${API_PREFIX}/auth`, require('./routes/auth'));
 app.use(`${API_PREFIX}/account`, require('./routes/account'));
 app.use(`${API_PREFIX}/rewards`, require('./routes/rewards'));
+app.use(`${API_PREFIX}/reward-shop`, require('./routes/rewardShop'));
+// Durable real-redemption outbox resumes after restart; no dependency on a
+// student repeating their order. Timer does not keep a stopped server alive.
+const rewardDelivery=require('./services/rewardRedemptions');
+rewardDelivery.flushNotifications();
+setInterval(()=>{try{rewardDelivery.flushNotifications();}catch(e){console.error('奖励通知重试失败:',e.message);}},30000).unref();
 app.use(`${API_PREFIX}/course-spaces/:courseId`, require('./routes/courseSpaces'));
 app.use(`${API_PREFIX}/dashboard`, require('./routes/dashboard'));
 app.use(`${API_PREFIX}/glider`, require('./routes/gliders'));

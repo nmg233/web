@@ -7,6 +7,9 @@ const fs = require('fs');
 const path = require('path');
 
 function runMigrations(db) {
+ return db.transaction(() => migrate(db)).immediate();
+}
+function migrate(db) {
   db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
@@ -28,12 +31,19 @@ function runMigrations(db) {
     db.prepare("UPDATE schema_migrations SET version = 8, name = '008_student_lifecycle.sql' WHERE version = 3").run();
   }
 
+  const legacyReplay = db.prepare('SELECT name FROM schema_migrations WHERE version=14').get();
+  if(legacyReplay?.name==='014_replay_summary.sql'){
+    if(!db.prepare('PRAGMA table_info(course_replays)').all().some(c=>c.name==='summary')||db.prepare('SELECT 1 FROM schema_migrations WHERE version=16').get())throw Error('旧摘要迁移与结构不一致');
+    db.prepare("UPDATE schema_migrations SET version=16,name='016_replay_summary.sql' WHERE version=14").run();
+  }
+  require('./migrationBridge').bridge(db);
   const dir = path.join(__dirname, 'migrations');
   const files = fs.readdirSync(dir)
     .filter((f) => /^\d+_.*\.sql$/.test(f))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
   const applied = new Set(db.prepare('SELECT version FROM schema_migrations').all().map((r) => r.version));
+  for(const file of files){const version=parseInt(file,10),record=db.prepare('SELECT name FROM schema_migrations WHERE version=?').get(version);if(version>=16&&record&&record.name!==file)throw Error(`迁移 ${version} 身份不一致，请核对备份与历史记录；拒绝按编号跳过`);}
 
   const hasUsers = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
   if (!hasUsers) {
@@ -47,7 +57,7 @@ function runMigrations(db) {
     }
     for (const file of files) {
       const version = parseInt(file.split('_')[0], 10);
-      if (version > 1 && !applied.has(version)) {
+      if ((version <= 15 || (version >= 1016 && version <= 1023)) && version > 1 && !applied.has(version)) {
         mark.run(version, file);
         applied.add(version);
       }
@@ -62,6 +72,7 @@ function runMigrations(db) {
     const sql = fs.readFileSync(path.join(dir, file), 'utf8');
     db.transaction(() => {
       db.exec(sql);
+      if(version===18)require('./migrationBridge').snapshotLegacy(db);
       db.prepare('INSERT INTO schema_migrations (version, name) VALUES (?, ?)').run(version, file);
     })();
     console.log(`✅ 数据库迁移 ${file} 已应用`);

@@ -55,7 +55,8 @@ test('既有库兼容升级两次，不改报名、报告、作品，也不分�
   const migrate=require('../database/migrate').runMigrations;migrate(legacy);migrate(legacy);
   assert.equal(legacy.prepare('SELECT count(*) n FROM course_avatar_preferences').get().n,0);
   assert.equal(legacy.prepare('SELECT count(*) n FROM schema_migrations WHERE version=16').get().n,1);
-  for(const row of oldSchema.filter(r=>!['users','courses','lessons','resources','reflections'].includes(r.name))) assert.equal(legacy.prepare('SELECT sql FROM sqlite_master WHERE name=?').get(row.name).sql,row.sql);
+  for(const row of oldSchema.filter(r=>!['users','courses','lessons','resources','reflections','schools','course_replays'].includes(r.name))) assert.equal(legacy.prepare('SELECT sql FROM sqlite_master WHERE name=?').get(row.name).sql,row.sql);
+  assert.ok(legacy.prepare('PRAGMA table_info(course_replays)').all().some(c=>c.name==='summary'));
   assert.equal(legacy.prepare('SELECT count(*) n FROM schema_migrations WHERE version=17').get().n,1);
   assert.ok(legacy.prepare('PRAGMA table_info(users)').all().some(c=>c.name==='avatar_preset'));
   assert.equal(legacy.prepare('SELECT count(*) n FROM course_plan_nodes').get().n,0);

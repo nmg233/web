@@ -111,7 +111,8 @@ test('私有封面真实保存/替换、下载范围、失效清除与安全公�
 });
 test('016真实旧库、全新库及重复启动迁移保护现有账号和业务记录',()=>{
  const Database=require('better-sqlite3'),legacy=new Database(path.join(scratch,'legacy.db'));legacy.pragma('foreign_keys=ON');legacy.exec(fs.readFileSync(path.join(__dirname,'../testFixtures/schema-v16.sql'),'utf8'));legacy.exec('CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY,name TEXT,applied_at DATETIME DEFAULT CURRENT_TIMESTAMP)');
- for(const file of fs.readdirSync(path.join(__dirname,'../database/migrations')).filter(f=>/^\d+_/.test(f)&&parseInt(f)<=16))legacy.prepare('INSERT INTO schema_migrations(version,name) VALUES(?,?)').run(parseInt(file),file);
+ for(const file of fs.readdirSync(path.join(__dirname,'../database/migrations')).filter(f=>/^\d+_/.test(f)&&parseInt(f)<=15))legacy.prepare('INSERT INTO schema_migrations(version,name) VALUES(?,?)').run(parseInt(file),file);
+ legacy.prepare('INSERT INTO schema_migrations(version,name) VALUES(16,?)').run('016_course_avatar_preferences.sql');
  const preserved=['users','courses','enrollments','lessons','tasks','works','lesson_progress','lesson_learning_reports','knowledge_cards','resources','course_replays'];
  for(const table of preserved){const rows=db.prepare('SELECT * FROM '+table).all();if(!rows.length)continue;const oldColumns=legacy.prepare('PRAGMA table_info('+table+')').all().map(c=>c.name);const insert=legacy.prepare('INSERT INTO '+table+'('+oldColumns.join(',')+') VALUES('+oldColumns.map(()=>'?').join(',')+')');for(const row of rows)insert.run(...oldColumns.map(c=>row[c]??null));}
  // Populate every required historical category in the real v16 schema, never a business DB.
@@ -129,8 +130,8 @@ test('016真实旧库、全新库及重复启动迁移保护现有账号和业�
  const migrate=require('../database/migrate').runMigrations;migrate(legacy);migrate(legacy);
  for(const[t,rows]of Object.entries(snapshot)){assert.ok(rows.length,'旧库测试不是空表 '+t);for(const row of rows){const actual=legacy.prepare('SELECT * FROM '+t+' WHERE '+Object.keys(row).map(k=>k+' IS ?').join(' AND ')).get(...Object.values(row));assert.ok(actual,'旧记录完整 '+t);}}
  assert.deepEqual(legacy.pragma('foreign_key_check'),[]);assert.ok(fs.existsSync(legacy.prepare('SELECT file_path FROM resources WHERE file_path IS NOT NULL LIMIT 1').get().file_path));
- assert.equal(legacy.prepare('SELECT presentation_theme FROM courses WHERE id=1').get().presentation_theme,'campus');assert.equal(legacy.prepare('SELECT count(*) n FROM course_chapters').get().n,0);assert.equal(legacy.prepare('SELECT count(*) n FROM schema_migrations WHERE version=17').get().n,1);
- const fresh=new Database(':memory:');migrate(fresh);migrate(fresh);assert.equal(fresh.prepare('SELECT count(*) n FROM schema_migrations WHERE version=17').get().n,1);legacy.close();fresh.close();
+ assert.equal(legacy.prepare('SELECT presentation_theme FROM courses WHERE id=1').get().presentation_theme,'campus');assert.equal(legacy.prepare('SELECT count(*) n FROM course_chapters').get().n,0);assert.equal(legacy.prepare('SELECT count(*) n FROM schema_migrations WHERE version=1017').get().n,1);
+ const fresh=new Database(':memory:');migrate(fresh);migrate(fresh);assert.equal(fresh.prepare('SELECT count(*) n FROM schema_migrations WHERE version=1017').get().n,1);legacy.close();fresh.close();
 });
 
 test('管理员回放上传边界在文件解析前生效，旧及嵌套入口不落盘',async()=>{

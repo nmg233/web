@@ -18,7 +18,7 @@ test('教材防丢稿与报告预览：独立合成库原生操作',{timeout:360
  db.prepare("UPDATE lessons SET content_state='ready' WHERE id=?").run(theory);
  for(let i=1;i<=2;i++)db.prepare("INSERT INTO knowledge_cards(lesson_id,title,content,status,created_by,sort_order) VALUES(?,?,'合成卡片内容','published',2,?)").run(theory,'防丢卡片 '+i,i);
  const backend=spawn(process.execPath,['backend/app.js'],{cwd:root,env:f.env,stdio:'ignore',windowsHide:true});await ready(api+'/api/health');
- const dist=path.join(root,'build/teaching');
+ const dist=path.join(root,process.env.PBL_REGRESSION_DIST||'build/teaching');
  const front=http.createServer((req,res)=>{
   if(req.url.startsWith('/api/')){const p=http.request(api+req.url,{method:req.method,headers:req.headers},r=>{res.writeHead(r.statusCode,r.headers);r.pipe(res);});p.on('error',()=>{res.writeHead(502);res.end();});req.pipe(p);return;}
   const candidate=path.resolve(dist,'.'+new URL(req.url,base).pathname),file=candidate.startsWith(dist+path.sep)&&fs.existsSync(candidate)&&fs.statSync(candidate).isFile()?candidate:path.join(dist,'index.html');

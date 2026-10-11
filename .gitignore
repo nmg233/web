@@ -108,3 +108,8 @@ docs/next-version/step-02/browser-first/
 /docs/**/evidence*/
 /docs/**/copy-browser*/
 /docs/**/preview-screenshots/
+
+!docs/real-redemption/*.md
+!docs/real-redemption/*.html
+# Private redemption verification files stay local.
+/docs/real-redemption/evidence/

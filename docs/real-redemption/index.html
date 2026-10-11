@@ -1,0 +1,12 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>真实礼品兑换验收截图</title><style>body{margin:0 auto;padding:32px;max-width:1300px;font:16px/1.7 system-ui;background:#edf0e5;color:#223629}h1,h2{line-height:1.4}figure{margin:24px 0;padding:16px;background:#fff;border:2px solid #35503d}img{display:block;max-width:100%;height:auto;margin:auto}figcaption{padding:8px 0}a{color:#215d73}.small img{max-height:1100px}nav{display:flex;gap:20px;flex-wrap:wrap}</style><h1>真实礼品兑换 · 验收入口</h1><p>真实浏览器、真实本地接口。除第一张持久环境空状态，其余使用隔离验收库，截图中的测试礼品／价格没有录入真实教学库。</p><nav><a href="README.md">交付说明</a><a href="管理员操作指南.md">管理操作指南</a><a href="验证记录.md">验证记录</a><a href="迁移与上游整合说明.md">迁移与尚存冲突</a><a href="http://127.0.0.1:4184">进入本地平台</a></nav>
+<figure><figcaption>实际持久教学环境：奖励管理为空，由管理员录入真实礼品。</figcaption><img src="evidence/live-admin-empty.png" alt="真实持久环境空礼品列表"></figure>
+<figure><figcaption>隔离验收：管理员真实上传、保存的实物及数字徽章。</figcaption><img src="evidence/browser/admin-gifts.png" alt="管理员礼品管理"></figure>
+<figure><figcaption>学生效果预览，不创建兑换。</figcaption><img src="evidence/browser/admin-preview-physical.png" alt="实物礼品学生效果预览"></figure>
+<figure><figcaption>真实金币实物兑换成功与指定提示。</figcaption><img src="evidence/browser/student-physical-success.png" alt="实物兑换成功"></figure>
+<figure><figcaption>管理员线下发放后标记，保留操作人及时间。</figcaption><img src="evidence/browser/admin-fulfillment.png" alt="管理员发放记录"></figure>
+<figure><figcaption>另一浏览器上下文读取本人兑换及发放状态。</figcaption><img src="evidence/browser/student-records.png" alt="学生跨设备兑换记录"></figure>
+<figure><figcaption>真实兑换徽章进入账号徽章墙。</figcaption><img src="evidence/browser/badge-wall.png" alt="真实徽章墙"></figure>
+<figure><figcaption>兑换徽章详情与来源。</figcaption><img src="evidence/browser/badge-detail.png" alt="真实徽章详情"></figure>
+<figure><figcaption>桌面1440×900。</figcaption><img src="evidence/browser/shop-1440.png" alt="桌面兑换页面"></figure>
+<figure class="small"><figcaption>平板768×1024。</figcaption><img src="evidence/browser/shop-768.png" alt="平板兑换页面"></figure>
+<figure class="small"><figcaption>手机390×844。</figcaption><img src="evidence/browser/shop-390.png" alt="窄屏兑换页面"></figure><p>所有截图与日志保留在本地忽略提交的evidence目录；运行验收测试可重新生成。本轮不切换公网，等待独立复核。</p></html>

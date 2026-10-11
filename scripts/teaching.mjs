@@ -24,7 +24,7 @@ export function sampleFingerprint(db,id){
   const rows=db.prepare(`SELECT * FROM "${table}" WHERE ${table==='courses'?'id=?':`"${key}" ${joins[key]}`} ORDER BY rowid`).all(id);
   // Empty step-03 tables add no user data to the reviewed historical fixture.
   // Any saved definition or course-linked grant still changes the fingerprint and prevents archival.
-  if(['lesson_badge_definitions','student_badge_grants','demo_exchange_events','student_coin_ledger'].includes(table)&&rows.length===0)continue;
+  if(['lesson_badge_definitions','student_badge_grants','demo_exchange_events','student_coin_ledger','lesson_content_versions','student_lesson_versions','exercise_feedback','retired_exercises','lesson_version_repairs','enrollment_completions'].includes(table)&&rows.length===0)continue;
   records[table]=rows.map(row=>Object.fromEntries(Object.entries(row).filter(([k,v])=>{
    if(table==='lessons'&&((['review_content','report_guidance','experiment_guidance'].includes(k)&&v===null)||(k==='article_blocks'&&v==='[]')))return false;
    if(table==='resources'&&k==='display_order'&&v===0)return false;
@@ -107,7 +107,7 @@ async function init(dir,metadata){
 async function available(port){await new Promise((resolve,reject)=>{const s=net.createServer();s.once('error',reject);s.listen(port,'127.0.0.1',()=>s.close(resolve));});}
 async function start(dir){
  const config=JSON.parse(fs.readFileSync(path.join(dir,'private.json'),'utf8'));if(!fs.existsSync(path.join(dir,'teaching.db')))throw Error('数据库缺失；普通启动不会初始化');
- const dist=path.join(root,'build/teaching');if(!fs.existsSync(path.join(dist,'index.html')))throw Error('先运行 npm run build:teaching');
+ const dist=path.resolve(root,process.env.PBL_REGRESSION_DIST||'build/teaching');if(!inside(path.join(root,'build'),dist))throw Error('预览构建必须位于项目 build 目录');if(!fs.existsSync(path.join(dist,'index.html')))throw Error('先构建对应前端');
  await available(config.apiPort);await available(config.frontPort);
  const child=spawn(process.execPath,['scripts/local-server.cjs'],{cwd:root,env:environment(dir,config),windowsHide:true,stdio:'inherit'});const stopToken=randomBytes(24).toString('hex');let stopping=false;
  const server=http.createServer((req,res)=>{

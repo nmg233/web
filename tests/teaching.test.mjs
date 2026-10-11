@@ -28,6 +28,12 @@ test('已有开放反思填写仍阻止对应样例归档',()=>{
  assert.equal(d.prepare('SELECT status FROM courses WHERE id=9002').get().status,'published');
  assert.equal(d.prepare('SELECT entry_note FROM reflections WHERE lesson_id=90021').get().entry_note,'用户已保存开放记录');d.close();
 });
+
+test('上游非空退役练习记录仍阻止归档，只有新增空表可以忽略',()=>{
+ const f=fixture(),d=new Database(f.env.DB_PATH),before=sampleFingerprint(d,9001);
+ d.prepare('INSERT INTO retired_exercises(exercise_id) VALUES(900111)').run();assert.notEqual(sampleFingerprint(d,9001),before);
+ const plan=prepareSkeleton(d);assert.deepEqual(plan.archivedCourses,[9002]);assert.equal(d.prepare('SELECT status FROM courses WHERE id=9001').get().status,'published');d.close();
+});
 test('首次导入保留 WAL 提交、用户填写及真实文件；备份源与同名目标不覆盖',async()=>{
  const f=fixture(),source=new Database(f.env.DB_PATH);source.pragma('journal_mode=WAL');source.prepare("UPDATE lessons SET description='用户原预览已保存的文字。' WHERE id=90011").run();const file=path.join(f.env.UPLOAD_PATH,'existing-teaching.txt');fs.writeFileSync(file,'用户原上传的真实字节');source.prepare("INSERT INTO resources(course_id,lesson_id,resource_type,title,file_name,file_path,upload_by) VALUES(9001,90011,'other','原上传','existing-teaching.txt',?,2)").run(file);
  const rel='.local/import-regression-'+Date.now(),dir=path.join(root,rel),meta=path.join(root,'test-results','import-regression.json');fs.writeFileSync(meta,JSON.stringify({db:f.env.DB_PATH,scratch:f.scratch}));execFileSync(process.execPath,['scripts/teaching.mjs','init','--source',meta,'--data',rel],{cwd:root,stdio:'pipe',windowsHide:true});

@@ -18,6 +18,7 @@ const COMMON_RULES = [
 
 const ROLE_PATH_RULES = {
   admin: [
+    /^\/reward-management$/,
     /^\/dashboard(?:\/schools\/\d+|\/ai)?$/,
     /^\/glider$/,
     /^\/courses(?:\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,

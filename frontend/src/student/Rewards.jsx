@@ -47,7 +47,10 @@ function RecordList({ data, ledger = false, highlight }) {
   </PixelPanel>;
 }
 
-export default function Rewards({giftType="physical"}) {
+// Archived demo implementation: data and rules remain separate and unconverted.
+import RealRewardShop from './RealRewardShop';
+export default function Rewards(props){return <RealRewardShop {...props}/>;}
+export function DemoRewards({giftType="physical"}) {
   const { data, status, error, refreshing, syncWarning, store } = useRewards();
   const remote=useServerRewards();
   const [activeTab, setActiveTab] = useState('gifts');
