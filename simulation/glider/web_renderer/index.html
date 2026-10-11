@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>滑翔机飞行回放 · three.js 延迟渲染</title>
+<!--
+  运行方式（同源才能 fetch 样例 bin 与 GLB 模型）：
+    在 simulation/glider/ 下执行  python -m http.server 8765
+    浏览器打开                http://localhost:8765/web_renderer/index.html
+  直接以 file:// 打开时 fetch 会被浏览器拦截，页面会给出“选择本地文件”兜底入口。
+-->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1020; overflow: hidden;
+    font-family: system-ui, "Microsoft YaHei", sans-serif; }
+  #stage { position: relative; width: 100vw; height: 100vh; }
+  #glider-canvas { display: block; width: 100%; height: 100%; }
+  #controls {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 10px 16px; background: rgba(12,18,34,0.82); color: #e7edf7;
+    font-size: 13px; backdrop-filter: blur(6px);
+  }
+  #controls button {
+    padding: 6px 14px; border: 1px solid #4a5b7d; border-radius: 6px;
+    background: #1b2740; color: #e7edf7; cursor: pointer; font-size: 13px;
+  }
+  #controls button:hover { background: #24365a; }
+  #progress { flex: 1 1 260px; min-width: 180px; accent-color: #4f9dff; }
+  #controls label { display: inline-flex; align-items: center; gap: 6px; }
+  #controls select { background: #1b2740; color: #e7edf7; border: 1px solid #4a5b7d;
+    border-radius: 6px; padding: 5px 8px; }
+  #time { font-variant-numeric: tabular-nums; color: #a9bcd8; min-width: 108px; }
+  #overlay {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    z-index: 20; max-width: 560px; padding: 20px 24px; border-radius: 10px;
+    background: rgba(16,24,42,0.94); color: #dbe6f7; text-align: center;
+    border: 1px solid #33456a; line-height: 1.7;
+  }
+  #overlay h2 { margin: 0 0 8px; font-size: 16px; }
+  #overlay code { background: #0c1424; padding: 2px 6px; border-radius: 4px; }
+  #overlay input[type=file] { margin-top: 10px; color: #cfe0f7; }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="glider-canvas"></canvas>
+
+  <div id="controls" class="hide">
+    <button id="btn-play">暂停</button>
+    <input id="progress" type="range" min="0" max="1000" value="0" step="1" />
+    <span id="time">0.0 / 0.0 s</span>
+    <label>倍速
+      <select id="speed">
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+    </label>
+    <label>机位
+      <select id="camera">
+        <option value="fixed" selected>走廊全景</option>
+        <option value="chase">追逐跟随</option>
+        <option value="follow">跟随取景</option>
+      </select>
+    </label>
+    <label>光照
+      <select id="post"></select>
+    </label>
+    <label><input id="hud" type="checkbox" checked /> HUD</label>
+  </div>
+
+  <div id="overlay">
+    <h2>正在加载轨迹与模型…</h2>
+    <div id="overlay-msg">读取 <code>../samples/flight_trace_sample.bin</code></div>
+  </div>
+</div>
+
+<script type="module">
+import { GliderRenderer3D, parseFtrc } from './renderer_3.js';
+
+const SAMPLE_URL = '../samples/flight_trace_sample.bin';
+const overlay = document.getElementById('overlay');
+const controls = document.getElementById('controls');
+const btnPlay = document.getElementById('btn-play');
+const progress = document.getElementById('progress');
+const timeLabel = document.getElementById('time');
+const speedSel = document.getElementById('speed');
+const cameraSel = document.getElementById('camera');
+const postSel = document.getElementById('post');
+const hudChk = document.getElementById('hud');
+
+let renderer = null;
+let seeking = false;
+
+function start(trace, sourceLabel) {
+  let info;
+  if (trace instanceof ArrayBuffer || trace instanceof Uint8Array) {
+    info = parseFtrc(trace);   // 渲染器内部同样解析二进制
+  } else if (trace instanceof Float32Array) {
+    info = { count: Math.round(trace.length / 11), dim: 11, extraDim: 0 };
+  } else {
+    info = {
+      count: trace.count ?? trace.frames?.length ?? 0,
+      dim: trace.dim ?? 11,
+      extraDim: trace.extra_dim ?? 0,
+    };
+  }
+  console.info('[glider3d] 轨迹已解析：', info, `（${sourceLabel}）`);
+  overlay.innerHTML =
+    `<h2>轨迹已加载（${sourceLabel}）</h2>` +
+    `<div>帧数 ${info.count} · 状态维度 ${info.dim} · 扩展列 ${info.extraDim}</div>`;
+  setTimeout(() => overlay.classList.add('hide'), 900);
+  controls.classList.remove('hide');
+
+  renderer = new GliderRenderer3D('glider-canvas', trace, {
+    camera: 'fixed',
+    autoplay: true,
+    hud: true,
+  });
+  window.__glider = renderer;   // 调试 / 自动化验证探针
+
+  // 光照变体选项由渲染器提供：renderer_3.js 里新增 LIGHT_MODES 条目即自动出现在此
+  for (const { id, label } of renderer.listLightModes()) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = label;
+    if (id === 'default') opt.selected = true;
+    postSel.appendChild(opt);
+  }
+  postSel.addEventListener('change', () => renderer.setLightMode(postSel.value));
+
+  renderer.onFrame(({ t, duration, playing }) => {
+    if (!seeking) progress.value = String(Math.round((t / duration) * 1000));
+    timeLabel.textContent = `${t.toFixed(1)} / ${duration.toFixed(1)} s`;
+    btnPlay.textContent = playing ? '暂停' : '播放';
+  });
+
+  btnPlay.addEventListener('click', () => renderer.toggle());
+  progress.addEventListener('pointerdown', () => { seeking = true; });
+  progress.addEventListener('input', () => {
+    if (!renderer) return;
+    renderer.seek((Number(progress.value) / 1000) * renderer.getDuration());
+  });
+  progress.addEventListener('pointerup', () => { seeking = false; });
+  speedSel.addEventListener('change', () => renderer.setSpeed(Number(speedSel.value)));
+  cameraSel.addEventListener('change', () => renderer.setCamera(cameraSel.value));
+  hudChk.addEventListener('change', () => renderer.setHud(hudChk.checked));
+}
+
+function showFileFallback(reason) {
+  overlay.innerHTML = `
+    <h2>无法自动加载样例轨迹</h2>
+    <div>${reason}</div>
+    <div style="margin-top:10px">请选择本地轨迹文件（<code>.bin</code> 或 <code>.json</code>）：</div>
+    <input id="file" type="file" accept=".bin,.json,application/octet-stream,application/json" />
+    <div style="margin-top:12px;color:#9fb3d1;font-size:12px">
+      提示：在 <code>simulation/glider/</code> 下运行 <code>python -m http.server 8765</code>
+      并通过 <code>http://localhost:8765/web_renderer/index.html</code> 打开可自动加载。
+    </div>`;
+  const input = document.getElementById('file');
+  input?.addEventListener('change', async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const name = file.name.toLowerCase();
+    if (name.endsWith('.json')) {
+      const json = JSON.parse(await file.text());
+      start(json, file.name);
+    } else {
+      start(await file.arrayBuffer(), file.name);
+    }
+  });
+}
+
+// 优先自动 fetch 样例；失败（如 file:// 打开）走文件选择兜底
+fetch(SAMPLE_URL)
+  .then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.arrayBuffer();
+  })
+  .then((buf) => start(buf, 'flight_trace_sample.bin'))
+  .catch((err) => {
+    console.warn('[glider3d] 自动加载样例失败：', err);
+    showFileFallback(`自动加载失败：${err.message}`);
+  });
+</script>
+</body>
+</html>

@@ -16,6 +16,11 @@ router.get('/', requireRole('admin', 'academic_mentor', 'teacher'), controller.l
 router.post('/', requireRole('admin'), controller.create);
 // 分配选项（管理员）——必须声明在 /:id 之前，否则会被当作 id
 router.get('/options', requireRole('admin'), controller.getAssignOptions);
+router.get('/import-batches', requireRole('admin'), controller.importBatches);
+router.get('/import-batches/:batchId', requireRole('admin'), controller.importBatch);
+router.get('/import-batches/:batchId/credentials', requireRole('admin'), controller.importCredentials);
+router.post('/import-batches/:batchId/resume', requireRole('admin'), controller.resumeImport);
+router.post('/import-batches/:batchId/acknowledge', requireRole('admin'), controller.acknowledgeImport);
 router.get('/:id', controller.detail);
 router.put('/:id', requireRole('admin'), controller.updateStudent);
 router.delete('/:id', requireRole('admin'), controller.deleteStudent);
@@ -29,8 +34,11 @@ router.post('/import', requireRole('admin'), uploadImport.single('file'), contro
 // 学校和班级管理（管理员）
 router.post('/schools', requireRole('admin'), controller.createSchool);
 router.delete('/schools/:id', requireRole('admin'), controller.deleteSchool);
+router.put('/schools/:id/status', requireRole('admin'), controller.schoolStatus);
 router.post('/classes', requireRole('admin'), controller.createClass);
 router.delete('/classes/:id', requireRole('admin'), controller.deleteClass);
+router.post('/classes/:id/transfer', requireRole('admin'), controller.transferClass);
+router.get('/classes/:id/transfers', requireRole('admin'), controller.classTransfers);
 
 // 用户管理（管理员）
 router.post('/users', requireRole('admin'), controller.createUser);

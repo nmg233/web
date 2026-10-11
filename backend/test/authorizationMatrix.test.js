@@ -74,8 +74,12 @@ before(async () => {
       .run(id, id, `资料${id}`, file, id + 1);
   }
   const video = path.join(process.env.UPLOAD_PATH, 'replay.mp4');
-  fs.writeFileSync(video, 'test-replay-bytes');
-  db.prepare("INSERT INTO course_replays (id,course_id,title,video_path,created_by) VALUES (1,1,'回放A',?,2),(2,2,'回放B',?,3)").run(video, video);
+  fs.writeFileSync(video, '0000ftypisom0000');
+  db.prepare("INSERT INTO course_replays (id,course_id,lesson_id,title,description,video_path,created_by) VALUES (1,1,1,'回放A','简介',?,2),(2,2,2,'回放B','简介',?,3)").run(video, video);
+  for (const lesson of [1,2]) {
+    db.prepare("INSERT INTO knowledge_cards (id,lesson_id,title,content,status,created_by) VALUES (?,?,'卡片','内容','published',?)").run(lesson,lesson,lesson+1);
+    db.prepare("INSERT INTO card_exercises (card_id,question_type,prompt,answer_json,explanation) VALUES (?,'true_false','判断','true','详解')").run(lesson);
+  }
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -138,7 +142,7 @@ test('教师只读、其他导师及非管理身份的直接写入被拒绝，�
 
 test('签名回放可供 video 访问，但篡改、过期、移除报名或无效 Bearer 不得放行', async () => {
   const url = (await api('/courses/replays/1/stream-url', { user:'studentA' })).body.url.slice(4);
-  assert.equal((await api(url, { user:null })).body, 'test-replay-bytes');
+  assert.equal((await api(url, { user:null })).body, '0000ftypisom0000');
   assert.equal((await api(url, { token:'invalid' })).status, 401);
   for (const [key, value] of [['uid','7'],['v','10'],['sig','f'.repeat(64)],['exp','1'],['v','-1']]) {
     const changed = new URL(`${base}/api${url}`);

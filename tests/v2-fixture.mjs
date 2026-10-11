@@ -8,7 +8,7 @@ export const root=path.resolve(import.meta.dirname,'..');
 const require=createRequire(path.join(root,'backend/package.json'));export const Database=require('better-sqlite3');
 export function fixture(port=3144,front=4174){
  const scratch=mkdtempSync(path.join(tmpdir(),'pbl-redesign-v2-'));
- const env={...process.env,NODE_ENV:'test',DB_PATH:path.join(scratch,'v2.db'),PORT:String(port),JWT_SECRET:randomBytes(32).toString('hex'),UPLOAD_PATH:path.join(scratch,'uploads'),FEEDBACK_UPLOAD_PATH:path.join(scratch,'feedback'),CORS_ORIGIN:'http://127.0.0.1:'+front,API_PROXY_TARGET:'http://127.0.0.1:'+port,GLIDER_BACKEND:'reference',GLIDER_PYTHON:path.join(root,'.venv/Scripts/python.exe'),GLIDER_RENDERER:'mpl',LOGIN_RATE_LIMIT_IP:'500',LOGIN_RATE_LIMIT_USER:'500'};
+ const env={...process.env,NODE_ENV:'test',DB_PATH:path.join(scratch,'v2.db'),PORT:String(port),JWT_SECRET:randomBytes(32).toString('hex'),UPLOAD_PATH:path.join(scratch,'uploads'),FEEDBACK_UPLOAD_PATH:path.join(scratch,'feedback'),CORS_ORIGIN:'http://127.0.0.1:'+front,API_PROXY_TARGET:'http://127.0.0.1:'+port,GLIDER_BACKEND:'reference',GLIDER_PYTHON:process.env.GLIDER_PYTHON||path.join(root,process.platform==='win32'?'.venv/Scripts/python.exe':'.venv/bin/python'),GLIDER_RENDERER:'mpl',LOGIN_RATE_LIMIT_IP:'500',LOGIN_RATE_LIMIT_USER:'500'};
  mkdirSync(env.UPLOAD_PATH,{recursive:true});
  execFileSync(process.execPath,['database/init.js'],{cwd:path.join(root,'backend'),env,stdio:'pipe'});
  const db=new Database(env.DB_PATH);

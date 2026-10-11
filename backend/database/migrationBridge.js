@@ -18,7 +18,7 @@ function verify(db,version){
  if(version===19&&!db.prepare("SELECT 1 FROM sqlite_master WHERE type='trigger' AND name='course_plan_detach_lesson'").get())throw Error('019 课时解绑触发器缺失');
 }
 function bridge(db){
- const files=fs.readdirSync(path.join(__dirname,'migrations')).filter(f=>/^10\d\d_/.test(f));
+ const files=fs.readdirSync(path.join(__dirname,'migrations')).filter(f=>/^10\d\d_/.test(f)&&signatures[Number(f.slice(1,4))]);
  const moves=[];
  for(const file of files){const oldVersion=Number(file.slice(1,4)),oldName=file.slice(1),row=db.prepare('SELECT * FROM schema_migrations WHERE version=?').get(oldVersion);
   if(row?.name!==oldName)continue;
@@ -43,4 +43,28 @@ function snapshotLegacy(db){
  for(const p of pairs){const v=versions.saveVersion(db,p.lesson_id,true);db.prepare('INSERT OR IGNORE INTO student_lesson_versions(student_id,lesson_id,content_version_id) VALUES(?,?,?)').run(p.student_id,p.lesson_id,v.id);}
  db.exec(`INSERT OR IGNORE INTO report_content_versions(report_id,content_version_id) SELECT r.id,s.content_version_id FROM lesson_learning_reports r JOIN student_lesson_versions s ON s.student_id=r.student_id AND s.lesson_id=r.lesson_id`);
 }
-module.exports={bridge,snapshotLegacy};
+function supplementLegacy(db) {
+ const insert=db.prepare('INSERT OR IGNORE INTO lesson_version_supplements(content_version_id,lesson_json,resources_json) VALUES(?,?,?)');
+ for(const version of db.prepare('SELECT id,lesson_id,content_json FROM lesson_content_versions').all()) {
+  const snapshot=JSON.parse(version.content_json);
+  if(Object.prototype.hasOwnProperty.call(snapshot.lesson||{},'review_content'))continue;
+  const lesson=db.prepare('SELECT * FROM lessons WHERE id=?').get(version.lesson_id);
+  if(!lesson)continue;
+  const resources=(snapshot.resources||[]).flatMap(resource=>{
+   const current=db.prepare('SELECT * FROM resources WHERE id=? AND course_id=?').get(resource.id,lesson.course_id);
+   return current?[current]:[];
+  });
+  insert.run(version.id,JSON.stringify(lesson),JSON.stringify(resources));
+ }
+ // Existing completion timestamps are authoritative. Do not mark additional
+ // enrollments completed, rewrite their dates or infer an original full manifest.
+ const versions=require('../helpers/lessonVersions');
+ const record=db.prepare('INSERT OR IGNORE INTO enrollment_completions(enrollment_id,lesson_manifest_json,completed_at) VALUES(?,?,?)');
+ for(const enrollment of db.prepare('SELECT id,student_id,course_id,completed_at FROM enrollments WHERE completed_at IS NOT NULL').all()) {
+  if(db.prepare('SELECT 1 FROM enrollment_completions WHERE enrollment_id=?').get(enrollment.id))continue;
+  const lessons=db.prepare("SELECT id FROM lessons WHERE course_id=? AND status!='cancelled' ORDER BY sort_order,id").all(enrollment.course_id);
+  const completed=lessons.filter(lesson=>versions.completionEvidence(db,enrollment.student_id,lesson.id).completed).map(lesson=>lesson.id);
+  record.run(enrollment.id,JSON.stringify(completed),enrollment.completed_at);
+ }
+}
+module.exports={bridge,snapshotLegacy,supplementLegacy};

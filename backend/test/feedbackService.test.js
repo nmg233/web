@@ -45,11 +45,21 @@ function createFeedback() {
   });
 }
 
+test('反馈创建重试保持同一个对象，同一标识不同内容返回409', () => {
+  const payload={type:'bug',module:'works',title:'幂等反馈测试',description:'请求超时后重试，不应生成重复反馈。',request_key:'feedback-retry-test-key'};
+  const first=feedbackService.create(student,payload);
+  const second=feedbackService.create(student,payload);
+  assert.equal(second.id,first.id);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM feedbacks').get().n,1);
+  assert.throws(()=>feedbackService.create(student,{...payload,title:'不同内容的反馈'}),e=>e.status===409);
+});
+
 beforeEach(() => {
   db.exec(`
     DELETE FROM feedback_attachments;
     DELETE FROM feedback_messages;
     DELETE FROM feedbacks;
+    DELETE FROM request_results;
     DELETE FROM users;
   `);
   seedUsers();

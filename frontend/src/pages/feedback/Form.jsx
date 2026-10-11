@@ -1,3 +1,4 @@
+import {requestKey} from '../../utils/requestKey';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import Alert from '../../content/RoleAlert';
 import RoleSentence from '../../content/RoleSentence';
@@ -15,7 +16,7 @@ function CreateForm({ user }) {
   const navigate = useNavigate(), location = useLocation();
   const [busy, setBusy] = useState(false), [files, setFiles] = useState([]);
   const [error, setError] = useState(''), [fileError, setFileError] = useState('');
-  const pending = useRef(false), alive = useRef(true);
+  const pending = useRef(false), alive = useRef(true), request=useRef({fingerprint:'',key:''});
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   const selectFiles = (event) => {
     const next = [...files], errors = [];
@@ -33,6 +34,9 @@ function CreateForm({ user }) {
       Object.entries(values).forEach(([key, value]) => { if (value !== undefined && value !== null) data.append(key, typeof value === 'string' ? value.trim() : value); });
       data.set('source_path', location.state?.from || '/feedback/new');
       data.set('client_info', navigator.userAgent);
+      const fingerprint=JSON.stringify([values,files.map(f=>[f.name,f.size,f.lastModified])]);
+      if(request.current.fingerprint!==fingerprint)request.current={fingerprint,key:requestKey()};
+      data.set('request_key',request.current.key);
       files.forEach((file) => data.append('attachments', file));
       const response = await feedbackAPI.create(data);
       if (alive.current) navigate(`/feedback/${response.data.feedback.id}`, { state: { submitted: true } });

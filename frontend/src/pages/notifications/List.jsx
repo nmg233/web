@@ -1,3 +1,4 @@
+import OutboxPanel from '../../components/notifications/OutboxPanel';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Pagination, Space } from 'antd';
@@ -33,6 +34,7 @@ function Results({ filters, setFilters, currentReadRef }) {
   </ReadState>;
 }
 function AccountList() {
+  const {user}=useAuth();
   const location = useLocation(), { refreshUnread } = useNotifications();
   const [notice, setNotice] = useState(location.state?.notice || null), [busy, setBusy] = useState(false);
   const [filters, setFilters] = useState({ page: 1, pageSize: 20 }), [confirm, setConfirm] = useState(false);
@@ -82,7 +84,7 @@ function AccountList() {
         {confirm && <OperationNotice value={notice} />}
       </ServiceModal>
     </ServicePanel>
-  </ServicePage>;
+  {user?.role==='admin'&&<OutboxPanel />}</ServicePage>;
 }
 export default function NotificationList() {
   const { user } = useAuth();

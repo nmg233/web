@@ -37,7 +37,8 @@ const courseAPI = {
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
   deleteResource: (resourceId) => client.delete(`/courses/resources/${resourceId}`),
   listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
-  uploadReplay: (courseId, formData) => client.post(`/courses/${courseId}/replays`, formData, {
+  uploadReplay: (courseId, formData, onUploadProgress) => client.post(`/courses/${courseId}/replays`, formData, {
+    timeout: 30 * 60 * 1000, onUploadProgress,
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
@@ -56,6 +57,16 @@ const taskAPI = {
 };
 
 const studentAPI = {
+  schoolStatus: (id, is_active) => client.put(`/students/schools/${id}/status`, { is_active }),
+  startImport: (formData) => client.post('/students/import?async=1', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  importBatches: (page = 1) => client.get('/students/import-batches', { params: { page } }),
+  importBatch: (id) => client.get(`/students/import-batches/${id}`),
+  importCredentials: (id) => client.get(`/students/import-batches/${id}/credentials`),
+  resumeImport: (id) => client.post(`/students/import-batches/${id}/resume`),
+  acknowledgeImport: (id) => client.post(`/students/import-batches/${id}/acknowledge`),
+  transferClass: (id, data) => client.post(`/students/classes/${id}/transfer`, data),
+  classTransfers: (id) => client.get(`/students/classes/${id}/transfers`),
+
   list: (params) => client.get('/students', { params }),
   create: (data) => client.post('/students', data),
   detail: (id) => client.get(`/students/${id}`),
@@ -135,6 +146,9 @@ const feedbackAPI = {
 };
 
 const notificationAPI = {
+  outbox: () => client.get('/notifications/outbox'),
+  replayOutbox: (event_key) => client.post('/notifications/outbox/replay', { event_key }),
+
   list: (params) => client.get('/notifications', { params, silent: true }),
   recent: (limit = 10) => client.get('/notifications/recent', { params: { limit }, silent: true }),
   unreadCount: () => client.get('/notifications/unread-count', { silent: true }),
@@ -147,6 +161,8 @@ const notificationAPI = {
 };
 
 const learningAPI = {
+  preview: (lessonId) => client.get(`/learning/lessons/${lessonId}/preview`),
+
   lesson: (lessonId) => client.get(`/learning/lessons/${lessonId}`),
   completeReview: (lessonId) => client.post(`/learning/lessons/${lessonId}/review-complete`),
   submitExercise: (exerciseId, answer) => client.post(`/learning/exercises/${exerciseId}/submit`, { answer }),
@@ -155,6 +171,8 @@ const learningAPI = {
 };
 
 const learningManageAPI = {
+  repairLegacy: (lessonId, data) => client.post(`/learning/manage/lessons/${lessonId}/repair-legacy`, data),
+
   lessons: () => client.get('/learning/manage/lessons'),
   cards: (lessonId) => client.get(`/learning/manage/lessons/${lessonId}/cards`),
   createCard: (lessonId, data) => client.post(`/learning/manage/lessons/${lessonId}/cards`, data),
@@ -167,6 +185,8 @@ const learningManageAPI = {
 };
 
 const mentorReviewAPI = {
+  feedback: (reportId, exerciseId, content) => client.post(`/mentor-reviews/${reportId}/exercises/${exerciseId}/feedback`, { content }),
+
   list: (params) => client.get('/mentor-reviews', { params }),
   detail: (reportId) => client.get(`/mentor-reviews/${reportId}`),
   review: (reportId, data) => client.post(`/mentor-reviews/${reportId}/review`, data),

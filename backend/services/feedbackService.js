@@ -9,6 +9,7 @@ const {
 } = require('../constants/feedback');
 const notificationService = require('./notificationService');
 const { decodeOriginalName } = require('../helpers/fileName');
+const requests = require('../helpers/requestResults');
 
 const { NOTIFICATION_EVENTS } = notificationService;
 
@@ -96,6 +97,12 @@ function normalizePagination(query = {}) {
 }
 
 function create(user, data, files = []) {
+  const identity = requests.identity(user, 'feedback', data, files);
+  const prior = requests.existing(db, identity);
+  if (prior) {
+    require('../middleware/feedbackUpload').removeFiles(files);
+    return getFeedbackRow(prior.id);
+  }
   const type = cleanText(data.type, 30);
   const moduleName = cleanText(data.module, 30) || null;
   const title = cleanText(data.title, 100);
@@ -153,17 +160,20 @@ function create(user, data, files = []) {
     });
 
     addSystemMessage(feedbackId, user.id, '反馈已提交');
-    return getFeedbackRow(feedbackId);
-  })();
-  notifyFeedbackAdmins(feedback, {
+    requests.save(db, identity, { id: feedbackId });
+    const record = getFeedbackRow(feedbackId);
+  notifyFeedbackAdmins(record, {
     eventKey: NOTIFICATION_EVENTS.FEEDBACK_SUBMITTED,
-    dedupeKey: `feedback.submitted:${feedback.id}`,
+    dedupeKey: `record.submitted:${record.id}`,
     title: '收到新的用户反馈',
-    summary: `${feedback.feedback_no} · ${feedback.title}`,
-    content: `用户“${feedback.user_name || '未知用户'}”提交了反馈：${feedback.title}`,
+    summary: `${record.feedback_no} · ${record.title}`,
+    content: `用户“${record.user_name || '未知用户'}”提交了反馈：${record.title}`,
     level: 'important',
     createdBy: user.id,
   });
+    return record;
+  })();
+
   return feedback;
 }
 
@@ -511,19 +521,21 @@ function options() {
   };
 }
 
+const atomic = (operation) => (...args) => db.transaction(() => operation(...args)).immediate();
+
 module.exports = {
   FeedbackError,
-  create,
+  create: atomic(create),
   listMine,
   listManage,
   detail,
-  addPublicMessage,
+  addPublicMessage: atomic(addPublicMessage),
   addInternalNote,
-  changeStatus,
+  changeStatus: atomic(changeStatus),
   changePriority,
-  resolve,
-  confirmResolved,
-  reopen,
+  resolve: atomic(resolve),
+  confirmResolved: atomic(confirmResolved),
+  reopen: atomic(reopen),
   stats,
   attachment,
   options,

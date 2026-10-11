@@ -1,3 +1,4 @@
+import {lessonAccessReason} from './learningIntegration.js';
 import {copyText as siteText} from "../content/systemText.js";
 import { groupLessons } from './model.js';
 
@@ -22,7 +23,7 @@ export function buildCourseRoute(lessons, groups = [], persistedChapterOrder = f
 }
 
 export function currentLesson(lessons, requestedId) {
-  const available = [...lessons].filter((lesson) => lesson.status !== 'cancelled')
+  const available = [...lessons].filter((lesson) => !lessonAccessReason(lesson))
     .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0) || Number(a.id) - Number(b.id));
   return available.find((lesson) => String(lesson.id) === String(requestedId))
     || available.find((lesson) => Number(lesson.progress) > 0 && Number(lesson.progress) < 100)

@@ -2,6 +2,7 @@ const express = require('express');
 const controller = require('../controllers/feedbackController');
 const { requireAuth, requirePasswordChanged, requireRole } = require('../middleware/auth');
 const { uploadFeedbackAttachments } = require('../middleware/feedbackUpload');
+const uploadFingerprint = require('../middleware/uploadFingerprint');
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get('/manage/list', requireRole('admin'), controller.manageList);
 router.get('/manage/stats', requireRole('admin'), controller.stats);
 router.get('/attachments/:id', controller.downloadAttachment);
 
-router.post('/', uploadFeedbackAttachments.array('attachments', 3), controller.create);
+router.post('/', uploadFeedbackAttachments.array('attachments', 3), uploadFingerprint, controller.create);
 router.post('/:id/messages', controller.addMessage);
 router.post('/:id/internal-notes', requireRole('admin'), controller.addInternalNote);
 router.patch('/:id/status', requireRole('admin'), controller.changeStatus);

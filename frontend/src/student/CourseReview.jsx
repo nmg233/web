@@ -1,3 +1,4 @@
+import ReplaySummary from '../components/common/ReplaySummary';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../content/copy";
 import Alert from '../student/visual/StudentAlert';
 import Sentence from '../content/Sentence';
@@ -107,7 +108,7 @@ function ReplayRegion({ courseId }) {
             : <div className="review-player-placeholder" role="status"><span aria-hidden="true">▷</span><Sentence>{player.loading ? copyText('system.review.040') : copyText('system.review.041')}</Sentence></div>}
       </div>
       {selection && <div className="review-playing"><strong>{selection.title}</strong>{player.url && <PixelButton size="small" onClick={() => choose(selection)}>{copyText('system.review.042')}</PixelButton>}</div>}
-      <ul className="review-replay-list">{state.data?.replays.map(replay => <li key={replay.id}><button type="button" aria-pressed={selection?.id === replay.id} onClick={() => choose(replay)}><span aria-hidden="true">▷</span><div><strong>{replay.title}</strong><Sentence>{replay.recording_date || copyText('system.review.043')}{replayDuration(replay.duration_seconds) && ` · ${replayDuration(replay.duration_seconds)}`}</Sentence></div><span>{selection?.id === replay.id ? copyText('system.review.044') : copyText('system.review.045')}</span></button></li>)}</ul>
+      <ul className="review-replay-list">{state.data?.replays.map(replay => <li key={replay.id}><button type="button" aria-pressed={selection?.id === replay.id} onClick={() => choose(replay)}><span aria-hidden="true">▷</span><div><strong>{replay.title}</strong><Sentence>{replay.recording_date || copyText('system.review.043')}{replayDuration(replay.duration_seconds) && ` · ${replayDuration(replay.duration_seconds)}`}</Sentence></div><span>{selection?.id === replay.id ? copyText('system.review.044') : copyText('system.review.045')}</span></button><ReplaySummary replay={replay}/></li>)}</ul>
     </ReadState>
   </StudySection>;
 }

@@ -42,7 +42,7 @@ router.get('/',action(req=>{
   lessons:db.prepare('SELECT * FROM lessons WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('lessons',r)),
   tasks:db.prepare('SELECT t.* FROM tasks t JOIN lessons l ON l.id=t.lesson_id WHERE l.course_id=? ORDER BY t.id').all(id).map(r=>revisionDto('tasks',r)),
   cards:db.prepare('SELECT k.id,k.lesson_id,k.title,k.status FROM knowledge_cards k JOIN lessons l ON l.id=k.lesson_id WHERE l.course_id=? ORDER BY k.sort_order,k.id').all(id),
-  replays:db.prepare('SELECT id,course_id,lesson_id,title,description,duration_seconds,recording_date,sort_order FROM course_replays WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('course_replays',r))};
+  replays:db.prepare('SELECT id,course_id,lesson_id,title,description,summary,duration_seconds,recording_date,sort_order FROM course_replays WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('course_replays',r))};
 }));
 router.get('/badges',action(req=>({definitions:db.prepare('SELECT b.* FROM lesson_badge_definitions b JOIN lessons l ON l.id=b.lesson_id WHERE l.course_id=? ORDER BY l.sort_order,l.id').all(req.params.id)})));
 router.put('/badges/:lessonId',action(req=>{
@@ -107,10 +107,13 @@ router.post('/experiments',action(req=>{const data=experiment(req.body,req.param
 router.put('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);return update('course_experiments',row.id,experiment(req.body,req.params.id));}));
 router.delete('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);db.prepare('DELETE FROM course_experiments WHERE id=?').run(row.id);return{deleted:true};}));
 router.put('/resources/:resourceId',action(req=>{
- const row=object('resources',req.params.resourceId,req.params.id);fields(req.body,['title','description','lesson_id','resource_type','display_order']);const data={};
+ const row=object('resources',req.params.resourceId,req.params.id);
+ const assertEditableLesson=id=>{if(id&&db.prepare("SELECT status FROM lessons WHERE id=? AND course_id=?").get(id,req.params.id)?.status==='cancelled')v.invalid('课时已取消，资料只允许查看历史',409);};
+ assertEditableLesson(row.lesson_id);
+ fields(req.body,['title','description','lesson_id','resource_type','display_order']);const data={};
  if(v.own(req.body,'title'))data.title=v.text(req.body.title,'资料名称',120,true);
  if(v.own(req.body,'description'))data.description=v.text(req.body.description,'资料说明',10000);
- if(v.own(req.body,'lesson_id')){data.lesson_id=v.lessonId(req.body.lesson_id,req.params.id);if(data.lesson_id!==row.lesson_id&&db.prepare("SELECT l.id FROM lessons l,json_each(l.article_blocks) b WHERE json_extract(b.value,'$.resourceId')=? LIMIT 1").get(row.id))v.invalid('图片正在文章中使用，请先移除文章引用再更改归属',409);}
+ if(v.own(req.body,'lesson_id')){data.lesson_id=v.lessonId(req.body.lesson_id,req.params.id);assertEditableLesson(data.lesson_id);if(data.lesson_id!==row.lesson_id&&db.prepare("SELECT l.id FROM lessons l,json_each(l.article_blocks) b WHERE json_extract(b.value,'$.resourceId')=? LIMIT 1").get(row.id))v.invalid('图片正在文章中使用，请先移除文章引用再更改归属',409);}
  if(v.own(req.body,'display_order'))data.display_order=v.integer(req.body.display_order,'图片/资料排序',{max:10000});
  if(v.own(req.body,'resource_type')){if(!['lesson_plan','guide_card','template','courseware','video','other'].includes(req.body.resource_type))v.invalid('资料类型无效');data.resource_type=req.body.resource_type;}
  return update('resources',row.id,data);

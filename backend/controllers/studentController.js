@@ -1,22 +1,20 @@
-const bcrypt = require('bcryptjs');
 const db = require('../config/database');
-const fs = require('fs');
 const path = require('path');
-const XLSX = require('xlsx');
 const { isTeacher } = require('../middleware/auth');
 const { buildUserTree } = require('../helpers/userTree');
 const { sanitizeUser } = require('../helpers/userDto');
 const { removeFilesAfterCommit, removeDirectoriesAfterCommit } = require('../helpers/fileLifecycle');
-const { isStrongPassword } = require('../helpers/passwordPolicy');
 const { canViewArchive } = require('../helpers/archivePolicy');
 const { loadStudentArchive } = require('./archiveController');
-const { generateTemporaryPassword } = require('../services/tempPasswordService');
 const orgService = require('../services/organizationService');
 const lifecycle = require('../services/studentLifecycleService');
+const { generateTemporaryPassword } = require('../services/tempPasswordService');
 const { mentorStudentScope, mentorStudentParams, canViewStudent } = require('../policies/studentPolicy');
 
 exports.changeStatus = (req, res) => {
   try {
+    const target = db.prepare('SELECT role FROM users WHERE id=?').get(req.params.id);
+    if (target && target.role !== 'student') return res.json(require('../services/accountLifecycleService').changeStatus(req.params.id, req.user.id, req.body.action, req.body.reason));
     if (!['disable', 'archive', 'restore'].includes(req.body.action)) return res.status(400).json({ error: '无效的账号操作' });
     const method = { disable: lifecycle.disableStudent, archive: lifecycle.archiveStudent, restore: lifecycle.restoreStudent }[req.body.action];
     if (typeof method !== 'function') return res.status(400).json({ error: '无效的账号操作' });
@@ -26,8 +24,16 @@ exports.changeStatus = (req, res) => {
   }
 };
 
-const { resolveUsername } = require('../helpers/username');
 const MANAGED_ROLES = ['student', 'teacher', 'academic_mentor'];
+
+exports.transferClass = (req, res) => {
+  try { res.json({ message: '整班迁移成功', ...orgService.transferClass(req.user, req.params.id, req.body) }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '迁移失败，班级和学生关系未改变，请稍后重试' }); }
+};
+exports.classTransfers = (req, res) => {
+  try { res.json({ transfers: orgService.classTransfers(req.user, req.params.id) }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '读取迁移记录失败' }); }
+};
 
 // 统一布尔解析：兼容前端 true/1/'1'/'on'/'true' 等形态，其余一律视为 false
 function toBooleanInt(value) {
@@ -37,6 +43,9 @@ function toBooleanInt(value) {
 // 删除用户前的依赖预检：返回仍有业务引用的明细（空数组=可安全删除）
 function userDeletionBlockers(userId) {
   const checks = [
+    {label:'学生迁校操作记录',count:db.prepare('SELECT COUNT(*) c FROM student_school_transfers WHERE student_id=? OR actor_id=?').get(userId,userId).c,hint:'请保留账号与迁移历史'},
+    { label: '整班迁移操作记录', count: db.prepare('SELECT COUNT(*) c FROM class_school_transfers WHERE actor_id=?').get(userId).c, hint: '请保留迁移操作者身份' },
+    { label: '教职工状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM account_status_events WHERE user_id=? OR actor_id=?').get(userId,userId).c, hint: '请保留账号及状态历史' },
     { label: '账号状态操作记录', count: db.prepare('SELECT COUNT(*) c FROM student_status_events WHERE student_id = ? OR actor_id = ?').get(userId, userId).c, hint: '请保留账号及状态历史' },
     // 按数据归属检查而非当前角色，避免变更角色后绕过学习档案保护。
     ...[
@@ -51,6 +60,12 @@ function userDeletionBlockers(userId) {
       ['evaluations', '学生评价'],
       ['growth_records', '学生成长记录'],
       ['glider_simulations', '实验模拟记录'],
+      ['student_coin_ledger', '真实金币流水'],
+      ['student_coin_checkins', '真实签到记录'],
+      ['student_badge_grants', '课时徽章记录'],
+      ['reward_orders', '真实礼品兑换订单'],
+      ['reward_badge_grants', '兑换徽章记录'],
+      ['demo_exchange_events', '历史演示兑换记录'],
       ['project_team_members', '微课题参与记录'],
     ].map(([table, label]) => ({
       label,
@@ -70,6 +85,16 @@ function userDeletionBlockers(userId) {
     { label: '成长记录', count: db.prepare('SELECT COUNT(*) c FROM growth_records WHERE recorded_by = ?').get(userId).c, hint: '成长记录将随删除丢失' },
     { label: '历史评价', count: db.prepare('SELECT COUNT(*) c FROM evaluations WHERE evaluator_id = ?').get(userId).c, hint: '评价记录将被级联删除' },
   ];
+  // 新增外键不能绕过预检；幂等结果是可清理缓存，不是业务历史。
+  const tables=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all();
+  for(const {name} of tables) {
+    if(name==='request_results' || !/^[a-zA-Z0-9_]+$/.test(name)) continue;
+    for(const fk of db.prepare(`PRAGMA foreign_key_list(${name})`).all()) {
+      if(fk.table!=='users' || !['NO ACTION','RESTRICT'].includes(fk.on_delete) || !/^[a-zA-Z0-9_]+$/.test(fk.from)) continue;
+      const count=db.prepare(`SELECT COUNT(*) c FROM ${name} WHERE ${fk.from}=?`).get(userId).c;
+      if(count) checks.push({label:`关联记录（${name}）`,count,hint:'请保留关联历史或先移交职责'});
+    }
+  }
   return checks.filter((c) => c.count > 0);
 }
 
@@ -84,7 +109,16 @@ function deleteUserWithWorks(userId) {
   const sims = db.prepare('SELECT id FROM glider_simulations WHERE student_id = ?').all(userId);
   const simDirs = sims.map((s) => path.join(require('../middleware/upload').UPLOAD_ROOT, 'glider', String(s.id)));
   // 先事务删除用户（作品/档案/反思等经外键级联清理），提交后再删物理文件
-  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  db.transaction(() => {
+    // Recheck after obtaining the write lock: another process may have added
+    // history since the controller's earlier, user-friendly preflight.
+    const current = db.prepare('SELECT role FROM users WHERE id=?').get(userId);
+    if (current?.role === 'admin') throw Object.assign(new Error('不能删除管理员账号'), {status:400});
+    const blockers = userDeletionBlockers(userId);
+    if (blockers.length) throw Object.assign(new Error('该用户已有业务历史，无法删除：' + formatBlockers(blockers)), {status:400});
+    db.prepare('DELETE FROM request_results WHERE actor_id=?').run(userId);
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  }).immediate();
   removeFilesAfterCommit(filePaths, require('../middleware/upload').UPLOAD_ROOT);
   removeDirectoriesAfterCommit(simDirs, require('../middleware/upload').UPLOAD_ROOT);
 }
@@ -152,57 +186,13 @@ exports.showCreate = (req, res) => {
 };
 
 // 添加学生
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   try {
-    const { password, real_name, school_id, class_id, email, phone } = req.body;
-
-    if (!real_name) {
-      return res.status(400).json({ error: '姓名为必填项' });
-    }
-
-    if (isTeacher(req.user.role)) {
-      const ownSchool = req.user.school_id;
-      if (!ownSchool || Number(school_id) !== ownSchool) {
-        return res.status(400).json({ error: '教师只能在本校添加学生' });
-      }
-      const cls = db.prepare('SELECT id FROM classes WHERE id = ? AND school_id = ?').get(class_id, ownSchool);
-      if (!cls) {
-        return res.status(400).json({ error: '班级必须属于当前学校' });
-      }
-    }
-
-    if (!school_id || !class_id) {
-      return res.status(400).json({ error: '学校和班级为必填项' });
-    }
-
-    const studentUsername = resolveUsername(db, req.body.username, 'student');
-    if (password !== undefined && password !== null && password !== '') {
-      return res.status(400).json({ error: '初始密码由系统随机生成，请勿传入 password' });
-    }
-    const studentPassword = generateTemporaryPassword();
-    const password_hash = bcrypt.hashSync(studentPassword, 10);
-
-    // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
-    const result = db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, role, school_id, class_id, force_reset_password)
-       VALUES (?, ?, ?, ?, ?, 'student', ?, ?, 1)`
-    ).run(studentUsername, password_hash, real_name, email || null, phone || null,
-          school_id || null, class_id || null);
-
+    const result = await createAccount({ ...req.body, role: 'student' }, { beforeCommit:()=>assertCreator(req.user) });
+    const { auth_version, ...account } = result;
     res.set('Cache-Control', 'no-store');
-    res.json({
-      message: `学生 ${real_name} 添加成功，首次登录需修改密码`,
-      id: Number(result.lastInsertRowid),
-      username: studentUsername,
-      real_name,
-      temp_password: studentPassword,
-      force_reset_password: 1,
-    });
-  } catch (err) {
-    console.error('添加学生错误:', err);
-    if (err.status === 400) return res.status(400).json({ error: err.message });
-    res.status(500).json({ error: '添加失败，请稍后重试' });
-  }
+    res.json({ message: '学生账号已创建，首次登录需修改密码', ...account });
+  } catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '创建失败，请稍后重试' }); }
 };
 
 // 批量导入页面
@@ -210,168 +200,38 @@ exports.showImport = (req, res) => {
   res.json({ title: '批量导入用户' });
 };
 
-// ============ 批量导入（支持 CSV / Excel 文件，也兼容 JSON） ============
-const IMPORT_ROLES = ['student', 'teacher', 'academic_mentor'];
-const ROLE_ALIAS = { '学生': 'student', '教师': 'teacher', '学术导师': 'academic_mentor' };
+// 持久化后台批次：正常客户端使用 async=1，旧客户端仍可等待结果。
+const accountImports = require('../services/accountImportService');
+const { createAccount, assertCreator } = require('../services/accountCreationService');
 
-function normalizeRole(value) {
-  const t = String(value || '').trim().toLowerCase();
-  if (ROLE_ALIAS[t]) return ROLE_ALIAS[t];
-  if (IMPORT_ROLES.includes(t)) return t;
-  return 'student';
-}
-
-// 将表头/字段名归一化为内部字段
-function normalizeImportRow(raw) {
-  const get = (...aliases) => {
-    for (const key of Object.keys(raw)) {
-      const k = String(key).trim().toLowerCase();
-      if (aliases.some((a) => k.includes(a.toLowerCase()))) {
-        const v = String(raw[key] ?? '').trim();
-        return v === '' || v === '-' ? '' : v;
-      }
-    }
-    return '';
-  };
-  return {
-    username: get('登录账号', '账号', 'username', 'login_id'),
-    real_name: get('姓名', 'real_name', '真实姓名'),
-    role: get('身份', '角色', 'role'),
-    school_name: get('学校', 'school_name', '学校名称'),
-    class_name: get('班级', 'class_name', '班级名称'),
-    email: get('邮箱', 'email'),
-    phone: get('手机号', '手机', 'phone', '联系电话'),
-    profile: get('简介', '备注', 'profile')
-  };
-}
-
-// 解析 CSV（支持带引号、含逗号的字段）
-function parseCSVText(text) {
-  const lines = text.replace(/\r/g, '').split('\n').filter((l) => l.trim() !== '');
-  if (lines.length < 2) throw new Error('文件至少需要表头和一行数据');
-  const splitLine = (line) => {
-    const out = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (inQ) {
-        if (ch === '"') {
-          if (line[i + 1] === '"') { cur += '"'; i++; }
-          else inQ = false;
-        } else cur += ch;
-      } else if (ch === '"') inQ = true;
-      else if (ch === ',') { out.push(cur); cur = ''; }
-      else cur += ch;
-    }
-    out.push(cur);
-    return out.map((s) => s.trim());
-  };
-  const headers = splitLine(lines[0]);
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const vals = splitLine(lines[i]);
-    const raw = {};
-    headers.forEach((h, idx) => { raw[h] = vals[idx] ?? ''; });
-    rows.push(normalizeImportRow(raw));
-  }
-  return rows;
-}
-
-// 解析上传文件为行数据
-function parseImportFile(file) {
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (ext === '.csv') {
-    return parseCSVText(file.buffer.toString('utf8'));
-  }
-  if (ext === '.xlsx' || ext === '.xls') {
-    const wb = XLSX.read(file.buffer, { type: 'buffer' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rawRows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    return rawRows.map((r) => normalizeImportRow(r));
-  }
-  throw new Error('仅支持 .csv / .xlsx / .xls 文件');
-}
-
-// 批量导入
-exports.import = (req, res) => {
+exports.import = async (req, res) => {
   try {
-    // 1. 解析来源：文件 或 JSON(data)
-    let rows;
-    if (req.file) {
-      rows = parseImportFile(req.file);
-    } else if (req.body.data) {
-      const parsed = JSON.parse(req.body.data);
-      rows = parsed.map((s) => normalizeImportRow(s));
-    } else {
-      return res.status(400).json({ error: '请上传 .csv / .xlsx 文件或提供 data' });
-    }
-
-    // 每个成功导入的用户使用独立随机临时密码；仅当次响应返回明文。
-    const insert = db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
-    );
-    const findSchool = db.prepare('SELECT id FROM schools WHERE name = ?');
-    const findClass = db.prepare('SELECT id FROM classes WHERE name = ? AND school_id = ?');
-
-    const result = db.transaction(() => {
-      let imported = 0;
-      const errors = [];
-      const accounts = [];
-      let seq = 0;
-      for (const row of rows) {
-        seq++;
-        const real_name = row.real_name;
-        if (!real_name) { errors.push(`第 ${seq} 行：缺少姓名`); continue; }
-        const role = normalizeRole(row.role);
-        let school_id = null, class_id = null;
-        if (['student', 'teacher'].includes(role)) {
-          const school = row.school_name ? findSchool.get(row.school_name) : null;
-          if (!row.school_name || !school) {
-            errors.push(`第 ${seq} 行「${real_name}」：学生/教师必须选择存在的学校（当前：${row.school_name || '空'}）`);
-            continue;
-          }
-          school_id = school.id;
-          const cls = row.class_name ? findClass.get(row.class_name, school.id) : null;
-          if (!row.class_name || !cls) {
-            errors.push(`第 ${seq} 行「${real_name}」：学校「${row.school_name}」下不存在班级「${row.class_name || '空'}」`);
-            continue;
-          }
-          class_id = cls.id;
-        }
-        let username;
-        try {
-          username = resolveUsername(db, row.username, role);
-        } catch (err) {
-          if (err.status !== 400) throw err;
-          errors.push(`第 ${seq} 行「${real_name}」：${err.message}`);
-          continue;
-        }
-        const temp_password = generateTemporaryPassword();
-        const password_hash = bcrypt.hashSync(temp_password, 10);
-        insert.run(username, password_hash, real_name,
-                   row.email || null, row.phone || null, row.profile || null,
-                   role, school_id || null, class_id || null);
-        imported++;
-        accounts.push({ username, real_name, role, school_name: row.school_name, class_name: row.class_name, temp_password });
-      }
-      return { imported, errors, accounts };
-    })();
-
+    const batch = await accountImports.start(req.user.id, {
+      file: req.file ? { name: req.file.originalname, buffer: req.file.buffer } : undefined,
+      data: req.body.data,
+    }, req.body.request_key, req.body.confirm_new_batch === 'true' || req.body.confirm_new_batch === true,req.user.auth_version || 0);
     res.set('Cache-Control', 'no-store');
-    res.json({
-      message: result.errors.length
-        ? `成功导入 ${result.imported} 名用户，${result.errors.length} 条失败`
-        : `成功导入 ${result.imported} 名用户`,
-      imported: result.imported,
-      failed: result.errors.length,
-      accounts: result.accounts,
-      errors: result.errors.slice(0, 20)
-    });
-  } catch (err) {
-    console.error('批量导入错误:', err);
-    res.status(400).json({ error: '导入失败：' + (err.message || '文件解析错误') });
-  }
+    if (req.query.async === '1') return res.status(202).json(batch);
+    await accountImports.wait(batch.id);
+    res.json(accountImports.view(batch.id, req.user.id, true));
+  } catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '导入失败，请稍后重试' }); }
+};
+exports.importBatches = (req, res) => res.json(accountImports.list(req.user.id,req.query.page));
+exports.importBatch = (req, res) => {
+  try { res.set('Cache-Control', 'no-store'); res.json(accountImports.view(req.params.batchId, req.user.id)); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
+};
+exports.importCredentials = (req, res) => {
+  try { res.set('Cache-Control', 'no-store'); res.json(accountImports.view(req.params.batchId, req.user.id, true)); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
+};
+exports.resumeImport = (req, res) => {
+  try { res.json(accountImports.resume(req.params.batchId, req.user.id,req.user.auth_version || 0)); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
+};
+exports.acknowledgeImport = (req, res) => {
+  try { accountImports.acknowledge(req.params.batchId, req.user.id); res.json({ message: '已确认账号交付' }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
 };
 
 exports.createSchool = (req, res) => {
@@ -384,7 +244,7 @@ exports.createSchool = (req, res) => {
     res.json({ message: '学校添加成功' });
   } catch (err) {
     console.error('添加学校错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -393,11 +253,15 @@ exports.deleteSchool = (req, res) => {
     if (!orgService.deleteSchool(req.params.id)) {
       return res.status(400).json({ error: '学校不存在' });
     }
-    res.json({ message: '学校已删除，关联班级已删除' });
+    res.json({ message: '空学校已删除' });
   } catch (err) {
     console.error('删除学校错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
+};
+exports.schoolStatus = (req, res) => {
+  try { orgService.setSchoolActive(req.params.id, req.body.is_active); res.json({ message: '学校状态已更新；现有账号继续使用' }); }
+  catch (err) { res.status(err.status || 500).json({ error: err.message }); }
 };
 
 exports.createClass = (req, res) => {
@@ -424,53 +288,18 @@ exports.deleteClass = (req, res) => {
     res.json({ message: '班级已删除' });
   } catch (err) {
     console.error('删除班级错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
-exports.createUser = (req, res) => {
+exports.createUser = async (req, res) => {
   try {
-    const { password, real_name, role, school_id, class_id, email, phone, profile } = req.body;
-
-    if (!real_name || !MANAGED_ROLES.includes(role)) {
-      return res.status(400).json({ error: '姓名和身份不能为空' });
-    }
-
-    if (['student', 'teacher'].includes(role) && (!school_id || !class_id)) {
-      return res.status(400).json({ error: '学生和教师必须选择学校和班级' });
-    }
-
-    if (password !== undefined && password !== null && password !== '') {
-      return res.status(400).json({ error: '初始密码由系统随机生成，请勿传入 password' });
-    }
-
-    if (class_id) {
-      const cls = db.prepare('SELECT id, school_id FROM classes WHERE id = ?').get(class_id);
-      if (!cls || (school_id && cls.school_id !== Number(school_id))) {
-        return res.status(400).json({ error: '班级不存在或不属于所选学校' });
-      }
-    }
-
-    const finalUsername = resolveUsername(db, req.body.username, role);
-
-    const finalPassword = generateTemporaryPassword();
-    const password_hash = bcrypt.hashSync(finalPassword, 10);
-    const finalSchoolId = role === 'academic_mentor' ? null : school_id;
-    const finalClassId = role === 'academic_mentor' ? null : class_id;
-    // AUTH-06：创建用户默认密码统一，必须设置强制重置标志
-    db.prepare(
-      `INSERT INTO users (username, password_hash, real_name, email, phone, profile, role, school_id, class_id, force_reset_password)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`
-    ).run(finalUsername, password_hash, real_name, email || null, phone || null,
-          profile || null, role, finalSchoolId || null, finalClassId || null);
-
+    if (!req.body.real_name || !MANAGED_ROLES.includes(req.body.role)) return res.status(400).json({ error: '姓名和身份不能为空或身份无效' });
+    const result = await createAccount(req.body,{beforeCommit:()=>assertCreator(req.user)});
+    const { auth_version, ...account } = result;
     res.set('Cache-Control', 'no-store');
-    res.json({ message: `用户 ${real_name} 添加成功`, username: finalUsername, real_name, temp_password: finalPassword, force_reset_password: 1 });
-  } catch (err) {
-    console.error('添加用户错误:', err);
-    if (err.status === 400) return res.status(400).json({ error: err.message });
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
+    res.json({ message: '用户账号已创建，首次登录需修改密码', ...account });
+  } catch (err) { res.status(err.status || 500).json({ error: err.status ? err.message : '创建失败，请稍后重试' }); }
 };
 
 exports.getUserForEdit = (req, res) => {
@@ -493,7 +322,7 @@ exports.updateUser = (req, res) => {
     const { real_name, role, school_id, class_id, email, phone, profile, password, is_active } = req.body;
     const userId = req.params.id;
 
-    const existing = db.prepare('SELECT role, is_active, archived_at FROM users WHERE id = ?').get(userId);
+    const existing = db.prepare('SELECT role, is_active, archived_at,school_id FROM users WHERE id = ?').get(userId);
     if (!existing) return res.status(404).json({ error: '用户不存在' });
     if (existing.role === 'admin') return res.status(400).json({ error: '不能通过此接口修改管理员账号' });
     if (existing.role === 'student' && (
@@ -509,9 +338,12 @@ exports.updateUser = (req, res) => {
       });
     }
 
-    if (!real_name || !MANAGED_ROLES.includes(role)) {
+    if (typeof real_name !== 'string' || !real_name.trim() || !MANAGED_ROLES.includes(role)) {
       return res.status(400).json({ error: '姓名和身份不能为空' });
     }
+    // 编辑后也必须能按新姓名执行重置，拒绝只有空格或不能生成拼音的姓名。
+    try { generateTemporaryPassword(real_name.trim()); }
+    catch (err) { return res.status(400).json({ error:err.message }); }
 
     if (['student', 'teacher'].includes(role) && (!school_id || !class_id)) {
       return res.status(400).json({ error: '学生和教师必须选择学校和班级' });
@@ -524,33 +356,46 @@ exports.updateUser = (req, res) => {
       }
     }
 
-    // 密码重置统一走专用接口，避免编辑资料绕过随机密码及首次改密规则。
+    // 密码重置统一走专用接口，避免编辑资料绕过初始密码及首次改密规则。
     if (password !== undefined && password !== null && password !== '') {
-      return res.status(400).json({ error: '请使用重置密码功能，系统将生成随机临时密码' });
+      return res.status(400).json({ error: '请使用专用重置密码功能，密码为姓名拼音@123' });
     }
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
+    if(existing.role==='student' && role==='student' && Number(finalSchoolId)!==existing.school_id) return res.status(409).json({error:'学生跨校请使用编辑分配，指定目标学校新教师并填写原因'});
+    if(existing.role==='teacher' && Number(finalSchoolId)!==existing.school_id && db.prepare('SELECT 1 FROM users WHERE teacher_id=? LIMIT 1').get(userId)) return res.status(409).json({error:'该教师仍负责学生，请先移交负责学生再调整学校'});
     const finalClassId = role === 'academic_mentor' ? null : class_id;
     const active = is_active === undefined ? existing.is_active : toBooleanInt(is_active);
 
     db.transaction(() => {
+      const current = db.prepare('SELECT role FROM users WHERE id=?').get(userId);
+      if (!current) throw Object.assign(new Error('用户不存在'), {status:404});
+      if (current.role === 'admin') throw Object.assign(new Error('不能通过此接口修改管理员账号'), {status:400});
+      if (role !== current.role) {
+        const blockers = userDeletionBlockers(userId);
+        if (blockers.length) throw Object.assign(new Error('账号已有业务历史或职责关联，请保留原身份；需要新身份时另建账号'), {status:409,blockers:blockers.map(({label,count})=>({label,count}))});
+      }
       db.prepare(
         `UPDATE users
          SET real_name = ?, role = ?, school_id = ?, class_id = ?, email = ?, phone = ?, profile = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
          WHERE id = ?`
-      ).run(real_name, role, finalSchoolId || null, finalClassId || null,
+      ).run(real_name.trim(), role, finalSchoolId || null, finalClassId || null,
             email || null, phone || null, profile || null, active, userId);
 
-      if (role !== existing.role) {
+      if (role !== existing.role || active !== existing.is_active) {
         db.prepare('UPDATE users SET auth_version = auth_version + 1 WHERE id = ?').run(userId);
         db.prepare('DELETE FROM refresh_tokens WHERE user_id = ?').run(userId);
       }
-    })();
+      if (active !== existing.is_active && existing.role !== 'student') {
+        const reason = typeof req.body.reason === 'string' && req.body.reason.trim() ? req.body.reason.trim() : '管理员编辑资料调整账号状态';
+        db.prepare('INSERT INTO account_status_events(user_id,actor_id,action,reason) VALUES(?,?,?,?)').run(userId,req.user.id,active ? 'restore' : 'disable',reason);
+      }
+    }).immediate();
 
     res.json({ message: '用户信息已更新' });
   } catch (err) {
     console.error('更新用户错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试', ...(err.blockers ? {blockers:err.blockers} : {}) });
   }
 };
 
@@ -571,7 +416,7 @@ exports.deleteUser = (req, res) => {
     res.json({ message: `用户 ${user.real_name} 已删除` });
   } catch (err) {
     console.error('删除用户错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -603,8 +448,13 @@ exports.batchDeleteUsers = (req, res) => {
         blockedMsgs.push(`${user.real_name}（${blockers.map((b) => `${b.label} ${b.count} 条`).join('、')}）`);
         continue;
       }
-      deleteUserWithWorks(id);
-      deleted.push(user.real_name);
+      try {
+        deleteUserWithWorks(id);
+        deleted.push(user.real_name);
+      } catch (err) {
+        if (err.status !== 400) throw err;
+        blockedMsgs.push(user.real_name + '（' + err.message + '）');
+      }
     }
 
     const msg = `已删除 ${deleted.length} 名用户`;
@@ -622,10 +472,10 @@ exports.batchDeleteUsers = (req, res) => {
 // 管理员：获取分配用选项（学校/负责教师/负责导师）
 exports.getAssignOptions = (req, res) => {
   try {
-    const schools = db.prepare('SELECT id, name FROM schools ORDER BY name').all();
-    const teachers = db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' ORDER BY real_name").all();
+    const schools = db.prepare('SELECT id, name, is_active FROM schools ORDER BY name').all();
+    const teachers = db.prepare("SELECT id, real_name, school_id FROM users WHERE role = 'teacher' AND is_active=1 AND archived_at IS NULL ORDER BY real_name").all();
     const mentors = db.prepare(
-      "SELECT id, real_name FROM users WHERE role = 'academic_mentor' ORDER BY real_name"
+      "SELECT id, real_name FROM users WHERE role = 'academic_mentor' AND is_active=1 AND archived_at IS NULL ORDER BY real_name"
     ).all();
     res.json({ schools, teachers, mentors });
   } catch (err) {
@@ -636,94 +486,16 @@ exports.getAssignOptions = (req, res) => {
 
 // 管理员：为学生分配学校/班级/负责教师/负责导师
 exports.assignStudent = (req, res) => {
-  try {
-    const { school_id, class_id, teacher_id, mentor_id } = req.body;
-    const student = db.prepare(
-      "SELECT id, real_name, school_id FROM users WHERE id = ? AND role = 'student'"
-    ).get(req.params.id);
-    if (!student) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    // 目标学校以「请求 school_id」或「学生当前学校」为准，保证约束一致
-    const targetSchoolId = school_id ? Number(school_id) : student.school_id;
-    if (school_id) {
-      const school = db.prepare('SELECT id FROM schools WHERE id = ?').get(school_id);
-      if (!school) return res.status(400).json({ error: '所选学校不存在' });
-    }
-    if (class_id) {
-      // class 非空时 school 必须非空且归属一致，避免「有班级无学校」的不一致组合
-      if (!targetSchoolId) return res.status(400).json({ error: '选择班级前请先选择学校' });
-      const cls = db.prepare('SELECT id, school_id FROM classes WHERE id = ?').get(class_id);
-      if (!cls) return res.status(400).json({ error: '所选班级不存在' });
-      if (cls.school_id !== targetSchoolId) {
-        return res.status(400).json({ error: '所选班级不属于所选学校' });
-      }
-    }
-    if (teacher_id) {
-      const teacher = db.prepare(
-        "SELECT id, school_id FROM users WHERE id = ? AND role = 'teacher'"
-      ).get(teacher_id);
-      if (!teacher) return res.status(400).json({ error: '所选负责教师不存在' });
-      if (targetSchoolId && teacher.school_id !== targetSchoolId) {
-        return res.status(400).json({ error: '负责教师必须与学生同校' });
-      }
-    }
-    if (mentor_id) {
-      const mentor = db.prepare(
-        "SELECT id FROM users WHERE id = ? AND role = 'academic_mentor'"
-      ).get(mentor_id);
-      if (!mentor) return res.status(400).json({ error: '所选负责导师不存在' });
-    }
-
-    db.prepare(
-      `UPDATE users
-       SET school_id = ?, class_id = ?, teacher_id = ?, mentor_id = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`
-    ).run(targetSchoolId, class_id || null, teacher_id || null, mentor_id || null, req.params.id);
-
-    res.json({ message: `已更新 ${student.real_name} 的分配信息` });
-  } catch (err) {
-    console.error('分配学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
+  try { return res.json(orgService.assignStudent(req.user,req.params.id,req.body)); }
+  catch(err) { return res.status(err.status || 500).json({error:err.status ? err.message : '分配失败，原关系未改变'}); }
 };
+
 
 exports.updateStudent = (req, res) => {
-  try {
-    const { school_id, class_id } = req.body;
-    const student = db.prepare(
-      "SELECT id, school_id FROM users WHERE id = ? AND role = 'student'"
-    ).get(req.params.id);
-
-    if (!student) {
-      return res.status(400).json({ error: '学生不存在' });
-    }
-
-    if (isTeacher(req.user.role)) {
-      // 原学校与新学校都必须属于教师本校，防止教师把外校学生“迁入”本校
-      if (student.school_id !== req.user.school_id) {
-        return res.status(400).json({ error: '无权编辑其他学校学生' });
-      }
-      if (Number(school_id) !== req.user.school_id) {
-        return res.status(400).json({ error: '教师只能编辑本校学生' });
-      }
-    }
-
-    const cls = db.prepare('SELECT id FROM classes WHERE id = ? AND school_id = ?')
-      .get(class_id, school_id);
-    if (!cls) {
-      return res.status(400).json({ error: '班级不存在或不属于所选学校' });
-    }
-
-    db.prepare('UPDATE users SET school_id = ?, class_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      .run(school_id, class_id, req.params.id);
-    res.json({ message: '学生信息已更新' });
-  } catch (err) {
-    console.error('更新学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
-  }
+  try { return res.json(orgService.assignStudent(req.user,req.params.id,req.body)); }
+  catch(err) { return res.status(err.status || 500).json({error:err.status ? err.message : '更新失败，原关系未改变'}); }
 };
+
 
 exports.deleteStudent = (req, res) => {
   try {
@@ -744,7 +516,7 @@ exports.deleteStudent = (req, res) => {
     res.json({ message: '学生已删除' });
   } catch (err) {
     console.error('删除学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -811,6 +583,8 @@ exports.detail = (req, res) => {
         user: safeTarget,
         taughtCourses,
         managedCourses,
+        statusEvents: db.prepare(`SELECT e.action,e.reason,e.created_at,u.username AS actor_username
+          FROM account_status_events e JOIN users u ON u.id=e.actor_id WHERE e.user_id=? ORDER BY e.id DESC`).all(id),
       });
     }
 
@@ -824,7 +598,15 @@ exports.detail = (req, res) => {
       ...archive,
       ...(viewer.role === 'admin' ? { statusEvents: db.prepare(`SELECT e.action, e.reason, e.created_at, u.username AS actor_username
         FROM student_status_events e JOIN users u ON u.id = e.actor_id
-        WHERE e.student_id = ? ORDER BY e.id DESC`).all(id) } : {}),
+        WHERE e.student_id = ? ORDER BY e.id DESC`).all(id),
+        schoolTransfers: db.prepare(`SELECT t.id,t.created_at,t.reason,t.context_json,
+          src.name AS source_school_name,dst.name AS target_school_name,
+          actor.username AS actor_username,teacher.real_name AS teacher_name
+          FROM student_school_transfers t LEFT JOIN schools src ON src.id=t.source_school_id
+          LEFT JOIN schools dst ON dst.id=t.target_school_id JOIN users actor ON actor.id=t.actor_id
+          JOIN users teacher ON teacher.id=t.teacher_id WHERE t.student_id=? ORDER BY t.id DESC`).all(id)
+          .map(({context_json,...row})=>({...row,context:JSON.parse(context_json)})),
+      } : {}),
     });
   } catch (err) {
     console.error('用户详情错误:', err);

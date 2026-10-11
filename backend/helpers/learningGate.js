@@ -1,13 +1,9 @@
 const db = require('../config/database');
+const versions = require('./lessonVersions');
 
 function cardStats(studentId, lessonId) {
-  return db.prepare(`
-    SELECT COUNT(*) AS total,
-           SUM(CASE WHEN p.completed_at IS NOT NULL THEN 1 ELSE 0 END) AS completed
-    FROM knowledge_cards c
-    LEFT JOIN student_card_progress p ON p.card_id = c.id AND p.student_id = ?
-    WHERE c.lesson_id = ? AND c.status = 'published'
-  `).get(studentId, lessonId);
+  const cards = versions.studentCards(db, studentId, lessonId);
+  return { total: cards.length, completed: cards.filter((c) => c.completed_at).length };
 }
 
 function isReviewCompleted(studentId, lessonId) {
@@ -56,36 +52,7 @@ function canSubmitLessonReport(studentId, lessonId) {
 }
 
 function getLessonLearningState(studentId, lessonId) {
-  const reviewCompleted = isReviewCompleted(studentId, lessonId);
-  const cards = cardStats(studentId, lessonId);
-  const report = latestReport(studentId, lessonId);
-  const cardsCompleted = Number(cards.completed || 0);
-  const cardsDone = cards.total > 0 && cardsCompleted === cards.total;
-  const cardPercent = cards.total === 0 ? 0 : Math.round((cardsCompleted / cards.total) * 35);
-  const reportSubmitted = Boolean(report && report.status !== 'rejected');
-  const percent = Math.min(100,
-    (reviewCompleted ? 25 : 0)
-      + cardPercent
-      + (reportSubmitted ? 25 : 0)
-      + (report?.status === 'approved' ? 15 : 0));
-  const completed = reviewCompleted && cardsDone && report?.status === 'approved';
-
-  return {
-    percent,
-    review_completed: reviewCompleted,
-    cards_total: cards.total,
-    cards_completed: cardsCompleted,
-    cards_done: cardsDone,
-    cards_unlocked: reviewCompleted,
-    report_unlocked: reviewCompleted && cardsDone,
-    report_status: report?.status || null,
-    status: completed ? 'completed'
-      : report?.status === 'rejected' ? 'revision'
-        : reportSubmitted ? 'reviewing'
-          : cardsDone ? 'reporting'
-            : reviewCompleted ? 'learning' : 'reviewing_lesson',
-    completed,
-  };
+  return versions.completionEvidence(db,studentId,lessonId);
 }
 
 function recalculateLessonProgress(studentId, lessonId) {
@@ -101,6 +68,8 @@ function recalculateLessonProgress(studentId, lessonId) {
       END,
       updated_at = CURRENT_TIMESTAMP
   `).run(studentId, lessonId, state.percent, state.completed ? 1 : 0);
+  const lesson = db.prepare('SELECT course_id FROM lessons WHERE id = ?').get(lessonId);
+  if (lesson) versions.courseState(db, studentId, lesson.course_id, true);
   return state;
 }
 

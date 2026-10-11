@@ -1,3 +1,4 @@
+import {lessonAccessReason} from './learningIntegration.js';
 import {copyText as siteText} from "../content/systemText.js";
 // 仅组织首页动作，不计算学习完成度，也不参与学习解锁。
 // /tasks 的 status 是报告/学习汇总；作品必须读取独立的 review_status/work_id。
@@ -16,22 +17,23 @@ export function buildHomeTodos({ courses = [], courseDetails = [], tasks = [] })
     const course = allowedCourses.get(String(detail.course.id));
     if (!course) continue;
     for (const lesson of detail.lessons || []) {
-      if (lesson.status === 'cancelled') continue;
+      if (lesson.status === 'cancelled'||lesson.learning_in_scope===false) continue;
       const key = `${course.id}:${lesson.id}`;
       const lessonTasks = tasksByLesson.get(key) || [];
       // 所有任务的报告状态来自相同的 latest report 子查询。没有任务的课时没有此摘要。
-      const reportStatus = lessonTasks[0]?.report_status;
+      const reportStatus = lesson.report_status??lessonTasks[0]?.report_status;
+      const learningAvailable=!lessonAccessReason(lesson);
       const learningProgress = Number(lesson.progress || 0);
       const href = `/courses/${course.id}/lessons/${lesson.id}/learn`;
       const base = {
         courseId: course.id, lessonId: lesson.id, courseTitle: course.title,
         lessonTitle: lesson.title, learningProgress, reportStatus,
       };
-      if (reportStatus === 'rejected') {
+      if (learningAvailable&&reportStatus === 'rejected') {
         candidates.push({ ...base, id: `report:${key}`, kind: 'revise-report', action: siteText("site.300d3b6c9fc3baae"),
           title: lesson.title, href: `${href}?stage=2`, priority: 0,
           description: siteText("site.f2a36f380e3f11c7") });
-      } else if (learningProgress < 100 && reportStatus !== 'submitted') {
+      } else if (learningAvailable&&learningProgress < 100 && reportStatus !== 'submitted') {
         // 不能用 25/60/85 等百分比反推出卡片或报告状态；实际阶段由学习页的真实接口决定。
         candidates.push({ ...base, id: `learning:${key}`, kind: 'continue-learning', action: siteText("site.9c188ce5b4657073"),
           title: lesson.title, href, priority: learningProgress > 0 ? 1 : 3,
@@ -74,7 +76,7 @@ function scheduledTime(value) {
 
 export function nextScheduledLesson(courseDetails = [], now = Date.now()) {
   return courseDetails.flatMap((detail) => (detail.lessons || [])
-    .filter((lesson) => lesson.status === 'scheduled' && scheduledTime(lesson.start_at) >= now - 60 * 60 * 1000)
+    .filter((lesson) => lesson.status === 'scheduled' && lesson.learning_in_scope!==false && scheduledTime(lesson.start_at) >= now - 60 * 60 * 1000)
     .map((lesson) => ({ ...lesson, courseId: detail.course.id, courseTitle: detail.course.title })))
     .sort((a, b) => scheduledTime(a.start_at) - scheduledTime(b.start_at))[0];
 }

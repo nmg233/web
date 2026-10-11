@@ -24,7 +24,7 @@ jobs:
       - run: npm test
 
   frontend:
-    name: 前端 lint + 构建
+    name: 前端测试 + lint + 构建
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,4 +38,5 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm test
       - run: npm run build

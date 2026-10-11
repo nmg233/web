@@ -9,7 +9,8 @@ const { requireAuth, requirePasswordChanged, requireRole, optionalAuth } = requi
 //  2) 无 Bearer 的短期签名 URL（视频/图片直挂 <video>/<img> 无法携带 Authorization），
 //     控制器内以签名校验兜底。
 // 因此本路由不能直接挂在 router.use(requireAuth) 之后，改用 optionalAuth 兼容两种场景。
-router.get('/simulations/:id/files/:name', optionalAuth, controller.file);
+router.get('/simulations/:id/files/:name', optionalAuth,
+  (req, res, next) => req.user ? requirePasswordChanged(req, res, next) : next(), controller.file);
 
 router.use(requireAuth);
 router.use(requirePasswordChanged);

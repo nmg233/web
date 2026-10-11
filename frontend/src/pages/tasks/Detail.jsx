@@ -1,7 +1,7 @@
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import {useCourseApis} from '../../student/useCourseApis';
 import StudentTaskRedirect from '../../student/StudentTaskRedirect';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button, Card, Descriptions, List, Result, Space, Spin, Tag, Typography } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -17,18 +17,20 @@ export default function TaskDetail() {
 function LegacyTaskDetail() {
  const {taskAPI}=useCourseApis();
   const { id } = useParams(); const navigate = useNavigate(); const { user } = useAuth(); const [data, setData] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  const sequence=useRef(0);
   const load = useCallback(() => {
+    const request=++sequence.current;
     setLoading(true);
     setError('');
     setData(null);
     taskAPI.detail(id)
-      .then(setData)
-      .catch((err) => setError(err?.response?.data?.error || siteText("site.505f5c83e82ca25e")))
-      .finally(() => setLoading(false));
+      .then(payload=>{if(request===sequence.current)setData(payload);})
+      .catch(err=>{if(request===sequence.current)setError(err?.response?.data?.error||siteText("site.505f5c83e82ca25e"));})
+      .finally(()=>{if(request===sequence.current)setLoading(false);});
   }, [id,taskAPI]);
   // 路由参数变化时需立即清空上一任务，避免短暂展示无权访问的旧数据。
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { load(); }, [load]);
+  useEffect(()=>{const counter=sequence;load();return()=>{counter.current++;};},[load]);
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!data) return <Result status="404" title={siteText("site.8976208a831ef892")} subTitle={error} extra={<Space><Button onClick={() => navigate('/tasks')}>{siteText("site.01dece7607f62205")}</Button><Button type="primary" onClick={load}>{siteText("site.3583ed28fd7a5e7a")}</Button></Space>} />;
   const { task, works } = data;

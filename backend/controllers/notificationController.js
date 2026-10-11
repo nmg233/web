@@ -20,6 +20,9 @@ exports.list = (req, res) => {
   }
 };
 
+exports.outbox=(req,res)=>{try {res.json({data:notificationService.outbox(req.user)});} catch(err){sendError(res,err);}};
+exports.replayOutbox=(req,res)=>{try {res.json({data:notificationService.replayOutbox(req.user,req.body.event_key)});} catch(err){sendError(res,err);}};
+
 exports.recent = (req, res) => {
   try {
     const items = notificationService.recent(req.user, req.query.limit);

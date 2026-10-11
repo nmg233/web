@@ -6,6 +6,8 @@
 CREATE TABLE IF NOT EXISTS schools (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
+  account_code TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1)),
   description TEXT,
   tags TEXT,
   region TEXT,
@@ -13,6 +15,28 @@ CREATE TABLE IF NOT EXISTS schools (
   contact_phone TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_school_account_code ON schools(account_code) WHERE account_code IS NOT NULL;
+CREATE TABLE IF NOT EXISTS account_school_codes (school_id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE);
+CREATE TABLE IF NOT EXISTS account_sequences (
+  scope TEXT NOT NULL, role TEXT NOT NULL, last_value INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY(scope, role)
+);
+CREATE TABLE IF NOT EXISTS account_import_batches (
+  id TEXT PRIMARY KEY, actor_id INTEGER NOT NULL, actor_auth_version INTEGER NOT NULL DEFAULT 0, fingerprint TEXT NOT NULL,
+  request_key TEXT NOT NULL, input_json TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', progress INTEGER NOT NULL DEFAULT 0,
+  result_json TEXT NOT NULL DEFAULT '{"accounts":[],"errors":[],"row_results":[]}',
+  error_message TEXT, delivered_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(actor_id, request_key)
+);
+CREATE INDEX IF NOT EXISTS idx_account_batch_owner ON account_import_batches(actor_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_account_batch_fingerprint ON account_import_batches(actor_id, fingerprint);
+CREATE TABLE IF NOT EXISTS account_status_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id), action TEXT NOT NULL,
+  reason TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. 班级表
@@ -195,6 +219,7 @@ CREATE TABLE IF NOT EXISTS course_replays (
   lesson_id INTEGER,
   title TEXT NOT NULL,
   description TEXT,
+  summary TEXT,
   video_path TEXT NOT NULL,
   duration_seconds INTEGER,
   recording_date DATE,
@@ -323,6 +348,67 @@ CREATE TABLE IF NOT EXISTS growth_records (
 );
 
 -- 12.1 课后知识卡片与配套练习
+CREATE TABLE IF NOT EXISTS notification_outbox (
+  event_key TEXT PRIMARY KEY, payload_json TEXT NOT NULL, recipients_json TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0, last_error TEXT,
+  delivered_at DATETIME, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  next_retry_at DATETIME, quarantined_at DATETIME
+);
+CREATE TABLE IF NOT EXISTS request_results (
+  actor_id INTEGER NOT NULL REFERENCES users(id), scope TEXT NOT NULL, request_key TEXT NOT NULL,
+  fingerprint TEXT NOT NULL, result_json TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(actor_id, scope, request_key)
+);
+
+CREATE TABLE IF NOT EXISTS lesson_content_versions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lesson_id INTEGER NOT NULL REFERENCES lessons(id),
+  fingerprint TEXT NOT NULL,
+  content_json TEXT NOT NULL,
+  legacy_compat INTEGER NOT NULL DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(lesson_id, fingerprint)
+);
+CREATE TABLE IF NOT EXISTS student_lesson_versions (
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  lesson_id INTEGER NOT NULL REFERENCES lessons(id),
+  content_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id),
+  started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(student_id, lesson_id)
+);
+CREATE TABLE IF NOT EXISTS retired_exercises (
+  exercise_id INTEGER PRIMARY KEY REFERENCES card_exercises(id) ON DELETE CASCADE,
+  retired_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS exercise_feedback (
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  exercise_id INTEGER NOT NULL REFERENCES card_exercises(id),
+  mentor_id INTEGER NOT NULL REFERENCES users(id),
+  content TEXT NOT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(student_id, exercise_id)
+);
+CREATE TABLE IF NOT EXISTS report_content_versions (
+  report_id INTEGER PRIMARY KEY REFERENCES lesson_learning_reports(id),
+  content_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id)
+);
+CREATE TABLE IF NOT EXISTS lesson_version_repairs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  lesson_id INTEGER NOT NULL REFERENCES lessons(id),
+  old_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id),
+  new_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id),
+  reason TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS enrollment_completions (
+  enrollment_id INTEGER PRIMARY KEY REFERENCES enrollments(id),
+  lesson_manifest_json TEXT NOT NULL,
+  completed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE IF NOT EXISTS knowledge_cards (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   lesson_id INTEGER NOT NULL,
@@ -710,6 +796,16 @@ END;
 CREATE INDEX IF NOT EXISTS idx_ai_documents_course ON ai_documents(course_id, enabled, status);
 CREATE INDEX IF NOT EXISTS idx_ai_chunks_document ON ai_chunks(document_id);
 
+-- 整班迁移历史保留组织标识和名称快照，不随空组织删除而丢失。
+CREATE TABLE IF NOT EXISTS class_school_transfers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  class_id INTEGER NOT NULL, source_school_id INTEGER NOT NULL, target_school_id INTEGER NOT NULL,
+  teacher_id INTEGER NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id),
+  reason TEXT NOT NULL, members_json TEXT NOT NULL, context_json TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_class_school_transfers_class ON class_school_transfers(class_id,id);
+
 -- AI 调用运行记录，不保存原始提问、课程资料、回答或密钥。
 CREATE TABLE IF NOT EXISTS ai_usage (
   id TEXT PRIMARY KEY,
@@ -842,3 +938,21 @@ CREATE TABLE student_coin_checkins (
  ledger_id TEXT NOT NULL UNIQUE REFERENCES student_coin_ledger(id),
  PRIMARY KEY(student_id,checkin_date)
 );
+
+-- 020：个体迁校审计、历史补学报告替代、通知公平重试。
+CREATE TABLE IF NOT EXISTS student_school_transfers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_id INTEGER NOT NULL REFERENCES users(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id),
+  source_school_id INTEGER, target_school_id INTEGER NOT NULL,
+  teacher_id INTEGER NOT NULL REFERENCES users(id), reason TEXT NOT NULL,
+  context_json TEXT NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS report_replacements (
+  report_id INTEGER PRIMARY KEY REFERENCES lesson_learning_reports(id),
+  content_version_id INTEGER NOT NULL REFERENCES lesson_content_versions(id),
+  actor_id INTEGER NOT NULL REFERENCES users(id), reason TEXT NOT NULL,
+  replacement_report_id INTEGER REFERENCES lesson_learning_reports(id),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_notification_outbox_retry ON notification_outbox(delivered_at,quarantined_at,next_retry_at,created_at);

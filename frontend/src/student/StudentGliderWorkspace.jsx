@@ -1,3 +1,4 @@
+import FlightReplay3D from '../pages/glider/FlightReplay3D';
 import {copyTemplate as siteTemplate} from "../content/copy";
 import Alert from '../student/visual/StudentAlert';
 import Sentence from '../content/Sentence';
@@ -44,7 +45,7 @@ function RecordResults({ records }) {
               : viewing.status === 'error' ? <Alert type="error" showIcon title={copyText('system.flight.026')} description={viewing.error || copyText('system.flight.027')} />
                 : <>
                   <div className="flight-outcome"><span className="flight-computed"><PixelIcon name="check" size={20} />{copyText('system.flight.028')}</span><h4>{copyText('system.flight.029')}{meta.label}</h4><Sentence>{STATE_TIPS[viewing.state] || copyText('system.flight.030')}</Sentence></div>
-                  <dl className="flight-metrics">{flightMetrics(viewing).map(({ label, value, unit }) => <div key={label}><dt>{label}</dt><dd>{value}<small>{unit}</small></dd></div>)}</dl>
+                  <FlightReplay3D key={viewing.id} simId={viewing.id}/><dl className="flight-metrics">{flightMetrics(viewing).map(({ label, value, unit }) => <div key={label}><dt>{label}</dt><dd>{value}<small>{unit}</small></dd></div>)}</dl>
                   <CopyBlock id="system.flight.031" as="p" className="flight-note"/>
                   <ResultFile key={`trajectory-${viewing.id}`} record={viewing} revision={revision} name="trajectory3d.png" title={copyText('system.flight.032')} />
                   <ResultFile key={`telemetry-${viewing.id}`} record={viewing} revision={revision} name="flight_telemetry.png" title={copyText('system.flight.033')} />

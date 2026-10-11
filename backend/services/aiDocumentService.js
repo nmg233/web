@@ -1,4 +1,4 @@
-const fs = require('fs/promises');
+const { fork } = require('node:child_process');
 const path = require('path');
 const db = require('../config/database');
 const { UPLOAD_ROOT } = require('../middleware/upload');
@@ -51,58 +51,23 @@ async function drain() {
   } finally { running = false; }
 }
 
-function cleanText(text) {
-  return String(text || '').replace(/\u0000/g, '').replace(/[\t ]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-}
-
-function splitText(text, locator) {
-  const result = [];
-  const value = cleanText(text).slice(0, 1200000);
-  for (let start = 0; start < value.length; start += 850) {
-    const part = value.slice(start, start + 1000).trim();
-    if (part) result.push({ text: part, locator });
-    if (result.length >= 1400) break;
-  }
-  return result;
-}
-
-function decodeXml(value) {
-  return value.replace(/&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, (entity) => {
-    const named = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'" };
-    if (named[entity]) return named[entity];
-    const n = entity[2].toLowerCase() === 'x' ? parseInt(entity.slice(3, -1), 16) : parseInt(entity.slice(2, -1), 10);
-    return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : '';
+function parseInWorker(file, ext) {
+  return new Promise((resolve, reject) => {
+    const worker = fork(path.join(__dirname, 'aiDocumentWorker.js'), [], {
+      execArgv: ['--max-old-space-size=256'], stdio: ['ignore', 'ignore', 'pipe', 'ipc'],
+    });
+    let finished = false;
+    const complete = (error, result) => {
+      if (finished) return; finished = true; clearTimeout(timer); worker.kill();
+      if (error) reject(error); else resolve(result);
+    };
+    const timer = setTimeout(() => complete(new Error('文档解析超过 30 秒，请拆分文件')), 30000);
+    worker.once('message', (message) => complete(message.error ? new Error(message.error) : null, message.chunks));
+    worker.once('error', (error) => complete(error));
+    worker.once('exit', (code) => { if (!finished) complete(new Error(`文档解析进程退出（${code}）`)); });
+    worker.stderr.resume(); // 防止第三方解析器日志塞满管道；错误通过 IPC 返回。
+    worker.send({ file, ext });
   });
-}
-
-async function extractParts(file, ext) {
-  if (ext === '.txt') return [{ text: await fs.readFile(file, 'utf8'), locator: '文本' }];
-  if (ext === '.docx') {
-    const mammoth = require('mammoth');
-    const result = await mammoth.extractRawText({ path: file });
-    return [{ text: result.value, locator: '正文' }];
-  }
-  if (ext === '.pdf') {
-    const { PDFParse } = require('pdf-parse');
-    const parser = new PDFParse({ data: new Uint8Array(await fs.readFile(file)) });
-    try {
-      const result = await parser.getText();
-      return result.pages.map((page) => ({ text: page.text, locator: `第 ${page.num} 页` }));
-    } finally { await parser.destroy(); }
-  }
-  const JSZip = require('jszip');
-  const zip = await JSZip.loadAsync(await fs.readFile(file), { checkCRC32: true });
-  const slideNames = Object.keys(zip.files).filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name))
-    .sort((a, b) => Number(a.match(/slide(\d+)/)[1]) - Number(b.match(/slide(\d+)/)[1]));
-  if (slideNames.length > 300) throw new Error('幻灯片超过 300 页，请拆分文件');
-  const parts = [];
-  for (const name of slideNames) {
-    const xml = await zip.file(name).async('string');
-    if (xml.length > 2_000_000) throw new Error('幻灯片内容过大，请拆分文件');
-    const text = [...xml.matchAll(/<a:t(?:\s[^>]*)?>([\s\S]*?)<\/a:t>/g)].map((match) => decodeXml(match[1])).join(' ');
-    parts.push({ text, locator: `第 ${name.match(/slide(\d+)/)[1]} 页` });
-  }
-  return parts;
 }
 
 async function processResource(resourceId) {
@@ -115,8 +80,7 @@ async function processResource(resourceId) {
     const relative = path.relative(UPLOAD_ROOT, file);
     if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('文件不在课程资料目录内');
     if (resource.file_size > 50 * 1024 * 1024) throw new Error('文件超过 50 MB');
-    const parts = await extractParts(file, extension(resource));
-    const chunks = parts.flatMap((part) => splitText(part.text, part.locator));
+    const chunks = await parseInWorker(file, extension(resource));
     if (!chunks.length) throw new Error('未提取到文字。扫描版 PDF 请先进行 OCR 后再上传。');
     db.transaction(() => {
       const current = db.prepare('SELECT id FROM ai_documents WHERE id = ?').get(document.id);

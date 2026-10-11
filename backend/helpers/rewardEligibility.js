@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const gate = require('./learningGate');
+const versions = require('./lessonVersions');
 const invalid=(message,status)=>{throw Object.assign(new Error(message),{status});};
 function taskEligibility(studentId,lessonId){
  if(!db.prepare(`SELECT 1 FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE l.id=? AND e.student_id=? AND e.status='active' AND c.status='published' AND l.status!='cancelled'`).get(lessonId,studentId))invalid('课时不存在或尚未报名',404);
@@ -13,10 +14,10 @@ function taskEligibility(studentId,lessonId){
   add('review',state.review_completed,'请先完成课堂回顾');
   add('cards',state.cards_done,'请完成本课时已发布的知识卡片');
   // Original completion semantics: required exercises need an attempt, not a new score threshold.
-  const required=db.prepare(`SELECT e.id,EXISTS(SELECT 1 FROM card_exercise_attempts a WHERE a.exercise_id=e.id AND a.student_id=?) attempted FROM card_exercises e JOIN knowledge_cards c ON c.id=e.card_id WHERE c.lesson_id=? AND c.status='published' AND e.is_required=1`).all(studentId,lessonId);
-  add('exercises',required.every(e=>e.attempted),'请完成知识卡片中的必做练习');
+  const required=versions.studentCards(db,studentId,lessonId).flatMap(card=>card.exercises).filter(exercise=>exercise.is_required);
+  add('exercises',required.every(e=>Boolean(e.attempt)),'请完成知识卡片中的必做练习');
   const report=gate.latestReport(studentId,lessonId);
-  add('report',report?.status==='approved',report?.status==='rejected'?'最新报告需要修改':report?.status==='submitted'?'最新报告仍待评审':'请提交学习报告并等待通过');
+  add('report',report?.status==='approved'&&!state.resubmission_required,state.resubmission_required||report?.status==='rejected'?'最新报告需要修改':report?.status==='submitted'?'最新报告仍待评审':'请提交学习报告并等待通过');
   const tasks=db.prepare("SELECT id,title,require_upload FROM tasks WHERE lesson_id=? AND status='active' ORDER BY sort_order,id").all(lessonId);
   for(const task of tasks){
    const works=db.prepare('SELECT id,parent_work_id,version,review_status FROM works WHERE task_id=? AND student_id=? ORDER BY version DESC,created_at DESC,id DESC').all(task.id,studentId);

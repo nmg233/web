@@ -97,7 +97,7 @@ test('重复账号包括禁用账号均被拒绝；姓名可以重复，错误�
   assert.equal((await create('HSXX-2026-0001', '另一个名字')).status, 400);
   assert.equal((await create('bad account')).status, 400);
   assert.equal((await create('中文账号')).status, 400);
-  assert.equal((await create('x'.repeat(65))).status, 400);
+  assert.equal((await create('x'.repeat(161))).status, 400);
   assert.equal((await create({ account: 'test' })).status, 400);
   assert.equal((await create('disabled-user')).status, 200);
   db.prepare('UPDATE users SET is_active = 0 WHERE username = ?').run('disabled-user');

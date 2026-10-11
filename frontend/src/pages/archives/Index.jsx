@@ -36,7 +36,7 @@ function StaffArchive() {
     archiveAPI.getTree().then((res) => {
       const tree = res.tree || res;
       if (tree.schools) {
-        setTreeData(tree.schools.map((school) => ({
+        const schools=tree.schools.map((school) => ({
           title: `🏫 ${school.name}`,
           key: `school-${school.id}`,
           children: (school.classes || []).map((cls) => ({
@@ -49,7 +49,8 @@ function StaffArchive() {
               })),
             ],
           })),
-        })));
+        }));
+        const unassigned=tree.unassigned?.student||[];setTreeData([...schools,...(unassigned.length?[{title:'未分配学校',key:'unassigned',children:unassigned.map(student=>({title:student.real_name,key:'user-'+student.id,icon:<UserOutlined/>,isLeaf:true}))}]:[])]);
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user?.role]);
@@ -59,7 +60,7 @@ function StaffArchive() {
     const key = keys[0];
     if (!key.startsWith('user-')) return;
     const studentId = key.replace('user-', '');
-    const ticket=++requestSequence.current;setDetailError('');setSelectedStudentId(studentId);
+    setRecordOpen(false);setRecord('');const ticket=++requestSequence.current;setDetailError('');setSelectedStudentId(studentId);
     setArchive(null);
     setDetailLoading(true);
     try {
@@ -157,7 +158,7 @@ function ArchiveDetail({ archive }) {
         <List.Item><FileTextOutlined style={{ marginRight: 8 }} />{w.title}</List.Item>
       )} />
 
-      <Title level={5}>{siteText("site.87a6be2a4246bd37")}</Title>
+      <Title level={5}>学习报告与导师评分</Title><List dataSource={archive.learningReports||[]} locale={{emptyText:'暂无学习报告'}} renderItem={r=><List.Item><List.Item.Meta title={`${r.course_title} · ${r.lesson_title} · 第 ${r.version} 版`} description={<Space direction="vertical"><Text>{r.summary}</Text><Text>{r.review_comment||'尚无导师意见'}</Text></Space>}/><Tag>{r.status==='approved'?`已通过 · ${r.score} 分`:r.status==='rejected'?'需修改':'待评审'}</Tag></List.Item>}/><Title level={5}>{siteText("site.87a6be2a4246bd37")}</Title>
       <List dataSource={archive.reflections || []} renderItem={(r) => (
         <List.Item>
           <List.Item.Meta

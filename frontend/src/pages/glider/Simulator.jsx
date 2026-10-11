@@ -1,3 +1,4 @@
+import FlightReplay3D from './FlightReplay3D';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useCourseApis, useCourseId } from '../../student/useCourseApis';
 import { useState, useEffect, useMemo } from 'react';
@@ -339,6 +340,7 @@ export default function GliderSimulator() {
                     {/* 历史记录回放（旧版后端生成的 MP4，仅早期记录有）。新试飞不再生成视频：
                         飞行回放将由前端基于逐帧轨迹数据渲染（three.js 接入中），
                         数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md */}
+                    <FlightReplay3D key={viewing.id} simId={viewing.id} />
                     {img.video && (
                       <Card size="small" title={siteText("site.e7d8ea495f0e08ec")} style={{ marginBottom: 16 }}>
                         <video

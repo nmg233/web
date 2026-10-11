@@ -37,14 +37,14 @@ export default function HeaderBar() {
           icon={<MessageOutlined />}
           onClick={() => navigate(user?.role === 'admin' ? '/feedback/manage' : '/feedback/new', { state: { from: location.pathname } })}
         >{siteText("site.6fab694c40086820")}</Button>
-        <Dropdown menu={{
+        <Dropdown trigger={['click']} menu={{
           items: [
             { key: 'feedback', label: siteText("site.09215898ed70a2e6"), onClick: () => navigate('/feedback') },
             { key: 'change-password', icon: <KeyOutlined />, label: siteText("site.85c6a7fd3b0ef803"), onClick: () => navigate('/change-password') },
             { key: 'logout', icon: <LogoutOutlined />, label: siteText("site.30675e8fab1b63f1"), onClick: handleLogout }
           ]
         }}>
-          <Button type="text" className="staff-account"><Space>
+          <Button type="text" className="staff-account" aria-label="账户菜单"><Space>
             <Avatar size="small" icon={<UserOutlined />} />
             <span style={{ fontWeight: 500 }}>{user?.real_name}</span>
             <Tag color={roleInfo.color}>{roleInfo.label}</Tag>

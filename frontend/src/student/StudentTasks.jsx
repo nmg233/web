@@ -1,3 +1,4 @@
+import {lessonAccessReason} from './learningIntegration';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../content/copy";
 import Sentence from '../content/Sentence';
 import {copyText} from '../content/copy';
@@ -31,14 +32,15 @@ function TaskResults({ status }) {
     const payload = await taskAPI.list(status ? { status } : {});
     const current = await courseAPI.list();
     const allowed = new Set((current.courses || []).map(c => String(c.id)));
-    return (payload.tasks || []).filter(t => allowed.has(String(t.course_id)));
+    return {lessons:(payload.lessons||payload.tasks||[]).filter(t=>allowed.has(String(t.course_id))),works:(payload.tasks||[]).filter(t=>allowed.has(String(t.course_id)))};
   }, [status,taskAPI,courseAPI]);
   const state = useCourseResource(read);
-  const groups = taskGroups(state.data || []);
-  return <ReadState {...state} empty={!groups.length} object={siteText("site.59f68be3ae43a068")} emptyText={status ? copyText('system.tasks.008') : copyText('system.tasks.009')}>
+  const groups = taskGroups(state.data?.lessons || []),works=state.data?.works||[];
+  return <ReadState {...state} empty={!groups.length&&!works.length} object={siteText("site.59f68be3ae43a068")} emptyText={status ? copyText('system.tasks.008') : copyText('system.tasks.009')}>
     <div className="compat-task-groups">{groups.map(group => <PixelPanel key={group.id} className="compat-task-group" data-course-id={group.id}>
       <header><div><span className="compat-muted">{copyText('system.tasks.010')}{group.id} · {group.tasks.length}{copyText('system.tasks.011')}</span><h3>{group.title || copyText('system.tasks.012')}</h3></div><Link to={`/courses/${group.id}`}>{copyText('system.tasks.013')}</Link></header>
       <ul>{group.tasks.map(task => {
+        const locked=lessonAccessReason(task);
         const progress = learningPercent(task.learning_progress), work = workStatus({ review_status: task.review_status });
         const action = task.report_status === 'rejected' ? copyText('system.tasks.014') : task.status === 'completed' ? copyText('system.tasks.015') : task.status === 'submitted' ? copyText('system.tasks.016') : copyText('system.tasks.017');
         const target = `/courses/${task.course_id}/lessons/${task.lesson_id}/learn${task.report_status === 'rejected' ? '?stage=2' : ''}`;
@@ -46,11 +48,12 @@ function TaskResults({ status }) {
           <Sentence className="compat-muted">{copyText('system.tasks.019')}{task.lesson_title || copyText('system.tasks.020')}<span className="compat-meta-divider"> / </span>{copyText('system.tasks.021')}{task.deadline ? formatBeijingTime(task.deadline) : copyText('system.tasks.022')}</Sentence>
           <div className="compat-task-bottom"><div className="compat-task-status"><div className="compat-task-progress"><span>{copyText('system.tasks.023')}</span>{progress == null ? <span className="compat-muted">{copyText('system.tasks.024')}</span> : <PixelProgress value={progress} label={siteTemplate("site.72c2f903a4dbc4cd", {slot0: (task.title)})} />}</div>
             <div className="compat-tags"><span>{copyText('system.tasks.025')}{reportLabels[task.report_status] || copyText('system.tasks.026')}</span>{task.work_id && <PixelTag tone={work.tone}>{copyText('system.tasks.027')}{work.label}</PixelTag>}</div></div>
-            <div className="compat-row-actions"><Link className="compat-primary-link" to={target}>{action}</Link>{task.work_id && <Link to={`/works/${task.work_id}`}>{task.review_status === 'rejected' ? copyText('system.tasks.028') : copyText('system.tasks.029')}</Link>}</div>
+            <div className="compat-row-actions">{locked?<Sentence>{locked}</Sentence>:<Link className="compat-primary-link" to={target}>{action}</Link>}{task.work_id && <Link to={`/works/${task.work_id}`}>{task.review_status === 'rejected' ? copyText('system.tasks.028') : copyText('system.tasks.029')}</Link>}</div>
           </div>
         </li>;
       })}</ul>
       <CopyBlock id="system.tasks.030" as="p" className="compat-footnote"/>
     </PixelPanel>)}</div>
+    {works.length>0&&<PixelPanel><h3>独立成果任务</h3><p>作品提交和评审独立保留，不自动完成课时。</p><ul className="compat-records">{works.map(task=><li key={task.id}><strong>{task.course_title} · {task.title}</strong><PixelTag>{taskLabels[task.status]}</PixelTag>{task.work_id?<Link to={`/works/${task.work_id}`}>{task.review_status==='rejected'?copyText('system.tasks.028'):copyText('system.tasks.029')}</Link>:<Link to={`/works/upload?task_id=${task.id}`}>提交作品</Link>}</li>)}</ul></PixelPanel>}
   </ReadState>;
 }

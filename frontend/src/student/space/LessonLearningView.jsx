@@ -1,3 +1,5 @@
+import MarkdownContent from '../../components/common/MarkdownContent';
+import ReplaySummary from '../../components/common/ReplaySummary';
 import {Space,Typography,Empty,Form,Input,Collapse} from 'antd';
 import {CheckCircleOutlined,DownloadOutlined,PlayCircleOutlined,LeftOutlined,RightOutlined} from '@ant-design/icons';
 import {copyTemplate as siteTemplate,copyText} from '../../content/copy';
@@ -14,7 +16,7 @@ import {ReflectionFields} from '../ArchiveRecords';
 import {formatBeijingTime} from '../../utils/date';
 const {Text}=Typography;
 // Shared presentation. All student mutations remain in LessonLearn; authoring supplies read-only slots.
-export default function LessonLearningView({data,lesson,cards,progress,report,activeStage,courseId,lessonId,reportFields,stageDone,currentStep,stageReasons,navigate,setActiveStage,actionError,replayError,activeReplayId,playReplay,replayUrl,replayAttempt,setReplayError,resourceError,downloadResource,submitting,finishReview,cardIndex,setCardIndex,activeCard,cardExercisesDone,finishCard,reportTone,form,submitReport,validationFailed,saveDraft,draftFailed,draftState,reflectionOpen,setReflectionOpen,reportError,maintenance=false,region=(_key,children)=>children,experiment,works,renderExercise}){
+export default function LessonLearningView({data,lesson,cards,progress,report,activeStage,courseId,lessonId,reportFields,stageDone,currentStep,stageReasons,navigate,setActiveStage,actionError,replayError,activeReplayId,playReplay,replayUrl,replayAttempt,video,onReplayLoaded,setReplayError,resourceError,downloadResource,submitting,finishReview,cardIndex,setCardIndex,activeCard,cardExercisesDone,finishCard,reportTone,form,submitReport,validationFailed,saveDraft,draftFailed,draftState,reflectionOpen,setReflectionOpen,reportError,maintenance=false,region=(_key,children)=>children,experiment,works,renderExercise}){
   return <PageContainer><div className="study-workspace">
     <StudyHeader eyebrow={<><PixelIcon name="book" />{data.course.title}</>} title={region("schedule",lesson.title)} description={siteTemplate("site.069298f6b6e23160", {slot0: (LEARNING_STEPS[activeStage])})}>
       <Button onClick={() => navigate(`/courses/${courseId}?lesson=${lessonId}`)} icon={<PixelIcon name="back" />}>{copyText('system.learning.064')}</Button>
@@ -33,14 +35,14 @@ export default function LessonLearningView({data,lesson,cards,progress,report,ac
         })}</ol></nav>
         <a className="study-stages-footer" href="#lesson-works">{copyText('system.learning.076')}</a>
       </aside>
-      <div className="study-main">
+      <div className="study-main">{data.read_only&&<Alert type="info" title={data.read_only_reason||'当前课时仅可查看，不能保存学习操作'}/>}{data.report?.resubmission_required&&<Alert type="warning" title="历史内容已补齐，请完成新增学习后提交新版报告" description="旧报告保留历史；已有作答与成绩保留。"/>}{data.content_version?.legacy_compat&&<Alert type="warning" title="正在学习历史兼容版本；原作答与成绩已保留" description={data.content_version.repair?'管理员已补齐缺失内容：'+data.content_version.repair.reason:undefined}/>}
         {region("teaching_tip",lesson.teaching_tip&&<Alert type="info" title={<Sentence>{lesson.teaching_tip}</Sentence>}/>)}
         {actionError && <Alert type="error" showIcon title={actionError} />}
         {activeStage === 0 && <StudySection number="01" title={copyText('system.learning.077')} description={copyText('system.learning.078')}>
           {region("review_content",<Sentence className="study-prose">{lesson.review_content ?? lesson.description}</Sentence>)}<section aria-label={copyText('system.learning.079')}><h4>{copyText('system.learning.080')}</h4>
             {region("replays",null)}{replayError && <Alert type="warning" showIcon title={copyText('system.learning.081')} description={replayError} action={activeReplayId && <Button onClick={() => playReplay(activeReplayId)}>{copyText('system.learning.082')}</Button>} />}
-            {replayUrl ? <video key={`${replayUrl}:${replayAttempt}`} controls src={replayUrl} className="study-video" onError={() => setReplayError(copyText('system.learning.083'))} /> : !replayError && <Empty description={copyText('system.learning.084')} />}
-            <Space wrap>{data.replays.map((replay) => <Button key={replay.id} type={activeReplayId === replay.id ? 'primary' : 'default'} icon={<PlayCircleOutlined />} onClick={() => playReplay(replay.id)}>{replay.title}</Button>)}</Space>
+            {replayUrl ? <video ref={video} onLoadedMetadata={onReplayLoaded} key={`${replayUrl}:${replayAttempt}`} controls src={replayUrl} className="study-video" onError={() => setReplayError(copyText('system.learning.083'))} /> : !replayError && <Empty description={copyText('system.learning.084')} />}
+            <ReplaySummary replay={data.replays.find(r=>r.id===activeReplayId)}/>{data.replays.find(r=>r.id===activeReplayId)?.description&&<Sentence>{data.replays.find(r=>r.id===activeReplayId).description}</Sentence>}<Space wrap>{data.replays.map((replay) => <Button key={replay.id} type={activeReplayId === replay.id ? 'primary' : 'default'} icon={<PlayCircleOutlined />} onClick={() => playReplay(replay.id)}>{replay.title}</Button>)}</Space>
           </section>
           <section className="study-subsection" aria-label={copyText('system.learning.085')}><h4>{copyText('system.learning.086')}</h4>
             {region("resources",null)}{resourceError && <Alert type="warning" showIcon title={resourceError} />}
@@ -56,7 +58,7 @@ export default function LessonLearningView({data,lesson,cards,progress,report,ac
             <nav className="study-card-nav" aria-label={copyText('system.learning.098')}>{cards.map((card, index) => <Button key={card.id} type={index === cardIndex ? 'primary' : 'default'} aria-pressed={index === cardIndex} icon={card.completed ? <CheckCircleOutlined /> : null} onClick={() => setCardIndex(index)} disabled={!maintenance && index > 0 && !cards[index - 1].completed}>{index + 1}. {card.title}</Button>)}</nav>
             <div className="study-card-title"><h4>{activeCard.title}</h4><PixelTag tone="current">{cardIndex + 1}/{cards.length}</PixelTag>{activeCard.completed && <PixelTag tone="success">{copyText('system.learning.099')}</PixelTag>}</div>
             {activeCard.summary && <Sentence className="study-card-summary">{activeCard.summary}</Sentence>}
-            <Sentence className="study-prose">{activeCard.content}</Sentence>
+            <MarkdownContent>{activeCard.content}</MarkdownContent>
             {activeCard.key_points && <Alert type="info" title={copyText('system.learning.100')} description={activeCard.key_points} />}
             {activeCard.common_mistakes && <Alert type="warning" title={copyText('system.learning.101')} description={activeCard.common_mistakes} />}
             {experiment(1,activeCard.id)}

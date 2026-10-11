@@ -45,7 +45,7 @@ export default function StudentWorkDetail() {
   const versions = data?.versions || [];
   const revised = work?.review_status === 'rejected' && Boolean(work.has_newer_version);
   const status = revised ? copyText('system.workDetail.009') : work?.review_status === 'approved' ? copyText('system.workDetail.010') : work?.review_status === 'rejected' ? copyText('system.workDetail.011') : copyText('system.workDetail.012');
-  const canRevise = work && String(work.student_id) === String(user.id) && work.review_status === 'rejected' && !work.has_newer_version;
+  const canRevise = work && !work.read_only && String(work.student_id) === String(user.id) && work.review_status === 'rejected' && !work.has_newer_version;
   const download = async () => {
     setDownloading(true); setDownloadError('');
     try {

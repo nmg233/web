@@ -1,6 +1,6 @@
 # PBL 科创育人平台
 
-面向“大中小贯通科创育人”项目的 PBL（项目式学习）本地数字化管理平台。平台聚焦线下课堂后的数字化巩固与成果转化：执行导师编排课程和学习内容、导入选课并完成评审，学生依次完成课堂回顾、知识卡片与练习、学习报告与反思，教师以只读观察者身份查看明确分配学生的成长结果。
+面向“大中小贯通科创育人”项目的 PBL（项目式学习）本地数字化管理平台。执行导师编排课程、导入选课并完成评审，管理员维护知识卡片与配套练习，学生完成课后学习，教师只读观察明确分配学生的成长结果。
 
 > 支持本地开发与服务器部署，部署步骤见文末“服务器部署”章节。
 
@@ -269,7 +269,7 @@ GLIDER_BACKEND=reference
 | 角色 | 主要能力 |
 | --- | --- |
 | 管理员 `admin` | 学校、班级和用户管理；选课导入与异常修正（移除报名）；课程与作品管理；成长档案；反馈管理；滑翔机试飞记录（只读，可查看全部） |
-| 执行导师 `academic_mentor` | 管理自己创建或受邀授课的课程、课时、知识卡片、小练习、任务和选课；评审课程范围内的作品与学习报告；管理相关学生的成长档案 |
+| 执行导师 `academic_mentor` | 管理自己创建或受邀授课的课程、课时、任务和选课；只读查看课程范围内知识卡片和练习；评审课程范围内的作品与学习报告；管理相关学生的成长档案 |
 | 教师 `teacher` | 纯观察者：只读查看由管理员明确分配（`users.teacher_id`）学生的学习进展、已通过成果、报告、反思和成长轨迹；不进入课程执行或评审链路 |
 | 学生 `student` | 学习已报名且已发布的课程，完成课堂回顾、知识卡片与练习、学习报告与反思，查看个人成长档案并使用实验工具 |
 | 新媒体 `media` | 查看基础工作台和已发布课程列表，使用帮助与反馈、通知中心；不进入课程执行、学生管理和评审链路 |
@@ -286,7 +286,7 @@ GLIDER_BACKEND=reference
 | 课程发布、课时、资源与回放 | 管理 | 管理课程范围内数据 | — | 只读已发布内容并按授权下载或播放 | — |
 | 选课导入 | 任意课程 | 自己管理的课程 | — | — | — |
 | 报名异常移除 | 管理；仅无作品、评价、反思等业务数据时允许 | — | — | — | — |
-| 知识卡片与配套练习编排 | 管理全部课时 | 管理课程范围内课时 | — | — | — |
+| 知识卡片与配套练习编排 | 管理全部课时 | 只读查看课程范围内课时（不返回答案和解析） | — | — | — |
 | 课堂回顾、卡片练习与学习报告 | — | — | 只读观察结果 | 本人学习；每题一次作答 | — |
 | 课后任务 | 管理全部任务 | 管理课程范围内任务 | — | 查看并完成本人任务 | — |
 | 学生作品 | 查看和评审全部；按保护规则删除或退回 | 查看和评审课程范围内作品；不可物理删除 | 只读明确分配学生的关联作品；观察工作台仅展示已通过成果 | 提交、查看本人作品；仅可删除待评审或被退回的最新版本 | — |
@@ -329,7 +329,11 @@ GLIDER_BACKEND=reference
 课堂回顾 → 知识卡片与配套练习 → 学习报告与反思 → 导师评审评分 → 成长档案
 ```
 
-必修知识卡片完成后才能提交综合任务；全部必需综合任务提交后才能提交学习报告与反思；作品和报告均通过执行导师评审后，课时才记为完成。教师位于这条执行链路之外，只以只读视角观察负责学生的成长结果。
+完成课堂回顾、全部已发布知识卡片和配套练习后，可提交学习报告与反思；导师评审通过后，课时记为完成。报告被退回时保留前两阶段进度、原文和评语，学生修改后提交新版本，导师可查阅各版本报告与对应反思。教师以只读视角观察负责学生的成长结果。
+
+回放支持独立的「回放内容摘要」（课程纪要），支持 Markdown 标题、加粗、列表、引用、代码块、链接、表格和任务列表，普通文本换行也会保留。导师或管理员在课程详情的「课程回放 → 编辑」中，可在课程结束后填写摘要、切换「编辑 Markdown / 预览」，或导入 UTF-8 编码的 `.txt` / `.md` 文件（文件不超过 100KB、内容不超过 10000 个字符）；保存后显示在学生播放器下方，也可后续更新或清空，无需重传视频。
+
+知识卡片正文支持 Markdown：标题、加粗、列表、引用、代码块、链接、表格、任务列表等。编辑弹窗可切换「编辑 Markdown / 预览」，发布后学生看到同样的排版。原始 HTML 和危险链接协议不会执行。报告与反思草稿按学生、课时、退回版本保存在浏览器中，刷新后恢复，成功提交后清除对应草稿。
 
 所有已登录角色均可提交反馈、查看自己的反馈、追加说明和确认处理结果，也可以通过顶部铃铛和通知中心接收、筛选及管理站内通知。管理员可查看全部反馈、设置优先级和状态、填写处理结果，并添加仅管理员可见的内部备注。
 
@@ -358,8 +362,9 @@ GLIDER_BACKEND=reference
 | `/courses/:id/edit` | 编辑课程 |
 | `/courses/:id/learn` | 课程回顾页（摘要/回放/资料/任务/我的提交） |
 | `/courses/:courseId/lessons/:lessonId/learn` | 学生课后学习工作台（课堂回顾、知识卡片与练习、报告与反思、导师评审） |
-| `/courses/:courseId/lessons/:lessonId/content` | 执行导师课时学习内容编辑器 |
-| `/mentor/content` | 执行导师学习内容编排中心（按课时设置知识卡片与配套习题） |
+| `/courses/:courseId/lessons/:lessonId/content` | 管理员课时学习内容编辑器 |
+| `/courses/:courseId/lessons/:lessonId/preview` | 管理员、导师和教师的知识卡片与练习只读预览 |
+| `/mentor/content` | 课时知识卡片与练习：管理员编排，导师进入只读预览 |
 | `/mentor/reviews` | 执行导师学习报告评审队列 |
 | `/mentor/reviews/:reportId` | 学习报告评审详情 |
 | `/observer` | 教师只读学情观察工作台 |
@@ -430,7 +435,7 @@ GLIDER_BACKEND=reference
 - 反馈提交、公开回复、状态变化、处理完成、用户确认和重新打开会触发通知
 - 作品提交、重新提交、评审通过、打回修改和删除会触发通知
 
-通知是业务操作成功后的辅助信息。通知写入异常会记录服务端错误，但不会回滚已经成功的反馈或作品操作。当前采用前端轮询，不依赖 WebSocket、SSE 或外部消息服务。
+通知是业务操作成功后的辅助信息。持久 outbox 与相应业务事务一起提交，投递失败不会撤销已成功的业务。失败事件退避重试，连续失败8次后隔离，坏事件不阻断后续合法事件；管理员可在通知中心查看积压/错误并重放，保持去重。当前采用前端轮询，不依赖 WebSocket、SSE 或外部消息服务。
 
 通知 API 均要求 JWT 登录：
 
@@ -483,27 +488,31 @@ GLIDER_BACKEND=reference
 | 学生 | 陈小红 | `student_chen` | `student123` |
 | 学生 | 刘小宇 | `student_liu` | `student123` |
 
-### 登录账号（账号整改第一批）
+### 登录账号与初始密码（账号闭环整改）
 
-- 登录接口 `POST /api/auth/login` 使用 `{ "username": "账号", "password": "密码" }`，不再接受姓名登录；登录限流和锁定同步按账号计数。
-- 账号区分大小写，登录时忽略首尾空格。姓名可以重复，包括同校同名；数据库继续使用已有的唯一 `username`，不迁移、不重新编号、不修改旧账号密码。
-- 管理员添加用户、添加学生及 CSV / Excel / JSON 导入支持可选 `username`（文件表头“登录账号”，也支持 `login_id`）。新账号为 4–64 位字母、数字、下划线或连字符，以字母或数字开头，例如 `BJFX-2026-0001`、`T-BJFX-001`、`M-0001`。登录旧账号不受新建格式规则限制。
-- 账号留空时自动生成 `S-` / `T-` / `M-` 加随机标识的唯一账号；学校缩写尚无统一配置，因此学校编号由管理员填写。账号创建后保持不变，修改姓名或组织归属不改账号。
-- 旧导入模板仍可使用；重复账号（包括禁用账号）会逐行报错并跳过，同名不同账号正常导入。**没有账号的文件重复导入会创建新用户**；需要防重复导入时，请在文件中填写固定账号。
-- 管理员“用户管理”新增登录账号清单，可复制账号、按姓名/账号搜索，导出当前筛选结果或勾选用户的 CSV；导入结果也可导出本次成功账号。导出只含姓名、账号、身份、学校、班级，不含密码。
-- 部署前可从旧版管理员用户详情或数据库只读查询 `SELECT username, real_name FROM users` 获取账号并分发。前后端需一起更新；已有库无需运行 `db:init` / `db:reset`。正式管理员使用初始化时配置的 `ADMIN_USERNAME`。
+- 登录仅使用完整 username 和 password，不使用姓名登录，也无需另填学校或角色。用户名区分大小写，忽略首尾空格。
+- 新自动账号：学校缩写_角色英文_姓名全拼_流水号。缩写大写、拼音小写，数字从 1 开始不补零。学生/教师角色为 student/teacher，导师为 mentor，例如 HSXX_student_wangxiaoming_1。
+- 导师不绑定学校，使用 BUAA_mentor_zhangwei_1；正式管理员自动建号使用 BUAA_admin_姓名拼音_流水号。学校缩写冲突时追加数字区分码，BUAA 为平台保留前缀。
+- 编号按学校 ID/平台及角色独立持久化；删除账号不回收序号，改姓名、迁校或改角色不自动重命名已有账号。兼容固定自填账号（4–160 位字母、数字、下划线、连字符，首位为字母或数字），成功创建也消耗所属计数器。旧账号及密码不批量修改。
+- 所有新建和管理员重置的初始密码均为姓名拼音小写加 @123；例如王小明为 wangxiaoming@123。姓名开头按姓氏识别，后部按普通词库读音，ü 用 v；更名不会自动改密码，重置采用当前姓名。
+- 姓名须能转换为非空拼音；生成密码不得超过 bcrypt 的 72 字节上限（拼音最多 68 位），学校基础缩写最多 64 位，超长明确拒绝，不截断。学校代码永久保留，学校删除后也不会被新学校复用。
+- **安全提示：该初始密码可预测，同名用户相同，且不设有效期，这是用户确认的业务规则。应尽快交付、首次改密，不用于共享正式密码。** 数据库只保存 bcrypt hash。
+- 首次登录及重置后必须改密；新密码至少 8 位、四类字符至少三类，且不能等于原密码。专用改密/重置撤销旧会话。管理员不能在重置接口重置自己，应自助改密。
+- 管理员单个创建、资料编辑不接受手填密码。教师/导师可编辑资料、停用和恢复；已有历史的身份变更/删除受保护。停用及恢复均撤销旧会话，恢复后重新登录。
 
-这些账号用于本地开发和测试部署。测试环境可保留默认账号便于验收；公网正式发布前应修改或删除默认密码，并设置固定、强随机的 `JWT_SECRET`。
+### 批量创建、结果恢复与交付
 
-### 随机临时密码（账号整改第二批：第 4、5 条）
-
-- 用户创建、学生创建、批量导入和管理员重置密码统一调用 `backend/services/tempPasswordService.js`：使用 Node `crypto.randomInt` 生成 12 位随机密码，包含大写、小写、数字、特殊字符；首位为字母或数字，方便 CSV 原样分发。
-- 创建、导入、重置仅在操作成功的当次响应返回 `temp_password`，并设置 `Cache-Control: no-store`。数据库只保存 bcrypt hash；姓名拼音密码、固定默认密码和 6 位重置密码不再用于这些入口。
-- 创建和重置弹窗显示姓名、登录账号、可复制的临时密码；关闭后清除结果。教师、导师详情也提供管理员重置入口。密码遗失后只能重新重置，不能查询原明文。
-- 导入结果的“导出本次临时密码”生成 `姓名,登录账号,临时密码` CSV。请关闭弹窗前保存并线下分发，妥善保管已下载文件；关闭弹窗会清除内存结果，浏览器不将临时密码写入 localStorage/sessionStorage。普通账号清单导出仍不含密码。
-- 创建时不再接受手填初始密码。旧客户端给 `POST /api/students`、`POST /api/students/users` 传非空 `password` 会返回 400；编辑用户接口 `PUT /api/students/users/:id` 同样不再接受非空 `password`，应调用 `POST /api/auth/admin/reset-password`。空值仍兼容。
-- 管理员重置密码在同一事务中更新 hash、设置 `force_reset_password = 1`、撤销旧 refresh token；任一步失败都会回滚。用户必须用临时密码完成首次改密后再访问业务功能，自助改密策略仍为至少 8 位、至少三类字符。
-- 无数据库结构变更，不批量重置现有账号，也不修改本地测试种子账号或正式管理员初始化流程。前后端应一起部署。上述种子账号的默认密码仅用于本地演示。
+- 文件支持 UTF-8 CSV、XLSX、XLS，最多 1000 行、10 MB、恰好一个非空工作表。JSON 名单仍兼容。表头采用精确别名，支持多行引号字段；重复/歧义列及错误结构明确拒绝。
+- 角色可填学生、教师、导师/执行导师/学术导师、student/teacher/mentor/academic_mentor；未知非空角色报错，不默认为学生。旧模板身份留空仍默认学生。
+- 学校和班级必须已存在。重名学校填写学校 ID 或学校代码；同校同名班级填写年级或班级 ID。组织管理页显示 ID，不静默选首条。
+- 管理界面使用后台批次（POST /api/students/import?async=1）；文件解析和密码哈希隔离执行，关闭、超时或刷新不意味着创建失败。
+- 相同名单默认恢复创建者的既有批次，不重复建号；只有明确选择“相同名单另建新批次”才重复创建无账号行。固定账号冲突逐行报告。
+- 历史批次仅创建者管理员可查询、恢复及交付；提供完整逐行失败结果及可重新上传的失败名单，不截断至 20 条。服务器重启继续未完成批次，已成功账号和进度在同一事务落库。
+- 历史批次分页访问，不只保留最近 30 个；最多同时排队/处理 20 个批次，名单解析最多并行 2 个任务、10 秒超时。创建者被停用、改密或失去管理员身份时暂停，恢复权限后可继续剩余行。
+- 普通账号导出不包含密码。初始密码显式导出时根据创建姓名推导，仅返回仍在该批次创建会话版本、未改密且启用的账号；改密、重置、停用或删除后不返回过时凭据。
+- 批次表不保存密码明文，浏览器不持久化密码。下载不等于完成交付，管理员另行确认“我已完成交付”；未确认关闭有提醒，后续可从历史恢复。
+- 首次启动自动应用 017_account_batches.sql（016 为主线课堂纪要迁移）。既有数据不重置，升级前备份。版本回退需考虑新增批次表和学校代码列。
+- 本地演示种子账号保持原样，仅用于开发测试；正式管理员使用 db:provision，不运行 db:init 或 db:reset。
 
 ## 本地数据
 
@@ -634,13 +643,14 @@ DISK_WARN_PERCENT=85                      # doctor.sh 磁盘使用率告警阈�
 - 待办任务以“是否存在有效提交”为准，不再区分是否要求附件（纯文字任务同样进入待办）。
 - 通知目前仅支持站内消息和 60 秒轮询，不含管理员公告编辑、定时发布、邮件、短信、WebSocket/SSE 或移动端推送。
 - 课时学习进度由服务端按课堂回顾 25%、知识卡片与配套练习 35%、学习报告与反思 25%、导师评审通过 15% 计算；课堂回顾和每张卡片均需学生明确确认完成。
-- 每道卡片练习仅允许学生作答一次；提交后无论正误均显示执行导师预设的答案详解，全部题目完成作答后即可确认完成卡片，答题正确率作为导师评审证据。
-- 后端自动化测试覆盖安全隔离、选课闭环、作品权限、档案与评价、学习门控、学习报告版本、导师课程归属、教师观察范围、滑翔机、反馈与通知；前端以 lint、生产构建和角色冒烟为基础自检。
-- CI 已接入（`.github/workflows/ci.yml`：push/PR 触发后端测试 + 前端 lint/构建）；**main 分支保护需在 GitHub 仓库 Settings → Branches 中开启**（建议勾选 Require pull request + Require status checks 的 CI）。当前 `xzx-2` 分支承载本轮选课闭环与数据一致性修复，合并前建议按“测试站完整回归 → 新 PR → CI 绿 → 合并”流程推进。
+- 每道卡片练习仅允许学生作答一次；提交后无论正误均显示管理员预设的答案详解，全部题目完成作答后即可确认完成卡片，答题正确率作为导师评审证据。
+- 后端运行 `npm test`，覆盖安全隔离、选课闭环、作品权限、档案与评价、学习门控、学习报告版本、导师课程归属、教师观察范围、滑翔机、反馈与通知；新增回放摘要迁移与权限、二次/连续打回、过期页面、重复提交和失败回滚回归。前端运行 `npm test`、`npm run lint`、`npm run build`，测试草稿隔离与恢复、Markdown排版及安全过滤、多版本评审历史渲染。
+- 在前端构建后，于仓库根目录执行 `node scripts/preview-revision.cjs` 可启动本轮隔离浏览器验收站点；控制台返回随机本机地址，使用合成账号 `revision_2`（导师）、`revision_3` / `revision_4`（学生），密码 `UiTest!1234`。数据库与上传目录均为临时测试目录，退出时清理。访问该站点 `/__fixtures/video` 点击按钮可生成三秒可播放的合成回放；素材生成入口仅存在于此测试脚本。
+- CI 已接入（`.github/workflows/ci.yml`：push/PR 触发后端测试 + 前端测试/lint/构建）；**main 分支保护需在 GitHub 仓库 Settings → Branches 中开启**（建议勾选 Require pull request + Require status checks 的 CI）。当前 `xzx-2` 分支承载本轮选课闭环与数据一致性修复，合并前建议按“测试站完整回归 → 新 PR → CI 绿 → 合并”流程推进。
 
 ## 服务器部署
 
-部署分两档：**快速一键部署**（`deploy.sh`，适合测试/演示环境）与 **正式生产发布**（推荐：以 Git Release Tag 为基线，目录规范 + systemd + nginx + 独立数据目录 + 正式库初始化）。正式环境请遵循三条铁律：
+部署分两档：**快速一键部署**（`deploy.sh`，仅测试/演示环境）与 **正式生产发布**（版本目录 + current 原子切换 + 外置数据；详见下文）。正式环境请遵循三条铁律：
 
 1. **代码 / 数据 / 配置分离**：代码可删重建，用户文件与数据库必须持久在数据盘，配置含密钥不进仓库；
 2. **迁移 ≠ 重置**：正式库用 `db:provision` 幂等初始化，严禁 `db:reset` / `db:init`；
@@ -655,9 +665,10 @@ DISK_WARN_PERCENT=85                      # doctor.sh 磁盘使用率告警阈�
 # Ubuntu / Debian 系
 sudo apt-get update && sudo apt-get install -y build-essential python3 nginx sqlite3
 # Alibaba Cloud Linux / RHEL 系
-sudo dnf install -y gcc gcc-c++ make python3 nginx
+sudo dnf install -y gcc gcc-c++ make nginx sqlite
 ```
 
+- 另行准备可用的 Python ≥3.9，并在安装后端依赖前明确指定 PYTHON；不能只安装旧系统默认的 python3 后就认定满足 node-gyp 要求。新发布脚本会先检查版本。
 - 滑翔机引擎 Python 环境（仅需要该功能时）：见“滑翔机模拟（学生科创）”章节，例如 `/opt/novaphy`（Python 3.11 + novaphy wheel + numpy/matplotlib）。
 
 ### 1. 快速一键部署（测试/演示环境）
@@ -668,190 +679,50 @@ cd 项目根目录
 RESET_DB=1 ./deploy.sh main # 重置数据库并恢复默认测试账号（仅测试环境）
 ```
 
-脚本会依次完成：`git pull` → 后端 `npm ci` + 强制本机编译 `better-sqlite3` 并移除不兼容的 linux-x64 prebuild →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
+脚本先执行环境预检与数据库备份；备份失败（包括数据库不存在、备份命令失败或完整性校验失败）会立即阻止部署，不会执行后续的 `git fetch` 或 `npm ci`。首次部署需先配置数据库路径并使用 `db:provision` 初始化数据库，再运行部署脚本。
+
+预检与备份成功后，脚本会依次完成：`git pull` → 后端 `npm ci` + 强制本机编译 `better-sqlite3` 并移除不兼容的 linux-x64 prebuild →（可选）`db:reset` → 前端 `npm ci && npm run build` → `rsync dist` 到站点目录 → 重启服务 → `curl /api/health`。
 
 - 默认对应当前 ECS 测试环境：前端目录 `/var/www/pbl-platform`、systemd 服务 `pbl-backend.service`；
 - 可覆盖的环境变量：`NGINX_ROOT`、`SERVICE`、`SYNC_DELETE=1`（同步删除旧文件）、`HEALTH_URL`。
 
-### 2. 正式生产发布（推荐）
+### 2. 正式生产发布（版本目录 + current）
 
-#### 2.1 发布基线：用 Release Tag，不直接部署 main
-
-```bash
-# 本地：测试通过后打正式版本号并推送
-git checkout main && git pull
-git tag -a v1.0.0 -m "PBL production v1.0.0"
-git push origin v1.0.0
-```
-
-生产服务器只部署固定 Tag，保证“现在跑的是哪一版”永远可回答。
-
-#### 2.2 首次服务器目录规范（示例，可按团队约定调整）
+本轮已按确认方案准备 [部署与恢复说明](docs/部署与恢复.md) 和 `scripts/deploy-release.sh`。服务器尚未由本轮操作或迁移，请先完成说明中的一次性布局配置，再运行发布脚本。保留现有服务用户 deploy，不要求另建系统用户。
 
 ```text
-代码：   /opt/pbl-platform/releases/<版本号>   # 每版本独立目录
-运行软链：/opt/pbl-platform/current           # -> releases/<版本号>，升级时指回新版本
-数据：   /datadisk/pbl-platform/{database,uploads,private_uploads/feedback,backups}
-配置：   /etc/pbl-platform/backend.env        # root:pbl 640
+代码仓库：/opt/pbl-platform/repo
+发行目录：/opt/pbl-platform/releases/<commit-SHA>-<时间>
+运行入口：/opt/pbl-platform/current -> 发行目录
+外置配置：/etc/pbl-platform/backend.env
+持久数据：/var/lib/pbl-platform/{pbl_platform.db,uploads,private_uploads,backups}
 ```
+
+systemd 工作目录为 `/opt/pbl-platform/current/backend`，Nginx 静态根为 `/opt/pbl-platform/current/frontend/dist`。环境文件必须明确设置 DB_PATH、UPLOAD_PATH、FEEDBACK_UPLOAD_PATH 为上述持久数据目录内的绝对路径，HOST 默认绑定 127.0.0.1；保留原有 JWT_SECRET、PORT、CORS 等配置，不覆盖整个文件。
 
 ```bash
-sudo mkdir -p /opt/pbl-platform/releases /datadisk/pbl-platform/{database,uploads,backups} \
-             /datadisk/pbl-platform/private_uploads/feedback /etc/pbl-platform
-sudo useradd --system --create-home --home-dir /home/pbl --shell /usr/sbin/nologin pbl
-sudo chown -R pbl:pbl /opt/pbl-platform /datadisk/pbl-platform
-sudo chmod 750 /etc/pbl-platform
+cd /opt/pbl-platform/repo
+PYTHON=/usr/bin/python3.11 bash scripts/deploy-release.sh main
 ```
 
-#### 2.3 拉取固定版本并构建
+参数为实际发布分支；发布 xzx-2 时明确传入 xzx-2。脚本 fetch 后固定该次 commit SHA，导出干净发行目录，不带入工作区未提交改动。发布记录及健康接口返回实际 SHA，不再将“必须使用 Tag”与分支发布脚本混用。代码须先提交到实际发布分支。
+
+发布前核对 Python ≥3.9 和原生编译工具；老系统默认 Python 3.6 不可用于本轮 node-gyp。脚本在新目录安装依赖、验证原生 SQLite、执行隔离后端测试和前端测试/lint/build，并在数据库副本上迁移和检查必要结构与写入能力。创建外置维护标记、停止旧服务并成功备份数据库、公开上传和私有反馈附件后，才原子替换 current；新服务健康响应的数据库、schema ≥20 和 SHA 全部正常后才解除维护。
+
+构建失败不动旧服务；备份失败不切换；切换后健康失败先停止新服务、恢复旧链接并保持停服及维护标记，**不自动重启旧代码，不覆盖数据库或附件**。人工核对数据语义、备份和目标版本，完成隔离恢复验收后才开放。完整恢复步骤见部署说明，不能只删除标记或直接重启当作安全回滚。
+
+全新正式库才使用 `npm run db:provision` 幂等建表及创建管理员（ADMIN_REAL_NAME 必填，账号采用 BUAA_admin_姓名拼音_流水号，初始密码为姓名拼音@123，首登改密）；已有生产库只做备份和增量迁移，不能用空库替换，也不能执行 db:reset/db:init。本轮包含 018/019/020 增量迁移，保留历史作答、报告和成绩；登录仍为用户名＋密码，不增加激活码。
+
+定时备份从 current 的逻辑路径安装，以后跟随发行版切换：
 
 ```bash
-export PATH=/opt/node-v22/bin:$PATH
-cd /opt/pbl-platform/releases
-git clone --depth 1 --branch v1.0.0 <你的仓库地址> v1.0.0
-sudo ln -sfn /opt/pbl-platform/releases/v1.0.0 /opt/pbl-platform/current
-
-# 后端
-cd /opt/pbl-platform/current/backend
-npm ci --omit=dev
-BETTER_DIR="node_modules/better-sqlite3"
-PYTHON_BIN="${PYTHON:-/usr/bin/python3.11}"
-NODE_GYP="${NODE_GYP:-$(command -v node-gyp || true)}"
-if [ -z "$NODE_GYP" ]; then
-  NODE_GYP="/usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js"
-fi
-(
-  cd "$BETTER_DIR"
-  PYTHON="$PYTHON_BIN" node "$NODE_GYP" rebuild --release --force_build=1
-  if [ -f prebuilds/linux-x64.node ]; then
-    mv prebuilds/linux-x64.node prebuilds/linux-x64.node.incompatible
-  fi
-)
-npm test                       # 必须 PASS，失败即停止发布
-
-# 前端（API 走同源 /api，由 nginx 反代）
-cd /opt/pbl-platform/current/frontend
-npm ci
-VITE_API_BASE=/api npm run build
-test -f dist/index.html && echo "frontend build OK"
+cd /opt/pbl-platform/current
+sudo BACKUP_APP_DIR=/opt/pbl-platform/current bash scripts/install-cron.sh
 ```
 
-#### 2.4 生产配置 `/etc/pbl-platform/backend.env`
+数据库、公开上传、私有反馈附件分别保留最近七份。每周完整备份复用同一保留策略；“保留四周”或异地灾备需另行配置，不能仅凭七份本机副本认定恢复可靠。私有附件和备份目录不得公开。
 
-```dotenv
-NODE_ENV=production
-HOST=127.0.0.1
-PORT=3000
-API_PREFIX=/api
-
-JWT_SECRET=<openssl rand -hex 64 生成，勿入库>
-CORS_ORIGIN=https://你的正式域名
-
-DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db
-UPLOAD_PATH=/datadisk/pbl-platform/uploads
-FEEDBACK_UPLOAD_PATH=/datadisk/pbl-platform/private_uploads/feedback
-
-# 滑翔机引擎（真 novaPhy）
-GLIDER_PYTHON=/opt/novaphy/bin/python
-GLIDER_BACKEND=auto
-
-# 登录安全
-LOGIN_RATE_LIMIT_IP=10
-LOGIN_RATE_LIMIT_USER=5
-ACCOUNT_LOCK_THRESHOLD=10
-ACCOUNT_LOCK_DURATION=15
-```
-
-> `UPLOAD_PATH` / `DB_PATH` / `FEEDBACK_UPLOAD_PATH` 支持绝对路径（平台按绝对路径直接使用），务必指向数据盘，避免用户文件随代码 Release 一起被删除。
-
-#### 2.5 正式库初始化（只执行一次；安全、幂等、无测试种子）
-
-```bash
-cd /opt/pbl-platform/current/backend
-DB_PATH=/datadisk/pbl-platform/database/pbl_platform.db \
-ADMIN_USERNAME=admin \
-ADMIN_PASSWORD='<至少 12 位强密码>' \
-ADMIN_REAL_NAME=系统管理员 \
-npm run db:provision
-```
-
-- 只建表 + 创建正式管理员（首登强制改密），**不会**写入 `admin123` 等测试账号；
-- 之后学校的组织/课程通过平台界面导入维护；正式环境**严禁** `npm run db:reset` 与 `npm run db:init`。
-
-#### 2.6 systemd 服务（`/etc/systemd/system/pbl-backend.service`）
-
-```ini
-[Unit]
-Description=PBL Production Backend
-After=network.target
-
-[Service]
-Type=simple
-User=pbl
-Group=pbl
-WorkingDirectory=/opt/pbl-platform/current/backend
-EnvironmentFile=/etc/pbl-platform/backend.env
-ExecStart=/opt/node-v22/bin/node app.js
-Restart=on-failure
-RestartSec=5
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ReadWritePaths=/datadisk/pbl-platform
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### 2.7 Nginx（`/etc/nginx/sites-available/pbl-platform`）
-
-```nginx
-server {
-    listen 80;
-    server_name 你的正式域名;
-    root /opt/pbl-platform/current/frontend/dist;
-    index index.html;
-    # 课程回放视频单文件最大 500MB，上限需大于该值
-    client_max_body_size 520M;
-
-    location / {
-        try_files $uri $uri/ /index.html;   # SPA 路由
-    }
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-启用并检查：`ln -s /etc/nginx/sites-available/pbl-platform /etc/nginx/sites-enabled/`，`nginx -t`；按域名/入口决定 HTTPS（网关或本机 443 + 证书）。
-
-#### 2.8 上线检查与回滚
-
-```bash
-# 四层健康检查
-curl -fsS http://127.0.0.1:3000/api/health   # 直接访问后端
-curl -fsS http://127.0.0.1/api/health          # 经 nginx
-curl -I  http://127.0.0.1/                     # 前端静态
-curl -I  http://127.0.0.1/login                # SPA fallback
-```
-
-正式发布前完成业务冒烟（管理员/学术导师/教师/学生登录、执行导师/管理员选课导入与管理员异常修正移除、知识卡片与练习、课后任务和报告提交、导师作品/报告评审、教师只读观察、课程回放、成长档案、反馈附件、通知、滑翔机试飞、未登录 401 / 无权限 403），并先做数据库备份（`sqlite3 <db> ".backup <文件>"` 后 `PRAGMA integrity_check`）。
-
-**回滚**：`sudo ln -sfn /opt/pbl-platform/releases/<上一版本> /opt/pbl-platform/current && sudo systemctl restart pbl-backend`；数据库回滚需先停服、恢复 pre-deploy 备份、校验后再启动。
-
-#### 2.9 备份规划（建议）
-
-| 类型 | 策略 |
-| --- | --- |
-| 每日数据库备份 | 保留 7 天 |
-| 每周完整备份 | 保留 4 周 |
-| 每次部署前 | 强制备份 |
-| 数据盘 uploads/private_uploads | 与数据库一起备份，并另存异机/NAS/对象存储 |
+近期整改实现与验收边界见 [本轮整改验收记录](docs/本轮整改验收记录_2026-10-08.md)。上线仍须完成真实 Linux 发布恢复、HTTPS/网络暴露、长视频及弱网上传验收。
 
 ### 3. 服务器部署滑翔机引擎（如需该功能）
 
@@ -921,6 +792,35 @@ GLIDER_BACKEND=auto
 本项目仅供“大中小贯通科创育人”项目组内部使用，仓库目前未包含独立的开源许可证文件。
 
 
-## PBL 像素前端提案（待整合）
+## PBL 像素前端与真实奖励整合
 
-[功能差异、迁移冲突与上线待确认](docs/pbl-redesign/README.md)。本分支供审查，不代表已与最新 main 完成整合或可以直接用于生产库。
+[本次整合交付与实际验证](docs/upstream-integration/README.md)。本分支已合入 main@681328d，保留像素课程空间与真实兑换；正式部署仍需受控备份、目标环境验收和人工复核。
+
+### 知识卡片与练习权限（第 1 步）
+
+- 七个题库写接口（卡片新增、修改、删除、排序，以及练习新增、修改、删除）仅允许管理员调用，路由和服务层均校验。导师原有课程、任务、选课和评审权限保留。
+- 导师可读取所属课程的课时和卡片；题库读取接口不向导师返回标准答案或解析。教师仍不能访问管理接口；教师/导师专用只读预览接口及入口见下文。
+- 本步不修改数据库结构，不重算历史进度，不录入课程内容。验证命令：在 backend/ 执行 npm test（PowerShell 可使用 npm.cmd test）。
+
+### 知识卡片与练习只读预览（第 2 步）
+
+- `GET /api/learning/lessons/:lessonId/preview`：需要登录并完成首次改密。管理员可预览全部课时；导师限定自己创建或受邀授课的课程；教师限定有效报名学生所在课程，学生必须由 `teacher_id` 明确分配给当前教师、在用且未归档。学生和新媒体不能调用该接口。
+- 返回 `{ read_only: true, course, lesson, cards }`。只包含已发布卡片（按排序和 ID 排列）及配套题目的题干、题型、选项、分值等；草稿和归档卡片不返回。空课时返回 `cards: []`。
+- 所有角色的预览均不返回标准答案或解析，不返回学生作答、学习进度、报告或反思。预览不要求先完成课堂回顾，不产生阅读、作答或完成记录，也不重算历史进度。
+- 未登录返回 401；角色或课程范围不符返回 403；课时不存在返回 404。本步不修改数据库结构、不录入课程内容、不调整前端。
+
+### 知识卡片与练习前端（第 3 步）
+
+- 导师从课程详情的课时列表或「学习内容预览」进入只读页面。编辑路由仅允许管理员进入；管理员仍从「学习内容编排」维护草稿、题目和答案。
+- 教师从「负责学生 → 学生学情 → 课程进展」的课时按钮进入预览。已有学生学情接口为有效报名课程附带只读课时目录，无需学生先产生学习记录；仍校验当前教师的学生分配范围。
+- 预览页面展示 Markdown、题干和选项，支持空内容提示、加载失败提示和重试，不提供作答或编辑控件；即使响应包含答案或解析字段，页面也不渲染它们。
+- 学生提交后立即显示得分、标准答案和解析；刷新后从已有作答状态恢复反馈。提交成功后锁定本题，全部作答即可完成卡片；填空仅空白时不能提交。一次作答及后端判分规则保持原样。
+- 检查：backend/ 执行 npm test；frontend/ 执行 npm test、npm run lint、npm run build。没有数据库结构变更、历史进度重算或课程内容录入。
+
+### 航空航天启蒙草稿内容（第 4 步）
+
+本地通过管理员账号及已有 API 创建课程「航空航天启蒙」和课时「滑翔机与空气动力学」，首次录入时课程和全部卡片保持草稿，后续按用户要求发布。内容包位于 `content/aviation-intro/`，包含 6 张 Markdown 卡片、8 道单选题和拆分后的 7 道单空填空题；原双空题拆为两题。完整正文、答案和解析见该目录的审核资料。讨论题暂不自动判分。
+
+只新增本课程的课时、卡片和练习，不修改已有课程或学习记录，不批量重算进度。录入前进行 SQLite 备份，录入后核对原有业务记录。具体本地 ID 和备份位置见 `import-receipt.json`；数据库不随 Git 推送同步到远端。
+
+后续已添加王小明、陈小红、刘小宇，并发布6张卡片；新建课后任务「滑翔机与空气动力学：知识卡片与基础练习」，无需上传附件。学生任务列表依赖 `tasks` 表，只有卡片而没有任务时不会出现课后任务入口。三名学生正常登录已验证任务、卡片与练习可见，作答前答案仍隐藏；发布记录见 `publication-receipt.json`。

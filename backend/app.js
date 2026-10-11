@@ -10,6 +10,12 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const API_PREFIX = process.env.API_PREFIX || '/api';
+const RELEASE_SHA = process.env.RELEASE_SHA || (() => {
+  try {
+    const value = fs.readFileSync(path.resolve(__dirname, '../.release-sha'), 'utf8').trim();
+    return /^[a-f0-9]{40,64}$/.test(value) ? value : 'development';
+  } catch { return 'development'; }
+})();
 
 // ============================================
 // JWT 密钥
@@ -43,6 +49,7 @@ app.set('jwt_secret', JWT_SECRET);
 // 中间件配置
 // ============================================
 app.disable('x-powered-by');
+app.use(require('./helpers/maintenance').gate(API_PREFIX));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
@@ -96,10 +103,22 @@ app.use(`${API_PREFIX}/mentor-reviews`, require('./routes/mentorReview'));
 app.use(`${API_PREFIX}/observer`, require('./routes/observer'));
 // 服务重启后继续处理尚未完成的课程资料索引；失败项由课程管理者手动重试。
 require('./services/aiDocumentService').resumePending();
+require('./services/accountImportService').resumePending();
+const notificationRetry = setInterval(() => {
+  try { require('./services/notificationService').retryOutbox(); } catch (err) { console.error('通知重试失败:', err.message); }
+}, 30000);
+notificationRetry.unref();
 
 // 健康检查
 app.get(`${API_PREFIX}/health`, (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  try {
+    const db = require('./config/database');
+    const version=require('./helpers/readiness').assertReady(db);
+    res.json({ status: 'ok', database: 'ready', schema_version: version,
+      release: RELEASE_SHA, timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'unavailable', database: 'unavailable' });
+  }
 });
 
 // 404
@@ -123,7 +142,9 @@ app.use((err, req, res, _next) => {
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  // 启动即核验结构与写入能力，禁止缺表的实例先接受业务流量。
+  require('./helpers/readiness').assertReady(require('./config/database'));
+  app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
     console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
     console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
   });

@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import process from 'node:process'
+import {fileURLToPath} from 'node:url'
+const THREE_DIR=fileURLToPath(new URL('./node_modules/three',import.meta.url))
 
 // ============================================
 // Content-Security-Policy（SPA 侧有效 CSP）
@@ -56,7 +58,9 @@ export default defineConfig({
       },
     },
   ],
+  resolve: {alias:[{find:/^three\/addons\//,replacement:`${THREE_DIR.replaceAll('\\','/')}/examples/jsm/`},{find:/^three$/,replacement:THREE_DIR}]},
   server: {
+    fs: {allow:['..']},
     headers: {
       'Content-Security-Policy': DEV_CSP,
     },

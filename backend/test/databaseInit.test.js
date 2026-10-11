@@ -92,6 +92,36 @@ test('旧版 003 学生状态迁移记录升级后不重复添加列并保留账
   upgraded.close();
 });
 
+test('主线 016 旧库升级账号 017，保留密码和课堂纪要且重复启动幂等', (t) => {
+  const dbPath = fixture(t);
+  succeeds(run(dbPath, ['database/init.js']));
+  const old = new Database(dbPath);
+  old.exec(`
+    DROP TABLE account_status_events;
+    DROP TABLE account_import_batches;
+    DROP TABLE account_sequences;
+    DROP TABLE account_school_codes;
+    DROP INDEX idx_school_account_code;
+    ALTER TABLE schools DROP COLUMN account_code;
+    DELETE FROM schema_migrations WHERE version = 17;
+  `);
+  const accounts = old.prepare('SELECT id, username, password_hash FROM users ORDER BY id').all();
+  const course = old.prepare('SELECT id, created_by FROM courses LIMIT 1').get();
+  old.prepare('INSERT INTO course_replays (course_id,title,video_path,summary,created_by) VALUES (?,?,?,?,?)')
+    .run(course.id, '旧回放', 'preserved.mp4', '保留课堂纪要', course.created_by);
+  old.close();
+  for (let i = 0; i < 2; i++) succeeds(run(dbPath, ['-e', "require('./config/database').close()"]));
+  const upgraded = new Database(dbPath, { readonly: true });
+  try {
+    assert.deepEqual(upgraded.prepare('SELECT id, username, password_hash FROM users ORDER BY id').all(), accounts);
+    assert.equal(upgraded.prepare("SELECT summary FROM course_replays WHERE title='旧回放'").get().summary, '保留课堂纪要');
+    assert.equal(upgraded.prepare('SELECT name FROM schema_migrations WHERE version=16').get().name, '016_replay_summary.sql');
+    assert.equal(upgraded.prepare('SELECT name FROM schema_migrations WHERE version=17').get().name, '017_account_batches.sql');
+    assert.ok(upgraded.prepare('PRAGMA table_info(schools)').all().some(column => column.name === 'account_code'));
+    assert.equal(upgraded.pragma('integrity_check', { simple: true }), 'ok');
+  } finally { upgraded.close(); }
+});
+
 test('生产环境禁止测试初始化，包括强制重置', (t) => {
   const dbPath = fixture(t);
   assert.equal(run(dbPath, ['database/init.js', '--force'], { NODE_ENV: 'production' }).status, 1);
@@ -109,4 +139,20 @@ test('正式初始化新库并重复运行，保留单一管理员且不写入�
     [{ username: 'production-admin', force_reset_password: 1 }]);
   assert.equal(db.prepare('SELECT count(*) AS n FROM schools').get().n, 0);
   db.close();
+});
+
+test('正式管理员自动规则、初始改密及旧账号不覆盖', (t) => {
+  const dbPath=fixture(t);
+  const env={NODE_ENV:'production',ADMIN_USERNAME:'',ADMIN_REAL_NAME:'张三',ADMIN_PASSWORD:'ignored-password'};
+  succeeds(run(dbPath,['database/provision.js'],env));
+  const db=new Database(dbPath);
+  const account=db.prepare('SELECT * FROM users').get();
+  assert.equal(account.username,'BUAA_admin_zhangsan_1');assert.equal(account.force_reset_password,1);
+  assert.equal(require('bcryptjs').compareSync('zhangsan@123',account.password_hash),true);
+  assert.equal(require('bcryptjs').compareSync('ignored-password',account.password_hash),false);
+  db.close();
+  succeeds(run(dbPath,['database/provision.js'],{...env,ADMIN_REAL_NAME:'改名不覆盖'}));
+  const check=new Database(dbPath);assert.equal(check.prepare('SELECT password_hash FROM users').get().password_hash,account.password_hash);
+  check.prepare("INSERT INTO users(username,real_name,role,password_hash) VALUES('occupied-name','学生','student','unused')").run();check.close();
+  assert.equal(run(dbPath,['database/provision.js'],{...env,ADMIN_USERNAME:'occupied-name'}).status,1);
 });

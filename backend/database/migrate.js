@@ -31,12 +31,20 @@ function migrate(db) {
     db.prepare("UPDATE schema_migrations SET version = 8, name = '008_student_lifecycle.sql' WHERE version = 3").run();
   }
 
-  const legacyReplay = db.prepare('SELECT name FROM schema_migrations WHERE version=14').get();
-  if(legacyReplay?.name==='014_replay_summary.sql'){
-    if(!db.prepare('PRAGMA table_info(course_replays)').all().some(c=>c.name==='summary')||db.prepare('SELECT 1 FROM schema_migrations WHERE version=16').get())throw Error('旧摘要迁移与结构不一致');
-    db.prepare("UPDATE schema_migrations SET version=16,name='016_replay_summary.sql' WHERE version=14").run();
-  }
+  // Move known local identities before reserving upstream replay summary 016.
   require('./migrationBridge').bridge(db);
+  // 摘要在合并前曾使用 014；main 的 014/015 属于滑翔机。
+  // 已应用旧摘要迁移的库只调整记录到 016，让滑翔机迁移继续执行，保留摘要原文。
+  const legacyReplay = db.prepare('SELECT name FROM schema_migrations WHERE version = 14').get();
+  if (legacyReplay?.name === '014_replay_summary.sql') {
+    const hasSummary = db.prepare('PRAGMA table_info(course_replays)').all().some((column) => column.name === 'summary');
+    const hasVersion16 = db.prepare('SELECT 1 FROM schema_migrations WHERE version = 16').get();
+    if (!hasSummary || hasVersion16) {
+      throw new Error('旧版摘要迁移记录与实际结构不一致，请先核对数据库备份和 schema_migrations');
+    }
+    db.prepare("UPDATE schema_migrations SET version = 16, name = '016_replay_summary.sql' WHERE version = 14").run();
+  }
+
   const dir = path.join(__dirname, 'migrations');
   const files = fs.readdirSync(dir)
     .filter((f) => /^\d+_.*\.sql$/.test(f))
@@ -57,7 +65,7 @@ function migrate(db) {
     }
     for (const file of files) {
       const version = parseInt(file.split('_')[0], 10);
-      if ((version <= 15 || (version >= 1016 && version <= 1023)) && version > 1 && !applied.has(version)) {
+      if ((version <= 20 || (version >= 1016 && version <= 1023)) && version > 1 && !applied.has(version)) {
         mark.run(version, file);
         applied.add(version);
       }
@@ -72,7 +80,8 @@ function migrate(db) {
     const sql = fs.readFileSync(path.join(dir, file), 'utf8');
     db.transaction(() => {
       db.exec(sql);
-      if(version===18)require('./migrationBridge').snapshotLegacy(db);
+      if (version === 18) require('./migrationBridge').snapshotLegacy(db);
+      if (version === 1025) require('./migrationBridge').supplementLegacy(db);
       db.prepare('INSERT INTO schema_migrations (version, name) VALUES (?, ?)').run(version, file);
     })();
     console.log(`✅ 数据库迁移 ${file} 已应用`);

@@ -43,6 +43,7 @@ export async function loadExploreHome({ courseAPI, taskAPI }) {
       warnings.push(`《${course.title}》的课时安排与待办未能加载，请重试或进入课程重新加载。`);
     }
   });
+  if(taskResult.status==='fulfilled'&&Array.isArray(taskResult.value.lessons)){const summaries=new Map(taskResult.value.lessons.map(l=>[l.course_id+':'+l.lesson_id,l]));for(const detail of courseDetails)detail.lessons=(detail.lessons||[]).map(lesson=>{const summary=summaries.get(detail.course.id+':'+lesson.id);return summary?{...lesson,report_status:summary.report_status,started:summary.started,readiness:summary.readiness,progress:summary.learning_progress??lesson.progress}:lesson;});}
   const available = new Set(courseDetails.map((detail) => String(detail.course.id)));
   const tasks = taskResult.status === 'fulfilled'
     ? (taskResult.value.tasks || []).filter((task) => available.has(String(task.course_id))) : [];

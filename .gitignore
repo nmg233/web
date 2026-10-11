@@ -113,3 +113,12 @@ docs/next-version/step-02/browser-first/
 !docs/real-redemption/*.html
 # Private redemption verification files stay local.
 /docs/real-redemption/evidence/
+
+# Upstream maintenance documentation and local tools
+!docs/部署与恢复.md
+!docs/本轮整改验收记录_2026-10-08.md
+.trae/
+# Merge acceptance source documentation; private evidence stays ignored
+!docs/upstream-integration/*.md
+!docs/upstream-integration/*.html
+/docs/upstream-integration/evidence/

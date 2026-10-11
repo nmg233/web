@@ -7,6 +7,7 @@ async function req(id,p,method='GET',body){const r=await fetch(url+'/api'+p,{met
 const eligible=async()=>{const r=await req(4,'/rewards/lessons/12');assert.equal(r.status,200);return r.data;};
 const count=()=>db.prepare('SELECT count(*) n FROM student_badge_grants').get().n;
 function complete(){
+ require('../services/learningService').lessonPackage(4,12);
  db.prepare('INSERT OR IGNORE INTO lesson_review_completions(student_id,lesson_id) VALUES(4,12)').run();
  db.prepare('INSERT OR IGNORE INTO student_card_progress(student_id,card_id,completed_at) VALUES(4,21,CURRENT_TIMESTAMP)').run();
  db.prepare("INSERT INTO card_exercise_attempts(student_id,exercise_id,answer_json,is_correct,score,attempt_no) SELECT 4,31,'\"合成\"',0,0,1 WHERE NOT EXISTS(SELECT 1 FROM card_exercise_attempts WHERE student_id=4 AND exercise_id=31)").run();
@@ -18,7 +19,8 @@ before(async()=>{
  db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(4,1,'active'),(5,1,'active')").run();
  db.prepare("INSERT INTO lessons(id,course_id,title,presentation_type,content_state) VALUES(11,1,'参观','visit','ready'),(12,1,'理论','theory','ready'),(13,1,'实验','experiment','preparing'),(14,2,'他课','theory','ready')").run();
  db.prepare("INSERT INTO knowledge_cards(id,lesson_id,title,content,status,created_by) VALUES(21,12,'合成卡片','测试非正式教材','published',2)").run();
- db.prepare("INSERT INTO card_exercises(id,card_id,question_type,prompt,answer_json,is_required) VALUES(31,21,'short_answer','测试问题','\"无泄露答案\"',1)").run();
+ db.prepare("INSERT INTO card_exercises(id,card_id,question_type,prompt,answer_json,explanation,is_required) VALUES(31,21,'short_answer','测试问题','\"无泄露答案\"','测试解析',1)").run();
+ db.prepare("UPDATE lessons SET review_content='隔离真实回顾媒介' WHERE id=12").run();
  server=app.listen(0);await new Promise(r=>server.once('listening',r));url='http://127.0.0.1:'+server.address().port;
  for(const id of[1,2,3,4,5,6])tokens[id]=(await fetch(url+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'reward'+id,password:'test123'})}).then(r=>r.json())).token;
  for(const id of[11,12,13])assert.equal((await req(2,`/courses/1/maintenance/badges/${id}`,'PUT',{name:'测试徽章'+id,artId:id===11?'vr':id===12?'theory':'glider',description:'合成验收'})).status,200);

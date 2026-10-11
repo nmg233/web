@@ -2,7 +2,7 @@ import Alert from '../../student/visual/StudentAlert';
 import {copyText} from '../../content/copy';
 import CopyBlock from '../../content/CopyBlock';
 import { useCourseApis } from '../../student/useCourseApis';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {useCourseNavigate as useNavigate} from '../../student/useCourseApis';
 
@@ -22,7 +22,7 @@ function SubmissionForm({ data, parentId }) {
   const { message } = App.useApp();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm();const pending=useRef(false),alive=useRef(true);useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
@@ -30,7 +30,7 @@ function SubmissionForm({ data, parentId }) {
   const [draftFailed, setDraftFailed] = useState(false);
   const key = `star-voyage:work:v1:${user.id}:${data.task.id}:${parentId || 'first'}`;
   const latest = data.works[0];
-  const allowed = parentId ? latest && String(latest.id) === parentId && latest.review_status === 'rejected' : !latest;
+  const allowed = !data.task.read_only && (parentId ? latest && String(latest.id) === parentId && latest.review_status === 'rejected' : !latest);
   useEffect(() => {
     try {
       const draft = JSON.parse(localStorage.getItem(key));
@@ -46,8 +46,9 @@ function SubmissionForm({ data, parentId }) {
     catch { setDraftFailed(true); setSaved(copyText('system.workUpload.004')); }
   };
   const submit = async (values) => {
+    if(pending.current)return;const page=window.location.pathname+window.location.search,current=()=>alive.current&&page===window.location.pathname+window.location.search;
     if (!values.description?.trim() && !file) { setError(copyText('system.workUpload.005')); return; }
-    setLoading(true); setError('');
+    pending.current=true;setLoading(true); setError('');
     try {
       const payload = new FormData();
       if (file) payload.append('file', file);
@@ -57,11 +58,12 @@ function SubmissionForm({ data, parentId }) {
       payload.append('enrollment_id', data.task.enrollment_id);
       payload.append('parent_work_id', parentId || '');
       await workAPI.upload(payload);
+      if(!current())return;
       try { localStorage.removeItem(key); } catch { /* 已成功提交，不重复上传 */ }
       message.success(copyText('system.workUpload.006'));
       navigate(`/courses/${data.task.course_id}/lessons/${data.task.lesson_id}/learn`);
     } catch (err) { setError(err.response?.data?.error || copyText('system.workUpload.007')); }
-    finally { setLoading(false); }
+    finally { pending.current=false;if(current())setLoading(false); }
   };
   return <div className="study-submit-layout"><StudySection number="W" title={parentId ? copyText('system.workUpload.008') : copyText('system.workUpload.009')} description={copyText('system.workUpload.010')}>
     {!allowed ? <Alert type="warning" title={copyText('system.workUpload.011')} description={copyText('system.workUpload.012')} /> : <Form form={form} layout="vertical" onFinish={submit} onValuesChange={save} disabled={loading} scrollToFirstError={{ block: 'center', focus: true }}>

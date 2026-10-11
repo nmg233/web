@@ -1,3 +1,4 @@
+import {lessonAccessReason} from './learningIntegration';
 import Alert from '../student/visual/StudentAlert';
 import {copyText} from '../content/copy';
 import CopyBlock from '../content/CopyBlock';
@@ -34,6 +35,7 @@ const difficulties = { basic: copyText('system.map.004'), advanced: copyText('sy
 function learningState(lesson) {
   if (lesson.future) return {label:copyText('next.map.future'),tone:'neutral'};
   if (lesson.content_state==='preparing') return {label:copyText('next.map.preparing'),tone:'neutral'};
+  if(lessonAccessReason(lesson))return {label:lesson.learning_in_scope===false?'已结课范围外':'尚未开放',tone:'neutral'};
   if (lesson.status === 'cancelled') return { label: copyText('system.map.007'), tone: 'neutral' };
   if (Number(lesson.progress) >= 100) return { label: copyText('system.map.008'), tone: 'success' };
   if (Number(lesson.progress) > 0) return { label: copyText('system.map.009'), tone: 'current' };
@@ -101,7 +103,7 @@ function LessonDetails({ lesson, tasks, courseId, isCurrent }) {
       <Typography.Title level={4}>{copyText('system.map.038')}</Typography.Title>
       {tasks.length ? <ul>{tasks.map((task) => <li key={task.id}><Link to={href + '?task_id=' + task.id + '#task-' + task.id}>{task.title}</Link>{task.deadline && <span>{copyText('system.map.039')}{scheduleTime(task.deadline)}</span>}</li>)}</ul>
         : <Sentence as={Typography.Paragraph} type="secondary">{copyText('system.map.040')}</Sentence>}
-      <AssociatedExperiments courseId={courseId} lessonId={lesson.id} />
+      {!lessonAccessReason(lesson)&&<AssociatedExperiments courseId={courseId} lessonId={lesson.id} />}
     </div>}
     <CopyBlock id="system.map.041" as="p" className="pixel-map-detail-note"/>
   </PixelPanel>;
