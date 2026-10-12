@@ -111,7 +111,7 @@ function detail(user, reportId) {
     ...c, exercise_count: c.exercises.length, attempt_count: c.exercises.filter((e) => e.attempt).length,
     exercises: c.exercises.map((e) => ({
       id: e.id, question_type: e.question_type, prompt: e.prompt,
-      options: parseJson(e.options_json), reference_answer: parseJson(e.answer_json), explanation: e.explanation,
+      options: parseJson(e.options_json), reference_answer: parseJson(e.answer_json), explanation: e.explanation, rubric:e.rubric || null,
       student_answer: e.attempt ? parseJson(e.attempt.answer_json) : null,
       attempted: Boolean(e.attempt), correct: e.question_type === 'short_answer' ? null : e.attempt?.is_correct,
       score: e.question_type === 'short_answer' ? null : e.attempt?.score, feedback: e.feedback,

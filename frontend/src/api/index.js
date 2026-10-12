@@ -30,16 +30,20 @@ const courseAPI = {
   update: (id, data) => client.put(`/courses/${id}`, data),
   delete: (id) => client.delete(`/courses/${id}`),
   addLesson: (courseId, data) => client.post(`/courses/${courseId}/lessons`, data),
+  updateLesson: (lessonId, data) => client.put(`/courses/lessons/${lessonId}`, data),
+  cancelLesson: (lessonId, reason) => client.post(`/courses/lessons/${lessonId}/cancel`, {reason}),
   addTask: (lessonId, data) => client.post(`/courses/lessons/${lessonId}/tasks`, data),
   uploadResource: (courseId, formData) => client.post(`/courses/${courseId}/resources`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   downloadResource: (resourceId) => client.get(`/courses/resources/${resourceId}/download`, { responseType: 'blob' }),
+  updateResource: (resourceId, data) => client.put(`/courses/resources/${resourceId}`, data),
   deleteResource: (resourceId) => client.delete(`/courses/resources/${resourceId}`),
   listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
-  uploadReplay: (courseId, formData, onUploadProgress) => client.post(`/courses/${courseId}/replays`, formData, {
-    timeout: 30 * 60 * 1000, onUploadProgress,
+  replayUploadResult: (courseId, key) => client.get(`/courses/${courseId}/replay-requests/${key}`),
+  uploadReplay: (courseId, formData, onUploadProgress, signal) => client.post(`/courses/${courseId}/replays`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 30 * 60 * 1000, onUploadProgress, signal,
   }),
   updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
   deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
@@ -54,6 +58,8 @@ const courseAPI = {
 const taskAPI = {
   list: (params) => client.get('/tasks', { params }),
   detail: (id) => client.get(`/tasks/${id}`),
+  update: (id, data) => client.put(`/tasks/${id}`, data),
+  cancel: (id,reason) => client.post(`/tasks/${id}/cancel`,{reason}),
 };
 
 const studentAPI = {

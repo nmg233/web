@@ -3,7 +3,7 @@ const checks={
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
   schools:'id,is_active', classes:'id,school_id',courses:'id,status',lessons:'id,course_id,status',
   enrollments:'id,student_id,course_id,status,completed_at',course_replays:'id,lesson_id,video_path',resources:'id,lesson_id,file_path',
-  knowledge_cards:'id,lesson_id,status',card_exercises:'id,card_id,answer_json',
+  knowledge_cards:'id,lesson_id,status',card_exercises:'id,card_id,answer_json,rubric',
   student_card_progress:'student_id,card_id,completed_at',card_exercise_attempts:'student_id,exercise_id,attempt_no',
   lesson_review_completions:'student_id,lesson_id',lesson_progress:'student_id,lesson_id,completed_at',
   lesson_learning_reports:'id,student_id,lesson_id,status,version',reflections:'report_id',works:'id,parent_work_id,review_status',

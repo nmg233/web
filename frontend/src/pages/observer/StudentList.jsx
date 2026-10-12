@@ -1,3 +1,4 @@
+import {formatBeijingTime} from '../../utils/date';
 import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -32,11 +33,13 @@ export default function ObserverStudentList() {
     setParams(next);
   };
   const columns = [
-    { title: siteText("site.9fc868217f0590d3"), render: (_, r) => <Space direction="vertical" size={0}><strong>{r.real_name}</strong><span>{r.username}</span></Space> },
-    { title: siteText("site.8ce095f64901863f"), render: (_, r) => `${r.school_name || '-'} / ${r.class_name || '-'}` },
-    { title: siteText("site.79de0b21260f7ce5"), dataIndex: 'completed_30d' }, { title: siteText("site.59daa04bd1aa9ce3"), dataIndex: 'pending_lessons' },
-    { title: siteText("site.9ee46bbe64d5d1a7"), dataIndex: 'risk_tags', render: (tags) => tags.map((tag) => <Tag color="orange" key={tag}>{tag}</Tag>) },
-    { title: siteText("site.232c4f4f56a776c3"), render: (_, r) => <Button type="link" onClick={() => navigate(`/observer/students/${r.id}`, { state: { returnTo: `/observer/students?${query}` } })}>{siteText("site.be8df684b70e2a2c")}</Button> },
+    { title: '学生', render: (_, r) => <Space direction="vertical" size={0}><strong>{r.real_name}</strong><span>{r.username}</span></Space> },
+    { title: '学校 / 班级', render: (_, r) => `${r.school_name || '-'} / ${r.class_name || '-'}` },
+    { title: '课程进度与待办', render: (_, r) => <Space orientation="vertical" size={4}>{(r.courses || []).map((c) => <div key={c.id}><strong>{c.title}</strong> · {c.completion.percent}% · {c.completed_lessons}/{c.lesson_count} 课时<br />{c.completion.completed ? `已结课：${(c.completion.completed_at ? formatBeijingTime(c.completion.completed_at) : '时间未记录')}` : <>{c.current_lesson || '暂无有效课时'} · {({reviewing_lesson:'课堂回顾',learning:'知识学习',reporting:'报告反思',reviewing:'待导师评审',revision:'需修改'})[c.current_stage] || '尚未开始'}<br />待交报告 {c.missing_reports} · 待评审 {c.pending_reports} · 待修改 {c.rejected_reports}</>}</div>)}</Space> },
+    { title: '最近学习活动', dataIndex: 'last_learning_at', render: (value) => value ? formatBeijingTime(value) : '暂无记录' },
+    { title: '近30天完成', dataIndex: 'completed_30d' }, { title: '学习中课时', dataIndex: 'pending_lessons' },
+    { title: '关注项', dataIndex: 'risk_tags', render: (tags) => tags.map((tag) => <Tag color="orange" key={tag}>{tag}</Tag>) },
+    { title: '操作', render: (_, r) => <Button type="link" onClick={() => navigate(`/observer/students/${r.id}`, { state: { returnTo: `/observer/students?${query}` } })}>查看学情</Button> },
   ];
   return <PageContainer title="负责学生" description="仅查看明确分配给你的学生；同一学生可同时存在学习中和已结课课程。">
     <Space wrap style={{ marginBottom: 16 }}>

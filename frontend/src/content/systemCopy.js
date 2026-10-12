@@ -182,7 +182,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.16b0922bf4440284": {
-    "text": "学术导师",
+    "text": "执行导师",
     "enabled": true,
     "optional": false,
     "page": "components/Header",
@@ -9113,7 +9113,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.5e67b92082315a2e": {
-    "text": "学术导师",
+    "text": "执行导师",
     "enabled": true,
     "optional": false,
     "page": "pages/students/Detail",
@@ -10088,7 +10088,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.84c4eb3b4c0f4cb2": {
-    "text": "⭐ 学术导师",
+    "text": "⭐ 执行导师",
     "enabled": true,
     "optional": false,
     "page": "pages/students/List",
@@ -10218,7 +10218,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.39b0c0f95be4e85d": {
-    "text": "学术导师",
+    "text": "执行导师",
     "enabled": true,
     "optional": false,
     "page": "pages/students/List",
@@ -10335,7 +10335,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.b3a460595f30ba87": {
-    "text": "，身份可选：学生 / 教师 / 学术导师。 登录账号可留空自动生成，旧模板仍可使用；同名用户允许导入，重复账号会跳过。无账号的文件重复上传会创建新用户。 每人自动生成随机临时密码，请在关闭结果前导出并妥善保管；关闭后无法再次查询。",
+    "text": "，身份可选：学生 / 教师 / 执行导师。 登录账号可留空自动生成，旧模板仍可使用；同名用户允许导入，重复账号会跳过。同一原请求重试不会重复建号；按新请求重复导入可能生成新账号，请核对导入结果。 初始密码统一为姓名拼音@123，首次登录必须修改；自设密码仍遵循原强度规则，临时密码不设有效期。请在关闭结果前导出并妥善保管；关闭后无法再次查询。",
     "enabled": true,
     "optional": false,
     "page": "pages/students/List",
@@ -18785,7 +18785,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.265d5526ecb9d3b3": {
-    "text": "学术导师",
+    "text": "执行导师",
     "enabled": true,
     "optional": false,
     "page": "pages/students/List",

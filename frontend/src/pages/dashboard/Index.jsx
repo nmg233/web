@@ -210,8 +210,8 @@ export default function Dashboard() {
                       <Text type="secondary">学习进度: {c.progress ?? 0}%</Text>
                       {c.completion?.completed && <Tag color="green">已结课</Tag>}
                       <br />
-                      <Tag>{c.difficulty}</Tag>
-                      <Tag>{c.grade_level}</Tag>
+                      <Tag>{({basic:'基础',advanced:'进阶',challenge:'挑战'})[c.difficulty] || c.difficulty}</Tag>
+                      <Tag>{({primary:'小学',junior:'初中',senior:'高中'})[c.grade_level] || c.grade_level}</Tag>
                     </Card>
                   </Col>
                 ))}

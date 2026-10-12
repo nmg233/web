@@ -184,7 +184,7 @@ export default function StudentList() {
             </Card>
           )) : null}
           {data.academicMentors?.length > 0 && (
-            <Card title="⭐ 学术导师" style={{ marginBottom: 12 }} size="small">
+            <Card title="⭐ 执行导师" style={{ marginBottom: 12 }} size="small">
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {data.academicMentors.map((m) => renderUserTag(m, 'purple', '⭐'))}
               </div>

@@ -279,7 +279,7 @@ test('导师评审和内容管理严格按课程归属授权', async () => {
   assert.equal(created.status, 201);
 });
 
-test('题库七个写接口拒绝导师、教师和学生且不改变历史数据', async () => {
+test('题库七个写接口拒绝无关导师、教师和学生且不改变历史数据', async () => {
   const writes = [
     ['POST', '/learning/manage/lessons/1/cards', { title: '禁止新增', content: '内容' }],
     ['POST', '/learning/manage/lessons/1/cards/reorder', { card_ids: [2, 1] }],
@@ -294,7 +294,7 @@ test('题库七个写接口拒绝导师、教师和学生且不改变历史数�
     'lesson_progress', 'lesson_learning_reports', 'courses', 'enrollments',
   ].map((table) => [table, db.prepare(`SELECT * FROM ${table} ORDER BY id`).all()]));
   const original = snapshot();
-  for (const role of ['mentor', 'othermentor', 'teacher', 'student']) {
+  for (const role of ['othermentor', 'teacher', 'student']) {
     for (const [method, url, body] of writes) {
       assert.equal((await api(url, { method, body, token: tokens[role] })).status, 403, `${role}: ${method} ${url}`);
     }
@@ -302,9 +302,9 @@ test('题库七个写接口拒绝导师、教师和学生且不改变历史数�
   assert.deepEqual(snapshot(), original);
 });
 
-test('服务层直接调用也拒绝导师写题库，导师只读接口隐藏答案和解析', async () => {
+test('服务层也拒绝无关导师写题库，负责导师编辑接口可获取答案与解析', async () => {
   const service = require('../services/learningService');
-  const mentor = { id: 2, role: 'academic_mentor' };
+  const mentor = { id: 6, role: 'academic_mentor' };
   for (const write of [
     () => service.createCard(mentor, 1, {}),
     () => service.updateCard(mentor, 1, {}),
@@ -314,16 +314,29 @@ test('服务层直接调用也拒绝导师写题库，导师只读接口隐藏�
     () => service.updateExercise(mentor, 1, {}),
     () => service.deleteExercise(mentor, 1),
   ]) {
-    assert.throws(write, (error) => error.status === 403 && error.code === 'LEARNING_CONTENT_READ_ONLY');
+    assert.throws(write, (error) => error.status === 403 && error.code === 'LESSON_FORBIDDEN');
   }
   const result = await api('/learning/manage/lessons/1/cards', { token: tokens.mentor });
   assert.equal(result.status, 200);
   const exercise = result.body.cards.find((card) => card.id === 1).exercises[0];
-  for (const field of ['answer_json', 'answer', 'correct_answer', 'explanation']) {
-    assert.equal(Object.hasOwn(exercise, field), false, field);
-  }
+  assert.equal(exercise.answer, 'A');
+  assert.equal(exercise.explanation, '因为 A 正确');
   const admin = await api('/learning/manage/lessons/1/cards', { token: tokens.admin });
   assert.equal(admin.body.cards.find((card) => card.id === 1).exercises[0].answer, 'A');
+});
+
+test('受邀执行导师可完成题库七个编辑操作，旧作答和学习快照保留', async () => {
+  const request = (url, method, body) => api(url, { method, body, token: tokens.othermentor });
+  const card = await request('/learning/manage/lessons/3/cards', 'POST', { title:'导师新卡片',content:'正文',status:'draft' });
+  assert.equal(card.status,201);
+  assert.equal((await request(`/learning/manage/cards/${card.body.id}`, 'PUT', {title:'更新'})).status,200);
+  const ids=db.prepare('SELECT id FROM knowledge_cards WHERE lesson_id=3 ORDER BY id').all().map(c=>c.id);
+  assert.equal((await request('/learning/manage/lessons/3/cards/reorder','POST',{card_ids:ids})).status,200);
+  const exercise=await request(`/learning/manage/cards/${card.body.id}/exercises`,'POST',{question_type:'short_answer',prompt:'说明',answer:'参考答案',explanation:'详解'});
+  assert.equal(exercise.status,201);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`,'PUT',{explanation:'新详解'})).status,200);
+  assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`,'DELETE')).status,200);
+  assert.equal((await request(`/learning/manage/cards/${card.body.id}`,'DELETE')).status,200);
 });
 
 test('管理员仍可创建、修改、排序和删除知识卡片与练习', async () => {
@@ -332,7 +345,7 @@ test('管理员仍可创建、修改、排序和删除知识卡片与练习', as
   assert.equal(card.status, 201);
   const id = card.body.id;
   assert.equal((await request(`/learning/manage/cards/${id}`, 'PUT', { title: '更新标题' })).status, 200);
-  assert.equal((await request('/learning/manage/lessons/3/cards/reorder', 'POST', { card_ids: [id] })).status, 200);
+  assert.equal((await request('/learning/manage/lessons/3/cards/reorder', 'POST', { card_ids: db.prepare('SELECT id FROM knowledge_cards WHERE lesson_id=3 ORDER BY id').all().map(c=>c.id) })).status, 200);
   const exercise = await request(`/learning/manage/cards/${id}/exercises`, 'POST', { question_type: 'fill_blank', prompt: '作用力', answer: '重力', explanation: '地球吸引' });
   assert.equal(exercise.status, 201);
   assert.equal((await request(`/learning/manage/exercises/${exercise.body.id}`, 'PUT', { explanation: '更新解析' })).status, 200);

@@ -39,7 +39,7 @@ export default function LessonContentEditor({embeddedCourseId,embeddedLessonId,o
   const [cardForm] = Form.useForm();
   const [exerciseForm] = Form.useForm();
   const cardContent=Form.useWatch('content',cardForm);
-  const readOnly=user?.role!=='admin'||context?.read_only||loading||Boolean(error);
+  const readOnly=!['admin','academic_mentor'].includes(user?.role)||context?.read_only||loading||Boolean(error);
 
   const load = async () => {
     setLoading(true); setError('');

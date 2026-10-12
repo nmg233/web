@@ -1,10 +1,11 @@
+import SignedReplayPlayer from '../components/common/SignedReplayPlayer';
 import ReplaySummary from '../components/common/ReplaySummary';
-import {copyText as siteText, copyTemplate as siteTemplate} from "../content/copy";
+import {copyText as siteText} from "../content/copy";
 import Alert from '../student/visual/StudentAlert';
 import Sentence from '../content/Sentence';
 import {copyText} from '../content/copy';
 import CopyBlock from '../content/CopyBlock';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Link from './space/SpaceLink';
 
@@ -70,44 +71,16 @@ function ReplayRegion({ courseId }) {
   const read = useCallback(() => courseAPI.listReplays(courseId), [courseId,courseAPI]);
   const state = useRemoteResource(read);
   const [selection, setSelection] = useState(null);
-  const [player, setPlayer] = useState({ loading: false, error: null, url: '' });
-  const video = useRef(null), live = useRef(false), sequence = useRef(0);
-  const stop = useCallback(() => {
-    const el = video.current;
-    if (el) { el.pause(); el.removeAttribute('src'); el.load(); }
-  }, []);
-  const invalidate = useCallback(() => { live.current = false; sequence.current++; }, []);
-  const attachVideo = useCallback(el => {
-    video.current = el;
-    // 严格模式会重连同一 DOM 引用；恢复清理过的地址，普通重渲染不重设 src。
-    if (el.getAttribute('src') !== player.url) el.setAttribute('src', player.url);
-    return () => { el.pause(); el.removeAttribute('src'); el.load(); video.current = null; };
-  }, [player.url]);
-  useEffect(() => { live.current = true; return invalidate; }, [invalidate]);
-  const choose = async replay => {
-    const ticket = ++sequence.current;
-    stop(); setSelection(replay); setPlayer({ loading: true, error: null, url: '' });
-    try {
-      const result = await courseAPI.streamUrl(replay.id);
-      if (!live.current || ticket !== sequence.current) return;
-      const target = new URL(result.url, window.location.origin);
-      if (target.origin !== window.location.origin || target.pathname !== `/api/courses/replays/${replay.id}/stream`) throw new Error(copyText('system.review.034'));
-      setPlayer({ loading: false, error: null, url: target.href });
-    } catch (error) { if (live.current && ticket === sequence.current) setPlayer({ loading: false, error, url: '' }); }
-  };
-  const reload = () => { sequence.current++; stop(); setSelection(null); setPlayer({ loading: false, error: null, url: '' }); void state.reload(); };
-  const mediaFailed = () => {
-    sequence.current++; stop(); setPlayer({ loading: false, error: new Error(copyText('system.review.035')), url: '' });
-    window.dispatchEvent(new CustomEvent(STUDENT_ACCESS_CHECK));
-  };
+  const choose = replay => setSelection(replay);
+  const reload = () => { setSelection(null); void state.reload(); };
+  const mediaFailed = () => window.dispatchEvent(new CustomEvent(STUDENT_ACCESS_CHECK));
   return <StudySection number="02" title={copyText('system.review.036')} description={copyText('system.review.037')} className="review-replays">
     <ReadState {...state} reload={reload} object={siteText("site.3b9eadaf99378378")} empty={!state.data?.replays?.length} emptyText={siteText("site.2cd6d88509f7f9de")}>
       <div className="review-player-area">
-        {player.url ? <video ref={attachVideo} controls preload="metadata" src={player.url} onError={mediaFailed} aria-label={siteTemplate("site.221ec8152d4e3d81", {slot0: (selection?.title)})} />
-          : player.error ? <div className="review-player-feedback"><Alert role="alert" type="warning" title={copyText('system.review.038')} description={player.error.message && !player.error.response ? player.error.message : requestError(player.error)} /><PixelButton onClick={() => choose(selection)}>{copyText('system.review.039')}</PixelButton></div>
-            : <div className="review-player-placeholder" role="status"><span aria-hidden="true">▷</span><Sentence>{player.loading ? copyText('system.review.040') : copyText('system.review.041')}</Sentence></div>}
+        {selection ? <SignedReplayPlayer key={selection.id} replayId={selection.id} streamUrl={courseAPI.streamUrl} onAccessError={mediaFailed} />
+          : <div className="review-player-placeholder" role="status"><span aria-hidden="true">▷</span><Sentence>{copyText('system.review.041')}</Sentence></div>}
       </div>
-      {selection && <div className="review-playing"><strong>{selection.title}</strong>{player.url && <PixelButton size="small" onClick={() => choose(selection)}>{copyText('system.review.042')}</PixelButton>}</div>}
+      {selection && <div className="review-playing"><strong>{selection.title}</strong></div>}
       <ul className="review-replay-list">{state.data?.replays.map(replay => <li key={replay.id}><button type="button" aria-pressed={selection?.id === replay.id} onClick={() => choose(replay)}><span aria-hidden="true">▷</span><div><strong>{replay.title}</strong><Sentence>{replay.recording_date || copyText('system.review.043')}{replayDuration(replay.duration_seconds) && ` · ${replayDuration(replay.duration_seconds)}`}</Sentence></div><span>{selection?.id === replay.id ? copyText('system.review.044') : copyText('system.review.045')}</span></button><ReplaySummary replay={replay}/></li>)}</ul>
     </ReadState>
   </StudySection>;

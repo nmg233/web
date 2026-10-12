@@ -1,13 +1,16 @@
 import ReplaySummary from '../../components/common/ReplaySummary';
-import {requestKey} from '../../utils/requestKey';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, Progress, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, Alert, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { courseAPI, studentAPI, authAPI } from '../../api';
+import { courseAPI, taskAPI, studentAPI, authAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import ContentMaintenance from './ContentMaintenance';
+import LessonReplays from '../../components/courses/LessonReplays';
+import SignedReplayPlayer from '../../components/common/SignedReplayPlayer';
+import LessonVideoUpload from '../../components/courses/LessonVideoUpload';
+import CancellationButton from '../../components/courses/CancellationButton';
 import {maintenanceText as c} from './maintenanceCopy';
 
 const { Title, Text } = Typography;
@@ -27,8 +30,8 @@ function CourseDetailPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [search,setSearch]=useSearchParams();
-  const requestRevision=useRef(0),playSequence=useRef(0),candidateSequence=useRef(0),classSequence=useRef(0),replayRequest=useRef({fingerprint:'',key:''});
-  const [uploadPercent,setUploadPercent]=useState(0);
+  const requestRevision=useRef(0),playSequence=useRef(0),candidateSequence=useRef(0),classSequence=useRef(0);
+  const [videoLesson,setVideoLesson]=useState(null),[videoBusy,setVideoBusy]=useState(false),[videoDirty,setVideoDirty]=useState(false),[playingReplayId,setPlayingReplayId]=useState(null);
   const [course, setCourse] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -39,12 +42,12 @@ function CourseDetailPage() {
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const creationLock=useRef(false),[creating,setCreating]=useState(false);
   const [lessonModal, setLessonModal] = useState(false);
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [replayModal, setReplayModal] = useState(false);
   const [editingReplay, setEditingReplay] = useState(null);
-  const [replayFile, setReplayFile] = useState(null);
   const [replayUploading, setReplayUploading] = useState(false);
   const [resourceModal, setResourceModal] = useState(false);
   const [resourceFile, setResourceFile] = useState(null);
@@ -97,23 +100,25 @@ function CourseDetailPage() {
   useEffect(() => { loadData(); return()=>{requestRevision.current++;playSequence.current++;candidateSequence.current++;classSequence.current++;}; }, [id]);
 
   const handleAddLesson = async (values) => {
+    if(creationLock.current)return;creationLock.current=true;setCreating(true);
     try {
       await courseAPI.addLesson(id, values);
       message.success(siteText("site.aedcc7ad1fa4519e"));
       setLessonModal(false);
       lessonForm.resetFields();
       loadData();
-    } catch { /* handled */ }
+    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
   };
 
   const handleAddTask = async (values) => {
+    if(creationLock.current)return;creationLock.current=true;setCreating(true);
     try {
       await courseAPI.addTask(activeLesson.id, values);
       message.success(siteText("site.4b5970447d3bcea5"));
       setTaskModal(false);
       taskForm.resetFields();
       loadData();
-    } catch { /* handled */ }
+    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
   };
 
   const downloadResource = async (r) => {
@@ -133,7 +138,7 @@ function CourseDetailPage() {
     try {
       // 签名流式地址直挂 <video>：支持 Range 拖动，避免整段 blob 下载
       const res = await courseAPI.streamUrl(replayId);
-      if(sequence===playSequence.current)setReplayUrl(res.url);
+      if(sequence===playSequence.current){setReplayUrl(res.url);setPlayingReplayId(replayId);}
     } catch { /* handled */ }
   };
 
@@ -142,9 +147,7 @@ function CourseDetailPage() {
   };
 
   const openReplayModal = (replay = null) => {
-    replayRequest.current={fingerprint:'',key:''};
     setEditingReplay(replay);
-    setReplayFile(null);
     replayForm.resetFields();
     if (replay) {
       replayForm.setFieldsValue({
@@ -159,31 +162,11 @@ function CourseDetailPage() {
   };
 
   const handleReplaySubmit = async (values) => {
-    if (!editingReplay && !replayFile) {
-      message.error(siteText("site.c2214999f69ce78a"));
-      return;
-    }
+    if (!editingReplay) return;
     setReplayUploading(true);
     try {
-      if (editingReplay) {
-        await courseAPI.updateReplay(editingReplay.id, values);
-        message.success(siteText("site.4dc7e394e242fd27"));
-      } else {
-        const formData = new FormData();
-        formData.append('file', replayFile);
-        formData.append('title', values.title);
-        formData.append('description', values.description || '');
-        formData.append('lesson_id',values.lesson_id||'');
-        formData.append('summary',values.summary||'');
-        formData.append('duration_seconds', values.duration_seconds || '');
-        formData.append('recording_date', values.recording_date || '');
-        formData.append('sort_order', values.sort_order || '0');
-        const fingerprint=JSON.stringify([values,replayFile.name,replayFile.size,replayFile.lastModified]);
-        if(replayRequest.current.fingerprint!==fingerprint)replayRequest.current={fingerprint,key:requestKey()};
-        formData.append('request_key',replayRequest.current.key);setUploadPercent(0);
-        await courseAPI.uploadReplay(id,formData,event=>setUploadPercent(event.total?Math.round(event.loaded/event.total*100):0));
-        message.success(siteText("site.ea99ac4cb53583fb"));
-      }
+      await courseAPI.updateReplay(editingReplay.id, values);
+      message.success(siteText("site.4dc7e394e242fd27"));
       setReplayModal(false);
       refreshReplays();
     } catch { /* handled */ } finally {
@@ -342,7 +325,7 @@ function CourseDetailPage() {
   const isEnrolled = isStudent && enrollments.some((e) => e.student_id === user.id);
   const availableLessons=lessons.filter(l=>l.status!=='cancelled'&&l.learning_in_scope!==false);
   const firstLearningLesson=availableLessons.find(l=>l.progress>0&&l.progress<100)||availableLessons.find(l=>l.progress<100)||availableLessons[0];
-  const canEdit=course.can_manage&&course.status!=='archived',canReplayWrite=canEdit&&user.role==='admin';
+  const canEdit=course.can_manage&&course.status!=='archived',canReplayWrite=canEdit;
 
   const tabItems = [
     ...(course.can_manage?[{key:'maintenance',label:c('title'),children:<ContentMaintenance key={id} id={id}/>}]:[]),
@@ -354,21 +337,23 @@ function CourseDetailPage() {
             <Button type="dashed" icon={<PlusOutlined />} onClick={() => setLessonModal(true)} style={{ marginBottom: 16 }}>{siteText("site.fefe81c54427efe9")}</Button>
           )}
           {lessons.map((lesson) => (
-            <Card key={lesson.id} size="small" style={{ marginBottom: 8 }} title={lesson.title}
+            <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
                 {isEnrolled && lesson.status!=='cancelled' && lesson.learning_in_scope!==false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>{siteText("site.7cbfd4a69b6bd74e")}</Button>}
-                {canEdit && user.role==='admin' && lesson.status!=='cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
                 {canEdit && lesson.status!=='cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
               </Space>}
             >
-              {course.can_manage&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
+              {course.can_manage&&!canEdit&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
               <Space wrap size={[4, 0]}>
                 {lesson.duration && <Tag>{lesson.duration}{siteText("site.3b8590060236e9d8")}</Tag>}
                 {lesson.start_at && <Tag color="blue">{siteText("site.a1cddcd6c59eb5bc")}{lesson.start_at.replace('T', ' ')}</Tag>}
                 {lesson.location && <Tag color="green">{siteText("site.e022dc43a291c7c7")}{lesson.location}</Tag>}
                 {lesson.instructor_name && <Tag>{siteText("site.14a915e6ecc03d59")}{lesson.instructor_name}</Tag>}
               </Space>
-              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Link to={`/tasks/${task.id}`}>{task.title}</Link>{task.deadline && <Tag style={{ marginLeft: 8 }}>{siteText("site.b13857ca6ccf3773")}{task.deadline}</Tag>}</div>)}
+              {canEdit&&lesson.status!=='cancelled'&&<Space wrap><Button size="small" onClick={()=>setSearch({tab:'maintenance',lesson:String(lesson.id)})}>编辑课时安排</Button><CancellationButton label="取消课时" onCancel={reason=>courseAPI.cancelLesson(lesson.id,reason)} refresh={loadData}/></Space>}
+              <LessonReplays lesson={lesson} replays={replays} canEdit={canEdit} playing={search.get('tab')==='lessons' ? {id:playingReplayId,url:replayUrl} : null} onUpload={setVideoLesson} onEdit={openReplayModal} onDelete={handleDeleteReplay} onPlay={playReplay}/>
+              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Link to={`/tasks/${task.id}`}>{task.title}</Link>{canEdit&&lesson.status!=='cancelled'&&task.status!=='cancelled'&&<CancellationButton label="取消独立任务" onCancel={reason=>taskAPI.cancel(task.id,reason)} refresh={loadData}/>} {task.status==='cancelled'&&<Tag>已取消，仅查看历史</Tag>}{task.deadline && <Tag style={{ marginLeft: 8 }}>{siteText("site.b13857ca6ccf3773")}{task.deadline}</Tag>}</div>)}
             </Card>
           ))}
         </div>
@@ -378,10 +363,8 @@ function CourseDetailPage() {
       key: 'replays', label: siteText("site.d9187a1e51d156a9"),
       children: (
         <div>
-          {canReplayWrite && (
-            <Button type="dashed" icon={<UploadOutlined />} onClick={() => openReplayModal()} style={{ marginBottom: 16 }}>{siteText("site.a03bcadc6f427197")}</Button>
-          )}
-          {replayUrl && <video controls src={replayUrl} style={{ width: '100%', maxHeight: 420, marginBottom: 16 }} />}
+          <Alert type="info" title="此处汇总已有回放；新视频请由对应课时的上传入口添加。"/>
+          {search.get('tab')==='replays' && replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl}/>}
           {replays.length === 0 ? (
             <Typography.Text type="secondary">{siteText("site.999eaf8d1129e1db")}</Typography.Text>
           ) : replays.map((replay) => (
@@ -530,10 +513,11 @@ function CourseDetailPage() {
         </Card>
       )}
 
+      <Modal open={Boolean(videoLesson)} title={videoLesson?'上传视频 · '+videoLesson.title:''} footer={null} closable={!videoBusy} maskClosable={!videoBusy} onCancel={()=>{if(videoBusy)return;if(videoDirty&&!window.confirm('关闭将丢失尚未上传的文件选择和填写内容；结果未确认的上传可重新进入本课时查询。确定关闭？'))return;setVideoDirty(false);setVideoLesson(null);}} destroyOnHidden width={720}>{videoLesson&&<LessonVideoUpload key={videoLesson.id} courseId={id} courseTitle={course.title} lesson={videoLesson} refresh={loadData} onBusyChange={setVideoBusy} onDirtyChange={setVideoDirty}/>}</Modal>
       <Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>
 
       {/* 添加课时 Modal */}
-      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} onCancel={() => setLessonModal(false)} onOk={() => lessonForm.submit()}>
+      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setLessonModal(false)} onOk={() => lessonForm.submit()}>
         <Form name="course-add-lesson" form={lessonForm} layout="vertical" onFinish={handleAddLesson}>
           <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
@@ -549,7 +533,7 @@ function CourseDetailPage() {
       </Modal>
 
       {/* 添加任务 Modal */}
-      <Modal title={siteText("site.9886a9520506bd4a")} open={taskModal} onCancel={() => setTaskModal(false)} onOk={() => taskForm.submit()}>
+      <Modal title={siteText("site.9886a9520506bd4a")} open={taskModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setTaskModal(false)} onOk={() => taskForm.submit()}>
         <Form name="course-add-task" form={taskForm} layout="vertical" onFinish={handleAddTask}>
           <Form.Item name="title" label={siteText("site.7116edd08327c83e")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
@@ -564,9 +548,10 @@ function CourseDetailPage() {
       </Modal>
       {/* 上传/编辑回放 Modal */}
       <Modal
-        title={editingReplay ? siteText("site.fded6c93a3178971") : siteText("site.56fecedcb656feae")}
+        title={siteText("site.fded6c93a3178971")}
         open={replayModal}
-        onCancel={() => setReplayModal(false)}
+        onCancel={() => !replayUploading && setReplayModal(false)}
+        closable={!replayUploading} maskClosable={!replayUploading}
         onOk={() => replayForm.submit()}
         confirmLoading={replayUploading}
       >
@@ -574,21 +559,8 @@ function CourseDetailPage() {
           <Form.Item name="title" label={siteText("site.fa48a8381177028f")} rules={[{ required: true, message: siteText("site.b13f5c72c867a33d") }]}>
             <Input placeholder={siteText("site.f700a95cbcca2664")} />
           </Form.Item>
-          {!editingReplay && (
-            <Form.Item label={siteText("site.ebc4e83bde075517")} required>
-              <Upload
-                accept=".mp4,.webm"
-                maxCount={1}
-                beforeUpload={(file) => { setReplayFile(file); return false; }}
-                onRemove={() => setReplayFile(null)}
-                fileList={replayFile ? [{ uid: '-1', name: replayFile.name }] : []}
-              >
-                <Button icon={<UploadOutlined />}>{siteText("site.c9e0b965e5d43561")}</Button>
-              </Upload>
-            </Form.Item>
-          )}
           <Form.Item name="description" label={siteText("site.bf27f6738755a67e")}><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="lesson_id" label="所属课时（留空为课程共享）"><Select allowClear options={lessons.filter(l=>l.status!=='cancelled').map(l=>({value:l.id,label:l.title}))}/></Form.Item>{replayUploading&&<Progress percent={uploadPercent} status="active"/>}<Tabs items={[{key:'summary',label:'回放摘要',forceRender:true,children:<Form.Item name="summary" label="课程纪要（Markdown）" rules={[{max:10000}]}><Input.TextArea rows={6} maxLength={10000}/></Form.Item>},{key:'preview',label:'摘要预览',children:<ReplaySummary replay={{summary:replaySummary}}/>}]}/><Upload accept=".txt,.md" showUploadList={false} beforeUpload={async file=>{if(!/\.(txt|md)$/i.test(file.name)||file.size>100000){message.error('请选择不超过100KB的文本或Markdown文件');return Upload.LIST_IGNORE;}const summary=await file.text();if(summary.length>10000)message.error('摘要不能超过10000个字符');else replayForm.setFieldValue('summary',summary);return false;}}><Button>导入摘要文件</Button></Upload>
+          <Form.Item name="lesson_id" label="所属课时（留空为课程共享）"><Select allowClear options={lessons.filter(l=>l.status!=='cancelled').map(l=>({value:l.id,label:l.title}))}/></Form.Item><Tabs items={[{key:'summary',label:'回放摘要',forceRender:true,children:<Form.Item name="summary" label="课程纪要（Markdown）" rules={[{max:10000}]}><Input.TextArea rows={6} maxLength={10000}/></Form.Item>},{key:'preview',label:'摘要预览',children:<ReplaySummary replay={{summary:replaySummary}}/>}]}/><Upload accept=".txt,.md" showUploadList={false} beforeUpload={async file=>{if(!/\.(txt|md)$/i.test(file.name)||file.size>100000){message.error('请选择不超过100KB的文本或Markdown文件');return Upload.LIST_IGNORE;}const summary=await file.text();if(summary.length>10000)message.error('摘要不能超过10000个字符');else replayForm.setFieldValue('summary',summary);return false;}}><Button>导入摘要文件</Button></Upload>
           <Form.Item name="duration_seconds" label={siteText("site.9b2b59ed8d6a4a4d")}><Input type="number" min={1} /></Form.Item>
           <Form.Item name="recording_date" label={siteText("site.423c18eabf100c54")}><Input type="date" /></Form.Item>
           <Form.Item name="sort_order" label={siteText("site.df2f829f992f1b4c")}><Input type="number" min={0} /></Form.Item>

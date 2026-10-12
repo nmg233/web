@@ -117,6 +117,7 @@ docs/next-version/step-02/browser-first/
 # Upstream maintenance documentation and local tools
 !docs/部署与恢复.md
 !docs/本轮整改验收记录_2026-10-08.md
+!docs/整改总清单实现差距复核_2026-10-11.md
 .trae/
 # Merge acceptance source documentation; private evidence stays ignored
 !docs/upstream-integration/*.md

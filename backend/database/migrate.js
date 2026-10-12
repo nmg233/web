@@ -65,7 +65,7 @@ function migrate(db) {
     }
     for (const file of files) {
       const version = parseInt(file.split('_')[0], 10);
-      if ((version <= 20 || (version >= 1016 && version <= 1023)) && version > 1 && !applied.has(version)) {
+      if ((version <= 21 || (version >= 1016 && version <= 1023)) && version > 1 && !applied.has(version)) {
         mark.run(version, file);
         applied.add(version);
       }

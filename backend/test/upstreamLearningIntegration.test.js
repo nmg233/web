@@ -90,15 +90,16 @@ test('旧快照升级补充不改原文，资源只补快照既有ID，后续编
   assert.equal(db.prepare('SELECT content_json FROM lesson_content_versions WHERE id=?').get(old.id).content_json,encoded);
 });
 
-test('管理员卡题写权限与导师授课评审分离，导师内容预览不能写入或取得参考答案', () => {
+test('负责导师与管理员可编排卡题，独立教学预览不泄漏答案或产生作答', () => {
   const f=fixture();
-  for(const action of [()=>learning.createCard(mentor,f.lesson,{title:'越权',content:'正文'}),()=>learning.updateCard(mentor,f.card,{content:'越权'}),()=>learning.updateExercise(mentor,f.exercise,{answer:false}),()=>learning.deleteExercise(mentor,f.exercise)]) {
-    assert.throws(action,e=>e.status===403 && e.code==='LEARNING_CONTENT_READ_ONLY');
-  }
+  learning.updateCard(mentor,f.card,{content:'负责导师正文'});
+  learning.updateExercise(mentor,f.exercise,{explanation:'负责导师解析'});
   const cards=learning.listManagedCards(mentor,f.lesson);
-  assert.equal(cards[0].exercises[0].answer,undefined);
-  assert.equal(cards[0].exercises[0].answer_json,undefined);
-  assert.equal(learning.managedContext(mentor,f.lesson).read_only,true);
+  assert.equal(cards[0].exercises[0].explanation,'负责导师解析');
+  assert.notEqual(cards[0].exercises[0].answer_json,undefined);
+  const preview=learning.previewLesson(mentor,f.lesson);
+  assert.equal(preview.cards[0].exercises[0].answer_json,undefined);
+  assert.equal(learning.managedContext(mentor,f.lesson).read_only,false);
   assert.equal(learning.managedContext(admin,f.lesson).read_only,false);
 });
 

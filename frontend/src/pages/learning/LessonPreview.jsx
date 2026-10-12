@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { learningAPI } from '../../api';
@@ -7,11 +7,13 @@ import { useAuth } from '../../store/AuthContext';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
 import KnowledgePreview from '../../components/learning/KnowledgePreview';
+import { returnContext } from '../../utils/returnContext';
 
 export default function LessonPreview() {
-  const { lessonId } = useParams();
+  const { lessonId, courseId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ export default function LessonPreview() {
     return () => { active = false; };
   }, [lessonId, reload]);
   return <PageContainer title={data?.lesson?.title || '课时内容预览'} description={data?.course?.title}
-    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(user?.role === 'teacher' ? '/observer/students' : '/mentor/content')}>返回{user?.role === 'teacher' ? '学生列表' : '内容中心'}</Button>}>
+    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(returnContext(location.state?.returnTo, user?.role === 'teacher' ? '/observer/students' : courseId ? `/courses/${courseId}` : '/courses'), {state: location.state?.parentState})}>返回上一页</Button>}>
     <AsyncPageState loading={loading} error={error} onRetry={() => setReload((value) => value + 1)}>
       <KnowledgePreview cards={data?.cards} />
     </AsyncPageState>

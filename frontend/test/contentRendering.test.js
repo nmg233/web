@@ -4,18 +4,34 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
 
-let server, MarkdownContent, ReportHistory, ReplaySummary, OutboxPanel, KnowledgePreview, ExerciseFeedback;
+let server, MarkdownContent, ReportHistory, ReplaySummary, OutboxPanel, KnowledgePreview, ExerciseFeedback, LessonReplays;
 before(async () => {
-  server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+  server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' });
   MarkdownContent = (await server.ssrLoadModule('/src/components/common/MarkdownContent.jsx')).default;
   ReportHistory = (await server.ssrLoadModule('/src/components/common/ReportHistory.jsx')).default;
   ReplaySummary = (await server.ssrLoadModule('/src/components/common/ReplaySummary.jsx')).default;
   OutboxPanel = (await server.ssrLoadModule('/src/components/notifications/OutboxPanel.jsx')).default;
   KnowledgePreview = (await server.ssrLoadModule('/src/components/learning/KnowledgePreview.jsx')).default;
   ExerciseFeedback = (await server.ssrLoadModule('/src/components/learning/ExerciseFeedback.jsx')).default;
+  LessonReplays = (await server.ssrLoadModule('/src/components/courses/LessonReplays.jsx')).default;
 });
 after(async () => { await server?.close(); });
 const markdown = (source) => renderToStaticMarkup(createElement(MarkdownContent, null, source));
+
+test('课时视频实际组件只展示本课时，导师有上传入口，只读及关闭状态没有写入口', () => {
+  const props = { lesson: { id: 2, title: '第二课时', status: 'completed' }, replays: [
+    { id: 1, lesson_id: 1, title: '第一课时专属视频' }, { id: 2, lesson_id: 2, title: '第二课时专属视频' },
+    { id: 3, lesson_id: null, title: '历史共享视频' },
+  ], canEdit: true };
+  const html = renderToStaticMarkup(createElement(LessonReplays, props));
+  for (const text of ['本课时视频（1）', '第二课时专属视频', '上传本课时视频', '编辑视频信息']) assert.ok(html.includes(text), text);
+  for (const text of ['第一课时专属视频', '历史共享视频']) assert.equal(html.includes(text), false, text);
+  for (const restricted of [{ ...props, canEdit: false }, { ...props, lesson: { ...props.lesson, status: 'cancelled' } }]) {
+    const readonly = renderToStaticMarkup(createElement(LessonReplays, restricted));
+    assert.ok(readonly.includes('第二课时专属视频'));
+    for (const text of ['上传本课时视频', '编辑视频信息', '删除']) assert.equal(readonly.includes(text), false, text);
+  }
+});
 
 test('只读预览渲染Markdown和练习选项，即使收到答案字段也不显示或提供作答入口', () => {
   const html = renderToStaticMarkup(createElement(KnowledgePreview, { cards: [{
@@ -47,6 +63,14 @@ test('答题反馈作答前隐藏答案，提交后和刷新后展示一致的�
 test('实际Markdown组件渲染标题、加粗、列表、引用与代码块', () => {
   const html = markdown('## 知识点\n\n**加粗**\n\n- 要点\n\n> 提示\n\n```js\nconst lift = 10;\n```');
   for (const fragment of ['<h2>知识点</h2>','<strong>加粗</strong>','<li>要点</li>','<blockquote>','<pre><code class="language-js">const lift = 10;']) assert.ok(html.includes(fragment),fragment);
+});
+
+test('简答反馈不显示错误或零分，评价要点只在提交后出现', () => {
+  const exercise={question_type:'short_answer',points:2,rubric:'应说明原理'};
+  assert.equal(renderToStaticMarkup(createElement(ExerciseFeedback,{exercise})), '');
+  const html=renderToStaticMarkup(createElement(ExerciseFeedback,{exercise,result:{correct:null,score:0,correct_answer:'参考',explanation:'详解',rubric:'应说明原理'}}));
+  for(const value of ['不自动判对错','导师可评价','应说明原理','详解','不能重试']) assert.ok(html.includes(value));
+  for(const value of ['回答不正确','本题得分']) assert.equal(html.includes(value),false);
 });
 
 test('GFM表格、删除线、任务列表与普通文本均正常展示', () => {

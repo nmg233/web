@@ -21,6 +21,7 @@ export default function QuestionFields({ form }) {
       {(fields, { add, remove }, { errors }) => <>{fields.map((f, i) => <Space key={f.key} align="baseline"><Form.Item name={f.name} label={`第 ${i + 1} 空可接受答案（每行一个）`} rules={[{ required: true, whitespace: true }]}><Input.TextArea placeholder="忽略首尾空格，大小写与标点严格匹配" /></Form.Item><Button danger onClick={() => remove(f.name)}>移除</Button></Space>)}<Button onClick={() => add('')}>添加一个空</Button><Form.ErrorList errors={errors} /></>}
     </Form.List>}
     {type === 'short_answer' && <Form.Item name="answer" label="参考答案（不自动判对错，提交即完成）" rules={[{ required: true, whitespace: true }]}><Input.TextArea rows={4} /></Form.Item>}
+    {type === 'short_answer' && <Form.Item name="rubric" label="评价要点（选填，供导师评价与学生答后学习）"><Input.TextArea rows={3} maxLength={5000} placeholder="例如：是否说明原理、举例合理性。不会用于自动判分。" /></Form.Item>}
     <Form.Item name="explanation" label="答案详解" rules={[{ required: true, whitespace: true, message: '请填写答案详解' }]}><Input.TextArea rows={4} maxLength={5000} /></Form.Item>
   </>;
 }

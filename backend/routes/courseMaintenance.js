@@ -93,7 +93,12 @@ router.put('/plan',action(req=>{
 }));
 router.put('/tasks/:taskId',action(req=>{
  const row=object('tasks',req.params.taskId,req.params.id);if(row.lesson_status==='cancelled'||row.status!=='active')v.invalid('任务或课时已取消，不能修改',409);
- fields(req.body,['title','description']);const data={};for(const[key,max,required]of[['title',120,true],['description',10000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);return update('tasks',row.id,data);
+ fields(req.body,['title','description','task_type','deadline','require_upload']);const data={};for(const[key,max,required]of[['title',120,true],['description',10000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);
+ const invalid=require('../helpers/teachingInput').validateTeachingInput(req.body,'task',row);if(invalid)v.invalid(invalid);
+ if(v.own(req.body,'task_type'))data.task_type=req.body.task_type;
+ if(v.own(req.body,'deadline'))data.deadline=v.text(req.body.deadline,'截止时间',40);
+ if(v.own(req.body,'require_upload')){if(typeof req.body.require_upload!=='boolean')v.invalid('附件要求须为布尔值');data.require_upload=req.body.require_upload?1:0;}
+ return update('tasks',row.id,data);
 }));
 function experiment(body,courseId){
  fields(body,['experiment','lessonId','stage','cardId','label','enabled']);if(body.experiment!=='glider')v.invalid('仅支持已有滑翔机模块');

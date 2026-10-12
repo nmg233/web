@@ -1,7 +1,7 @@
 import {copyText as siteText} from "../../content/copy";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Table, Button, Tag, Space, Input, Card, Typography, Popconfirm } from 'antd';
+import { Table, Button, Tag, Space, Input, Card, Typography, Popconfirm, Progress } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -18,27 +18,29 @@ export default function CourseList() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const sequence = useRef(0);
 
   const loadCourses = async (params = {}) => {
+    const request = ++sequence.current;
     setLoading(true);
     try {
       const res = await courseAPI.list(params);
-      setCourses(res.courses || []);
+      if(request === sequence.current) setCourses(res.courses || []);
     } catch { /* handled */ }
-    finally { setLoading(false); }
+    finally { if(request === sequence.current) setLoading(false); }
   };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { loadCourses(); }, []);
+  useEffect(() => { const cursor=sequence; loadCourses(); return () => { cursor.current++; }; }, []);
 
   const columns = [
-    { title: siteText("site.a7b37507989cb9bc"), dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
-    { title: siteText("site.8ef2646bdcc1bff5"), dataIndex: 'theme', key: 'theme' },
-    { title: siteText("site.8a0217e77cf8e02d"), dataIndex: 'grade_level', key: 'grade_level' },
-    { title: siteText("site.e8b2df03b912eb21"), dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{v}</Tag> },
-    { title: siteText("site.6cd8d54f39a08720"), dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: siteText("site.3835281eb0da37c4"), draft: siteText("site.c4822a69d1c33223"), archived: siteText("site.e1adc1105dc777ad") })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
-    ...(canViewOperationalStats(user?.role) ? [{ title: siteText("site.8f3c8807ed671814"), dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
-    ...(canViewOperationalStats(user?.role) ? [{ title: siteText("site.15683f1b8f1ab133"), dataIndex: 'student_count', key: 'student_count' }, { title: siteText("site.dd4db7aacf0120c5"), dataIndex: 'creator_name', key: 'creator_name' }] : []),
+    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
+    { title: '主题', dataIndex: 'theme', key: 'theme' },
+    { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level', render: (v) => ({primary:'小学',junior:'初中',senior:'高中'})[v] || v },
+    { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{({basic:'基础',advanced:'进阶',challenge:'挑战'})[v] || v}</Tag> },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
+    ...(canViewOperationalStats(user?.role) ? [{ title: '平均进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
+    ...(canViewOperationalStats(user?.role) ? [{ title: '学生数', dataIndex: 'student_count', key: 'student_count' }, { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' }] : []),
     ...(canManage(user?.role) ? [{
       title: siteText("site.802e4d31466b05d9"), key: 'actions', render: (_, r) => r.can_manage ? (
         <Space>
@@ -70,12 +72,12 @@ export default function CourseList() {
         )}
       </div>
       <Card>
-        <Space style={{ marginBottom: 16 }}>
-          <Input prefix={<SearchOutlined />} placeholder={siteText("site.740f701c82b364d5")} value={search} onChange={(e) => setSearch(e.target.value)}
+        <Space wrap style={{ marginBottom: 16 }}>
+          <Input prefix={<SearchOutlined />} placeholder="搜索课程" value={search} onChange={(e) => setSearch(e.target.value)}
             onPressEnter={() => loadCourses({ search })} style={{ width: 250 }} />
           <Button onClick={() => { setSearch(''); loadCourses(); }}>{siteText("site.baf22062b7aecb92")}</Button>
         </Space>
-        <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
+        {user?.role === 'student' ? <div className="student-course-grid">{loading ? '正在加载课程…' : courses.length ? courses.map((course) => <Card key={course.id} title={course.title}><Space wrap><Tag>{({primary:'小学',junior:'初中',senior:'高中'})[course.grade_level] || course.grade_level}</Tag><Tag>{({basic:'基础',advanced:'进阶',challenge:'挑战'})[course.difficulty] || course.difficulty}</Tag><Tag color={course.completed ? 'green' : 'blue'}>{course.completed ? '已结课' : '学习中'}</Tag></Space><Progress percent={course.progress || 0}/><Button type="primary" onClick={() => navigate(`/courses/${course.id}`)}>查看课程与课时</Button></Card>) : '暂无已报名课程'}</div> : <Table dataSource={courses} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />}
       </Card>
     </div>
   );

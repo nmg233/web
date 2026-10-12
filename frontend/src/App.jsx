@@ -125,7 +125,7 @@ function App() {
                 <Route path="courses/:courseId/ai-knowledge" element={guard(<AIKnowledge />, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id/learn" element={guard(<Learning />, ['student'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/learn" element={guard(<LessonLearn />, ['student'])} />
-                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin'])} />
+                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/preview" element={guard(<LessonPreview />, ['admin', 'academic_mentor', 'teacher'])} />
                 <Route path="courses/:id/edit" element={guard(<CourseForm />, ['admin', 'academic_mentor'])} />
                 <Route path="students" element={guard(<StudentList />, ['admin', 'academic_mentor'])} />

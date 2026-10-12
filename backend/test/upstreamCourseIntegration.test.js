@@ -22,17 +22,17 @@ async function api(url,method='GET',body,id=1){const r=await fetch(base+url,{met
 function replayForm(key,content='same'){const f=new FormData();for(const[k,v]of Object.entries({title:'真实回放',description:'视频简介',summary:'回放摘要',lesson_id:'1',request_key:key}))f.append(k,v);const bytes=Buffer.concat([Buffer.from([0,0,0,24]),Buffer.from('ftypisom'),Buffer.from(content)]);f.append('file',new Blob([bytes],{type:'video/mp4'}),'lesson.mp4');return f;}
 test('课程详情保留章节计划、教学安排与上游完成状态，观察者可看尚未开始课时和完整报告',async()=>{
  const r=await api('/courses/1','GET',undefined,3);assert.equal(r.status,200);assert.equal(r.body.chapters[0].title,'已录章节');assert.equal(r.body.planNodes[0].lesson_id,1);assert.equal(r.body.lessons[0].location,'原教室');assert.equal(r.body.lessons[0].duration,45);assert.equal(r.body.lessons[0].instructor_name,'导师');assert.ok(r.body.course.completion);
- const d=observer.studentDetail({id:4,role:'teacher'},3);const lesson=d.lessons.find(l=>l.lesson_id===1);assert.equal(lesson.progress,0);assert.equal(lesson.key_points,'关键知识');assert.equal(lesson.application,'应用记录');assert.equal(lesson.difficulties,'困难记录');assert.equal(lesson.next_plan,'下一步');assert.equal(lesson.score,91);
+ const d=observer.studentDetail({id:4,role:'teacher'},3);const lesson=d.lessons.find(l=>l.lesson_id===1);assert.equal(lesson.progress,40);assert.equal(lesson.key_points,'关键知识');assert.equal(lesson.application,'应用记录');assert.equal(lesson.difficulties,'困难记录');assert.equal(lesson.next_plan,'下一步');assert.equal(lesson.score,91);
  const a=archive.loadStudentArchive(3,{id:3,role:'student'},1);assert.deepEqual(a.learningReports.map(r=>r.lesson_id),[1]);assert.equal(a.learningReports[0].summary,'报告正文');assert.ok(!archive.loadStudentArchive(3,{id:3,role:'student'}).learningReports.some(r=>r.lesson_id===2));
 });
-test('回放管理员真实保存摘要、字节幂等与部分修改，导师不可通过任一写入口修改',async()=>{
+test('回放保存摘要、字节幂等与部分修改，非管理角色不可通过任一写入口修改',async()=>{
  const one=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(one.status,200,JSON.stringify(one.body));const id=one.body.id;
  const duplicate=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(duplicate.status,200);assert.equal(duplicate.body.id,id);assert.equal(db.prepare('SELECT COUNT(*) n FROM course_replays').get().n,1);
  const changed=await api('/courses/1/replays','POST',replayForm('replay_merge_123','different'));assert.equal(changed.status,409);
  const updated=await api('/courses/replays/'+id,'PUT',{summary:'修改后的摘要'});assert.equal(updated.status,200);const stored=db.prepare('SELECT * FROM course_replays WHERE id=?').get(id);assert.equal(stored.title,'真实回放');assert.equal(stored.description,'视频简介');assert.equal(stored.summary,'修改后的摘要');assert.equal(stored.lesson_id,1);
  const list=await api('/courses/1/replays','GET',undefined,3);assert.equal(list.body.replays[0].summary,'修改后的摘要');assert.equal(list.body.replays[0].video_path,undefined);
  const maintenance=await api('/courses/1/maintenance');assert.equal(maintenance.body.replays[0].summary,'修改后的摘要');
- for(const [url,method,body]of [['/courses/1/replays','POST',replayForm('mentor_replay_123')],['/courses/replays/'+id,'PUT',{title:'越权'}],['/courses/replays/'+id,'DELETE',undefined],['/courses/1/maintenance/replays/'+id,'PUT',{title:'旁路越权'}],['/courses/1/maintenance/replays/'+id,'DELETE',undefined]])assert.equal((await api(url,method,body,2)).status,403);
+ for(const [url,method,body]of [['/courses/1/replays','POST',replayForm('mentor_replay_123')],['/courses/replays/'+id,'PUT',{title:'越权'}],['/courses/replays/'+id,'DELETE',undefined],['/courses/1/maintenance/replays/'+id,'PUT',{title:'旁路越权'}],['/courses/1/maintenance/replays/'+id,'DELETE',undefined]])assert.equal((await api(url,method,body,4)).status,403);
 });
 test('原课程外观维护仍保存，有历史禁止撤回、待评禁止关闭，合法归档立即撤销学生读取',async()=>{
  const appearance=await api('/courses/1','PUT',{presentation_theme:'voyage',cover_image:'/assets/redesign-v2/web/cosmos-960.webp'});assert.equal(appearance.status,200);assert.equal(db.prepare('SELECT presentation_theme FROM courses WHERE id=1').get().presentation_theme,'voyage');

@@ -2,13 +2,15 @@ import {useEffect,useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import {Layout} from 'antd';
 import {courseAPI} from '../api';
+import {useAuth} from '../store/AuthContext';
+import {staffThemeCourseId} from '../utils/staffCourseTheme';
 import StudentTheme from '../student/visual/StudentTheme';
 import Sidebar from './Sidebar';
 import HeaderBar from './Header';
 import ReviewInspector from '../copy-review/ReviewInspector';
 import './staff.css';
 export default function StaffShell({children}){
- const{pathname}=useLocation(),id=pathname.match(/^\/courses\/(\d+)(?:\/|$)/)?.[1];
+ const{pathname}=useLocation(),{user}=useAuth(),id=staffThemeCourseId(pathname,user?.role);
  const[look,setLook]=useState(null);
  useEffect(()=>{document.body.dataset.staffUi='true';return()=>{delete document.body.dataset.staffUi;};},[]);
  useEffect(()=>{let live=true;if(id)courseAPI.detail(id).then(r=>{if(live)setLook({id,theme:r.course?.presentation_theme});}).catch(()=>{if(live)setLook(null);});return()=>{live=false;};},[id]);

@@ -38,7 +38,6 @@ const menuItems = {
   academic_mentor: [
     { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
     { key: '/courses', icon: <BookOutlined />, label: siteText("site.68d0d9a0dd22dfc5") },
-    { key: '/mentor/content', icon: <BookOutlined />, label: siteText("site.a5dcfd6bb2c993fa") },
     { key: '/students', icon: <TeamOutlined />, label: siteText("site.ce21387ea0791ec0") },
     { key: '/works', icon: <FileTextOutlined />, label: siteText("site.97b14c37be582fde") },
     { key: '/mentor/reviews', icon: <CheckSquareOutlined />, label: siteText("site.ac39a88c5cd27d64") },

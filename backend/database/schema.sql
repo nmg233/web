@@ -437,6 +437,7 @@ CREATE TABLE IF NOT EXISTS card_exercises (
   options_json TEXT,
   answer_json TEXT NOT NULL,
   explanation TEXT,
+  rubric TEXT,
   points INTEGER NOT NULL DEFAULT 1,
   sort_order INTEGER NOT NULL DEFAULT 0,
   is_required INTEGER NOT NULL DEFAULT 1 CHECK(is_required IN (0,1)),

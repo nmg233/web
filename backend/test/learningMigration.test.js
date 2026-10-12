@@ -91,3 +91,39 @@ test('旧库已有结课时间仅补兼容闭包，不更改原时间或纳入�
     assert.deepEqual(db.prepare('SELECT * FROM enrollment_completions WHERE enrollment_id=1').get(),closure);
   } finally { db.close(); }
 });
+
+test('020旧库及main扩展库补评价要点，重复迁移保留原题和作答',()=>{
+ const db=legacyFixture();runMigrations(db);
+ try {
+  db.exec('ALTER TABLE card_exercises DROP COLUMN rubric; DELETE FROM schema_migrations WHERE version=21');
+  const attempts=db.prepare('SELECT * FROM card_exercise_attempts').all(),reports=db.prepare('SELECT * FROM lesson_learning_reports').all();
+  runMigrations(db);runMigrations(db);
+  assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts').all(),attempts);
+  assert.deepEqual(db.prepare('SELECT * FROM lesson_learning_reports').all(),reports);
+  assert.ok(db.prepare('PRAGMA table_info(card_exercises)').all().some(c=>c.name==='rubric'));
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version=21').get().n,1);
+ } finally {db.close();}
+});
+
+test('xzx-2真实021评价要点迁移身份不被main徽章编号21覆盖，增量合并不改答案和成绩',()=>{
+ const db=legacyFixture();
+ try {
+  const dir=path.join(__dirname,'../database/migrations');
+  for(const file of fs.readdirSync(dir).filter(f=>parseInt(f)>=18&&parseInt(f)<=21).sort()) {
+   const version=parseInt(file);db.exec(fs.readFileSync(path.join(dir,file),'utf8'));
+   if(version===18)require('../database/migrationBridge').snapshotLegacy(db);
+   db.prepare('INSERT INTO schema_migrations(version,name) VALUES(?,?)').run(version,file);
+  }
+  db.prepare("UPDATE card_exercises SET rubric='原评价要点' WHERE id=1").run();
+  const attempts=db.prepare('SELECT * FROM card_exercise_attempts').all(),reports=db.prepare('SELECT * FROM lesson_learning_reports').all();
+  const content=db.prepare('SELECT content_json FROM lesson_content_versions').all();
+  runMigrations(db);runMigrations(db);
+  assert.equal(db.prepare('SELECT name FROM schema_migrations WHERE version=21').get().name,'021_short_answer_rubric.sql');
+  assert.equal(db.prepare('SELECT name FROM schema_migrations WHERE version=1021').get().name,'1021_badges_demo_exchange.sql');
+  assert.equal(db.prepare('SELECT rubric FROM card_exercises WHERE id=1').get().rubric,'原评价要点');
+  assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts').all(),attempts);
+  assert.deepEqual(db.prepare('SELECT * FROM lesson_learning_reports').all(),reports);
+  assert.deepEqual(db.prepare('SELECT content_json FROM lesson_content_versions').all(),content);
+  assert.equal(db.pragma('integrity_check',{simple:true}),'ok');assert.deepEqual(db.pragma('foreign_key_check'),[]);
+ } finally {db.close();}
+});

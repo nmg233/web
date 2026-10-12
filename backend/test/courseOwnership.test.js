@@ -56,8 +56,8 @@ test('导师无法跨课程修改、删除、排课、加任务、管理回放�
       [`/courses/${id}`,'DELETE',undefined,403],
       [`/courses/${id}/lessons`,'POST',{title:'越权课时'},403],
       [`/courses/lessons/${id}/tasks`,'POST',{title:'越权任务'},403],
-      [`/courses/replays/${id}`,'PUT',{title:'越权回放'},403],
-      [`/courses/replays/${id}`,'DELETE',undefined,403],
+      [`/courses/replays/${id}`,'PUT',{title:'越权回放'},404],
+      [`/courses/replays/${id}`,'DELETE',undefined,404],
       [`/courses/${id}/enroll`,'POST',{student_ids:[5]},403],
       [`/courses/${id}/enroll/candidates`,'GET',undefined,403],
     ]) assert.equal((await api(url,method,data)).status,status,`${method} ${url}`);
@@ -87,8 +87,8 @@ test('本人课程及管理员跨课程管理仍可用，候选学生保留全�
     assert.equal((await api(`/courses/${id}`,'PUT',{title:'合法编辑'},token)).status,200);
     assert.equal((await api(`/courses/${id}/lessons`,'POST',{title:'合法课时'},token)).status,200);
     assert.equal((await api(`/courses/lessons/${id}/tasks`,'POST',{title:'合法任务'},token)).status,200);
-    // 回放维护收紧为管理员；导师的课程教学安排/任务/选课范围保持原有规则。
-    assert.equal((await api(`/courses/replays/${id}`,'PUT',{title:'合法回放'},token)).status,token===tokens.admin?200:403);
+    // 负责执行导师与管理员均可维护回放；无关导师仍在文件解析前拒绝。
+    assert.equal((await api(`/courses/replays/${id}`,'PUT',{title:'合法回放'},token)).status,200);
     assert.equal((await api(`/courses/replays/${id}`,'PUT',{title:'管理员维护回放'},tokens.admin)).status,200);
     assert.equal((await api(`/courses/${id}/enroll/candidates`,'GET',undefined,token)).status,200);
     assert.equal((await api(`/courses/${id}/enroll`,'POST',{student_ids:[5]},token)).status,200);
