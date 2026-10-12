@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { Input, Select, Space } from 'antd';
 import {
   feedbackModuleOptions,
@@ -14,7 +15,7 @@ export default function FeedbackFilters({ value, onChange, admin = false }) {
       {admin && (
         <Input.Search
           allowClear
-          placeholder="编号、标题或提交人"
+          placeholder={siteText("site.66176f6bb93e8776")} aria-label={siteText("site.66176f6bb93e8776")}
           defaultValue={value.search}
           onSearch={(search) => update('search', search)}
           style={{ width: 240 }}
@@ -22,7 +23,7 @@ export default function FeedbackFilters({ value, onChange, admin = false }) {
       )}
       <Select
         allowClear
-        placeholder="状态"
+        placeholder={siteText("site.e70c1b8c96c1ebde")} aria-label={siteText("site.e70c1b8c96c1ebde")}
         value={value.status}
         options={feedbackStatusOptions}
         onChange={(status) => update('status', status)}
@@ -30,7 +31,7 @@ export default function FeedbackFilters({ value, onChange, admin = false }) {
       />
       <Select
         allowClear
-        placeholder="反馈类型"
+        placeholder={siteText("site.912f32e43c99973b")} aria-label={siteText("site.912f32e43c99973b")}
         value={value.type}
         options={feedbackTypeOptions}
         onChange={(type) => update('type', type)}
@@ -40,7 +41,7 @@ export default function FeedbackFilters({ value, onChange, admin = false }) {
         <>
           <Select
             allowClear
-            placeholder="关联模块"
+            placeholder={siteText("site.1638e766efec58e2")} aria-label={siteText("site.1638e766efec58e2")}
             value={value.module}
             options={feedbackModuleOptions}
             onChange={(module) => update('module', module)}
@@ -48,7 +49,7 @@ export default function FeedbackFilters({ value, onChange, admin = false }) {
           />
           <Select
             allowClear
-            placeholder="优先级"
+            placeholder={siteText("site.5eff5a511eed98f4")} aria-label={siteText("site.5eff5a511eed98f4")}
             value={value.priority}
             options={feedbackPriorityOptions}
             onChange={(priority) => update('priority', priority)}

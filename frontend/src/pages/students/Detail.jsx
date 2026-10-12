@@ -1,3 +1,4 @@
+import {copyText as siteText,copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect,useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm } from 'antd';
@@ -10,10 +11,10 @@ import {requestKey} from '../../utils/requestKey';
 const { Title } = Typography;
 
 const roleMap = {
-  admin: { label: '管理员', color: 'red' },
-  academic_mentor: { label: '学术导师', color: 'blue' },
-  teacher: { label: '教师', color: 'green' },
-  student: { label: '学生', color: 'cyan' },
+  admin: { label: siteText("site.2eca5884e555a16c"), color: 'red' },
+  academic_mentor: { label: siteText("site.5e67b92082315a2e"), color: 'blue' },
+  teacher: { label: siteText("site.1f503f9e99226e71"), color: 'green' },
+  student: { label: siteText("site.c5ec741fa7352b9f"), color: 'cyan' },
 };
 
 export default function StudentDetail() {
@@ -102,7 +103,7 @@ function StudentDetailContent() {
       const moved=values.school_id!==student.school_id;
       await studentAPI.assign(id, {...values,class_id:values.class_id??null,teacher_id:values.teacher_id??null,
         mentor_id:moved ? student.mentor_id : values.mentor_id??null,request_key:assignmentKey.current,source_school_id:student.school_id});
-      message.success('分配信息已更新');
+      message.success(siteText("site.8f56c499f177aab6"));
       setAssignOpen(false);
       load();
     } catch { /* handled */ } finally {setAssignSaving(false);}
@@ -138,7 +139,7 @@ function StudentDetailContent() {
     setEvalLoading(true);
     try {
       await archiveAPI.submitEvaluation({ student_id: student.id, ...values });
-      message.success('评价提交成功');
+      message.success(siteText("site.55a84bcc0702dcf3"));
       evalForm.resetFields();
       setEvalOpen(false);
     } catch { /* handled */ } finally {
@@ -146,10 +147,10 @@ function StudentDetailContent() {
     }
   };
 
-  const statusLabels = { disable: '停用账号', archive: '归档账号', restore: '恢复账号' };
+  const statusLabels = { disable: siteText("site.ad2eb1a0a52bc808"), archive: siteText("site.9acb57b8dabc214f"), restore: siteText("site.b110bcddc634a8d0") };
   const openStatus = (action) => { setStatusReason(''); setStatusAction(action); };
   const handleStatus = async () => {
-    if (!statusReason.trim()) return message.warning('请填写操作原因');
+    if (!statusReason.trim()) return message.warning(siteText("site.9fedb22b3d9f80b9"));
     setStatusSaving(true);
     try {
       const res = await studentAPI.changeStatus(student.id, { action: statusAction, reason: statusReason });
@@ -160,7 +161,7 @@ function StudentDetailContent() {
   };
 
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
-  if (!student) return <p>用户不存在</p>;
+  if (!student) return <p>{siteText("site.35206c4c39cd4011")}</p>;
 
   const roleInfo = roleMap[student.role] || { label: student.role, color: 'default' };
   const isStudentTarget = student.role === 'student';
@@ -168,29 +169,29 @@ function StudentDetailContent() {
   return (
     <div>
       <Space wrap style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/students')}>返回</Button>
-        <Title level={4} style={{ margin: 0 }}>{student.real_name} 的详细信息</Title>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/students')}>{siteText("site.a3a7e79e9c0117ea")}</Button>
+        <Title level={4} style={{ margin: 0 }}>{student.real_name}{siteText("site.5cafc3e864c57ae7")}</Title>
         <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
         {isAdmin && student.role !== 'admin' && <Button icon={<EditOutlined />} onClick={openEdit}>编辑资料</Button>}
         {isAdmin && student.role !== 'admin' && <>
-          {!!student.is_active && !student.archived_at && <Button danger onClick={() => openStatus('disable')}>停用账号</Button>}
-          {isStudentTarget && !student.archived_at && <Button onClick={() => openStatus('archive')}>归档账号</Button>}
-          {(!student.is_active || student.archived_at) && <Button onClick={() => openStatus('restore')}>恢复账号</Button>}
+          {!!student.is_active && !student.archived_at && <Button danger onClick={() => openStatus('disable')}>{siteText("site.ad2eb1a0a52bc808")}</Button>}
+          {isStudentTarget && !student.archived_at && <Button onClick={() => openStatus('archive')}>{siteText("site.9acb57b8dabc214f")}</Button>}
+          {(!student.is_active || student.archived_at) && <Button onClick={() => openStatus('restore')}>{siteText("site.b110bcddc634a8d0")}</Button>}
         </>}
         {isAdmin && isStudentTarget && (
-            <Button type="primary" icon={<EditOutlined />} onClick={openAssign}>编辑分配</Button>
+            <Button type="primary" icon={<EditOutlined />} onClick={openAssign}>{siteText("site.6f7866258bd17991")}</Button>
         )}
         {isAdmin && student.id !== user.id && (
             <Popconfirm
-              title={`确定重置 ${student.real_name} 的密码？`}
+              title={siteTemplate("site.ff28d04efac3d148", {slot0: (student.real_name)})}
               okText="重置" cancelText="取消"
               onConfirm={handleResetPassword}
             >
-              <Button icon={<ReloadOutlined />} loading={resetting}>重置密码</Button>
+              <Button icon={<ReloadOutlined />} loading={resetting}>{siteText("site.9d05be0349a64673")}</Button>
             </Popconfirm>
         )}
         {canEvaluate && isStudentTarget && (
-          <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>提交评价</Button>
+          <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>{siteText("site.e49d0491c312a888")}</Button>
         )}
       </Space>
       <Card>
@@ -204,26 +205,26 @@ function StudentDetailContent() {
           <Descriptions.Item label="负责教师">{student.teacher_name || '—'}</Descriptions.Item>
           <Descriptions.Item label="负责导师">{student.mentor_name || '—'}</Descriptions.Item>
           <Descriptions.Item label="状态">
-            <Tag color={student.archived_at ? 'default' : student.is_active ? 'green' : 'red'}>{student.archived_at ? '已归档' : student.is_active ? '正常' : '已停用'}</Tag>
-            {student.archived_at && <span>归档时间：{student.archived_at}（UTC）</span>}
+            <Tag color={student.archived_at ? 'default' : student.is_active ? 'green' : 'red'}>{student.archived_at ? siteText("site.0c956200186b85bf") : student.is_active ? siteText("site.6f33632543b17e68") : siteText("site.d06b6ec612882da1")}</Tag>
+            {student.archived_at && <span>{siteText("site.f3746c0fda1d1105")}{student.archived_at}（UTC）</span>}
           </Descriptions.Item>
         </Descriptions>
       </Card>
 
       {isAdmin && detail.statusEvents?.length > 0 && <Card title="账号状态记录" style={{ marginTop: 16 }}>
         {detail.statusEvents.map((event, index) => <p key={index}>
-          {event.created_at}（UTC） · {statusLabels[event.action]} · 操作人：{event.actor_username} · 原因：{event.reason}
+          {event.created_at}（UTC） · {statusLabels[event.action]}{siteText("site.1b8cc5cf81834add")}{event.actor_username}{siteText("site.1aa4bd63f9d7f1c1")}{event.reason}
         </p>)}
       </Card>}
       {isAdmin && detail.schoolTransfers?.length > 0 && <Card title="学生跨校迁移记录" style={{ marginTop: 16 }}>
         {detail.schoolTransfers.map((event) => <p key={event.id}>
           {event.created_at}（UTC） · {event.source_school_name || '原学校'} → {event.target_school_name || event.context.target_school_name}
-          {' · '}新负责教师：{event.teacher_name} · 操作人：{event.actor_username} · 原因：{event.reason}
+          {' · '}新负责教师：{event.teacher_name}{siteText("site.1b8cc5cf81834add")}{event.actor_username}{siteText("site.1aa4bd63f9d7f1c1")}{event.reason}
           {' · '}原账号：{event.context.username}，原导师 ID：{event.context.mentor_id || '未分配'}（保持不变）
         </p>)}
       </Card>}
       {!isStudentTarget && ((detail.taughtCourses?.length > 0) || (detail.managedCourses?.length > 0)) && (
-        <Card title={student.role === 'teacher' ? '历史关联课程' : '管理课程'} style={{ marginTop: 16 }}>
+        <Card title={student.role === 'teacher' ? siteText("site.b267745f6076fe28") : siteText("site.358882b58c684bd6")} style={{ marginTop: 16 }}>
           <Space wrap>
             {(detail.taughtCourses || detail.managedCourses || []).map((c) => (
               <Link key={c.id} to={`/courses/${c.id}`}>
@@ -237,7 +238,7 @@ function StudentDetailContent() {
       <Modal title="编辑账号资料" open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => editForm.submit()} confirmLoading={editing} closable={!editing} maskClosable={!editing} cancelButtonProps={{disabled:editing}}>
         <Form form={editForm} layout="vertical" onFinish={saveEdit}>
           <Form.Item name="real_name" label="姓名" rules={[{required:true,whitespace:true}]}><Input maxLength={80}/></Form.Item>
-          <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:'学生'},{value:'teacher',label:'教师'},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
+          <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:siteText("site.c5ec741fa7352b9f")},{value:'teacher',label:siteText("site.1f503f9e99226e71")},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
           <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select disabled={student.role==='student'} allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
           <Form.Item name="class_id" label="班级" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择班级'})]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item>
           <Form.Item name="email" label="邮箱"><Input/></Form.Item><Form.Item name="phone" label="手机号"><Input/></Form.Item><Form.Item name="profile" label="简介"><Input.TextArea/></Form.Item>
@@ -245,7 +246,7 @@ function StudentDetailContent() {
           {student.role==='student' && <p>学生跨校请使用“编辑分配”，指定目标学校新教师并填写原因。</p>}
         </Form>
       </Modal>
-      <Modal title="编辑分配" open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} confirmLoading={assignSaving} closable={!assignSaving} maskClosable={!assignSaving} cancelButtonProps={{disabled:assignSaving}} width={500}>
+      <Modal title={siteText("site.6f7866258bd17991")} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} confirmLoading={assignSaving} closable={!assignSaving} maskClosable={!assignSaving} cancelButtonProps={{disabled:assignSaving}} width={500}>
         <Form form={form} layout="vertical" onFinish={handleAssign} disabled={assignSaving} onValuesChange={()=>{assignmentKey.current=requestKey();}}>
           <Form.Item name="school_id" label="所属学校" rules={[{required:true}]}>
             <Select allowClear placeholder="选择学校" onChange={handleSchoolChange}
@@ -267,17 +268,17 @@ function StudentDetailContent() {
         </Form>
       </Modal>
 
-      <Modal title={`提交评价：${student.real_name}`} open={evalOpen} onCancel={() => setEvalOpen(false)}
+      <Modal title={siteTemplate("site.702717da8644368b", {slot0: (student.real_name)})} open={evalOpen} onCancel={() => setEvalOpen(false)}
         onOk={() => evalForm.submit()} confirmLoading={evalLoading}>
         <Form form={evalForm} layout="vertical" onFinish={handleSubmitEvaluation}>
-          <Form.Item name="enrollment_id" label="评价课程" rules={[{ required: true, message: '请选择评价课程' }]}>
+          <Form.Item name="enrollment_id" label="评价课程" rules={[{ required: true, message: siteText("site.dc0d804b5c5962d8") }]}>
             <Select placeholder="选择课程（该生有效报名）"
               options={(detail.courses || []).map((c) => ({ value: c.enrollment_id, label: c.title }))} />
           </Form.Item>
           <Form.Item name="eval_type" label="评价类型" initialValue="process">
             <Select options={[
-              { value: 'process', label: '过程性评价' },
-              { value: 'outcome', label: '成果评价' },
+              { value: 'process', label: siteText("site.7590464464bcc9fa") },
+              { value: 'outcome', label: siteText("site.22f03f64a4a6d4db") },
             ]} />
           </Form.Item>
           <Form.Item name="score" label="评分（1-100）">
@@ -292,7 +293,7 @@ function StudentDetailContent() {
       <Modal title={statusLabels[statusAction]} open={!!statusAction} onOk={handleStatus}
         onCancel={() => setStatusAction(null)} confirmLoading={statusSaving} closable={!statusSaving}
         maskClosable={!statusSaving} cancelButtonProps={{ disabled: statusSaving }} okText="确认操作" cancelText="取消">
-        <p>{statusAction === 'restore' ? '恢复后可重新登录，原密码和首次改密要求保持不变。' : '操作后禁止登录，当前会话失效，不再参与新选课；历史学习记录和成长档案仍保留。管理员可以恢复账号。'}</p>
+        <p>{statusAction === 'restore' ? siteText("site.683b8ddb292cd015") : siteText("site.2cb610ce3f48e665")}</p>
         <Input.TextArea aria-label="操作原因" value={statusReason} onChange={e => setStatusReason(e.target.value)} maxLength={500} showCount rows={3} placeholder="请填写操作原因（必填）" />
       </Modal>
       <TempPasswordModal title="密码已重置" result={resetResult} onClose={() => setResetResult(null)} />

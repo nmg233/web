@@ -3,7 +3,7 @@
 // 下载仍走各自鉴权接口，内部继续使用 file_path。
 function toFileDto(row) {
   if (!row) return row;
-  const { file_path, ...rest } = row;
+  const { file_path, upload_token, upload_digest, ...rest } = row;
   return { ...rest, has_file: !!file_path };
 }
 

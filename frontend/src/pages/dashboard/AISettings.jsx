@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, Button, Card, Form, Input, Select, Space, Switch, Typography, message } from 'antd';
@@ -15,7 +16,7 @@ export default function AISettings() {
     aiAPI.getSettings().then((data) => {
       setSettings(data);
       form.setFieldsValue({ ...data, enabled: Boolean(data.enabled), retrieval_enabled: Boolean(data.retrieval_enabled), show_sources: Boolean(data.show_sources) });
-    }).catch(() => setError('无法读取 AI 配置。'));
+    }).catch(() => setError(siteText("site.e382f3f0616795b0")));
   }, [form]);
 
   const save = async (values) => {
@@ -24,39 +25,39 @@ export default function AISettings() {
       const data = await aiAPI.saveSettings({ ...values, api_key: values.api_key || undefined });
       setSettings(data);
       form.setFieldValue('api_key', '');
-      message.success('AI 配置已保存');
+      message.success(siteText("site.3ab97cd1e790ba33"));
       setError('');
-    } catch (err) { setError(err?.response?.data?.error || '保存失败'); }
+    } catch (err) { setError(err?.response?.data?.error || siteText("site.4823b71f6c97a30d")); }
     finally { setSaving(false); }
   };
 
   return <div style={{ maxWidth: 850, margin: '0 auto' }}>
-    <Space><Title level={4}>灵境小智 · 管理员配置</Title><Link to="/dashboard/ai">返回助手</Link></Space>
-    <Paragraph type="secondary">API Key 只发送到后端，保存后不会再次显示。启用前须由服务器管理员设置 AI_CONFIG_SECRET。</Paragraph>
+    <Space><Title level={4}>{siteText("site.4edbbb7ba169cd36")}</Title><Link to="/dashboard/ai">{siteText("site.64bb02d5393c7769")}</Link></Space>
+    <Paragraph type="secondary">{siteText("site.b5a9936172b37d73")}</Paragraph>
     {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
-    {settings && !settings.encryption_ready && <Alert type="warning" showIcon message="服务器尚未设置 AI_CONFIG_SECRET，暂不能保存 API Key 或启用助手。" style={{ marginBottom: 16 }} />}
+    {settings && !settings.encryption_ready && <Alert type="warning" showIcon message={siteText("site.0a8d737246e31b1f")} style={{ marginBottom: 16 }} />}
     <Card loading={!settings}>
       <Form form={form} layout="vertical" onFinish={save}>
-        <Form.Item name="enabled" label="启用 AI 助手" valuePropName="checked"><Switch /></Form.Item>
-        <Form.Item name="api_key" label={`DeepSeek API Key${settings?.has_api_key ? '（已配置；留空表示不更换）' : ''}`}>
-          <Input.Password autoComplete="new-password" placeholder="粘贴 API Key" />
+        <Form.Item name="enabled" label={siteText("site.efdd7c121383b2db")} valuePropName="checked"><Switch /></Form.Item>
+        <Form.Item name="api_key" label={`DeepSeek API Key${settings?.has_api_key ? siteText("site.9efc5d99741803d5") : ''}`}>
+          <Input.Password autoComplete="new-password" placeholder={siteText("site.45e0ac9b90d75fe2")} />
         </Form.Item>
-        <Form.Item name="model" label="模型名称" rules={[{ required: true, message: '请输入模型名称' }]}><Input placeholder="deepseek-flash" /></Form.Item>
-        <Form.Item name="base_url" label="API Base URL" rules={[{ required: true, message: '请输入 Base URL' }]}>
+        <Form.Item name="model" label={siteText("site.fc6dd3969d0ad576")} rules={[{ required: true, message: siteText("site.4101b0e8e1f65bd4") }]}><Input placeholder="deepseek-flash" /></Form.Item>
+        <Form.Item name="base_url" label="API Base URL" rules={[{ required: true, message: siteText("site.93f6076051507382") }]}>
           <Input placeholder="https://api.deepseek.com" />
         </Form.Item>
-        <Text type="secondary">Base URL 需在服务器 AI_ALLOWED_BASE_URLS 白名单内；默认仅允许 DeepSeek 官方地址。</Text>
-        <Form.Item name="system_prompt" label="系统 Prompt" rules={[{ required: true, min: 20, message: '至少 20 字' }]} style={{ marginTop: 16 }}>
+        <Text type="secondary">{siteText("site.6f1d965f65789fba")}</Text>
+        <Form.Item name="system_prompt" label={siteText("site.d93c8619aaed5372")} rules={[{ required: true, min: 20, message: siteText("site.eaaaff4aa51988b6") }]} style={{ marginTop: 16 }}>
           <Input.TextArea rows={13} maxLength={10000} showCount />
         </Form.Item>
         <Space wrap size="large">
-          <Form.Item name="retrieval_enabled" label="检索上传的课程资料" valuePropName="checked"><Switch /></Form.Item>
-          <Form.Item name="show_sources" label="显示参考资料" valuePropName="checked"><Switch /></Form.Item>
+          <Form.Item name="retrieval_enabled" label={siteText("site.34165942b2387dbf")} valuePropName="checked"><Switch /></Form.Item>
+          <Form.Item name="show_sources" label={siteText("site.dfc36925abbb7d13")} valuePropName="checked"><Switch /></Form.Item>
         </Space>
-        <Form.Item name="expansion_level" label="专业拓展程度">
-          <Select options={[{ value: 'strict', label: '严格' }, { value: 'balanced', label: '平衡' }, { value: 'open', label: '开放' }]} />
+        <Form.Item name="expansion_level" label={siteText("site.ed389f18fad4f739")}>
+          <Select options={[{ value: 'strict', label: siteText("site.64b80e6fd7c65dec") }, { value: 'balanced', label: siteText("site.6d42c8a6f1a690bb") }, { value: 'open', label: siteText("site.7f7fcbc281bec959") }]} />
         </Form.Item>
-        <Button type="primary" htmlType="submit" loading={saving}>保存配置</Button>
+        <Button type="primary" htmlType="submit" loading={saving}>{siteText("site.806a7bb44a673930")}</Button>
       </Form>
     </Card>
   </div>;

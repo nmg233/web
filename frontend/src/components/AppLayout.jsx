@@ -1,22 +1,22 @@
+import {copyText as siteText} from "../content/copy";
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { Layout, Spin } from 'antd';
-import { useAuth } from '../store/AuthContext';
-import Sidebar from './Sidebar';
-import HeaderBar from './Header';
 
-const { Content } = Layout;
+import { useAuth } from '../store/AuthContext';
+
+
+import StudentScope from '../student/StudentScope';
+
+import { PageLoading } from './PageStatus';
+import StudentShell from '../student/visual/StudentShell';
+import StaffShell from './StaffShell';
+
+
 
 export default function AppLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" tip="加载中..." />
-      </div>
-    );
-  }
+  if (loading) return <PageLoading>{siteText("site.9971c3f7b8e21373")}</PageLoading>;
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -27,15 +27,11 @@ export default function AppLayout() {
     return <Navigate to="/change-password" replace />;
   }
 
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sidebar />
-      <Layout>
-        <HeaderBar />
-        <Content style={{ background: '#f5f7fa', minHeight: 360 }}>
-          <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
-  );
+  if (user.role === 'student') {
+    return location.pathname !== '/change-password'
+      ? <StudentScope><StudentShell><div className="student-content-body"><Outlet /></div></StudentShell></StudentScope>
+      : <StudentShell><Outlet /></StudentShell>;
+  }
+
+  return <StaffShell><Outlet/></StaffShell>;
 }

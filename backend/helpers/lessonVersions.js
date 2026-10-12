@@ -51,16 +51,27 @@ function currentContent(db, lessonId) {
   const replays = db.prepare(`SELECT id, course_id, lesson_id, title, description, summary, video_path AS file_path,
     duration_seconds, recording_date, sort_order FROM course_replays
     WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL) ORDER BY sort_order, id`).all(lesson.course_id, lessonId);
-  const resources = db.prepare(`SELECT id, course_id, lesson_id, title, description, resource_type, file_path, file_size
+  const resources = db.prepare(`SELECT *
     FROM resources WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL) ORDER BY id`).all(lesson.course_id, lessonId);
-  return { lesson: { id: lesson.id, title: lesson.title, description: lesson.description }, cards, replays, resources };
+  return { lesson: { ...lesson }, cards, replays, resources };
+}
+
+function hasAuthoredReview(lesson) {
+  const blocks = (() => { try { const value = JSON.parse(lesson.article_blocks || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } })();
+  return Boolean(String(lesson.review_content || '').trim()
+    || blocks.some((block) => block.type === 'paragraph' && String(block.text || '').trim())
+    || (String(lesson.article_title || '').trim() && /^https:\/\//.test(lesson.article_url || '')));
 }
 
 function readiness(db, lessonId) {
   const content = currentContent(db, lessonId);
   const issues = [];
-  if (!content.replays.some((replay) => replay.lesson_id === Number(lessonId) && usableVideo(replay))) {
-    issues.push('至少为本课时绑定一个可读取的 MP4/WebM 视频并填写视频简介（课程共享视频不替代课时视频）');
+  const lesson = content.lesson;
+  if (lesson.content_state === 'preparing') issues.push('教学内容尚未准备完成');
+  // Article/text courses retain their supported review medium. Unconfigured traditional
+  // lessons still require the upstream readable, lesson-specific video and introduction.
+  if (!hasAuthoredReview(lesson) && !content.replays.some((replay) => replay.lesson_id === Number(lessonId) && usableVideo(replay))) {
+    issues.push('至少为本课时绑定一个可读取的 MP4/WebM 视频并填写视频简介（课程共享视频不替代课时视频），或填写真实课堂回顾/文章');
   }
   if (!content.cards.length) issues.push('至少发布一张知识卡片');
   for (const card of content.cards) {
@@ -83,10 +94,24 @@ function saveVersion(db, lessonId, legacy = false) {
   return db.prepare('SELECT * FROM lesson_content_versions WHERE lesson_id = ? AND fingerprint = ?').get(lessonId, fingerprint);
 }
 
+function withSupplement(db, row) {
+  if (!row) return null;
+  const content = JSON.parse(row.content_json);
+  const legacyLessonFields = !Object.hasOwn(content.lesson, 'article_blocks');
+  const hasSupplements = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='lesson_version_supplements'").get();
+  const supplement = hasSupplements ? db.prepare('SELECT * FROM lesson_version_supplements WHERE content_version_id=?').get(row.id) : null;
+  if (supplement) {
+    content.lesson = { ...JSON.parse(supplement.lesson_json), ...content.lesson };
+    const resources = JSON.parse(supplement.resources_json || '[]');
+    content.resources = content.resources.map((resource) => ({ ...resources.find((r) => r.id === resource.id), ...resource }));
+  }
+  return { ...row, content, legacy_lesson_fields: legacyLessonFields, supplement_source: supplement ? 'upgrade' : null };
+}
+
 function boundVersion(db, studentId, lessonId) {
   const row = db.prepare(`SELECT v.* FROM student_lesson_versions s JOIN lesson_content_versions v ON v.id = s.content_version_id
     WHERE s.student_id = ? AND s.lesson_id = ?`).get(studentId, lessonId);
-  return row ? { ...row, content: JSON.parse(row.content_json) } : null;
+  return withSupplement(db, row);
 }
 
 function bind(db, studentId, lessonId) {
@@ -100,8 +125,8 @@ function bind(db, studentId, lessonId) {
 }
 
 function studentCards(db, studentId, lessonId, contentVersionId = null) {
-  const row = contentVersionId ? db.prepare('SELECT content_json FROM lesson_content_versions WHERE id = ? AND lesson_id = ?').get(contentVersionId,lessonId) : null;
-  const version = row ? { content: JSON.parse(row.content_json) } : boundVersion(db, studentId, lessonId);
+  const row = contentVersionId ? db.prepare('SELECT * FROM lesson_content_versions WHERE id = ? AND lesson_id = ?').get(contentVersionId,lessonId) : null;
+  const version = row ? withSupplement(db, row) : boundVersion(db, studentId, lessonId);
   const cards = version ? version.content.cards : currentContent(db, lessonId).cards;
   return cards.map((card) => {
     const p = db.prepare('SELECT * FROM student_card_progress WHERE student_id = ? AND card_id = ?').get(studentId, card.id);
@@ -193,7 +218,7 @@ function repairLegacy(db, actorId, studentId, lessonId, reason) {
     const ready = readiness(db,lessonId);
     if (!ready.ready) throw Object.assign(new Error('请先补齐当前教学内容：' + ready.issues.join('；')), { status:409 });
     const current = currentContent(db,lessonId);
-    const content = JSON.parse(old.content_json);
+    const content = JSON.parse(JSON.stringify(old.content));
     let changed = false;
     if (!content.cards.length) { content.cards = current.cards; changed = true; }
     for (const card of content.cards) {
@@ -203,8 +228,21 @@ function repairLegacy(db, actorId, studentId, lessonId, reason) {
         card.exercises = fixed.exercises; changed = true;
       }
     }
-    if (!content.replays.some(usableVideo)) {
-      content.replays = current.replays; changed = true;
+    if (!hasAuthoredReview(content.lesson) && !content.replays.some(usableVideo)) {
+      if (hasAuthoredReview(current.lesson)) {
+        // A real authored review is also a supported medium. Repair only missing
+        // review fields, keeping the student's original cards, answers and prose.
+        for (const field of ['review_content','article_url','article_title','article_blocks']) {
+          content.lesson[field] = current.lesson[field];
+        }
+        const blocks = (() => { try { const value = JSON.parse(current.lesson.article_blocks || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } })();
+        const imageIds = new Set(blocks.filter((block) => block.type === 'image').map((block) => block.resourceId));
+        const oldIds = new Set(content.resources.map((resource) => resource.id));
+        content.resources.push(...current.resources.filter((resource) => imageIds.has(resource.id) && !oldIds.has(resource.id)));
+        changed = true;
+      } else if (current.replays.some(usableVideo)) {
+        content.replays = current.replays; changed = true;
+      }
     }
     if (!changed) throw Object.assign(new Error('此兼容快照没有可定向补齐的缺失内容'), { status:409 });
     content.repair = { actor_id:actorId, reason, base_version_id:old.id };

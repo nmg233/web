@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, Input, Select, Space, Table, Tag } from 'antd';
@@ -19,7 +20,7 @@ export default function ObserverStudentList() {
     observerAPI.students({ ...values, page_size: 20 }).then((payload) => {
       if (active) setData(payload);
     }).catch((err) => {
-      if (active) setError(err?.response?.data?.error || '无法加载负责学生');
+      if (active) setError(err?.response?.data?.error || siteText("site.4c37c3be2daffa44"));
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [query, retry]);
@@ -31,11 +32,11 @@ export default function ObserverStudentList() {
     setParams(next);
   };
   const columns = [
-    { title: '学生', render: (_, r) => <Space direction="vertical" size={0}><strong>{r.real_name}</strong><span>{r.username}</span></Space> },
-    { title: '学校 / 班级', render: (_, r) => `${r.school_name || '-'} / ${r.class_name || '-'}` },
-    { title: '近30天完成', dataIndex: 'completed_30d' }, { title: '学习中课时', dataIndex: 'pending_lessons' },
-    { title: '关注项', dataIndex: 'risk_tags', render: (tags) => tags.map((tag) => <Tag color="orange" key={tag}>{tag}</Tag>) },
-    { title: '操作', render: (_, r) => <Button type="link" onClick={() => navigate(`/observer/students/${r.id}`, { state: { returnTo: `/observer/students?${query}` } })}>查看学情</Button> },
+    { title: siteText("site.9fc868217f0590d3"), render: (_, r) => <Space direction="vertical" size={0}><strong>{r.real_name}</strong><span>{r.username}</span></Space> },
+    { title: siteText("site.8ce095f64901863f"), render: (_, r) => `${r.school_name || '-'} / ${r.class_name || '-'}` },
+    { title: siteText("site.79de0b21260f7ce5"), dataIndex: 'completed_30d' }, { title: siteText("site.59daa04bd1aa9ce3"), dataIndex: 'pending_lessons' },
+    { title: siteText("site.9ee46bbe64d5d1a7"), dataIndex: 'risk_tags', render: (tags) => tags.map((tag) => <Tag color="orange" key={tag}>{tag}</Tag>) },
+    { title: siteText("site.232c4f4f56a776c3"), render: (_, r) => <Button type="link" onClick={() => navigate(`/observer/students/${r.id}`, { state: { returnTo: `/observer/students?${query}` } })}>{siteText("site.be8df684b70e2a2c")}</Button> },
   ];
   return <PageContainer title="负责学生" description="仅查看明确分配给你的学生；同一学生可同时存在学习中和已结课课程。">
     <Space wrap style={{ marginBottom: 16 }}>

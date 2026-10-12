@@ -84,7 +84,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
     old.prepare("INSERT INTO course_replays (id,course_id,title,description,video_path,created_by) VALUES (1,1,'旧回放','旧简介','old.mp4',1)").run();
     runMigrations(old); runMigrations(old);
     assert.deepEqual(old.prepare('SELECT title,description,video_path,summary FROM course_replays').get(), { title:'旧回放',description:'旧简介',video_path:'old.mp4',summary:null });
-    assert.deepEqual(old.prepare('SELECT version,name FROM schema_migrations WHERE version>=14 ORDER BY version').all(), [
+    assert.deepEqual(old.prepare('SELECT version,name FROM schema_migrations WHERE version BETWEEN 14 AND 20 ORDER BY version').all(), [
       { version:14,name:'014_glider_design_params.sql' },
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
@@ -93,6 +93,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:19,name:'019_operations_safety.sql' },
       { version:20,name:'020_release_closure.sql' },
     ]);
+    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1025').get().n,10);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
 });
@@ -115,7 +116,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
     const columns = old.prepare('PRAGMA table_info(glider_simulations)').all().map((column) => column.name);
     for (const column of ['wing_area','mass','elevator_deg','rudder_deg']) assert.ok(columns.includes(column));
     assert.ok(old.prepare("SELECT name FROM sqlite_master WHERE name='glider_trajectories'").get());
-    assert.deepEqual(old.prepare('SELECT version,name FROM schema_migrations WHERE version>=14 ORDER BY version').all(), [
+    assert.deepEqual(old.prepare('SELECT version,name FROM schema_migrations WHERE version BETWEEN 14 AND 20 ORDER BY version').all(), [
       { version:14,name:'014_glider_design_params.sql' },
       { version:15,name:'015_glider_trajectories.sql' },
       { version:16,name:'016_replay_summary.sql' },
@@ -124,6 +125,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:19,name:'019_operations_safety.sql' },
       { version:20,name:'020_release_closure.sql' },
     ]);
+    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1025').get().n,10);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
 });
@@ -142,25 +144,27 @@ test('旧014摘要迁移记录与结构不一致时停止升级，不错误覆�
 });
 
 test('回放可先上传视频，随后单独添加、更改或清空摘要，其余信息保留', async () => {
-  const created = await api('/courses/1/replays','POST',replayForm(),'mentor');
+  assert.equal((await api('/courses/1/replays','POST',replayForm(),'mentor')).status,403);
+  const created = await api('/courses/1/replays','POST',replayForm(),'admin');
   assert.equal(created.status,200);
   const original = db.prepare('SELECT * FROM course_replays WHERE id=?').get(created.body.id);
+  assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{summary:'导师不可写'},'mentor')).status,403);
   assert.equal(original.summary,null);
   for (const summary of ['第一讲摘要\n重点：升力与阻力','更新后的摘要','']) {
-    assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{summary},'mentor')).status,200);
+    assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{summary},'admin')).status,200);
     const current = db.prepare('SELECT * FROM course_replays WHERE id=?').get(original.id);
     assert.equal(current.summary,summary || null);
     for (const field of ['title','description','video_path','duration_seconds','recording_date','sort_order']) assert.equal(current[field],original[field]);
     assert.deepEqual(fs.readFileSync(current.video_path),video);
   }
   assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{summary:'课堂重点'},'admin')).status,200);
-  assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{title:'仅修改标题'},'mentor')).status,200);
+  assert.equal((await api(`/courses/replays/${original.id}`,'PUT',{title:'仅修改标题'},'admin')).status,200);
   assert.equal(db.prepare('SELECT summary FROM course_replays WHERE id=?').get(original.id).summary,'课堂重点');
 });
 
 test('上传时可附带Markdown课程纪要，列表和学生课时接口原样返回且不泄漏磁盘路径', async () => {
   const summary = '## 课程纪要\n\n**重点知识**\n\n- 课堂活动\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
-  const created = await api('/courses/1/replays','POST',replayForm(`  ${summary}  `),'mentor');
+  const created = await api('/courses/1/replays','POST',replayForm(`  ${summary}  `),'admin');
   assert.equal(created.status,200);
   const list = await api('/courses/1/replays');
   assert.equal(list.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),summary);
@@ -174,17 +178,17 @@ test('上传时可附带Markdown课程纪要，列表和学生课时接口原样
 
 test('摘要长度和类型异常返回400且不修改数据，上传失败清理视频文件', async () => {
   const before = db.prepare('SELECT * FROM course_replays WHERE id=1').get();
-  for (const summary of ['长'.repeat(10001),null,{},123]) assert.equal((await api('/courses/replays/1','PUT',{summary},'mentor')).status,400);
+  for (const summary of ['长'.repeat(10001),null,{},123]) assert.equal((await api('/courses/replays/1','PUT',{summary},'admin')).status,400);
   assert.deepEqual(db.prepare('SELECT * FROM course_replays WHERE id=1').get(),before);
   const files = fs.readdirSync(path.join(dir,'uploads/course-replays')).sort();
-  assert.equal((await api('/courses/1/replays','POST',replayForm('长'.repeat(10001)),'mentor')).status,400);
+  assert.equal((await api('/courses/1/replays','POST',replayForm('长'.repeat(10001)),'admin')).status,400);
   assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
-  assert.equal((await api('/courses/replays/1','PUT',{summary:'字'.repeat(10000)},'mentor')).status,200);
+  assert.equal((await api('/courses/replays/1','PUT',{summary:'字'.repeat(10000)},'admin')).status,200);
 });
 
 test('摘要管理和读取遵守课程与角色权限', async () => {
   const original = db.prepare('SELECT * FROM course_replays WHERE id=1').get();
-  for (const user of ['student','outsider','teacher','othermentor']) {
+  for (const user of ['student','outsider','teacher','othermentor','mentor']) {
     assert.ok([403,404].includes((await api('/courses/replays/1','PUT',{summary:'越权'},user)).status));
   }
   for (const user of ['outsider','teacher','othermentor']) assert.equal((await api('/courses/1/replays','GET',undefined,user)).status,404);
@@ -277,22 +281,22 @@ test('指定课时回放上传重试幂等，同一请求标识不能提交不�
     value.append('lesson_id','2'); value.append('request_key','replay-retry-test-key'); return value;
   };
   const bytes=Buffer.concat([video,Buffer.from('A')]);
-  const first=await api('/courses/1/replays','POST',form(bytes),'mentor');
+  const first=await api('/courses/1/replays','POST',form(bytes),'admin');
   assert.equal(first.status,200);
   const row=db.prepare('SELECT * FROM course_replays WHERE id=?').get(first.body.id);
   assert.equal(row.lesson_id,2);
   const files=fs.readdirSync(path.join(dir,'uploads/course-replays')).sort();
-  const repeated=await api('/courses/1/replays','POST',form(bytes),'mentor');
+  const repeated=await api('/courses/1/replays','POST',form(bytes),'admin');
   assert.equal(repeated.status,200);assert.equal(repeated.body.id,first.body.id);
   assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
-  assert.equal((await api('/courses/1/replays','POST',form(Buffer.concat([video,Buffer.from('B')])),'mentor')).status,409);
+  assert.equal((await api('/courses/1/replays','POST',form(Buffer.concat([video,Buffer.from('B')])),'admin')).status,409);
   assert.deepEqual(fs.readFileSync(row.video_path),bytes);
   assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
 });
 
 test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
   const healthy=await api('/health','GET',undefined,null);
-  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,20);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,1025);
   const prepare=db.prepare;
   try {
     db.prepare=function(sql){if(sql.includes('FROM schema_migrations'))throw Error('模拟数据库不可用');return prepare.call(this,sql);};

@@ -15,7 +15,10 @@ const learningGate = require('../helpers/learningGate');
 const requests = require('../helpers/requestResults');
 const versions = require('../helpers/lessonVersions');
 const aiDocuments = require('../services/aiDocumentService');
+const contentValidation = require('../services/courseContentValidation');
+const { courseDisplay } = require('../services/coursePresentation');
 const lifecycle = require('../helpers/courseLifecycle');
+const assetHistory = require('../helpers/lessonAssetHistory');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -126,6 +129,7 @@ exports.showCreate = (req, res) => {
 // 创建课程
 exports.create = (req, res) => {
   try {
+    const validated = contentValidation.courseFields(req.body, true);
     const { title, theme, description, driving_question, story_line,
             grade_level, difficulty, total_hours, materials_needed } = req.body;
 
@@ -137,12 +141,14 @@ exports.create = (req, res) => {
       `INSERT INTO courses (title, theme, description, driving_question, story_line,
         grade_level, difficulty, total_hours, materials_needed, status, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`
-    ).run(title, theme || null, description || null, driving_question || null,
+    ).run(validated.title, theme || null, description || null, driving_question || null,
          story_line || null, grade_level, difficulty, total_hours || null,
          materials_needed || null, req.user.id);
+    db.prepare('UPDATE courses SET presentation_theme=?,cover_image=? WHERE id=?').run(validated.presentation_theme||'campus',validated.cover_image||null,result.lastInsertRowid);
 
     res.json({ message: '课程创建成功（草稿），补充课时后即可发布', id: result.lastInsertRowid });
   } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
     console.error('创建课程错误:', err);
     res.status(500).json({ error: '创建失败，请稍后重试' });
   }
@@ -239,7 +245,7 @@ exports.detail = (req, res) => {
 
     res.json({ title: course.title, course: { ...course, can_manage: coursePolicy.canManageCourse(req.user, course),
       can_enroll: course.status !== 'archived' && canEnrollCourse(req.user, course.id), completion,
-      has_learning_history:coursePolicy.canManageCourse(req.user,course) ? lifecycle.hasLearningHistory(course.id) : undefined }, lessons, tasks, progress, resources, enrollments, teachers });
+      has_learning_history:coursePolicy.canManageCourse(req.user,course) ? lifecycle.hasLearningHistory(course.id) : undefined }, ...courseDisplay(id,req.user.role==='student'), lessons, tasks, progress, resources, enrollments, teachers });
   } catch (err) {
     console.error('课程详情错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
@@ -275,15 +281,15 @@ exports.update = (req, res) => {
     if (req.body.status !== undefined && !['draft','published','archived'].includes(req.body.status)) return res.status(400).json({error:'课程状态无效'});
     if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) return res.status(409).json({error:'已有学生学习记录，不能撤回草稿；关闭课程请使用归档'});
     if (req.body.status === 'archived') lifecycle.assertCanClose(id);
-    const fields = ['title','theme','description','driving_question','story_line',
-                    'grade_level','difficulty','total_hours','materials_needed','status'];
+    const validated = contentValidation.courseFields(req.body);
+    const fields = Object.keys(validated);
     const sets = [];
     const values = [];
 
     fields.forEach(f => {
       if (req.body[f] !== undefined) {
         sets.push(`${f} = ?`);
-        values.push(req.body[f] || null);
+        values.push(validated[f]);
       }
     });
 
@@ -292,12 +298,15 @@ exports.update = (req, res) => {
     }
 
     values.push(id);
+    const oldCover = fields.includes('cover_image') ? db.prepare('SELECT file_path FROM course_covers WHERE course_id=?').get(id) : null;
     db.transaction(() => {
       if (!writable(id)) throw Object.assign(new Error('已归档课程只允许查看历史'),{status:409});
       if (req.body.status === 'archived') lifecycle.assertCanClose(id);
       if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) throw Object.assign(new Error('已有学习记录，不能撤回草稿'),{status:409});
       db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
+      if(oldCover)db.prepare('DELETE FROM course_covers WHERE course_id=?').run(id);
     }).immediate();
+    if(oldCover)removeFilesAfterCommit([oldCover.file_path],UPLOAD_ROOT);
 
     res.json({ message: '课程更新成功' });
   } catch (err) {
@@ -334,6 +343,7 @@ exports.delete = (req, res) => {
     const filePaths = [
       ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
       ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),
+      ...db.prepare('SELECT file_path FROM course_covers WHERE course_id = ?').all(id).map((r) => r.file_path),
     ].filter(Boolean);
 
     db.prepare('DELETE FROM courses WHERE id = ?').run(id);
@@ -455,13 +465,20 @@ exports.uploadResource = (req, res) => {
     }
 
     if (!writable(id)) { removeUploadedFile(req.file); return res.status(409).json({ error: '归档课程只允许查看历史' }); }
-    const lessonId = validateLessonBinding(id, req.body.lesson_id);
-    const { resource_type, title } = req.body;
-    const displayTitle = title || decodeOriginalName(req.file.originalname) || req.file.originalname;
+    const { resource_type, title,description } = req.body;
+    const lessonId=validateLessonBinding(id, req.body.lesson_id);
+    if(!['lesson_plan','guide_card','template','courseware','video','other'].includes(resource_type||'other'))contentValidation.invalid('资料类型无效');
+    const fileName=decodeOriginalName(req.file.originalname)||req.file.originalname;
+    const displayTitle = contentValidation.text(title==null||title===''?fileName:title,'资料名称',120,true);
+    const note=contentValidation.text(description,'资料说明',10000);
+    const token=req.body.upload_token||null;
+    if(token&&!/^[a-f0-9-]{36}$/i.test(token))contentValidation.invalid('上传标识无效');
+    const digest=token?crypto.createHash('sha256').update(fs.readFileSync(req.file.path)).update(JSON.stringify([fileName,displayTitle,note,lessonId,resource_type||'other'])).digest('hex'):null;
+    if(token){const prior=db.prepare('SELECT id,upload_digest FROM resources WHERE course_id=? AND upload_by=? AND upload_token=?').get(id,req.user.id,token);if(prior){if(prior.upload_digest!==digest)contentValidation.invalid('同一上传标识的文件或说明已变化，请先核对已上传记录',409);removeUploadedFile(req.file);return res.json({message:'资源已上传',id:prior.id,reused:true});}}
     const result = db.prepare(
-      'INSERT INTO resources (course_id, lesson_id, resource_type, title, description, file_path, file_size, upload_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(id, lessonId, resource_type || 'other', displayTitle, req.body.description || null,
-         req.file.path, req.file.size, req.user.id);
+      'INSERT INTO resources (course_id, resource_type, title, file_path, file_size, upload_by,lesson_id,description,file_name,file_type,upload_token,upload_digest) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?)'
+    ).run(id, resource_type || 'other', displayTitle,
+         req.file.path, req.file.size, req.user.id,lessonId,note,fileName,path.extname(fileName).slice(1).toLowerCase(),token,digest);
 
     try { aiDocuments.registerResource(Number(result.lastInsertRowid)); }
     catch (indexError) { console.error('课程资料加入知识库失败，可在知识库页面重试:', indexError); }
@@ -469,6 +486,7 @@ exports.uploadResource = (req, res) => {
     res.json({ message: '资源上传成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
     removeUploadedFile(req.file);
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('上传资源错误:', err);
     res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
@@ -484,8 +502,9 @@ exports.deleteResource = (req, res) => {
       return res.status(404).json({ error: '资源不存在' });
     }
 
+    if(db.prepare("SELECT l.id FROM lessons l,json_each(l.article_blocks) b WHERE json_extract(b.value,'$.resourceId')=? LIMIT 1").get(resource.id))return res.status(409).json({error:'图片正在文章中使用，请先移除文章引用，再删除资料'});
     if (!writable(resource.course_id, resource.lesson_id)) return res.status(409).json({ error: '归档或取消的课时只允许查看历史' });
-    if (db.prepare('SELECT 1 FROM lesson_content_versions v JOIN lessons l ON l.id = v.lesson_id WHERE l.course_id = ? LIMIT 1').get(resource.course_id)) return res.status(409).json({ error: '课程已有学习快照，资料须保留供历史学习下载' });
+    if (assetHistory.isReferenced(db, resource.course_id, 'resource', resource.id)) return res.status(409).json({ error: '课程已有学习快照，资料须保留供历史学习下载' });
     db.prepare('DELETE FROM resources WHERE id = ?').run(resource.id);
     removeFilesAfterCommit([resource.file_path], UPLOAD_ROOT);
     res.json({ message: '资源已删除' });
@@ -524,7 +543,7 @@ exports.downloadResource = (req, res) => {
       return res.status(404).json({ error: '附件文件不存在' });
     }
     const ext = path.extname(resolvedPath);
-    const title = decodeOriginalName(resource.title) || path.basename(resolvedPath);
+    const title = resource.file_name || decodeOriginalName(resource.title) || path.basename(resolvedPath);
     return res.download(resolvedPath, title.toLowerCase().endsWith(ext.toLowerCase()) ? title : title + ext);
   } catch (err) {
     console.error('下载课程资源错误:', err);
@@ -620,6 +639,7 @@ exports.listReplays = (req, res) => {
 
 exports.uploadReplay = (req, res) => {
   try {
+    if (req.user.role !== 'admin') { removeUploadedFile(req.file); return res.status(403).json({ error: '仅管理员可维护课程回放' }); }
     if (!canManageCourse(req.user, req.params.id)) {
       removeUploadedFile(req.file);
       return res.status(403).json({ error: '无权管理该课程' });
@@ -635,6 +655,7 @@ exports.uploadReplay = (req, res) => {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
     }
+    contentValidation.text(title,'回放标题',120,true);contentValidation.text(description,'回放说明',10000);
     if (!title || !title.trim()) {
       removeUploadedFile(req.file);
       return res.status(400).json({ error: '请填写回放标题' });
@@ -664,6 +685,7 @@ exports.uploadReplay = (req, res) => {
     res.json({ message: '课程回放上传成功', id: result.id });
   } catch (err) {
     removeUploadedFile(req.file);
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('上传课程回放错误:', err);
     res.status(err.status || 500).json({ error: err.status ? err.message : '上传课程回放失败' });
   }
@@ -671,6 +693,7 @@ exports.uploadReplay = (req, res) => {
 
 exports.updateReplay = (req, res) => {
   try {
+    if (req.user.role !== 'admin') { removeUploadedFile(req.file); return res.status(403).json({ error: '仅管理员可维护课程回放' }); }
     const replay = db.prepare('SELECT * FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
     if (!writable(replay.course_id, replay.lesson_id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
@@ -680,6 +703,8 @@ exports.updateReplay = (req, res) => {
     if (summary !== undefined && (typeof summary !== 'string' || summary.length > 10000)) {
       return res.status(400).json({ error: '回放内容摘要须为文本，且不能超过 10000 个字符' });
     }
+    if(title!==undefined)contentValidation.text(title,'回放标题',120,true);
+    if(description!==undefined)contentValidation.text(description,'回放说明',10000);
     if (title !== undefined && !String(title).trim()) return res.status(400).json({ error: '回放标题不能为空' });
     db.prepare(
       `UPDATE course_replays
@@ -697,6 +722,7 @@ exports.updateReplay = (req, res) => {
     );
     res.json({ message: '课程回放已更新' });
   } catch (err) {
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('更新课程回放错误:', err);
     res.status(500).json({ error: '更新课程回放失败' });
   }
@@ -704,11 +730,12 @@ exports.updateReplay = (req, res) => {
 
 exports.deleteReplay = (req, res) => {
   try {
+    if (req.user.role !== 'admin') { removeUploadedFile(req.file); return res.status(403).json({ error: '仅管理员可维护课程回放' }); }
     const replay = db.prepare('SELECT id, course_id, lesson_id, video_path FROM course_replays WHERE id = ?').get(req.params.replayId);
     if (!replay || !canManageCourse(req.user, replay.course_id)) return res.status(404).json({ error: '课程回放不存在' });
     // 先删记录，提交后再删物理文件（失败进清理队列）
     if (!writable(replay.course_id, replay.lesson_id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
-    if (db.prepare('SELECT 1 FROM lesson_content_versions v JOIN lessons l ON l.id = v.lesson_id WHERE l.course_id = ? LIMIT 1').get(replay.course_id)) return res.status(409).json({ error: '课程已有学习快照，回放须保留供历史学习播放' });
+    if (assetHistory.isReferenced(db, replay.course_id, 'replay', replay.id)) return res.status(409).json({ error: '课程已有学习快照，回放须保留供历史学习播放' });
     db.prepare('DELETE FROM course_replays WHERE id = ?').run(replay.id);
     removeFilesAfterCommit([replay.video_path], UPLOAD_ROOT);
     res.json({ message: '课程回放已删除' });

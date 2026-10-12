@@ -1,28 +1,12 @@
+import {copyText as siteText} from "../../content/copy";
 import { Button, Form, Input } from 'antd';
 
 export default function FeedbackMessageForm({ onSubmit, loading = false, internal = false }) {
   const [form] = Form.useForm();
-
-  const submit = async ({ content }) => {
-    await onSubmit(content);
-    form.resetFields();
-  };
-
-  return (
-    <Form form={form} layout="vertical" onFinish={submit}>
-      <Form.Item
-        name="content"
-        label={internal ? '内部备注' : '回复内容'}
-        rules={[
-          { required: true, message: '请输入内容' },
-          { max: 2000, message: '内容不能超过2000字' },
-        ]}
-      >
-        <Input.TextArea rows={4} placeholder={internal ? '仅管理员可见' : '补充说明或回复用户'} />
-      </Form.Item>
-      <Button type={internal ? 'default' : 'primary'} htmlType="submit" loading={loading}>
-        {internal ? '保存内部备注' : '发送回复'}
-      </Button>
-    </Form>
-  );
+  return <Form name={internal ? 'feedback-internal' : 'feedback-reply'} form={form} layout="vertical" onFinish={({ content }) => onSubmit(content.trim(), () => form.resetFields())}>
+    <Form.Item name="content" label={internal ? siteText("site.7ba0c5303a6e3f7d") : siteText("site.ead6c57a21373fa8")} rules={[{ required: true, whitespace: true, message: siteText("site.2329901e371ec734") }, { max: 2000, message: siteText("site.c253189f66b0cfd1") }]}>
+      <Input.TextArea rows={4} maxLength={2000} showCount placeholder={internal ? siteText("site.d44cb9da456cd582") : siteText("site.a5fcefa830acceca")} />
+    </Form.Item>
+    <Button type={internal ? 'default' : 'primary'} htmlType="submit" loading={loading} aria-label={internal ? siteText("site.9d8e8af79ec4a8c8") : siteText("site.e46fe66c598934f5")}>{internal ? siteText("site.9d8e8af79ec4a8c8") : siteText("site.e46fe66c598934f5")}</Button>
+  </Form>;
 }

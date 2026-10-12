@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Button, Card, Col, Row, Space, Statistic, Table, Typography } from 'antd';
@@ -44,25 +45,25 @@ export default function FeedbackManage() {
 
   const columns = [
     {
-      title: '反馈编号', dataIndex: 'feedback_no', width: 180,
+      title: siteText("site.b7d6d73a0d1928e4"), dataIndex: 'feedback_no', width: 180,
       render: (value, row) => <Button type="link" onClick={() => navigate(`/feedback/${row.id}`)}>{value}</Button>,
     },
-    { title: '标题', dataIndex: 'title', ellipsis: true },
-    { title: '提交人', dataIndex: 'user_name', width: 120, render: (value) => value || '已注销用户' },
-    { title: '类型', dataIndex: 'type', width: 110, render: (value) => feedbackTypes[value] || value },
-    { title: '优先级', dataIndex: 'priority', width: 90, render: (priority) => <FeedbackPriorityTag priority={priority} /> },
-    { title: '状态', dataIndex: 'status', width: 110, render: (status) => <FeedbackStatusTag status={status} /> },
-    { title: '更新时间', dataIndex: 'updated_at', width: 170, render: (value) => dayjs(value).format('YYYY-MM-DD HH:mm') },
+    { title: siteText("site.e6ddad8dc060069f"), dataIndex: 'title', ellipsis: true },
+    { title: siteText("site.c797b9a4ad4b5bec"), dataIndex: 'user_name', width: 120, render: (value) => value || siteText("site.fb5dbb580501df5a") },
+    { title: siteText("site.9a8666084521ffeb"), dataIndex: 'type', width: 110, render: (value) => feedbackTypes[value] || value },
+    { title: siteText("site.8d0584258b859c9b"), dataIndex: 'priority', width: 90, render: (priority) => <FeedbackPriorityTag priority={priority} /> },
+    { title: siteText("site.b3f6ac98eb95e253"), dataIndex: 'status', width: 110, render: (status) => <FeedbackStatusTag status={status} /> },
+    { title: siteText("site.9186b831077fcfb1"), dataIndex: 'updated_at', width: 170, render: (value) => dayjs(value).format('YYYY-MM-DD HH:mm') },
   ];
 
   return (
     <div>
-      <Title level={4}>反馈管理</Title>
+      <Title level={4}>{siteText("site.690a575714d70da2")}</Title>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card><Statistic title="待处理" value={stats.pending} prefix={<FileTextOutlined />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title="处理中" value={stats.processing} prefix={<SyncOutlined spin={stats.processing > 0} />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title="紧急未结" value={stats.urgent} valueStyle={{ color: stats.urgent ? '#cf1322' : undefined }} prefix={<ExclamationCircleOutlined />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title="累计反馈" value={stats.total} /></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.6d0ea54f674a045b")} value={stats.pending} prefix={<FileTextOutlined />} /></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.00977dc99662502b")} value={stats.processing} prefix={<SyncOutlined spin={stats.processing > 0} />} /></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.b70db3b1b1af7084")} value={stats.urgent} valueStyle={{ color: stats.urgent ? '#cf1322' : undefined }} prefix={<ExclamationCircleOutlined />} /></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.9451bdd1ddde9d0f")} value={stats.total} /></Card></Col>
       </Row>
 
       <Card>

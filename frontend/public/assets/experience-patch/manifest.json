@@ -1,0 +1,59 @@
+[
+  {
+    "id": "vr",
+    "source": "C:\\Users\\shr\\.codex\\generated_images\\01a10097-10df-70e1-828e-d8cb6c637bdd\\exec-00659cde-5d18-473c-ae9d-0c296299266f.png",
+    "master": "frontend\\public\\assets\\experience-patch\\vr-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha": [
+      0,
+      255
+    ],
+    "web": [
+      192,
+      384
+    ],
+    "method": "nearest-neighbor, lossless WebP; unchanged original master"
+  },
+  {
+    "id": "theory",
+    "source": "C:\\Users\\shr\\.codex\\generated_images\\01a10097-10df-70e1-828e-d8cb6c637bdd\\exec-26caedf7-c175-4708-9db2-076194648699.png",
+    "master": "frontend\\public\\assets\\experience-patch\\theory-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha": [
+      0,
+      255
+    ],
+    "web": [
+      192,
+      384
+    ],
+    "method": "nearest-neighbor, lossless WebP; unchanged original master"
+  },
+  {
+    "id": "experiment",
+    "source": "C:\\Users\\shr\\.codex\\generated_images\\01a10097-10df-70e1-828e-d8cb6c637bdd\\exec-4934315d-363f-4edf-9c1c-a5c88025ba0d.png",
+    "master": "frontend\\public\\assets\\experience-patch\\experiment-master.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "alpha": [
+      0,
+      255
+    ],
+    "web": [
+      192,
+      384
+    ],
+    "method": "nearest-neighbor, lossless WebP; unchanged original master"
+  }
+]

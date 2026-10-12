@@ -1,0 +1,43 @@
+{
+  "baseline": "6a4d7dd9647a6b6705119d28941d248658ec829c",
+  "changed": [
+    {
+      "id": "next3.award.view",
+      "before": "去我的主页看看",
+      "after": "去徽章墙看看"
+    },
+    {
+      "id": "next3.exchange.digital",
+      "before": "演示徽章已保存，可以在我的主页查看",
+      "after": "演示徽章已保存，可以在徽章墙查看"
+    }
+  ],
+  "added": [
+    "badgeRoom.entry",
+    "badgeRoom.title",
+    "badgeRoom.account",
+    "badgeRoom.back",
+    "badgeRoom.loading",
+    "badgeRoom.error",
+    "badgeRoom.earnedTitle",
+    "badgeRoom.lockedTitle",
+    "badgeRoom.earned",
+    "badgeRoom.locked",
+    "badgeRoom.noEarned",
+    "badgeRoom.allEarned",
+    "badgeRoom.noDefinitions",
+    "badgeRoom.missingHighlight",
+    "badgeRoom.close",
+    "badgeRoom.condition",
+    "badgeRoom.earnedCondition",
+    "badgeRoom.time",
+    "badgeRoom.source",
+    "badgeRoom.satisfied",
+    "badgeRoom.noDescription",
+    "badgeRoom.demo.title",
+    "badgeRoom.demo.scope",
+    "badgeRoom.demo.exchange",
+    "badgeRoom.demo.condition",
+    "badgeRoom.demo.shop"
+  ]
+}

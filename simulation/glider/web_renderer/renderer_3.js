@@ -404,7 +404,7 @@ uniform float u_time;
 
 #define zoom   0.800
 #define tile   0.850
-#define speed  0.010 
+#define speed  0.010
 
 #define brightness 0.0015
 #define darkmatter 0.300
@@ -416,7 +416,7 @@ vec3 sky_color(vec3 dir)
 {
   float time=u_time*0.0005;
 	vec3 from=vec3(1.,.5,0.5)+vec3(time*2.,time,-2.);
-	
+
 	//volumetric rendering
 	float s=0.1,fade=1.;
 	vec3 v=vec3(0.);
@@ -424,7 +424,7 @@ vec3 sky_color(vec3 dir)
 		vec3 p=from+s*dir*.5;
 		p = abs(vec3(tile)-mod(p,vec3(tile*2.))); // tiling fold
 		float pa,a=pa=0.;
-		for (int i=0; i<iterations; i++) { 
+		for (int i=0; i<iterations; i++) {
 			p=abs(p)/dot(p,p)-formuparam; // the magic formula
 			a+=abs(length(p)-pa); // absolute sum of average change
 			pa=length(p);
@@ -441,7 +441,7 @@ vec3 sky_color(vec3 dir)
 	v=mix(vec3(length(v)),v,saturation); //color adjust
     v=tanh(v*.01);
 	return v;
-	
+
 }
 
 void main() {

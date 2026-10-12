@@ -1,90 +1,63 @@
-import { useState } from 'react';
+import {copyText as siteText} from "../../content/copy";
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Alert, Form, Input, Button } from 'antd';
 import { useAuth } from '../../store/AuthContext';
 import { homeForRole } from '../../utils/roleNavigation';
-
-const { Title, Text } = Typography;
+import { getSessionNotice } from '../../utils/authSession';
+import { requestError } from '../../utils/requestError';
+import PasswordInput from '../../components/PasswordInput';
+import StudentTheme from '../../student/visual/StudentTheme';
+import PixelIcon from '../../student/visual/PixelIcon';
+import { PixelPanel, PixelButton } from '../../student/visual/PixelUI';
+import SceneArt from '../../student/space/SceneArt';
+import {PLATFORM_NAME} from '../../student/space/identity';
+import '../../student/visual/pixel-service.css';
+import {copyText} from '../../content/copy';
+import CopyBlock from '../../content/CopyBlock';
+import {displayText} from '../../content/displayText';
 
 export default function Login() {
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const pending = useRef(false);
+  const [viewport,setViewport]=useState(()=>({height:window.visualViewport?.height||innerHeight,top:window.visualViewport?.offsetTop||0}));
+  useEffect(()=>{
+    const update=()=>setViewport({height:window.visualViewport?.height||innerHeight,top:window.visualViewport?.offsetTop||0});
+    window.visualViewport?.addEventListener('resize',update);window.visualViewport?.addEventListener('scroll',update);window.addEventListener('resize',update);
+    return()=>{window.visualViewport?.removeEventListener('resize',update);window.visualViewport?.removeEventListener('scroll',update);window.removeEventListener('resize',update);};
+  },[]);
+  const { login, authError, retryRestore, loading } = useAuth();
   const navigate = useNavigate();
-
+  const notice = error || authError || getSessionNotice();
   const onFinish = async (values) => {
-    setLoading(true);
+    if (pending.current) return;
+    pending.current = true; setBusy(true); setError('');
     try {
-      const user = await login(values.username, values.password);
-      message.success('登录成功');
-      // 若管理员重置过密码，强制先修改密码
-      navigate(user?.force_reset_password ? '/change-password' : homeForRole(user?.role), { replace: true });
-    } catch {
-      // 错误已在拦截器中处理
-    } finally {
-      setLoading(false);
-    }
+      const user = await login(values.username.trim(), values.password);
+      navigate(user.force_reset_password ? '/change-password' : homeForRole(user.role), { replace: true });
+    } catch (err) { setError(requestError(err, { action: siteText("site.bef9ac984635f9f9") })); }
+    finally { pending.current = false; setBusy(false); }
   };
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        position: 'absolute',
-        inset: -20,
-        background: "url('/images/beihang_building.jpg') center/cover no-repeat",
-        filter: 'blur(8px) brightness(0.35) saturate(1.2)',
-        zIndex: 0
-      }} />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(135deg, rgba(13,21,38,0.4) 0%, rgba(26,42,74,0.3) 50%, rgba(26,69,128,0.3) 100%)',
-        zIndex: 0
-      }} />
-      <Card
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          width: 480,
-          maxWidth: '95vw',
-          borderRadius: 12,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-        }}
-        styles={{ body: { padding: 40 } }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img
-            src="/images/beihang_logo_black.png"
-            alt="北京航空航天大学"
-            style={{ height: 52, width: 'auto', opacity: 0.9, marginBottom: 12 }}
-          />
-          <Title level={2} style={{ marginBottom: 4 }}>PBL 科创育人平台</Title>
-          <Text type="secondary">大中小贯通 · 项目式学习数字化平台</Text>
-        </div>
-        <Form onFinish={onFinish} size="large">
-          <Form.Item name="username" rules={[{ required: true, whitespace: true, message: '请输入账号' }]}>
-            <Input prefix={<UserOutlined />} placeholder="账号" autoComplete="username" />
+  return <StudentTheme><main className="voyage-login space-login patch-login" style={{'--login-height':viewport.height+'px','--login-top':viewport.top+'px'}}>
+    <SceneArt key="patch-login" name="login-desktop" mobileName="login-mobile" patch priority className="patch-login-scene"/>
+    <header className="login-brand"><PixelIcon name="map" size={40} /><div><strong>{PLATFORM_NAME}</strong><span>{copyText('patch.login.account')}</span></div></header>
+    <div className="login-layout">
+      <PixelPanel className="login-panel">
+        <span className="service-eyebrow">{copyText('patch.login.welcome')}</span><h1>{copyText('patch.login.title')}</h1><CopyBlock id="patch.login.hint" as="p" className="service-muted"/>
+        {notice && <Alert role="alert" type="warning" showIcon title={displayText(notice)} />}
+        {authError && <Button onClick={retryRestore} loading={loading}>{copyText('patch.login.reload')}</Button>}
+        <Form layout="vertical" onFinish={onFinish} size="large" requiredMark="optional">
+          <Form.Item name="username" label={copyText('patch.login.username')} rules={[{ required: true, whitespace: true, message: copyText('patch.login.needUsername') }]}>
+            <Input autoComplete="username" placeholder={copyText('patch.login.username')} />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" autoComplete="current-password" />
+          <Form.Item name="password" label={copyText('patch.login.password')} rules={[{ required: true, message: copyText('patch.login.needPassword') }]}>
+            <PasswordInput autoComplete="current-password" placeholder={copyText('patch.login.password')} />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              登录
-            </Button>
-          </Form.Item>
+          <PixelButton type="primary" htmlType="submit" loading={busy} block>{copyText('patch.login.submit')}</PixelButton>
         </Form>
-        <div style={{ textAlign: 'center' }}>
-          <Text type="secondary">还没有账号？请联系管理员创建。</Text>
-        </div>
-      </Card>
-    </div>
-  );
+        <CopyBlock id="patch.login.note" as="p" className="login-account-note"/>
+      </PixelPanel>
+    </div><footer className="login-footer">{PLATFORM_NAME}<CopyBlock id="patch.login.footer" as="span"/></footer>
+  </main></StudentTheme>;
 }

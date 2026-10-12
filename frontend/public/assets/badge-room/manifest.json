@@ -1,0 +1,28 @@
+{
+  "generatedBy": "built-in image_gen",
+  "master": "room-master.png",
+  "size": [
+    1536,
+    1024
+  ],
+  "web": [
+    {
+      "file": "room-768.webp",
+      "size": [
+        768,
+        512
+      ]
+    },
+    {
+      "file": "room-1536.webp",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "derivative": "Pillow nearest-neighbor size-only, lossless WebP. No badges/text/interactive areas baked into scene.",
+  "prompt": "Use case: stylized-concept. Asset type: original background scenery for an interactive student badge exhibition room in a Beihang aerospace learning platform. Generate a wide 3:2 image. Coarse authentic retro 16-bit pixel game background, deliberately low resolution design on an approximately 320x216 pixel grid enlarged with nearest neighbor, hard square pixels, no smooth gradient, no anti aliasing, no painterly texture. Scene: calm campus aviation museum exhibit hall, straight-on view of a large empty navy-blue display wall with subtle rectangular wall panels, pale ivory structural columns at the left and right edges, warm small ceiling spotlights, tiny blue windows and a restrained aircraft silhouette decorative relief on the far upper edge; tiled museum floor confined to the lowest 12 percent. Main center 75 percent of the scene is uninterrupted flat desaturated royal navy wall so real interactive badge buttons can be placed on top in CSS. Consistent cream/navy/slate-blue palette with sparse muted gold details. Bright legible museum atmosphere, substantial visible wall, clean pixel architecture, symmetrical room perspective. No stars, no space nebula, no people, no robots, no rendered badges, no medals, no display icons, no locked slots, no UI, no words, no signage, no letters, no numbers, no logos, no watermark. Background scene ONLY; all badge images, titles, locks and controls will be separate webpage elements. Not a complete website screenshot.",
+  "revision": "Edit this museum wall background only to make its pixel art MUCH COARSER and strictly flat retro-game styled. Preserve the entire composition and empty central wall, all architecture, blank space and no words or badges. Render the entire image as if hand-drawn on a 256x170 sprite grid and scaled up with hard nearest-neighbor pixels, each pixel a visibly large square. Reduce palette to approximately 24 discrete navy, slate, cream and gold colors. Eliminate smooth lighting gradients, blur, soft reflections and all anti-aliased hairline edges. Spotlights must have stair-step hard bands, wall should be mostly a flat navy color with only a few stepped lighting bands. Aircraft silhouette and pillars must have chunky staircase edges. No extra objects or people, no badges, no UI, no text. This is a reusable scene asset behind separately rendered interactive elements.",
+  "selected": "C:/Users/shr/.codex/generated_images/01a10097-10df-70e1-828e-d8cb6c637bdd/exec-120d1948-4d41-4707-b344-77cb2fe6ddab.png"
+}

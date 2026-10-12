@@ -1,51 +1,20 @@
-import { Badge, Flex, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
+import {copyText as siteText} from "../../content/copy";
+import { Tag } from 'antd';
 import { notificationCategories } from '../../constants/notification';
+import { formatBeijingTime } from '../../utils/date';
 import NotificationLevelTag from './NotificationLevelTag';
+import {useAuth} from '../../store/AuthContext';
+import {displayText} from '../../content/displayText';
 
-const { Text, Paragraph } = Typography;
-
-export default function NotificationItem({ notification, compact = false, onClick }) {
-  const category = notificationCategories[notification.category]
-    || { label: notification.category || '其他', color: 'default' };
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onClick?.(notification)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') onClick?.(notification);
-      }}
-      style={{
-        cursor: onClick ? 'pointer' : 'default',
-        padding: compact ? '10px 12px' : '14px 16px',
-        background: notification.is_read ? '#fff' : '#f6faff',
-        borderBottom: '1px solid #f0f0f0',
-      }}
-    >
-      <Flex justify="space-between" align="flex-start" gap={12}>
-        <Flex vertical gap={4} style={{ minWidth: 0 }}>
-          <Flex align="center" gap={6} wrap>
-            {!notification.is_read && <Badge status="processing" />}
-            <Text strong={!notification.is_read} ellipsis>{notification.title}</Text>
-          </Flex>
-          <Paragraph
-            type="secondary"
-            ellipsis={{ rows: compact ? 1 : 2 }}
-            style={{ margin: 0 }}
-          >
-            {notification.summary || notification.content}
-          </Paragraph>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {dayjs(notification.received_at || notification.published_at).format('YYYY-MM-DD HH:mm')}
-          </Text>
-        </Flex>
-        <Flex vertical align="flex-end" gap={4}>
-          <Tag color={category.color} style={{ marginInlineEnd: 0 }}>{category.label}</Tag>
-          {!compact && <NotificationLevelTag level={notification.level} />}
-        </Flex>
-      </Flex>
-    </div>
-  );
+export default function NotificationItem({ notification, compact = false, onClick, disabled = false }) {
+  const {user}=useAuth();const text=value=>user?.role==='student'?displayText(value):value;
+  const category = notificationCategories[notification.category] || { label: notification.category || siteText("site.998f1e8c9bee2033") };
+  return <button type="button" disabled={disabled} className={`notification-row ${notification.is_read ? 'is-read' : 'is-unread'} ${compact ? 'is-compact' : ''}`} onClick={() => onClick?.(notification)}>
+    <span className="notification-row-marker" aria-hidden="true">{notification.is_read ? '✓' : '•'}</span>
+    <span className="notification-row-main">
+      <span className="notification-row-meta"><Tag>{category.label}</Tag>{!compact && <NotificationLevelTag level={notification.level} />}<span>{notification.is_read ? siteText("site.c28b3f1aabe9b241") : siteText("site.749304003831d3ff")}</span></span>
+      <strong>{text(notification.title)}</strong><span className="notification-summary">{text(notification.summary || notification.content)}</span>
+      <time>{formatBeijingTime(notification.received_at || notification.published_at)}</time>
+    </span><span aria-hidden="true" className="notification-arrow">↗</span>
+  </button>;
 }

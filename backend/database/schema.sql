@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS courses (
   total_hours INTEGER,
   materials_needed TEXT,
   cover_image TEXT,
+  presentation_theme TEXT NOT NULL DEFAULT 'campus' CHECK(presentation_theme IN ('campus','voyage')),
   status TEXT DEFAULT 'draft' CHECK(status IN ('draft','published','archived')),
   created_by INTEGER NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -136,12 +137,18 @@ CREATE TABLE IF NOT EXISTS courses (
 
 -- 6. 课时
 CREATE TABLE IF NOT EXISTS lessons (
+  review_content TEXT,
+  report_guidance TEXT,
+  experiment_guidance TEXT,
+  article_blocks TEXT NOT NULL DEFAULT '[]',
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   course_id INTEGER NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
   sort_order INTEGER DEFAULT 0,
   duration INTEGER,
+  chapter_id INTEGER REFERENCES course_chapters(id) ON DELETE SET NULL,
+  teaching_tip TEXT,
   start_at TEXT,
   end_at TEXT,
   location TEXT,
@@ -185,6 +192,7 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
 
 -- 9. 课程资源
 CREATE TABLE IF NOT EXISTS resources (
+  display_order INTEGER NOT NULL DEFAULT 0,
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   course_id INTEGER NOT NULL,
   lesson_id INTEGER,
@@ -194,6 +202,10 @@ CREATE TABLE IF NOT EXISTS resources (
   file_path TEXT,
   file_size INTEGER,
   upload_by INTEGER NOT NULL,
+  file_name TEXT,
+  file_type TEXT,
+  upload_token TEXT,
+  upload_digest TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
   FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE SET NULL,
@@ -511,6 +523,10 @@ CREATE TABLE IF NOT EXISTS reflections (
   solution TEXT,
   improvement TEXT,
   new_question TEXT,
+  reflection_version INTEGER NOT NULL DEFAULT 1 CHECK(reflection_version IN (1,2)),
+  entry_note TEXT,
+  together_note TEXT,
+  extra_note TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL,
@@ -810,6 +826,118 @@ CREATE TABLE IF NOT EXISTS ai_usage (
   FOREIGN KEY(course_id) REFERENCES courses(id) ON DELETE SET NULL
 );
 CREATE INDEX IF NOT EXISTS idx_ai_usage_day_user ON ai_usage(request_day, user_id);
+
+-- 016: 头像为本人当前课程偏好，不参与学习判定。
+CREATE TABLE IF NOT EXISTS course_avatar_preferences (
+  student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  avatar_id TEXT NOT NULL CHECK (avatar_id IN ('navigator','pathfinder','maker','decoder','collaborator','guardian')),
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (student_id, course_id)
+);
+-- 017: 真实课程内容维护，不改变学习历史。
+CREATE TABLE IF NOT EXISTS course_chapters (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS course_experiments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  experiment_id TEXT NOT NULL CHECK(experiment_id='glider'),
+  lesson_id INTEGER REFERENCES lessons(id) ON DELETE CASCADE,
+  stage INTEGER CHECK(stage BETWEEN 0 AND 3),
+  card_id INTEGER REFERENCES knowledge_cards(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 1 CHECK(enabled IN (0,1))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS course_experiments_source ON course_experiments(course_id,experiment_id,COALESCE(lesson_id,0),COALESCE(stage,-1),COALESCE(card_id,0));
+CREATE TABLE IF NOT EXISTS course_covers (
+  course_id INTEGER PRIMARY KEY REFERENCES courses(id) ON DELETE CASCADE,
+  file_path TEXT NOT NULL,
+  file_name TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS resources_upload_token ON resources(course_id,upload_by,upload_token) WHERE upload_token IS NOT NULL;
+
+-- Additive metadata only. No progress, enrollment or teaching seed changes.
+ALTER TABLE users ADD COLUMN avatar_preset TEXT CHECK(avatar_preset IN ('pilot','glider','ginkgo','robot','telescope','rocket','book','observatory'));
+ALTER TABLE courses ADD COLUMN map_mode TEXT NOT NULL DEFAULT 'chapters' CHECK(map_mode IN ('chapters','plan'));
+ALTER TABLE lessons ADD COLUMN presentation_type TEXT NOT NULL DEFAULT 'learning' CHECK(presentation_type IN ('learning','visit','theory','experiment'));
+ALTER TABLE lessons ADD COLUMN content_state TEXT NOT NULL DEFAULT 'ready' CHECK(content_state IN ('ready','preparing'));
+ALTER TABLE lessons ADD COLUMN article_url TEXT;
+ALTER TABLE lessons ADD COLUMN article_title TEXT;
+ALTER TABLE lessons ADD COLUMN moments_note TEXT;
+CREATE TABLE course_plan_nodes (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+ position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 100),
+ lesson_id INTEGER REFERENCES lessons(id) ON DELETE SET NULL,
+ state TEXT NOT NULL DEFAULT 'preparing' CHECK(state IN ('linked','preparing')),
+ UNIQUE(course_id,position), UNIQUE(course_id,lesson_id),
+ CHECK((state='linked' AND lesson_id IS NOT NULL) OR (state='preparing' AND lesson_id IS NULL))
+);
+CREATE TRIGGER course_plan_detach_lesson BEFORE DELETE ON lessons
+BEGIN
+ UPDATE course_plan_nodes SET lesson_id=NULL,state='preparing' WHERE lesson_id=OLD.id;
+END;
+
+-- Additive, local teaching environment. No teaching completion or coin ledger seed.
+CREATE TABLE lesson_badge_definitions (
+ lesson_id INTEGER PRIMARY KEY REFERENCES lessons(id) ON DELETE CASCADE,
+ name TEXT NOT NULL, art_id TEXT NOT NULL CHECK(art_id IN ('vr','theory','glider')),
+ description TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO lesson_badge_definitions(lesson_id,name,art_id,description)
+ SELECT l.id, CASE l.presentation_type WHEN 'visit' THEN 'VR参观' WHEN 'theory' THEN '理论探索' ELSE '滑翔机实践' END,
+ CASE l.presentation_type WHEN 'visit' THEN 'vr' WHEN 'theory' THEN 'theory' ELSE 'glider' END, '完成本课时的真实学习要求后获得'
+ FROM lessons l JOIN course_plan_nodes p ON p.lesson_id=l.id
+ WHERE p.position BETWEEN 1 AND 3 AND l.presentation_type IN ('visit','theory','experiment');
+CREATE TABLE student_badge_grants (
+ id TEXT PRIMARY KEY, student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ lesson_id INTEGER NOT NULL, course_id INTEGER NOT NULL,
+ name TEXT NOT NULL, art_id TEXT NOT NULL, description TEXT NOT NULL,
+ lesson_title TEXT NOT NULL, course_title TEXT NOT NULL, criterion_snapshot TEXT NOT NULL,
+ earned_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, shown_at TEXT,
+ UNIQUE(student_id,lesson_id)
+);
+CREATE TABLE demo_exchange_events (
+ id TEXT PRIMARY KEY, student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ operation_id TEXT NOT NULL, gift_id TEXT NOT NULL, gift_name TEXT NOT NULL,
+ gift_type TEXT NOT NULL CHECK(gift_type IN ('physical','badge')), art_id TEXT,
+ created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, notification_id INTEGER REFERENCES notifications(id),
+ UNIQUE(student_id,operation_id)
+);
+CREATE INDEX badge_grant_owner ON student_badge_grants(student_id,earned_at);
+CREATE INDEX demo_exchange_owner ON demo_exchange_events(student_id,created_at);
+
+-- Additive account ledger. No import of demo balances or historical guesses.
+CREATE TABLE student_coin_ledger (
+ sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+ id TEXT NOT NULL UNIQUE,
+ student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ reward_type TEXT NOT NULL CHECK(reward_type IN ('lesson','checkin')),
+ amount INTEGER NOT NULL CHECK(typeof(amount)='integer' AND amount BETWEEN 0 AND 100),
+ occurred_at TEXT NOT NULL, beijing_date TEXT NOT NULL,
+ rule_version TEXT NOT NULL,
+ lesson_id INTEGER, course_id INTEGER, report_id INTEGER, report_version INTEGER, report_score INTEGER,
+ lesson_title TEXT, course_title TEXT, checkin_date TEXT,
+ snapshot_json TEXT NOT NULL,
+ CHECK((reward_type='lesson' AND lesson_id IS NOT NULL AND report_id IS NOT NULL AND report_version IS NOT NULL AND typeof(report_score)='integer' AND report_score BETWEEN 0 AND 100 AND amount=report_score AND checkin_date IS NULL) OR (reward_type='checkin' AND checkin_date IS NOT NULL AND lesson_id IS NULL AND amount BETWEEN 5 AND 10))
+);
+CREATE UNIQUE INDEX coin_lesson_once ON student_coin_ledger(student_id,lesson_id) WHERE reward_type='lesson';
+CREATE UNIQUE INDEX coin_day_once ON student_coin_ledger(student_id,checkin_date) WHERE reward_type='checkin';
+CREATE INDEX coin_owner_sequence ON student_coin_ledger(student_id,sequence DESC);
+CREATE TABLE student_coin_checkins (
+ student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ checkin_date TEXT NOT NULL,
+ streak INTEGER NOT NULL CHECK(typeof(streak)='integer' AND streak>=1),
+ amount INTEGER NOT NULL CHECK(typeof(amount)='integer' AND amount=min(4+streak,10)),
+ ledger_id TEXT NOT NULL UNIQUE REFERENCES student_coin_ledger(id),
+ PRIMARY KEY(student_id,checkin_date)
+);
 
 -- 020：个体迁校审计、历史补学报告替代、通知公平重试。
 CREATE TABLE IF NOT EXISTS student_school_transfers (

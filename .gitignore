@@ -23,9 +23,102 @@ simulation/glider/output/
 simulation/glider/imgui.ini
 
 # 本地方案/规划文档：留在本地评审，不入库（docs/ 内既有已跟踪文件不受影响）
-docs/*
+docs/
+
+# PBL redesign local data, builds and review outputs
+.vscode/
+node_modules/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.db
+*.db-wal
+*.db-shm
+backend/uploads/
+backend/private_uploads/
+uploads/
+private_uploads/
+__pycache__/
+.venv/
+dist/
+build/
+
+# 滑翔机模拟：只跟踪引擎源码，忽略第三方 novaPhy 交付包与本地产物
+simulation/novaphy-0.4.0-cpu-cp311-linux-x86_64/
+simulation/glider/output/
+simulation/glider/imgui.ini
+
+# 本地方案/规划文档：留在本地评审，不入库（docs/ 内既有已跟踪文件不受影响）
+test-results/
+*.log
+playwright-report/
+
+# Official font download/extraction scratch; shipped font/license are tracked.
+/tmp/chill-reunion/
+
+# Persistent local teaching data and private backups
+.local/
+
+# Current authoring verification is local-only: no teaching data or test output.
+docs/lesson-authoring/browser/
+docs/lesson-authoring/regression/
+docs/lesson-authoring/copy-browser/
+docs/lesson-authoring/actual-browser.json
+docs/lesson-authoring/actual-import.json
+docs/lesson-authoring/data-protection.json
+docs/lesson-authoring/migration-import-restore.json
+docs/lesson-authoring/preflight.json
+
+# A disposable regression run used the legacy test's default output name.
+# Historical tracked deliveries remain tracked; new evidence lives in experience-patch.
+docs/next-version/step-02/browser-first/
+
+
+# Review artifacts are generated locally, not source material
+/docs/**/screenshots*/
+/docs/**/browser*/
+/docs/**/regression/
+/docs/**/evidence*/
+/docs/**/copy-browser*/
+/docs/**/preview-screenshots/
+# Source review files and integration handoff
+!docs/
+/docs/**
+!docs/**/
+!docs/pbl-redesign/**
+!docs/**/copy-review/*.html
+!docs/**/copy-review/*.json
+!docs/**/copy-review/*.md
+!docs/**/copy-review.html
+!docs/**/copy-baseline.json
+!docs/**/copy-delta.json
+!docs/**/copy-guide.md
+!docs/**/copy-edit-guide.md
+!docs/**/teaching-snapshots.json
+!docs/lesson-authoring/*.html
+!docs/lesson-authoring/spec.md
+!docs/lesson-authoring/patch/verification.md
+!docs/real-coins/step-02/spec.md
+!docs/real-coins/step-02/verification.md
+/docs/**/screenshots*/
+/docs/**/browser*/
+/docs/**/regression/
+/docs/**/evidence*/
+/docs/**/copy-browser*/
+/docs/**/preview-screenshots/
+
+!docs/real-redemption/*.md
+!docs/real-redemption/*.html
+# Private redemption verification files stay local.
+/docs/real-redemption/evidence/
+
+# Upstream maintenance documentation and local tools
 !docs/部署与恢复.md
 !docs/本轮整改验收记录_2026-10-08.md
-
-# 本地工具目录：不入库
 .trae/
+# Merge acceptance source documentation; private evidence stays ignored
+!docs/upstream-integration/*.md
+!docs/upstream-integration/*.html
+/docs/upstream-integration/evidence/

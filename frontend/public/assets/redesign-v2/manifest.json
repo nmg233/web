@@ -1,0 +1,469 @@
+{
+  "campus": {
+    "master": "masters/campus.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "source": "exec-d8c3eadf-c8b4-4a2a-9099-a078f0381cf3.png",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/web/campus-480.webp",
+        "bytes": 197532
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/web/campus-960.webp",
+        "bytes": 604896
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/web/campus-1536.webp",
+        "bytes": 1326468
+      }
+    ],
+    "loading": "ship eager small; active scene responsive only; other course scenes lazy",
+    "fallback": "CSS solid surface; text and controls remain live HTML",
+    "purpose": "平台登录主景、无课程空态、通用课程卡及校园侧栏",
+    "prompt": "Image 1 is the CAMPUS CONTENT TARGET; image 2 is PIXEL GRANULARITY AND GAME-ART STYLE REFERENCE ONLY. Redraw image 1 so its ENTIRE scene uses equally LARGE obvious pixel clusters as image 2. Do not include any space content from image 2. This is NOT high definition illustration. Native resolution feel 192x128 pixels upscaled 8x with nearest-neighbor. Large consistent square cells, stairstep curves, dark-blue broken pixel contours, 24-color indexed palette, 3 flat shades per material. No smooth gradients, antialiasing, soft shadows, noise or tiny decorative details. Retain pale six-storey central-left campus building with blue windows and brick red entry canopy, right modern research building, small stone bridge and blue pond, golden ginkgos and green trees, open stone plaza and cream block clouds in blue sky. Simplify windows to tiny 2x3 LOGICAL pixel patterns, trees to big rounded staircase silhouettes containing a handful of solid gold/orange/olive shapes. NO individually painted leaves. Pond reflection only large blue/gold horizontal pixel strips. Building walls completely flat ivory with simple slate shadow blocks, not masonry texture. All forms charming and readable like 16-bit game tilesets. Be very visibly pixelated even when viewed as a small thumbnail. Campus scene, full bleed landscape, no text, logo, UI or watermark.",
+    "origin": "本轮内置 imagegen 生成；第二版根据用户“不够像素风”的反馈重画。不是照片滤镜或页面截图。",
+    "reference": "北航照片联系表的人工作图分析、自己的校园初稿与自己生成的粗像素宇宙风格母版",
+    "resize": "WebP 无损编码；最近邻缩放；CSS image-rendering:pixelated；PNG 母版保留，不声称模型输出严格量化为固定色数",
+    "crop": "object-fit:cover；文字、编号、路线不烘焙进素材",
+    "license": "AI 生成素材供当前项目使用；不主张排他版权；参考原件权利仍属其权利人",
+    "sha256": "d4f60098a13a6b6321fa351e0fda7c16856666206b0ed518f65c89887ea24463"
+  },
+  "cosmos": {
+    "master": "masters/cosmos.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "source": "exec-71e06867-c30d-419d-9ba2-e001c0e04437.png",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/web/cosmos-480.webp",
+        "bytes": 181856
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/web/cosmos-960.webp",
+        "bytes": 551622
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/web/cosmos-1536.webp",
+        "bytes": 1189364
+      }
+    ],
+    "loading": "ship eager small; active scene responsive only; other course scenes lazy",
+    "fallback": "CSS solid surface; text and controls remain live HTML",
+    "purpose": "星海远航测试课程封面、桌面和平板宇宙地图",
+    "prompt": "Completely REDRAW the attached space scene as chunky genuine LOW-RES PIXEL ART, like a carefully composed 1992 16-bit game world. Keep only the subject layout, DISCARD the realistic rendering. The ENTIRE canvas should visibly look like a 192x128-pixel original blown up 8 TIMES by nearest neighbor. Big square color cells, clear staircase curves, each planet edge goes in obvious 8px steps. Every object uses the exact same chunky square pixel grid. 24-color indexed palette. Only three flat shades per surface; no smooth gradients or soft light at all. Strong dark navy shapes, royal blue, periwinkle, pale cyan, ivory and ochre. Large upper-left blue planet with continents in a few big blue clusters; small ringed ochre planet upper right. The lower left lunar base is a simple small dome, landing pad and single block of gold solar panels; middle orbital station is a simple circular hub and four rectangular arrays; lower-right ochre asteroid has one dome and a big simple satellite dish. Much simplified surfaces and game-sprite architecture, no microscopic texture. Upper-middle background a few broad stair-stepped blue nebula strips and approximately 20 simple square white star pixels; largely calm empty navy spaces for later live HTML controls. Tiny chunky ship sprite mid upper center. More SNES TILESET, much less digital concept art. Entirely square flat pixel clusters, no antialiasing, no bloom, no realistic lighting, no noise, no fine stippling, no hyperdetail, no metallic microtexture, no vector curves. No text, logo, UI, route paths, controls, numbered markers or watermark. Full-bleed landscape 3:2.",
+    "origin": "本轮内置 imagegen 生成；第二版根据用户“不够像素风”的反馈重画。不是照片滤镜或页面截图。",
+    "reference": "用户 02/03/04 图仅参考构图，自己的前版母版用于布局和统一像素尺度；未复制参考图中的 UI、文案或角色",
+    "resize": "WebP 无损编码；最近邻缩放；CSS image-rendering:pixelated；PNG 母版保留，不声称模型输出严格量化为固定色数",
+    "crop": "object-fit:cover；文字、编号、路线不烘焙进素材",
+    "license": "AI 生成素材供当前项目使用；不主张排他版权；参考原件权利仍属其权利人",
+    "sha256": "cc4e89f5c64221f3fc44f5431fc9f3f6433895976de215a00cf48a178dbae3d9"
+  },
+  "vertical": {
+    "master": "masters/vertical.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGB",
+    "source": "exec-a973932f-8fee-4767-837a-63553be47637.png",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/web/vertical-480.webp",
+        "bytes": 353432
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/web/vertical-960.webp",
+        "bytes": 1066374
+      },
+      {
+        "width": 1024,
+        "path": "/assets/redesign-v2/web/vertical-1024.webp",
+        "bytes": 1187080
+      }
+    ],
+    "loading": "ship eager small; active scene responsive only; other course scenes lazy",
+    "fallback": "CSS solid surface; text and controls remain live HTML",
+    "purpose": "手机独立纵向宇宙构图、课程侧栏场景层",
+    "prompt": "REDRAW first image's vertical composition, using second image as the STRICT PIXEL STYLE and COLOR REFERENCE. Replace all fine realistic illustration with CHUNKY large square-pixel 16-bit game art, native 128x192 logical canvas upscaled 8x nearest neighbor. Every object sits on same visible square grid. 24 indexed colors, 3 flat shades per material, simple stairstep silhouettes, no anti-aliasing, gradients, bloom, fine textures, detailed rendering or smooth curves. This is a vertical mobile game environment: blue planet and small white ship at top right; simplified white lunar dome base on left at upper middle; compact simple orbital hub with four ochre solar arrays on right middle; ochre rocky outpost with big simple white satellite dish at lower left; dark navy empty-space corridor down center for real HTML controls later. Sparse single-square stars, a few broad stepped cobalt nebula shapes. Slim dark-blue foreground spaceship window edge at far left and bottom corners only. Hard rectangular clusters and large pixels, easily recognizable even at thumbnail size. NO text, logos, UI, lines, node markers, control panels, numbers or watermark. Portrait 2:3.",
+    "origin": "本轮内置 imagegen 生成；第二版根据用户“不够像素风”的反馈重画。不是照片滤镜或页面截图。",
+    "reference": "用户 02/03/04 图仅参考构图，自己的前版母版用于布局和统一像素尺度；未复制参考图中的 UI、文案或角色",
+    "resize": "WebP 无损编码；最近邻缩放；CSS image-rendering:pixelated；PNG 母版保留，不声称模型输出严格量化为固定色数",
+    "crop": "手机使用独立竖版构图，object-fit:cover、70% center；侧栏居中/底部裁切",
+    "license": "AI 生成素材供当前项目使用；不主张排他版权；参考原件权利仍属其权利人",
+    "sha256": "f34b83cb7d751b1a4457ac0f8b26ee646bb20a039390f2fd71e5e37ddf17144b"
+  },
+  "ship": {
+    "master": "masters/ship.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "source": "exec-bd629b64-7795-40a8-b912-658f1135db02.png",
+    "variants": [
+      {
+        "width": 192,
+        "path": "/assets/redesign-v2/web/ship-192.webp",
+        "bytes": 14748
+      },
+      {
+        "width": 384,
+        "path": "/assets/redesign-v2/web/ship-384.webp",
+        "bytes": 44754
+      }
+    ],
+    "loading": "ship eager small; active scene responsive only; other course scenes lazy",
+    "fallback": "CSS solid surface; text and controls remain live HTML",
+    "purpose": "星海远航课程专用飞船标识（不作为平台 Logo）",
+    "prompt": "Redraw this spaceship as a very simple chunky GAME SPRITE with TRUE TRANSPARENT BACKGROUND. Native sprite only 48x48 logical pixels shown enlarged with nearest-neighbor, large perfect square pixels, uniform grid, sharp stepped outline. Strong recognizable silhouette at 48 CSS pixels. Retain compact white and navy exploratory spaceship pointed upper right, two short swept wings, small gold cockpit, twin cyan engine squares. Simplify radically: 12 flat solid colors maximum, only 3 flat shades per material. No tiny vents, no realistic metal reflections, no gradients, no glow, no blur, no antialiasing, no shadow outside sprite, no thin vector outlines. All diagonals have obvious large square steps. Authentic 16-bit game item sprite, NOT pixel-textured 3D render. Centered isolated object with transparent clear padding. No text, badge, logo, star, planet, frame or checkerboard.",
+    "origin": "本轮内置 imagegen 生成；第二版根据用户“不够像素风”的反馈重画。不是照片滤镜或页面截图。",
+    "reference": "自己的飞船初稿，保留白/海军蓝、金色驾驶舱、青色双引擎轮廓",
+    "resize": "WebP 无损编码；最近邻缩放；CSS image-rendering:pixelated；PNG 母版保留，不声称模型输出严格量化为固定色数",
+    "crop": "object-fit:cover；文字、编号、路线不烘焙进素材",
+    "license": "AI 生成素材供当前项目使用；不主张排他版权；参考原件权利仍属其权利人",
+    "sha256": "62c54ea6e54176d5bf7f5a7f86aadf4966f084d75029674b63c950cb66e99bd4"
+  },
+  "patch-login-mobile": {
+    "master": "visual-patch/masters/login-mobile.png",
+    "size": [
+      941,
+      1672
+    ],
+    "mode": "RGB",
+    "sha256": "76ff38a90e9c1706938d25bc3d6d8d183f11cafc12df151d856669a8977318b2",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/login-mobile-480.webp",
+        "bytes": 489538,
+        "sha256": "6e6a105efc33cbaff16ad636503b45960d4156d402022d0860e1ea1da0e2aff7"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/login-mobile-960.webp",
+        "bytes": 1532282,
+        "sha256": "706899dbb870258a20c0968ce4d68108fb068573ff194e56bfafaa59c6333d96"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/login-mobile-1536.webp",
+        "bytes": 1739604,
+        "sha256": "822d565a749e3a36789a7f475cbb0d8d4c8b2092c9b378e348c59fe21e783627"
+      }
+    ],
+    "usage": "手机登录：独立竖构图，通过 picture 切换",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-campus-select": {
+    "master": "visual-patch/masters/campus-select.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "2fdcf46eaa4668f607f0d853c814c4c7b225f59c79a94fb41b66b53e814480d5",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-select-480.webp",
+        "bytes": 222820,
+        "sha256": "37ac63cda84ba4ee807603a1bea4485ec32c35728bcf75633d2110988bd4df8b"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-select-960.webp",
+        "bytes": 738798,
+        "sha256": "773a70f7da54fdfe0fe10addbb10289b0c311de11efd6f9979768daa47b12c56"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-select-1536.webp",
+        "bytes": 1647088,
+        "sha256": "aeed6674930c1134917f57947e18c43e5a24b3a8b9cdc7670125cb3322271bac"
+      }
+    ],
+    "usage": "平台课程选择与学生服务页底层",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-campus-personal": {
+    "master": "visual-patch/masters/campus-personal.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "f964f7ea1a2701bfc1bfca0ce09222cae561d6b8bad1c04aed7c073a25af51b2",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-personal-480.webp",
+        "bytes": 239756,
+        "sha256": "7670bbaaeaed88379914611dfd0ac78817d78b07d220ee3be84e13007893ad8d"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-personal-960.webp",
+        "bytes": 787376,
+        "sha256": "58cb376b9af68dc376d4c5876b7b2803c8315931f115f74a4e419517493bbfe3"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/campus-personal-1536.webp",
+        "bytes": 1747116,
+        "sha256": "ab219268f897fb92f0ee73dc62f52f6a177d9ff18bfdfc90b73a055c96ce3229"
+      }
+    ],
+    "usage": "我的：账号、娱乐运势与原本地奖励",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-login-desktop": {
+    "master": "visual-patch/masters/login-desktop.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "242772bd21e07b10e43e8dc3af7da9daccbf87b52cafe3d89cdb91e979483835",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/login-desktop-480.webp",
+        "bytes": 167272,
+        "sha256": "f9fa98930b1d3b01ac6eba864f6e087c26d3c30b1c504f33dfcf862293dabeb0"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/login-desktop-960.webp",
+        "bytes": 523262,
+        "sha256": "bcb4f6ead02be223103b103e2c04c5dc07f1b5c92cc3587390b06249deab885c"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/login-desktop-1536.webp",
+        "bytes": 1129964,
+        "sha256": "1e2fe25f40a33212bd37d9a00454e53cd56412c9eeb8ced3bb3ba67291e5ea33"
+      }
+    ],
+    "usage": "桌面登录：独立宽构图，已采用像素颗粒更粗的第二版",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-voyage-reading": {
+    "master": "visual-patch/masters/voyage-reading.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "0ea1012af90b94c39ae13623034771ea1024c8833e588829679cf1c2e567b5a3",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-reading-480.webp",
+        "bytes": 121240,
+        "sha256": "ae3beb1ba0745b85839163305e58a0460e4dd8eb119efc0ce8aabad5bc754120"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-reading-960.webp",
+        "bytes": 388422,
+        "sha256": "54a570a9d97f0d05c0042336cdb39db9d83e872f23f7e38c0bbcc94e2adb0d12"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-reading-1536.webp",
+        "bytes": 845118,
+        "sha256": "c474284845119fb4f69dfff536aa64b05bba62a996cd7aaa8278fcbc7689da48"
+      }
+    ],
+    "usage": "星海测试课程学习、报告、反思阅读背景",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-voyage-lab": {
+    "master": "visual-patch/masters/voyage-lab.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "sha256": "f89849a0c3bc410940b97480d6c5515e156feeb2abe79cd8f22eb6b385193cd0",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-lab-480.webp",
+        "bytes": 128330,
+        "sha256": "9666ba1758e5d71fe21336d53e72f8f9813d2dac0af61fbc2dd07abc0f2729f6"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-lab-960.webp",
+        "bytes": 409858,
+        "sha256": "0c2b7c76791331ca102f17a917ec8a27839726be1014e24445de72561940e3d8"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/voyage-lab-1536.webp",
+        "bytes": 898388,
+        "sha256": "421dc521e7cb34085098760f900e6933fb8505232f2eda8bcf5ecb0abed1103e"
+      }
+    ],
+    "usage": "星海测试课程实验、作品与档案背景",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-glider-cover": {
+    "master": "visual-patch/masters/glider-cover.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGB",
+    "sha256": "fa3e1b1ec64caf8c6d9e411944199017186e537e33391a7c88196238b9550f4f",
+    "variants": [
+      {
+        "width": 480,
+        "path": "/assets/redesign-v2/visual-patch/web/glider-cover-480.webp",
+        "bytes": 318644,
+        "sha256": "c28228d98cd0f9b4e6a092aa6ef6f01ca5079d3d9ba2ec1043602e8579b9396d"
+      },
+      {
+        "width": 960,
+        "path": "/assets/redesign-v2/visual-patch/web/glider-cover-960.webp",
+        "bytes": 988606,
+        "sha256": "910d5e08e76437b9e07fbfe360162c65648722db3511c64c468d14f531a96dba"
+      },
+      {
+        "width": 1536,
+        "path": "/assets/redesign-v2/visual-patch/web/glider-cover-1536.webp",
+        "bytes": 1270826,
+        "sha256": "f2c3c5aaf473265f0a50dcff0260f2b727fb8ea399f44bb9c4788703a93628ee"
+      }
+    ],
+    "usage": "实验配置的滑翔机竖幅封面",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-robot-wink": {
+    "master": "visual-patch/masters/robot-wink.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "sha256": "e703ed512faa2f341d376073912a87a03a7b3afb63d1d87c801338396e475bca",
+    "variants": [
+      {
+        "width": 96,
+        "path": "/assets/redesign-v2/visual-patch/web/robot-wink-96.webp",
+        "bytes": 4722,
+        "sha256": "96524fc3c94e151592f21f2491a8428a4e9e76b1071c3e5896674e6ea609110b"
+      },
+      {
+        "width": 192,
+        "path": "/assets/redesign-v2/visual-patch/web/robot-wink-192.webp",
+        "bytes": 14970,
+        "sha256": "1d51b167b71b01f490e3994b2cd4c05c9214f2bf3ac468b3f6e35002b86ea9b9"
+      }
+    ],
+    "usage": "课程浮窗入口：只有 wink 头部与天线，真 alpha",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-fortune-plane": {
+    "master": "visual-patch/masters/fortune-plane.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "sha256": "e154560430bf28c7a360262ce681c28b472b6c8b373daf0c1266c79fe418d0ac",
+    "variants": [
+      {
+        "width": 96,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-plane-96.webp",
+        "bytes": 5052,
+        "sha256": "1235179acc6a57a6b7c1925768b44e6d0dea3ef4146e84181964d9cd6c8944eb"
+      },
+      {
+        "width": 192,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-plane-192.webp",
+        "bytes": 17576,
+        "sha256": "887c75b8c1b2747a75035b6bc0db988ed6805306b0e46748c38ea65c64f0104e"
+      }
+    ],
+    "usage": "运势飞机图案",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-fortune-star": {
+    "master": "visual-patch/masters/fortune-star.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "sha256": "81d907c134ca3781ef519a506a631c501b3413ed5e49c9d209695f078b26930c",
+    "variants": [
+      {
+        "width": 96,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-star-96.webp",
+        "bytes": 1074,
+        "sha256": "fc70b83a563193328822111bfdcff3e84fb85a8d67219cab051e5639e2172fc5"
+      },
+      {
+        "width": 192,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-star-192.webp",
+        "bytes": 3540,
+        "sha256": "ba88643a1e8c30b5ff53f15671ba642bc2a0e708b5d1b556d3fd6573cd2cbc58"
+      }
+    ],
+    "usage": "运势星芒图案",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  },
+  "patch-fortune-device": {
+    "master": "visual-patch/masters/fortune-device.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "sha256": "9fde011fbaaf7698646593f779b71795290e119ad012f9e4e7c2728dde77198a",
+    "variants": [
+      {
+        "width": 96,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-device-96.webp",
+        "bytes": 4666,
+        "sha256": "c8fdbd6e74aaf6b54f8d923b77fe48cf645cde9ca7554e4187acc7732a87440f"
+      },
+      {
+        "width": 192,
+        "path": "/assets/redesign-v2/visual-patch/web/fortune-device-192.webp",
+        "bytes": 13720,
+        "sha256": "faf4d559423810e6f9d5f7da83f8407d0879b1c15221ade217e3fe87c252f37d"
+      }
+    ],
+    "usage": "运势实验装置图案",
+    "loading": "responsive webp only; no PNG master requests from pages",
+    "fallback": "stable color, live text and usable controls"
+  }
+}

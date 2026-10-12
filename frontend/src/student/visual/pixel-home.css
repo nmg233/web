@@ -1,0 +1,68 @@
+.student-pixel .pixel-home { padding: 24px; }
+.student-pixel .home-horizon { position: relative; isolation: isolate; min-height: 164px; border: 2px solid var(--pixel-navy); background: var(--pixel-sky); margin-bottom: 20px; overflow: hidden; }
+.student-pixel .home-horizon-image { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.student-pixel .home-horizon-image img { width: 100%; height: 100%; object-fit: cover; object-position: center 52%; }
+.student-pixel .home-horizon-copy { display: inline-block; max-width: 64%; margin: 20px; padding: 12px 20px; background: var(--pixel-paper); border-left: 4px solid var(--pixel-teal); }
+.student-pixel .home-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--pixel-teal); }
+.student-pixel .home-horizon h1 { margin: 0; font-size: 32px; line-height: 1.4; font-weight: 800; }
+.student-pixel .home-horizon-copy p { margin: 4px 0 0; font-size: 16px; }
+.student-pixel .home-horizon-label { position: absolute; right: 16px; bottom: 12px; background: var(--pixel-navy); color: var(--pixel-paper); font-size: 10px; font-weight: 800; letter-spacing: 2px; padding: 4px 8px; }
+.student-pixel .home-next { padding: 16px 24px 4px; margin-bottom: 24px; }
+.student-pixel .home-section-heading, .student-pixel .home-courses-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.student-pixel .home-section-heading h2, .student-pixel .home-courses-heading h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 20px; font-weight: 800; }
+.student-pixel .home-section-heading > span { color: var(--pixel-muted); font-size: 14px; }
+.student-pixel .home-todo { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 0; }
+.student-pixel .home-todo-copy { min-width: 0; }
+.student-pixel .home-todo h3 { margin: 0 0 4px; font-size: 20px; line-height: 1.5; }
+.student-pixel .home-todo-source { margin: 0 0 8px; font-size: 16px; }
+.student-pixel .home-todo-description { margin: 8px 0 0; font-size: 16px; }
+.student-pixel .home-todo-deadline { margin: 4px 0 0; color: var(--pixel-muted); font-size: 14px; }
+.student-pixel .home-todo-action { flex-shrink: 0; }
+.student-pixel .home-more-todos { border-top: 1px solid var(--pixel-paper-deep); }
+.student-pixel .home-more-todos .ant-collapse-header { padding: 8px 0; font-size: 14px; }
+.student-pixel .home-more-todos .ant-collapse-content-box { padding: 0; }
+.student-pixel .home-courses-heading { margin-bottom: 12px; }
+.student-pixel .home-courses-heading .ant-input-search { width: 270px; }
+.student-pixel .home-course-list { display: grid; gap: 20px; }
+.student-pixel .home-course-card { display: grid; grid-template-columns: 256px minmax(0, 1fr); gap: 24px; padding: 16px; }
+.student-pixel .home-course-cover { position: relative; min-height: 176px; background: var(--pixel-sky); border: 2px solid var(--pixel-navy); overflow: hidden; }
+.student-pixel .home-course-cover > .pixel-image { width: 100%; height: 100%; position: absolute; inset: 0; }
+.student-pixel .home-course-cover img { width: 100%; height: 100%; object-fit: cover; }
+.student-pixel .home-cover-label { position: absolute; bottom: 8px; left: 8px; padding: 2px 8px; background: var(--pixel-paper); border: 1px solid var(--pixel-navy); font-size: 12px; font-weight: 700; }
+.student-pixel .home-course-copy { min-width: 0; }
+.student-pixel .home-course-copy h3 { margin: 8px 0; font-size: 24px; line-height: 1.4; }
+.student-pixel .home-course-description { margin: 0 0 16px; font-size: 16px; line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.student-pixel .home-course-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.student-pixel .home-course-progress { width: min(220px, 100%); font-size: 13px; color: var(--pixel-muted); }
+.student-pixel .home-course-progress .pixel-progress { margin-top: 4px; }
+.student-pixel .home-secondary { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; }
+.student-pixel .home-secondary nav { display: flex; gap: 16px; flex-shrink: 0; font-size: 14px; }
+.student-pixel .home-schedule { flex: 1; min-width: 0; }
+.student-pixel .home-schedule .ant-collapse-header { padding: 8px 0; }
+.student-pixel .home-schedule .ant-collapse-header-text > span { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+.student-pixel .home-schedule-time { color: var(--pixel-muted); }
+.student-pixel .home-schedule-empty { display: flex; gap: 8px; align-items: center; margin: 0; color: var(--pixel-muted); font-size: 14px; }
+@media (max-width: 1199px) {
+  .student-pixel .home-course-card { grid-template-columns: 220px minmax(0, 1fr); gap: 20px; }
+  .student-pixel .home-course-bottom { flex-wrap: wrap; }
+  .student-pixel .home-secondary { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 767px) {
+  .student-pixel .pixel-home { padding: 16px; }
+  .student-pixel .home-horizon { min-height: 168px; }
+  .student-pixel .home-horizon-copy { max-width: 84%; margin: 16px; padding: 12px; }
+  .student-pixel .home-horizon h1 { font-size: 28px; }
+  .student-pixel .home-horizon-copy p { font-size: 15px; }
+  .student-pixel .home-horizon-label { display: none; }
+  .student-pixel .home-next { padding: 16px 16px 4px; }
+  .student-pixel .home-section-heading > span { display: none; }
+  .student-pixel .home-todo { align-items: stretch; flex-direction: column; gap: 12px; }
+  .student-pixel .home-todo-action .pixel-button { width: 100%; }
+  .student-pixel .home-courses-heading { align-items: stretch; flex-direction: column; }
+  .student-pixel .home-courses-heading .ant-input-search { width: 100%; }
+  .student-pixel .home-course-card { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .student-pixel .home-course-cover { height: 184px; min-height: 0; }
+  .student-pixel .home-course-copy h3 { font-size: 22px; }
+  .student-pixel .home-course-bottom { align-items: stretch; flex-direction: column; }
+  .student-pixel .home-course-bottom > a, .student-pixel .home-course-bottom .pixel-button { width: 100%; }
+}

@@ -1,0 +1,5 @@
+export function initialExerciseAnswer(exercise){return exercise.student_answer??(exercise.question_type==='multiple_choice'?[]:exercise.question_type==='fill_blank'&&exercise.blank_count?Array(exercise.blank_count).fill(''):'');}
+export function hasExerciseAnswer(answer){return Array.isArray(answer)?answer.length>0&&answer.every(v=>String(v).trim().length>0):typeof answer==='string'?answer.trim().length>0:answer!==null&&answer!==undefined;}
+export function resourceDownloadName(resource,fallback){return resource.download_name||resource.file_name||resource.title||fallback;}
+export function versionedReportDraftKey(baseKey,reportId){return reportId?baseKey+':report:'+reportId:baseKey;}
+export function lessonAccessReason(lesson){if(lesson.status==='cancelled')return lesson.cancel_reason||'课时已取消，仅保留历史';if(lesson.learning_in_scope===false)return '该新增课时不属于你的已结课学习范围';if(lesson.presentation_type==='visit'||lesson.content_state==='preparing')return '';if(lesson.readiness?.ready===false&&!lesson.started&&Number(lesson.progress??lesson.learning_progress??0)===0)return '课后学习尚未开放：'+(lesson.readiness.issues||[]).join('；');return '';}

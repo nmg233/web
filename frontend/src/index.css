@@ -16,6 +16,34 @@ body {
   min-height: 100vh;
 }
 
+.student-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+.route-group { margin: 20px 0; }
+.lesson-route { display: grid; grid-template-columns: repeat(var(--route-count), minmax(260px, 1fr)); overflow-x: auto; list-style: none; margin: 0; padding: 4px 0 12px; }
+.lesson-route-item { position: relative; padding: 0 8px; min-width: 0; }
+.lesson-route-item::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #bfbfbf; }
+.lesson-route-item:first-child::before { left: 50%; }
+.lesson-route-item:last-child::before { right: 50%; }
+.route-node { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin: 0 auto 16px; border: 2px solid #1677ff; border-radius: 50%; background: white; color: #0958d9; font-weight: 600; }
+.route-node[aria-current='step'] { background: #1677ff; color: white; }
+.route-node:focus-visible { outline: 3px solid #172033; outline-offset: 3px; }
+.route-node-cancelled { border-color: #bfbfbf; color: #666; }
+.route-lesson-card .ant-card-head-title { white-space: normal; }
+.route-lesson-card .ant-descriptions-item-label { white-space: nowrap; }
+@media (max-width: 900px) {
+  .lesson-route { display: block; overflow: visible; }
+  .lesson-route-item { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px; padding: 0 0 20px; }
+  .lesson-route-item::before, .lesson-route-item:first-child::before { width: 2px; height: auto; top: 20px; bottom: 0; left: 19px; right: auto; }
+  .lesson-route-item:last-child::before { display: none; }
+  .route-node { margin: 0; }
+}
+.study-partner { position: fixed; right: 16px; bottom: 16px; z-index: 50; padding: 8px; background: white; border: 1px solid #ddd; border-radius: 8px; }
+.ant-layout-content { padding-bottom: 88px; }
+.ant-table-wrapper { overflow-x: auto; }
+@media (max-width: 560px) {
+  .ant-layout-header { padding: 8px !important; height: auto !important; min-height: 56px; line-height: normal !important; }
+  .ant-layout-header > .ant-space { flex-wrap: wrap; justify-content: flex-end; }
+}
+
 .page-container { width: 100%; max-width: 1440px; margin: 0 auto; padding: 24px; }
 .page-heading { margin-bottom: 20px; }
 .page-heading h2 { margin-bottom: 4px !important; }

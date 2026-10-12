@@ -1,5 +1,6 @@
 // 作品权限策略（决策 D-1/D-2/D-6）。
 // work 行需携带：student_id / student_teacher_id / student_school_id / review_status / enrollment_id / course_id / has_newer_version。
+const { activeWork } = require('./studentCourseAccess');
 const { courseBelongsToMentor } = require('./courseScope');
 
 function belongsToTeacher(user, work) {
@@ -20,7 +21,7 @@ function canReviewWork(user, work) {
 function canViewWork(user, work) {
   if (user.role === 'admin') return true;
   if (user.role === 'academic_mentor') return canReviewWork(user, work);
-  if (user.role === 'student') return work.student_id === user.id;
+  if (user.role === 'student') return activeWork(user, work);
   return belongsToTeacher(user, work)
     && !!work.enrollment_id
     && !!work.course_id;
@@ -32,7 +33,7 @@ function canDeleteWork(user, work) {
   if (user.role === 'admin') {
     return work.review_status !== 'approved' && !work.has_newer_version;
   }
-  if (user.role === 'student' && work.student_id === user.id) {
+  if (user.role === 'student' && activeWork(user, work)) {
     if (work.review_status === 'approved') return false;
     if (work.has_newer_version) return false;
     return work.review_status === 'pending' || work.review_status === 'rejected';

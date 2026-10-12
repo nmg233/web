@@ -1,69 +1,67 @@
+import FlightReplay3D from './FlightReplay3D';
+import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
+import { useCourseApis, useCourseId } from '../../student/useCourseApis';
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Row, Col, Card, Form, InputNumber, Button, Tag, Space, Spin, message,
-  Statistic, Alert, List, Typography, Empty, Result, Select, Divider,
+  Row, Col, Card, Form, Button, Tag, Space, Spin, message,
+  Statistic, Alert, List, Typography, Empty, Result,
 } from 'antd';
-import { ArrowLeftOutlined, RocketOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { gliderAPI } from '../../api/glider';
-import { courseAPI } from '../../api';
+import { ArrowLeftOutlined, RocketOutlined } from '@ant-design/icons';
 import { formatBeijingTime } from '../../utils/date';
 import { useAuth } from '../../store/AuthContext';
-import FlightReplay3D from './FlightReplay3D';
+import { resolveExperimentReturn } from '../../student/experimentContext';
+import useGliderRecords from './useGliderRecords';
+import { stateMeta, STATE_TIPS } from './gliderModel';
+import StudentGliderWorkspace from '../../student/StudentGliderWorkspace';
+import { STUDENT_COURSES_CHANGED } from '../../student/accessPolicy';
 
 const { Title, Text } = Typography;
 
-const STATE_META = {
-  ok: { color: 'green', label: '正常滑翔' },
-  landed: { color: 'blue', label: '成功着陆' },
-  hard_landing: { color: 'orange', label: '重着陆（触地过快）' },
-  'crashed(roll)': { color: 'red', label: '横滚失控坠毁' },
-  'stalled/slow': { color: 'orange', label: '失速下坠' },
-  timedout: { color: 'default', label: '超时结束' },
-};
-
-const STATE_TIPS = {
-  ok: '滑翔机在设定时间内稳定飞行，气动布局比较合适，可以试试更高更远的目标。',
-  landed: '飞机平稳落地，这是一次成功的试飞！',
-  hard_landing: '飞机下降太快，重重地“砸”在了地面上。试试把平尾偏角调小一些，或增大机翼、减轻重量。',
-  'crashed(roll)': '飞机发生了横滚失控。试试增大机翼上反角、把重心往前移，或适当提高投放速度。',
-  'stalled/slow': '飞机失速下坠了。试试把重心往前移一些、减小平尾上抬角度，或提高一点投放速度。',
-  timedout: '在设定时间内飞行稳定、没有落地。',
-};
-
-function stateMeta(state) {
-  return STATE_META[state] || { color: 'default', label: state || '—' };
-}
-
 export default function GliderSimulator() {
+  const { courseAPI, learningAPI, gliderAPI } = useCourseApis();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const scopedCourse = useCourseId();
+  const sourceCourse = scopedCourse || params.get('course_id');
+  const sourceLesson = params.get('lesson_id');
+  const requestedReturn = params.get('returnTo') || (scopedCourse ? '/courses/'+scopedCourse+'/lab' : null);
+  const sourceKey = JSON.stringify([sourceCourse, sourceLesson, requestedReturn]);
   const { user } = useAuth();
   const [form] = Form.useForm();
-  const [history, setHistory] = useState([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
-  const [viewingId, setViewingId] = useState(null);
-  const [viewing, setViewing] = useState(null);
+  const records = useGliderRecords();
+  const { history, loadingHistory, historyError, loadHistory, viewingId, viewing, waitSec, pollFailed, pollTimedOut, openRecord, revision } = records;
   const [img, setImg] = useState({ trajectory: null, telemetry: null, video: null });
+  const [resultFileError, setResultFileError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [waitSec, setWaitSec] = useState(0);
-  const [pollFailed, setPollFailed] = useState(false);
-  const [pollTimedOut, setPollTimedOut] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [engineInfo, setEngineInfo] = useState(null);
   const [engineError, setEngineError] = useState(null);
   // 试飞课程/课时关联（决策 D-7）
   const [courses, setCourses] = useState([]);
-  const [coursesLoaded, setCoursesLoaded] = useState(false);
+  const [contextError, setContextError] = useState('');
+  const [contextLoading, setContextLoading] = useState(!!sourceCourse);
   const [courseId, setCourseId] = useState(undefined);
   const [lessons, setLessons] = useState([]);
   const [lessonId, setLessonId] = useState(undefined);
+  const [returnTo, setReturnTo] = useState('/lab');
+  const [returning, setReturning] = useState(false);
+  const [checkedSource, setCheckedSource] = useState(null);
+  const contextPending = user?.role === 'student' && (contextLoading || checkedSource !== sourceKey);
 
-  const loadHistory = async () => {
+  const verifySource = () => resolveExperimentReturn({ courseId: sourceCourse, lessonId: sourceLesson, returnTo: requestedReturn }, { course: courseAPI.detail, lesson: learningAPI.lesson });
+  const returnToSource = async () => {
+    if (user?.role !== 'student') { navigate('/dashboard'); return; }
+    if (!sourceCourse) { navigate('/lab'); return; }
+    setReturning(true);
     try {
-      const res = await gliderAPI.list();
-      setHistory(res.items || []);
-    } catch { message.error('加载试飞记录失败'); }
+      const resolution = await verifySource();
+      if (resolution.reason) message.warning(resolution.reason);
+      navigate(resolution.path, { state: { experimentNotice: resolution.reason } });
+    } finally { setReturning(false); }
   };
 
+  const [engineAttempt, setEngineAttempt] = useState(0);
   // 进入页面检测引擎就绪状态（结果缓存于后端 60s）
   // 注意：探测失败不能静默吞掉——否则按钮看似可用、点击却毫无反应，排查成本极高
   useEffect(() => {
@@ -73,25 +71,12 @@ export default function GliderSimulator() {
       .catch((err) => {
         if (!alive) return;
         setEngineInfo(null);
-        setEngineError(err?.response?.data?.error || err?.message || '无法获取实验环境状态');
+        setEngineError(err?.response?.data?.error || err?.message || siteText("site.428e31905bab5aee"));
       });
     return () => { alive = false; };
-  }, []);
+  }, [engineAttempt,gliderAPI]);
 
-  // 进入页面加载我的试飞记录（延迟一拍再发起，避免在 effect 内同步 setState）
-  useEffect(() => {
-    let alive = true;
-    const t = setTimeout(() => {
-      gliderAPI.list()
-        .then((res) => { if (alive) setHistory(res.items || []); })
-        .catch(() => { if (alive) message.error('加载试飞记录失败'); })
-        .finally(() => { if (alive) setLoadingHistory(false); });
-    }, 0);
-    return () => { alive = false; clearTimeout(t); };
-  }, []);
-
-  // 学生：加载可试飞课程（已报名且已发布），切换课程时加载课时
-  // 只有一个可试飞课程时自动选中：“实验课程”是必填项，漏选会导致点“开始试飞”不发任何请求
+  // 不自动选中课程；独立进入不产生课程关联。
   useEffect(() => {
     if (user?.role !== 'student') return undefined;
     let alive = true;
@@ -100,22 +85,52 @@ export default function GliderSimulator() {
         if (!alive) return;
         const list = res.courses || [];
         setCourses(list);
-        setCoursesLoaded(true);
-        if (list.length === 1) {
-          setCourseId(list[0].id);
-          form.setFieldValue('course_id', list[0].id);
-          courseAPI.detail(list[0].id)
-            .then((d) => { if (alive) setLessons(d.lessons || []); })
-            .catch(() => {});
+        if (sourceCourse) {
+          resolveExperimentReturn({ courseId: sourceCourse, lessonId: sourceLesson, returnTo: requestedReturn }, { course: courseAPI.detail, lesson: learningAPI.lesson }).then((resolution) => {
+            if (!alive) return;
+            setReturnTo(resolution.path);
+            if (!resolution.available) { setContextError(resolution.reason.replaceAll('已返回', '请返回')); setCourseId(undefined); setLessonId(undefined); setLessons([]); return; }
+            setContextError('');
+            setCourseId(Number(sourceCourse)); setLessons(resolution.detail.lessons || []);
+            setLessonId(sourceLesson ? Number(sourceLesson) : undefined);
+            form.setFieldsValue({ course_id: Number(sourceCourse), lesson_id: sourceLesson ? Number(sourceLesson) : undefined });
+          }).catch(() => { if (alive) setContextError(siteText("site.b0276bfc62d1ef2a")); })
+            .finally(() => { if (alive) { setContextLoading(false); setCheckedSource(sourceKey); } });
+        } else {
+          setContextError(''); setCourseId(undefined); setLessonId(undefined); setLessons([]); setReturnTo('/lab');
+          form.setFieldsValue({ course_id: undefined, lesson_id: undefined });
+          setContextLoading(false); setCheckedSource(sourceKey);
         }
       })
-      .catch(() => { if (alive) setCoursesLoaded(true); });
+      .catch(() => {
+        if (!alive) return;
+        if (sourceCourse) setContextError(siteText("site.b0276bfc62d1ef2a"));
+        else { setContextError(''); setCourseId(undefined); setLessonId(undefined); setLessons([]); setReturnTo('/lab'); form.setFieldsValue({ course_id: undefined, lesson_id: undefined }); }
+        setContextLoading(false); setCheckedSource(sourceKey);
+      });
     return () => { alive = false; };
-  }, [user?.role, form]);
+  }, [user?.role, form, sourceCourse, sourceLesson, requestedReturn, sourceKey,courseAPI,learningAPI]);
+
+  useEffect(() => {
+    const updateCourses = (event) => {
+      const { courses: availableCourses = [], removedCourseIds = [] } = event.detail || {};
+      setCourses(availableCourses);
+      if (!removedCourseIds.some((id) => String(id) === String(sourceCourse || courseId))) return;
+      setCourseId(undefined); setLessonId(undefined); setLessons([]);
+      form.setFieldsValue({ course_id: undefined, lesson_id: undefined });
+      if (sourceCourse) {
+        setContextError(siteText("site.6791e4f7be701e0c"));
+        setReturnTo('/lab');
+      } else message.warning(siteText("site.68a8803fb16c7298"));
+    };
+    window.addEventListener(STUDENT_COURSES_CHANGED, updateCourses);
+    return () => window.removeEventListener(STUDENT_COURSES_CHANGED, updateCourses);
+  }, [courseId, form, sourceCourse]);
 
   const handleCourseChange = async (value) => {
     setCourseId(value);
     setLessonId(undefined);
+    form.setFieldValue('lesson_id', undefined);
     setLessons([]);
     if (!value) return;
     try {
@@ -124,62 +139,17 @@ export default function GliderSimulator() {
     } catch { setLessons([]); }
   };
 
-  // 轮询：记录处于 running 时每 2s 刷新，直到 success / error；完成后刷新右侧历史列表
-  // 总等待上限 300s：超过则视为任务卡住，停止轮询并提示刷新记录，避免无限转圈
-  useEffect(() => {
-    if (!viewingId) return undefined;
-    let alive = true;
-    let timer;
-    let fail = 0;
-    let waited = 0;
-    const tick = () => {
-      gliderAPI.detail(viewingId)
-        .then((d) => {
-          if (!alive) return;
-          fail = 0;
-          setPollFailed(false);
-          setViewing(d);
-          if (d.status !== 'running') {
-            clearInterval(timer);
-            setWaitSec(0);
-            setPollTimedOut(false);
-            loadHistory(); // 同步右侧历史列表状态（不再停在“运行中”）
-          } else {
-            waited += 2;
-            setWaitSec(waited);
-            if (waited >= 300) {
-              clearInterval(timer);
-              setPollTimedOut(true);
-              setWaitSec(0);
-              loadHistory();
-            }
-          }
-        })
-        .catch(() => {
-          if (!alive) return;
-          fail += 1;
-          if (fail >= 3) {
-            clearInterval(timer);
-            setPollFailed(true);
-            setWaitSec(0);
-          }
-        });
-    };
-    timer = setInterval(tick, 2000);
-    const first = setTimeout(tick, 0);
-    return () => { alive = false; clearInterval(timer); clearTimeout(first); };
-  }, [viewingId]);
-
   // 模拟成功后加载结果图与飞行回放视频
   useEffect(() => {
-    if (!viewing) return undefined;
+    if (user?.role === 'student' || !viewing) return undefined;
     if (viewing.status !== 'success') {
-      const t = setTimeout(() => setImg({ trajectory: null, telemetry: null, video: null }), 0);
+      const t = setTimeout(() => { setImg({ trajectory: null, telemetry: null, video: null }); setResultFileError(''); }, 0);
       return () => clearTimeout(t);
     }
     let alive = true;
     const mimeOf = (name) => (name.endsWith('.mp4') ? 'video/mp4' : name.endsWith('.png') ? 'image/png' : 'application/octet-stream');
     const urls = [];
+    const missingFiles = [];
     const load = async (name) => {
       try {
         const res = await gliderAPI.file(viewing.id, name);
@@ -188,7 +158,7 @@ export default function GliderSimulator() {
         const url = URL.createObjectURL(blob);
         urls.push(url);
         return url;
-      } catch { return null; }
+      } catch { missingFiles.push(name === 'trajectory3d.png' ? siteText("site.00c55a397c1790c7") : siteText("site.974fcba694075a4b")); return null; }
     };
     // 视频改走签名流式地址：支持 Range 拖动，避免整段 blob 下载
     const loadVideo = async () => {
@@ -196,7 +166,7 @@ export default function GliderSimulator() {
         const res = await gliderAPI.streamUrl(viewing.id);
         if (!alive || !res.url) return null;
         return res.url;
-      } catch { return null; }
+      } catch { missingFiles.push(siteText("site.d0ffe75e194fb4b0")); return null; }
     };
     const hasVideo = !!viewing.result?.files?.video;
     (async () => {
@@ -205,18 +175,34 @@ export default function GliderSimulator() {
         load('flight_telemetry.png'),
         hasVideo ? loadVideo() : Promise.resolve(null),
       ]);
-      if (alive) setImg({ trajectory, telemetry, video });
+      if (alive) {
+        setImg({ trajectory, telemetry, video });
+        setResultFileError(missingFiles.length ? `${missingFiles.join('、')}暂时无法加载，可能文件已移除或网络中断。试飞参数和数值结果仍可查看，请刷新记录后重试。` : '');
+      }
     })();
     // 卸载/切换记录时释放对象 URL，避免反复查看累积内存
     return () => {
       alive = false;
       urls.forEach((u) => URL.revokeObjectURL(u));
     };
-  }, [viewing]);
+  }, [viewing, user?.role, revision,gliderAPI]);
 
   const startSim = async (values) => {
-    setSubmitting(true);
+    setSubmitting(true); setSubmitError('');
     try {
+      if (contextError || contextPending) throw new Error(siteText("site.e26a9445c9427394"));
+      if (sourceCourse) {
+        const resolution = await verifySource();
+        setReturnTo(resolution.path);
+        if (!resolution.available) {
+          setContextError(resolution.reason.replaceAll('已返回', '请返回'));
+          setCourseId(undefined); setLessonId(undefined); setLessons([]);
+          throw new Error(resolution.reason.replaceAll('已返回', '请返回'));
+        }
+      } else if (courseId) {
+        const detail = await courseAPI.detail(courseId);
+        if (lessonId && !detail.lessons.some((lesson) => String(lesson.id) === String(lessonId) && lesson.status !== 'cancelled')) throw new Error(siteText("site.8fb65cc05e0d15c1"));
+      }
       const r = await gliderAPI.simulate({
         dihedral_deg: values.dihedral,
         cg_x: values.cg,
@@ -226,256 +212,137 @@ export default function GliderSimulator() {
         elevator_deg: values.elevator,
         rudder_deg: values.rudder,
         course_id: courseId,
-        lesson_id: lessonId,
+        lesson_id: courseId ? lessonId : undefined,
       });
-      setViewingId(r.id);
-      setViewing(null);
-      setPollFailed(false);
-      setWaitSec(0);
-      message.success('模拟已开始，正在计算…');
+      openRecord(r.id);
+      message.success(siteText("site.fa04247e6adbbcaa"));
       loadHistory();
     } catch (err) {
-      message.error(err?.response?.data?.error || '启动模拟失败');
+      setSubmitError(err?.response?.data?.error || err?.message || siteText("site.d4e886021c1bfac5"));
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const openRecord = (id) => {
-    setViewingId(id);
-    setViewing(null);
-    setPollFailed(false);
-    setWaitSec(0);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // 表单校验未通过时给出明确反馈：否则只有一行小红字，容易被当成“点了没反应”
-  const onFinishFailed = ({ errorFields }) => {
-    const first = errorFields?.[0];
-    message.error(`无法开始试飞：${first?.errors?.[0] || '请先完成表单必填项'}`);
-    if (first?.name) form.scrollToField(first.name);
   };
 
   const meta = useMemo(() => stateMeta(viewing?.state), [viewing]);
   const isStudent = user?.role === 'student';
   const engineChecking = !engineInfo && !engineError;
   const engineReady = engineInfo?.ready === true;
-  const noCourse = isStudent && coursesLoaded && courses.length === 0;
-  const canSubmit = isStudent && engineReady && !noCourse;
+  const canSubmit = isStudent && engineReady && !contextError && !contextPending;
   const blockedReason = !isStudent
     ? ''
     : engineChecking
-      ? '正在检测实验环境…'
+      ? siteText("site.f2fba4773aac84cb")
       : engineError
         ? `无法确认实验环境：${engineError}`
         : !engineReady
-          ? `模拟引擎暂不可用（解释器：${engineInfo?.python || '未知'}）。请稍后再试或联系管理员检查引擎环境。`
-          : noCourse
-            ? '你还没有已报名的课程，无法提交试飞。请联系教师或管理员将你加入课程。'
-            : '';
+          ? siteText("site.1123cc8bb6d0596f")
+          : contextPending ? siteText("site.8bc535ac2db22e5c") : contextError;
+
+  if (isStudent) return <StudentGliderWorkspace
+    form={form} records={records} startSim={startSim} submitting={submitting} submitError={submitError}
+    engineChecking={engineChecking} engineReady={engineReady} canSubmit={canSubmit} blockedReason={blockedReason}
+    retryEngine={() => { setEngineInfo(null); setEngineError(null); setEngineAttempt((value) => value + 1); }}
+    sourceCourse={sourceCourse} sourceLesson={sourceLesson} courses={courses} lessons={lessons}
+    courseId={courseId} lessonId={lessonId} handleCourseChange={handleCourseChange} setLessonId={setLessonId}
+    returning={returning} contextPending={contextPending} contextError={contextError}
+    returnsToCourse={!!(sourceCourse && (!contextError || returnTo !== '/lab'))}
+    returnToSource={returnToSource} returnToLab={() => navigate(scopedCourse ? '/courses/'+scopedCourse+'/lab' : '/explore')}
+  />;
 
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/dashboard')}>返回工作台</Button>
-        <Title level={4} style={{ margin: 0 }}>🛩️ 滑翔机模拟实验室</Title>
+        <Button icon={<ArrowLeftOutlined />} loading={returning} disabled={contextPending} onClick={returnToSource}>{sourceCourse && (!contextError || returnTo !== '/lab') ? siteText("site.fcac88f55af035f0") : siteText("site.3ffbecb304fc7936")}</Button>
+        <Title level={4} style={{ margin: 0 }}>{siteText("site.2b453b69a79c8d29")}</Title>
       </Space>
 
       <Alert
         style={{ marginBottom: 16 }}
         type="info"
         showIcon
-        message={isStudent ? '设定你的滑翔机参数，让物理引擎帮你试飞' : '滑翔机试飞记录（只读视图）'}
+        message={isStudent ? siteText("site.114bf5fb739aa1fe") : siteText("site.2a484ebfa0edf256")}
         description={isStudent
-          ? '调整机翼（面积 / 上反角）、重心、投放速度与两只尾翼的角度，后台将运行真实气动仿真。滑翔时间越长、水平距离越远，说明你的设计越出色。'
+          ? siteText("site.a512ca1ba76993f2")
           : user?.role === 'admin'
-            ? '模拟提交仅面向学生。管理员可查看全部试飞记录与结果回放。'
+            ? siteText("site.2390d0741a774ea8")
             : user?.role === 'academic_mentor'
-              ? '模拟提交仅面向学生。您可查看自己课程学生的试飞记录。'
-              : '模拟提交仅面向学生。当前角色无试飞记录查看权限。'}
+              ? siteText("site.5098f78b1c4ee658")
+              : siteText("site.e792a9191476c13a")}
       />
 
       {isStudent && !engineChecking && blockedReason && (
         <Alert
           style={{ marginBottom: 16 }}
-          type={engineError || noCourse ? 'error' : 'warning'}
+          type={engineError || contextError ? 'error' : 'warning'}
           showIcon
-          message={noCourse ? '无法提交试飞' : '实验环境不可用'}
+          message={siteText("site.10674eb72d174ed1")}
           description={blockedReason}
         />
       )}
 
-      {isStudent && engineReady && engineInfo && !noCourse && (
+      {isStudent && engineReady && engineInfo && !contextError && (
         <Alert
           style={{ marginBottom: 16 }}
           type="success"
           showIcon
-          message={`实验环境就绪：${engineInfo.detectedBackend === 'novaphy' ? '真 novaPhy 物理引擎' : (engineInfo.detectedBackend || '参考后端')}`}
-          description={`解释器：${engineInfo.python} · 逐帧飞行数据经 trace 接口供回放渲染`}
+          message={siteTemplate("site.79c0e290fcc179cf", {slot0: (engineInfo.detectedBackend === 'novaphy' ? siteText("site.6230c6b28be24fcc") : (engineInfo.detectedBackend || siteText("site.ce0c1538ff1b1b71")))})}
+          description={siteText("site.adb54f7adb412db0")}
         />
       )}
 
       <Row gutter={16}>
         {/* 左侧：参数表单 + 结果 */}
         <Col xs={24} lg={15}>
-          {isStudent ? (
-          <Card title={<Space><RocketOutlined /> 试飞参数设计</Space>} style={{ marginBottom: 16 }}>
-            <Form
-              form={form}
-              layout="vertical"
-              initialValues={{ dihedral: 5, cg: 0, speed: 36, wing_area: 17.5, mass: 420, elevator: 0, rudder: 0 }}
-              onFinish={startSim}
-              onFinishFailed={onFinishFailed}
-            >
-              <Form.Item
-                name="course_id"
-                label="实验课程"
-                extra="试飞记录将关联到所选课程，供执行导师查看与归档"
-                rules={[{ required: true, message: '请选择实验课程' }]}
-              >
-                <Select
-                  placeholder="选择已报名的课程"
-                  value={courseId}
-                  onChange={handleCourseChange}
-                  options={courses.map((c) => ({ value: c.id, label: c.title }))}
-                />
-              </Form.Item>
-              <Form.Item name="lesson_id" label="关联课时（可选）">
-                <Select
-                  placeholder="选择课时"
-                  allowClear
-                  value={lessonId}
-                  onChange={setLessonId}
-                  disabled={!courseId}
-                  options={lessons.map((l) => ({ value: l.id, label: l.title }))}
-                />
-              </Form.Item>
-              <Form.Item
-                name="dihedral"
-                label="机翼上反角（°）"
-                extra="两翼尖向上翘起的角度。上反角越大，横滚方向越稳定，飞机越不容易侧翻。"
-                rules={[{ required: true, message: '请设置上反角' }]}
-              >
-                <InputNumber min={0} max={15} step={0.5} style={{ width: '100%' }} addonAfter="度" />
-              </Form.Item>
-              <Form.Item
-                name="cg"
-                label="重心位置（m，沿机头方向前移量）"
-                extra="重心越靠前，飞机越“头重”、越稳定，但滑翔性能下降；重心太靠后则容易失速翻滚。"
-                rules={[{ required: true, message: '请设置重心位置' }]}
-              >
-                <InputNumber min={-1.5} max={1.5} step={0.1} style={{ width: '100%' }} addonAfter="米" />
-              </Form.Item>
-              <Form.Item
-                name="speed"
-                label="初始投放速度（m/s）"
-                extra="从 150 米高空投放时的初始空速。速度太低可能失速，太高则阻力增加。"
-                rules={[{ required: true, message: '请设置初始速度' }]}
-              >
-                <InputNumber min={15} max={60} step={1} style={{ width: '100%' }} addonAfter="米/秒" />
-              </Form.Item>
-              <Divider titlePlacement="left" plain style={{ marginTop: 0 }}>机身与尾翼（进阶）</Divider>
-              <Row gutter={12}>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="wing_area"
-                    label="机翼面积（m²）"
-                    extra="越大升力越大、飞得越慢越久。"
-                  >
-                    <InputNumber min={10} max={30} step={0.5} style={{ width: '100%' }} addonAfter="m²" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="mass"
-                    label="整机质量（kg）"
-                    extra="越重飞得越快、下沉越快。"
-                  >
-                    <InputNumber min={250} max={700} step={10} style={{ width: '100%' }} addonAfter="kg" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="elevator"
-                    label="水平尾翼偏角（°）"
-                    extra="正值上抬（抬头）· 负值下压（俯冲）；角度太大会失速。"
-                  >
-                    <InputNumber min={-15} max={15} step={0.5} style={{ width: '100%' }} addonAfter="度" />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="rudder"
-                    label="垂直尾翼偏角（°）"
-                    extra="正值机头右偏 · 负值左偏，飞机会转弯。"
-                  >
-                    <InputNumber min={-15} max={15} step={0.5} style={{ width: '100%' }} addonAfter="度" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Button type="primary" htmlType="submit" icon={<ThunderboltOutlined />} loading={submitting} block
-                disabled={!canSubmit}>
-                {engineChecking ? '正在检测实验环境…' : '开始试飞'}
-              </Button>
-              {blockedReason && !engineChecking && (
-                <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-                  {blockedReason}
-                </Text>
-              )}
-            </Form>
-          </Card>
-          ) : null}
-
           {/* 模拟结果 */}
           {viewingId && (
             <Card
-              title={`试飞 #${viewingId}`}
+              title={siteTemplate("site.d6fa5ee13a185373", {slot0: (viewingId)})}
               style={{ marginBottom: 16 }}
-              extra={viewing?.status === 'running' ? <Tag color="processing">模拟运行中…</Tag> : undefined}
+              extra={viewing?.status === 'running' ? <Tag color="processing">{siteText("site.fddc234f0f585556")}</Tag> : undefined}
             >
               {pollTimedOut ? (
-                <Result status="warning" title="模拟疑似卡住"
-                  subTitle="已等待超过 5 分钟仍未完成。请点击右侧“刷新记录”查看最新状态，或稍后重新提交。" />
+                <Result status="warning" title={siteText("site.ef8234c60f8c6dd7")}
+                  subTitle={siteText("site.193b30965f95edcf")} />
               ) : pollFailed ? (
-                <Result status="warning" title="暂时读不到模拟状态"
-                  subTitle="后端可能仍在计算或已停止。请稍候点击右侧“刷新记录”，或直接刷新页面重试。" />
+                <Result status="warning" title={siteText("site.24948bd6ddac08b9")}
+                  subTitle={siteText("site.8012163a44906ada")} />
               ) : !viewing ? (
                 <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
                   <Spin size="large" />
-                  <Text type="secondary">已提交，正在读取模拟状态…</Text>
+                  <Text type="secondary">{siteText("site.368dc276a9b3b0ff")}</Text>
                 </Space>
               ) : viewing.status === 'running' ? (
                   <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
                     <Spin size="large" />
-                    <Text type="secondary">物理引擎正在计算飞行轨迹与结果图表（真 NovaPhy 通常约 1~2 分钟），已等待约 {waitSec} 秒…</Text>
+                    <Text type="secondary">{siteText("site.2f3b09cf115a33a0")}{waitSec}{siteText("site.569034913ac19505")}</Text>
                   </Space>
                 ) : viewing.status === 'error' ? (
-                  <Result status="error" title="本次试飞失败" subTitle={viewing.error || '模拟引擎异常'} />
+                  <Result status="error" title={siteText("site.b6b4c8caf5360fc1")} subTitle={viewing.error || siteText("site.cdfa4a19c71e89a0")} />
                 ) : (
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Alert
                       type={meta.color === 'red' ? 'error' : meta.color === 'orange' ? 'warning' : 'success'}
                       showIcon
-                      message={<Text strong>结果：{meta.label}</Text>}
-                      description={STATE_TIPS[viewing.state] || '模拟完成。'}
+                      message={<Text strong>{siteText("site.49ae69a7b982c498")}{meta.label}</Text>}
+                      description={STATE_TIPS[viewing.state] || siteText("site.8dd0110275d12be6")}
                     />
+                    {resultFileError && <Alert type="warning" showIcon message={resultFileError} />}
                     <Row gutter={[8, 8]}>
-                      <Col xs={12} sm={8}><Statistic title="滑翔时长" value={viewing.glide_time_s} suffix="s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title="水平距离" value={viewing.result?.distance_m ?? '—'} suffix="m" /></Col>
-                      <Col xs={12} sm={8}><Statistic title="升阻比 L/D" value={viewing.result?.glide_ratio ?? '—'} /></Col>
-                      <Col xs={12} sm={8}><Statistic title="平均下沉率" value={viewing.result?.mean_sink_mps ?? '—'} suffix="m/s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title="平均空速" value={viewing.result?.mean_speed_mps ?? '—'} suffix="m/s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title="落地高度" value={viewing.result?.alt_end ?? '—'} suffix="m" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.65a134c3a6e631a5")} value={viewing.glide_time_s ?? '—'} suffix="s" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.b293dd8c171d72b1")} value={viewing.result?.distance_m ?? '—'} suffix="m" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.b55d5db2526856a9")} value={viewing.result?.glide_ratio ?? '—'} /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.ed63934db8904a95")} value={viewing.result?.mean_sink_mps ?? '—'} suffix="m/s" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.2bfbba04b95b74a8")} value={viewing.result?.mean_speed_mps ?? '—'} suffix="m/s" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.f45a6470b2e2b897")} value={viewing.result?.alt_end ?? '—'} suffix="m" /></Col>
                     </Row>
 
-                    {/* 3D 飞行回放：前端基于逐帧轨迹数据实时渲染（three.js），
-                        数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md
-                        key：切换记录时重建组件，使内部状态回到初值（替代 effect 内同步 setState 重置） */}
+                    {/* 历史记录回放（旧版后端生成的 MP4，仅早期记录有）。新试飞不再生成视频：
+                        飞行回放将由前端基于逐帧轨迹数据渲染（three.js 接入中），
+                        数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md */}
                     <FlightReplay3D key={viewing.id} simId={viewing.id} />
-
-                    {/* 旧版后端生成的 MP4 回放（仅早期记录有；新试飞由上方 3D 回放替代） */}
                     {img.video && (
-                      <Card size="small" title="✈️ 飞行过程回放（视频）" style={{ marginBottom: 16 }}>
+                      <Card size="small" title={siteText("site.e7d8ea495f0e08ec")} style={{ marginBottom: 16 }}>
                         <video
                           src={img.video}
                           controls
@@ -483,22 +350,22 @@ export default function GliderSimulator() {
                           loop
                           muted
                           playsInline
-                          onError={() => message.warning('视频加载失败：请刷新页面或重新打开本条记录')}
+                          onError={() => message.warning(siteText("site.60c57f61186d911e"))}
                           style={{ width: '100%', borderRadius: 6, background: '#000' }}
                         />
-                        <Text type="secondary">3D 追逐视角回放：从投放到降落的完整飞行过程。</Text>
+                        <Text type="secondary">{siteText("site.628c4df02a8369a5")}</Text>
                       </Card>
                     )}
 
                     {img.trajectory ? (
-                      <Card size="small" title="3D 飞行航迹（世界视角）">
-                        <img src={img.trajectory} alt="3D 飞行航迹" style={{ width: '100%', borderRadius: 6 }} />
+                      <Card size="small" title={siteText("site.60bb4c6a80e4ece5")}>
+                        <img src={img.trajectory} alt={siteText("site.f79b9916b9561c3e")} style={{ width: '100%', borderRadius: 6 }} />
                       </Card>
-                    ) : <Spin />}
+                    ) : <Alert type="info" message={siteText("site.d1d047b130ed152f")} />}
 
                     {img.telemetry && (
-                      <Card size="small" title="飞行遥测（高度 / 空速 / 迎角 / 下沉率 / L/D）">
-                        <img src={img.telemetry} alt="飞行遥测" style={{ width: '100%', borderRadius: 6 }} />
+                      <Card size="small" title={siteText("site.250ba1739133cf19")}>
+                        <img src={img.telemetry} alt={siteText("site.69e754877f2c9e6c")} style={{ width: '100%', borderRadius: 6 }} />
                       </Card>
                     )}
                   </Space>
@@ -511,11 +378,12 @@ export default function GliderSimulator() {
         {/* 右侧：试飞记录 */}
         <Col xs={24} lg={9}>
           <Card
-            title={<Space><RocketOutlined /> {isStudent ? '我的试飞记录' : '试飞记录'}</Space>}
-            extra={<Button size="small" onClick={loadHistory}>刷新记录</Button>}
+            title={<Space><RocketOutlined /> {isStudent ? siteText("site.b5dfc4ecdd5d613c") : siteText("site.c587b4773ecc638f")}</Space>}
+            extra={<Button size="small" onClick={loadHistory}>{siteText("site.c7bb63774c80fdc7")}</Button>}
           >
+            {historyError && <Alert type="error" showIcon title={historyError} />}
             {loadingHistory ? <Spin /> : (
-              history.length === 0 ? <Empty description={isStudent ? '还没有试飞记录，先设计一架试试吧' : '暂无试飞记录'} /> : (
+              history.length === 0 ? <Empty description={isStudent ? siteText("site.12c609982556dac6") : siteText("site.0f78bf8fc5463412")} /> : (
                 <List
                   size="small"
                   dataSource={history}
@@ -530,22 +398,22 @@ export default function GliderSimulator() {
                           title={<Space>
                             <span>#{item.id}</span>
                             <Tag color={item.status === 'running' ? 'processing' : item.status === 'error' ? 'error' : m.color}>
-                              {item.status === 'running' ? '运行中' : item.status === 'error' ? '失败' : m.label}
+                              {item.status === 'running' ? siteText("site.0fd29d1697388bae") : item.status === 'error' ? siteText("site.7ea4a9372bf8e2d9") : m.label}
                             </Tag>
                           </Space>}
                           description={
                             <Space wrap size={[4, 0]}>
-                              <Text type="secondary">上反角 {item.dihedral_deg}°</Text>
-                              <Text type="secondary">重心 {item.cg_x > 0 ? '+' : ''}{item.cg_x} m</Text>
-                              <Text type="secondary">速度 {item.speed} m/s</Text>
+                              <Text type="secondary">{siteText("site.9e50f808d0e56c5d")}{item.dihedral_deg}°</Text>
+                              <Text type="secondary">{siteText("site.267cfee298fda338")}{item.cg_x > 0 ? '+' : ''}{item.cg_x} m</Text>
+                              <Text type="secondary">{siteText("site.82c9050090b84186")}{item.speed} m/s</Text>
                               {item.wing_area != null && item.wing_area !== 17.5 && (
-                                <Text type="secondary">面积 {item.wing_area} m²</Text>
+                                <Text type="secondary">{siteText("site.c2778d97f9e62972")}{item.wing_area} m²</Text>
                               )}
                               {item.mass != null && item.mass !== 420 && (
-                                <Text type="secondary">质量 {item.mass} kg</Text>
+                                <Text type="secondary">{siteText("site.a73be7f47a0fda2d")}{item.mass} kg</Text>
                               )}
-                              {item.elevator_deg ? <Text type="secondary">平尾 {item.elevator_deg}°</Text> : null}
-                              {item.rudder_deg ? <Text type="secondary">垂尾 {item.rudder_deg}°</Text> : null}
+                              {item.elevator_deg ? <Text type="secondary">{siteText("site.48ea978c84421f9e")}{item.elevator_deg}°</Text> : null}
+                              {item.rudder_deg ? <Text type="secondary">{siteText("site.845d34e8645f8dbf")}{item.rudder_deg}°</Text> : null}
                               {item.glide_time_s != null && <Text type="secondary">· {item.glide_time_s}s</Text>}
                             </Space>
                           }

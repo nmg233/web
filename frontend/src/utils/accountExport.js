@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../content/systemText.js";
 // 只导出账号清单，不包含密码、令牌或其他认证信息。
 export function accountsToCSV(accounts) {
   const roles = { admin: '管理员', academic_mentor: '学术导师', teacher: '教师', student: '学生', media: '新媒体' };
@@ -36,7 +37,7 @@ function downloadCSV(csv, filename) {
   URL.revokeObjectURL(url);
 }
 
-export function downloadAccounts(accounts, filename = '用户登录账号.csv') {
+export function downloadAccounts(accounts, filename = siteText("site.d90cf668d292f36a")) {
   downloadCSV(accountsToCSV(accounts), filename);
 }
 

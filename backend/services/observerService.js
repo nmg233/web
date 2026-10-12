@@ -163,7 +163,7 @@ function studentDetail(user, studentId) {
     SELECT l.id AS lesson_id, COALESCE(lp.progress, 0) AS progress, lp.completed_at, lp.updated_at,
            l.title AS lesson_title, c.id AS course_id, c.title AS course_title,
            r.id AS report_id, r.version AS report_version, r.status AS report_status,
-           r.summary, r.review_comment, r.reviewed_at
+           r.summary, r.key_points, r.application, r.difficulties, r.next_plan, r.score, r.review_comment, r.reviewed_at
     FROM enrollments enrollment JOIN courses c ON c.id = enrollment.course_id
     JOIN lessons l ON l.course_id = c.id AND l.status != 'cancelled'
     LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id AND lp.student_id = enrollment.student_id
@@ -185,7 +185,7 @@ function studentDetail(user, studentId) {
       answered: c.exercises.filter((e) => e.attempt).length, exercise_count: c.exercises.length,
     })) }));
   const reflections = db.prepare(`
-    SELECT r.id, r.lesson_id, r.difficulty, r.solution, r.improvement, r.new_question, r.created_at,
+    SELECT r.id, r.lesson_id, r.difficulty, r.solution, r.improvement, r.new_question, r.reflection_version, r.entry_note, r.together_note, r.extra_note, r.report_id, r.created_at,
            l.title AS lesson_title
     FROM reflections r LEFT JOIN lessons l ON l.id = r.lesson_id
     WHERE r.student_id = ? ORDER BY r.created_at DESC LIMIT 50
