@@ -16,6 +16,7 @@ const requests = require('../helpers/requestResults');
 const versions = require('../helpers/lessonVersions');
 const aiDocuments = require('../services/aiDocumentService');
 const lifecycle = require('../helpers/courseLifecycle');
+const { validateTeachingInput } = require('../helpers/teachingInput');
 
 function removeUploadedFile(file) {
   if (file?.path) {
@@ -353,13 +354,9 @@ exports.addLesson = (req, res) => {
       return res.status(403).json({ error: '无权管理该课程' });
     }
     if (!writable(id)) return res.status(409).json({ error: '已归档课程不能新增课时' });
-    // 冻结已经满足结课条件的历史报名，新增课时不会撤销结课结果。
-    for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id = ? AND status = 'active'").all(id)) versions.courseState(db, e.student_id, Number(id), true);
     const { title, description, duration, start_at, end_at, location, instructor_id } = req.body;
-
-    if (!title) {
-      return res.status(400).json({ error: '课时名称不能为空' });
-    }
+    const invalid = validateTeachingInput(req.body, 'lesson');
+    if (!title || invalid) return res.status(400).json({ error:invalid || '课时名称不能为空' });
 
     // 授课人须为启用中的教师或执行导师
     if (instructor_id) {
@@ -373,11 +370,13 @@ exports.addLesson = (req, res) => {
 
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
     const sortOrder = (maxOrder.max_order || 0) + 1;
+    // 全部输入验证通过后才冻结历史报名。
+    for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id = ? AND status = 'active'").all(id)) versions.courseState(db, e.student_id, Number(id), true);
 
     const result = db.prepare(
       `INSERT INTO lessons (course_id, title, description, duration, sort_order, start_at, end_at, location, instructor_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(id, title, description || null, duration || null, sortOrder,
+    ).run(id, title.trim(), description || null, duration || null, sortOrder,
           start_at || null, end_at || null, location || null, instructor_id || null);
 
     res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
@@ -389,18 +388,20 @@ exports.addLesson = (req, res) => {
 
 exports.updateLesson = (req, res) => {
   try {
-    const lesson = db.prepare('SELECT id, course_id FROM lessons WHERE id = ?').get(req.params.lessonId);
+    const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(req.params.lessonId);
     if (!lesson || !canManageCourse(req.user, lesson.course_id)) {
       return res.status(404).json({ error: '课时不存在' });
     }
     if (!writable(lesson.course_id, lesson.id)) return res.status(409).json({ error: '归档课程或取消课时只允许查看历史' });
+    const invalid = validateTeachingInput(req.body, 'lesson', lesson);
+    if (invalid) return res.status(400).json({ error:invalid });
     const fields = ['title', 'description', 'duration', 'start_at', 'end_at', 'location', 'instructor_id'];
     const sets = [];
     const values = [];
     for (const field of fields) {
       if (req.body[field] !== undefined) {
         sets.push(`${field} = ?`);
-        values.push(req.body[field] || null);
+        values.push(field === 'title' ? req.body[field].trim() : req.body[field] || null);
       }
     }
     if (req.body.instructor_id) {
@@ -475,6 +476,24 @@ exports.uploadResource = (req, res) => {
 };
 
 // 删除课程资源：先删除数据库记录，再在提交后清理物理文件
+exports.updateResource = (req, res) => {
+  try {
+    const resource=db.prepare('SELECT * FROM resources WHERE id=?').get(req.params.resource_id);
+    if(!resource || !canManageCourse(req.user,resource.course_id)) return res.status(404).json({error:'资源不存在'});
+    if(!writable(resource.course_id,resource.lesson_id)) return res.status(409).json({error:'归档或取消的课时只允许查看历史'});
+    const lessonId=req.body.lesson_id === undefined ? resource.lesson_id : validateLessonBinding(resource.course_id,req.body.lesson_id);
+    const title=req.body.title === undefined ? resource.title : String(req.body.title).trim();
+    if(!title || title.length>200) return res.status(400).json({error:'资料名称须为1–200个字符'});
+    const type=req.body.resource_type ?? resource.resource_type;
+    if(!['lesson_plan','guide_card','template','courseware','video','other'].includes(type)) return res.status(400).json({error:'资料类型无效'});
+    const description=req.body.description === undefined ? resource.description : String(req.body.description || '');
+    if(description?.length>10000) return res.status(400).json({error:'资料说明不能超过10000字符'});
+    // 只修改元数据；快照中的原绑定/说明和物理文件保留，不能以更换文件破坏历史。
+    db.prepare('UPDATE resources SET lesson_id=?,title=?,description=?,resource_type=? WHERE id=?').run(lessonId,title,description,type,resource.id);
+    res.json({message:'资料信息已更新'});
+  } catch(err) { res.status(err.status || 500).json({error:err.status ? err.message : '资料信息更新失败'}); }
+};
+
 exports.deleteResource = (req, res) => {
   try {
     const resource = db.prepare(
@@ -538,9 +557,8 @@ exports.addTask = (req, res) => {
     const { lesson_id } = req.params;
     const { title, description, task_type, require_upload, deadline } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ error: '任务名称不能为空' });
-    }
+    const invalid = validateTeachingInput(req.body, 'task');
+    if (!title || invalid) return res.status(400).json({ error:invalid || '任务名称不能为空' });
 
     const lesson = db.prepare('SELECT course_id, status FROM lessons WHERE id = ?').get(lesson_id);
     if (!lesson) {
@@ -557,7 +575,7 @@ exports.addTask = (req, res) => {
     const result = db.prepare(
       `INSERT INTO tasks (lesson_id, title, description, task_type, require_upload, sort_order, deadline)
        VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).run(lesson_id, title, description || null, task_type || 'inquiry',
+    ).run(lesson_id, title.trim(), description || null, task_type || 'inquiry',
          require_upload === undefined
            ? 1
            : require_upload === true || require_upload === 'on' || require_upload === 1 || require_upload === '1' ? 1 : 0,
@@ -616,6 +634,17 @@ exports.listReplays = (req, res) => {
     console.error('获取课程回放错误:', err);
     res.status(500).json({ error: '获取课程回放失败' });
   }
+};
+
+exports.replayUploadResult = (req, res) => {
+  if (!canManageCourse(req.user, req.params.id)) return res.status(404).json({error:'课程不存在'});
+  if (!/^[a-zA-Z0-9_-]{8,100}$/.test(req.params.requestKey)) return res.status(400).json({error:'请求标识无效'});
+  const row=db.prepare('SELECT result_json FROM request_results WHERE actor_id=? AND scope=? AND request_key=?')
+    .get(req.user.id, `replay:${req.params.id}`, req.params.requestKey);
+  if (!row) return res.json({state:'unknown'}); // 未找到不等于服务端已取消；可能仍在处理。
+  const result=JSON.parse(row.result_json);
+  const replay=db.prepare('SELECT id,lesson_id,title FROM course_replays WHERE id=? AND course_id=?').get(result.id,req.params.id);
+  return res.json(replay ? {state:'saved',replay} : {state:'removed'});
 };
 
 exports.uploadReplay = (req, res) => {

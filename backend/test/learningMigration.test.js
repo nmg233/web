@@ -7,7 +7,7 @@ const newTables = ['report_replacements','student_school_transfers','class_schoo
 function legacyFixture() {
   const db = new Database(':memory:'); db.pragma('foreign_keys=ON'); runMigrations(db);
   for (const table of newTables) db.exec(`DROP TABLE ${table}`);
-  db.exec('ALTER TABLE schools DROP COLUMN is_active; DELETE FROM schema_migrations WHERE version>=18');
+  db.exec('ALTER TABLE schools DROP COLUMN is_active; ALTER TABLE card_exercises DROP COLUMN rubric; DELETE FROM schema_migrations WHERE version>=18');
   db.exec(`INSERT INTO users (id,username,password_hash,real_name,role) VALUES (1,'mentor','hash','导师','academic_mentor'),(2,'student','hash','学生','student');
     INSERT INTO courses (id,title,grade_level,difficulty,created_by,status) VALUES (1,'旧课程','primary','basic',1,'published');
     INSERT INTO lessons (id,course_id,title,status) VALUES (1,1,'旧课时','completed');
@@ -57,7 +57,21 @@ test('兼容快照回填失败时整个018迁移回滚，修复故障后可重�
     assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='lesson_content_versions'").get(),undefined);
     assert.equal(db.prepare('SELECT answer_json,attempt_no FROM card_exercise_attempts').get().answer_json,'false');
     runMigrations(db);
-    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,20);
+    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,21);
     assert.equal(db.prepare('SELECT COUNT(*) n FROM card_exercise_attempts').get().n,1);
   } finally {db.prepare=prepare;db.close();}
+});
+
+test('020旧库添加评价要点，保留原题目及作答，重复启动幂等', () => {
+  const db=legacyFixture(); runMigrations(db);
+  try {
+    db.exec('ALTER TABLE card_exercises DROP COLUMN rubric; DELETE FROM schema_migrations WHERE version=21');
+    const before=db.prepare('SELECT * FROM card_exercises').all();
+    const attempts=db.prepare('SELECT * FROM card_exercise_attempts').all();
+    runMigrations(db); runMigrations(db);
+    assert.deepEqual(db.prepare('SELECT * FROM card_exercises').all().map(({rubric,...e})=>e),before);
+    assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts').all(),attempts);
+    assert.ok(db.prepare('PRAGMA table_info(card_exercises)').all().some(c=>c.name==='rubric'));
+    assert.equal(db.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version=21').get().n,1);
+  } finally { db.close(); }
 });

@@ -222,6 +222,37 @@ test('历史缺题定向修复只影响指定学生，不重置已有作答、�
   assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_version_repairs WHERE student_id=3 AND lesson_id=?').get(f.lesson).n,1);
 });
 
+test('教师课程筛选和学情统计不串课程，取消课时不计入当前待办', () => {
+  const a=fixture(), b=fixture();
+  const report=finish(b);
+  review.review(mentor,report.id,{status:'approved',score:90,comment:'通过'});
+  const teacher={id:5,role:'teacher'};
+  assert.ok(!observer.students(teacher,{course_id:a.course,learning_status:'completed'}).items.some(s=>s.id===3));
+  assert.ok(observer.students(teacher,{course_id:a.course,learning_status:'not_started'}).items.some(s=>s.id===3));
+  assert.ok(observer.students(teacher,{course_id:b.course,learning_status:'completed'}).items.some(s=>s.id===3));
+  const extra=db.prepare("INSERT INTO lessons(course_id,title,status) VALUES (?,'新增课时','scheduled')").run(b.course).lastInsertRowid;
+  const detail=observer.studentDetail(teacher,3).courses.find(c=>c.id===b.course);
+  assert.equal(detail.lesson_count,1); assert.equal(detail.completed_lessons,1); assert.equal(detail.completion.percent,100);
+  assert.ok(!detail.lessons.some(l=>l.id===Number(extra)));
+  learning.lessonPackage(3,a.lesson); learning.completeReview(3,a.lesson);
+  assert.equal(observer.students(teacher,{course_id:a.course}).items.find(s=>s.id===3).pending_lessons,1);
+  db.prepare("UPDATE lessons SET status='cancelled' WHERE id=?").run(a.lesson);
+  assert.equal(observer.students(teacher,{course_id:a.course}).items.find(s=>s.id===3).pending_lessons,0);
+});
+
+test('兼容补学要求重提时，课后任务使用有效报告状态而非旧待评或已通过状态', () => {
+  const f=fixture(), r=finish(f);
+  const version=versions.boundVersion(db,3,f.lesson);
+  for(const status of ['submitted','approved']) {
+    db.prepare('UPDATE lesson_learning_reports SET status=? WHERE id=?').run(status,r.id);
+    db.prepare('INSERT OR REPLACE INTO report_replacements(report_id,content_version_id,actor_id,reason) VALUES (?,?,1,?)').run(r.id,version.id,'需补学');
+    const result=runController(require('../controllers/taskController').list,{user:{id:3,role:'student'},query:{status:'in_progress'}});
+    assert.equal(result.code,200);
+    const item=result.body.lessons.find(l=>l.id===f.lesson);
+    assert.equal(item.report_status,'rejected'); assert.equal(item.status,'in_progress'); assert.equal(item.learning_progress,60);
+  }
+});
+
 test('通知事件入队失败时报告业务一起回滚，而投递失败时保留可重试事件', () => {
   const f=fixture(); learning.lessonPackage(3,f.lesson); learning.completeReview(3,f.lesson);
   learning.submitExercise(3,f.exercise,'A'); learning.completeCard(3,f.card);
@@ -237,4 +268,55 @@ test('通知事件入队失败时报告业务一起回滚，而投递失败时�
   db.prepare('UPDATE notification_outbox SET next_retry_at=NULL WHERE event_key=?').run(`lesson.report_submitted:${report.id}`);
   notifications.retryOutbox();
   assert.ok(db.prepare('SELECT delivered_at FROM notification_outbox WHERE event_key=?').get(`lesson.report_submitted:${report.id}`).delivered_at);
+});
+
+test('简答评价要点随版本冻结，作答前隐藏，提交后可见且仍只有一次机会', () => {
+  const f=fixture('short_answer','参考',[]);
+  learning.updateExercise(mentor,f.exercise,{rubric:'旧版评价要点'});
+  assert.equal(learning.lessonPackage(3,f.lesson).cards[0].exercises[0].rubric,null);
+  learning.updateExercise(mentor,f.exercise,{rubric:'新版评价要点'});
+  learning.completeReview(3,f.lesson);
+  const result=learning.submitExercise(3,f.exercise,'学生回答');
+  assert.equal(result.correct,null); assert.equal(result.rubric,'旧版评价要点');
+  assert.equal(learning.lessonPackage(3,f.lesson).cards[0].exercises[0].rubric,'旧版评价要点');
+  assert.throws(()=>learning.submitExercise(3,f.exercise,'再答'),e=>e.code==='MAX_ATTEMPTS_REACHED');
+  learning.completeCard(3,f.card);
+  const r=learning.submitReport(3,f.lesson,{report:{summary:'总结'},reflection:{difficulty:'困难'}});
+  assert.equal(review.detail(mentor,r.id).cards[0].exercises[0].rubric,'旧版评价要点');
+  assert.equal(learning.lessonPackage(4,f.lesson).cards[0].exercises[0].rubric,null);
+});
+
+test('资料改绑定和说明保留旧快照及文件，不能跨课程或绕过历史删除保护', () => {
+  const f=fixture(), other=fixture();
+  const added=runController(courses.addLesson,{params:{id:f.course},body:{title:'第二课时'}}).body.id;
+  const file=path.join(tmp,'old-resource.txt'); fs.writeFileSync(file,'旧资料');
+  const id=Number(db.prepare("INSERT INTO resources(course_id,lesson_id,title,file_path,resource_type,upload_by) VALUES (?,?,'旧标题',?,'courseware',2)").run(f.course,f.lesson,file).lastInsertRowid);
+  const old=learning.lessonPackage(3,f.lesson).resources.find(r=>r.id===id);
+  const change={user:mentor,params:{resource_id:id},body:{title:'新标题',description:'新说明',lesson_id:added}};
+  assert.equal(runController(courses.updateResource,change).code,200);
+  assert.equal(db.prepare('SELECT lesson_id FROM resources WHERE id=?').get(id).lesson_id,added);
+  assert.deepEqual(learning.lessonPackage(3,f.lesson).resources.find(r=>r.id===id),old);
+  assert.equal(runController(courses.updateResource,{...change,body:{lesson_id:other.lesson}}).code,400);
+  assert.equal(runController(courses.updateResource,{...change,user:{id:6,role:'academic_mentor'}}).code,404);
+  assert.equal(runController(courses.deleteResource,{params:{resource_id:id}}).code,409);
+  assert.equal(fs.readFileSync(file,'utf8'),'旧资料');
+});
+
+test('课时和独立任务可维护，无效输入返回400，取消与归档只读且无关导师无权', () => {
+  const f=fixture(); const taskController=require('../controllers/taskController');
+  for(const body of [{title:' '},{start_at:'2026-10-12T12:00',end_at:'2026-10-11T12:00'},{duration:-1}]) assert.equal(runController(courses.updateLesson,{params:{lessonId:f.lesson},body}).code,400);
+  assert.equal(runController(courses.updateLesson,{user:mentor,params:{lessonId:f.lesson},body:{title:'新课时'}}).code,200);
+  const t=runController(courses.addTask,{user:mentor,params:{lesson_id:f.lesson},body:{title:'展示',task_type:'presentation'}});
+  assert.equal(t.code,200);
+  assert.equal(runController(taskController.update,{params:{id:t.body.id},body:{title:' '}}).code,400);
+  assert.equal(runController(taskController.update,{params:{id:t.body.id},body:{task_type:'bad'}}).code,400);
+  assert.equal(runController(taskController.update,{user:mentor,params:{id:t.body.id},body:{title:'改名'}}).code,200);
+  assert.equal(runController(taskController.detail,{user:{id:6,role:'academic_mentor'},params:{id:t.body.id}}).code,404);
+  assert.equal(runController(taskController.cancel,{user:mentor,params:{id:t.body.id}}).code,200);
+  const detail=runController(taskController.detail,{user:mentor,params:{id:t.body.id}});
+  assert.equal(detail.body.task.can_write,false); assert.equal(detail.body.task.task_status,'cancelled');
+  assert.equal(runController(taskController.update,{params:{id:t.body.id},body:{title:'非法'}}).code,409);
+  assert.equal(runController(taskController.detail,{user:{id:3,role:'student'},params:{id:t.body.id}}).code,404);
+  db.prepare("UPDATE courses SET status='archived' WHERE id=?").run(f.course);
+  assert.equal(runController(courses.updateLesson,{params:{lessonId:f.lesson},body:{title:'非法'}}).code,409);
 });

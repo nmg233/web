@@ -115,7 +115,7 @@ service_op start "$SERVICE"
 HEALTHY=0
 for ((attempt=0; attempt<30; attempt++)); do
   if body=$(curl --max-time 3 -fsS "$HEALTH_URL"); then
-    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || !Number.isInteger(h.schema_version) || h.schema_version<20)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
+    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || !Number.isInteger(h.schema_version) || h.schema_version<21)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
   fi
   sleep 1
 done

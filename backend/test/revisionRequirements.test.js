@@ -92,6 +92,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:18,name:'018_learning_versions.sql' },
       { version:19,name:'019_operations_safety.sql' },
       { version:20,name:'020_release_closure.sql' },
+      { version:21,name:'021_short_answer_rubric.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -123,6 +124,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:18,name:'018_learning_versions.sql' },
       { version:19,name:'019_operations_safety.sql' },
       { version:20,name:'020_release_closure.sql' },
+      { version:21,name:'021_short_answer_rubric.sql' },
     ]);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
@@ -281,6 +283,11 @@ test('指定课时回放上传重试幂等，同一请求标识不能提交不�
   assert.equal(first.status,200);
   const row=db.prepare('SELECT * FROM course_replays WHERE id=?').get(first.body.id);
   assert.equal(row.lesson_id,2);
+  const saved=await api('/courses/1/replay-requests/replay-retry-test-key','GET',undefined,'mentor');
+  assert.equal(saved.status,200);assert.equal(saved.body.state,'saved');assert.equal(saved.body.replay.id,first.body.id);
+  assert.equal((await api('/courses/1/replay-requests/replay-retry-test-key','GET',undefined,'admin')).body.state,'unknown','不能查询另一账号的请求结果');
+  assert.equal((await api('/courses/1/replay-requests/replay-retry-test-key','GET',undefined,'othermentor')).status,404);
+  for(const user of ['student','teacher']) assert.equal((await api('/courses/1/replay-requests/replay-retry-test-key','GET',undefined,user)).status,403);
   const files=fs.readdirSync(path.join(dir,'uploads/course-replays')).sort();
   const repeated=await api('/courses/1/replays','POST',form(bytes),'mentor');
   assert.equal(repeated.status,200);assert.equal(repeated.body.id,first.body.id);
@@ -290,9 +297,29 @@ test('指定课时回放上传重试幂等，同一请求标识不能提交不�
   assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
 });
 
+test('导师视频上传精确绑定课时，跨课程、取消课时、归档及无权限上传均被拒绝且无残留', async () => {
+  db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (9001,'课时上传验收','primary','basic','published',2),(9002,'另一课程','primary','basic','published',2)").run();
+  db.prepare("INSERT INTO lessons (id,course_id,title,status) VALUES (9001,9001,'第一课时','completed'),(9002,9001,'第二课时','completed'),(9003,9002,'跨课程课时','completed'),(9004,9001,'取消课时','cancelled')").run();
+  const form = (lessonId) => { const body = replayForm(); body.set('lesson_id', String(lessonId)); return body; };
+  const created = await api('/courses/9001/replays', 'POST', form(9002), 'mentor');
+  assert.equal(created.status, 200);
+  const row = db.prepare('SELECT course_id,lesson_id FROM course_replays WHERE id=?').get(created.body.id);
+  assert.deepEqual(row, { course_id: 9001, lesson_id: 9002 });
+  const listed = await api('/courses/9001/replays', 'GET', undefined, 'mentor');
+  assert.equal(listed.body.replays.length, 1);
+  assert.equal(listed.body.replays[0].lesson_id, 9002);
+  const files = fs.readdirSync(path.join(dir, 'uploads/course-replays')).sort();
+  for (const lessonId of [9003, 9004, 99999]) assert.equal((await api('/courses/9001/replays', 'POST', form(lessonId), 'mentor')).status, 400);
+  for (const user of ['teacher', 'student', 'othermentor']) assert.equal((await api('/courses/9001/replays', 'POST', form(9001), user)).status, 403);
+  db.prepare("UPDATE courses SET status='archived' WHERE id=9001").run();
+  assert.equal((await api('/courses/9001/replays', 'POST', form(9001), 'mentor')).status, 409);
+  assert.deepEqual(fs.readdirSync(path.join(dir, 'uploads/course-replays')).sort(), files);
+  assert.equal(db.prepare('SELECT COUNT(*) AS count FROM course_replays WHERE course_id=9001').get().count, 1);
+});
+
 test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
   const healthy=await api('/health','GET',undefined,null);
-  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,20);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,21);
   const prepare=db.prepare;
   try {
     db.prepare=function(sql){if(sql.includes('FROM schema_migrations'))throw Error('模拟数据库不可用');return prepare.call(this,sql);};

@@ -18,6 +18,7 @@ router.get('/', requireRole('admin', 'academic_mentor', 'student', 'media'), con
 router.post('/', requireRole('admin', 'academic_mentor'), controller.create);
 router.get('/resources/:resource_id/download', controller.downloadResource);
 router.delete('/resources/:resource_id', requireRole('admin', 'academic_mentor'), controller.deleteResource);
+router.put('/resources/:resource_id', requireRole('admin', 'academic_mentor'), controller.updateResource);
 router.get('/replays/:replayId/stream-url', controller.streamUrl);
 router.put('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.updateReplay);
 router.delete('/replays/:replayId', requireRole('admin', 'academic_mentor'), controller.deleteReplay);
@@ -36,6 +37,7 @@ router.post('/:id/resources', requireRole('admin', 'academic_mentor'), controlle
 
 // 课程回放
 router.get('/:id/replays', controller.listReplays);
+router.get('/:id/replay-requests/:requestKey', requireRole('admin','academic_mentor'), controller.replayUploadResult);
 router.post('/:id/replays', requireRole('admin', 'academic_mentor'), controller.requireCourseManagement, uploadReplay.single('file'), validateUploadedFiles, uploadFingerprint, controller.uploadReplay);
 
 // 任务

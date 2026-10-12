@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { validateTeachingInput } = require('../helpers/teachingInput');
 
 function canManageTask(user, taskId) {
   if (user.role === 'admin') return true;
@@ -35,6 +36,7 @@ function taskStatusFromReview(reviewStatus) {
 }
 
 function taskStatusFromLearning(progress, reportStatus) {
+  if (reportStatus === 'rejected') return 'in_progress';
   if (Number(progress || 0) >= 100 || reportStatus === 'approved') return 'completed';
   if (reportStatus === 'submitted') return 'submitted';
   if (Number(progress || 0) > 0 || reportStatus === 'rejected') return 'in_progress';
@@ -83,10 +85,12 @@ exports.list = (req, res) => {
       FROM enrollments e JOIN courses c ON c.id = e.course_id JOIN lessons l ON l.course_id = c.id
       LEFT JOIN lesson_progress lp ON lp.student_id = e.student_id AND lp.lesson_id = l.id
       WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published' AND l.status != 'cancelled'
-      ORDER BY c.id, l.sort_order, l.id`).all(req.user.id, req.user.id).map((l) => ({ ...l, kind: 'learning',
-        status: taskStatusFromLearning(l.learning_progress, l.report_status),
+      ORDER BY c.id, l.sort_order, l.id`).all(req.user.id, req.user.id).map((l) => {
+        const state = require('../helpers/learningGate').getLessonLearningState(req.user.id, l.id);
+        return { ...l, kind: 'learning', learning_progress: state.percent, report_status: state.report_status,
+        status: taskStatusFromLearning(state.percent, state.report_status),
         started: Boolean(require('../helpers/lessonVersions').boundVersion(db, req.user.id, l.id)),
-        readiness: require('../helpers/lessonVersions').readiness(db, l.id) }))
+        readiness: require('../helpers/lessonVersions').readiness(db, l.id) }; })
       .filter((l) => {
         const state = require('../helpers/lessonVersions').courseState(db, req.user.id, l.course_id);
         return (!state.completed || state.lesson_ids.includes(l.lesson_id)) && (!req.query.status || l.status === req.query.status);
@@ -102,13 +106,14 @@ exports.detail = (req, res) => {
   try {
     const task = db.prepare(`
       SELECT t.*, l.title AS lesson_title, l.course_id, c.title AS course_title,
-        c.description AS course_description, c.created_by
+        c.description AS course_description, c.created_by, c.status AS course_status, l.status AS lesson_status
       FROM tasks t JOIN lessons l ON l.id = t.lesson_id JOIN courses c ON c.id = l.course_id
-      WHERE t.id = ? AND c.status = 'published' AND l.status != 'cancelled' AND t.status = 'active'
+      WHERE t.id = ?
     `).get(req.params.id);
     if (!task) return res.status(404).json({ error: '任务不存在' });
 
     const userId = req.user.role === 'student' ? req.user.id : null;
+    if (userId && (task.course_status !== 'published' || task.lesson_status === 'cancelled' || task.status !== 'active')) return res.status(404).json({ error: '任务不存在' });
     const enrollment = userId
       ? db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(userId, task.course_id, 'active')
       : null;
@@ -124,13 +129,8 @@ exports.detail = (req, res) => {
       FROM works w LEFT JOIN work_reviews r ON r.work_id = w.id
       WHERE w.task_id = ? AND w.student_id = ? ORDER BY w.version DESC
     `).all(task.id, userId) : [];
-    const learning = userId ? db.prepare(`
-      SELECT lp.progress,
-        (SELECT status FROM lesson_learning_reports WHERE student_id = ? AND lesson_id = ? ORDER BY version DESC, id DESC LIMIT 1) AS report_status
-      FROM (SELECT 1) seed
-      LEFT JOIN lesson_progress lp ON lp.student_id = ? AND lp.lesson_id = ?
-    `).get(userId, task.lesson_id, userId, task.lesson_id) : null;
-    res.json({ task: { ...task, enrollment_id: enrollment?.id || null, status: taskStatus(task, userId) }, works });
+    const canManage = ['admin', 'academic_mentor'].includes(req.user.role) && canManageTask(req.user, task.id);
+    res.json({ task: { ...task, task_status:task.status, can_manage:canManage, can_write:canManage && taskWritable(task.id), enrollment_id: enrollment?.id || null, status: taskStatus(task, userId) }, works });
   } catch (err) {
     console.error('任务详情错误:', err);
     res.status(500).json({ error: '加载任务详情失败' });
@@ -143,6 +143,8 @@ exports.update = (req, res) => {
       return res.status(403).json({ error: '无权管理该任务' });
     }
     if (!taskWritable(req.params.id)) return res.status(409).json({ error: '已归档或取消的任务只允许查看历史' });
+    const invalid = validateTeachingInput(req.body, 'task');
+    if (invalid) return res.status(400).json({ error:invalid });
     const fields = ['title', 'description', 'task_type', 'require_upload', 'deadline'];
     const sets = [];
     const values = [];
@@ -151,7 +153,7 @@ exports.update = (req, res) => {
         sets.push(`${field} = ?`);
         values.push(field === 'require_upload'
           ? (req.body[field] === true || req.body[field] === '1' || req.body[field] === 1 ? 1 : 0)
-          : req.body[field] || null);
+          : field === 'title' ? req.body[field].trim() : req.body[field] || null);
       }
     }
     if (sets.length === 0) return res.status(400).json({ error: '没有需要更新的内容' });

@@ -82,9 +82,6 @@ function assertManageLesson(user, lessonId) {
 }
 
 function assertWritableLesson(user, lessonId) {
-  if (user.role !== 'admin') {
-    throw new LearningError('仅管理员可编辑知识卡片和练习', 403, 'LEARNING_CONTENT_READ_ONLY');
-  }
   const lesson = assertManageLesson(user, lessonId);
   if (lesson.course_status === 'archived') {
     throw new LearningError('已归档课程不能修改学习内容', 409, 'COURSE_ARCHIVED');
@@ -168,7 +165,7 @@ function lessonPackage(studentId, lessonId) {
         auto_graded: e.question_type !== 'short_answer',
         blank_count: parseStoredJson(answer_json)?.blanks?.length || 0,
         correct_answer: attempt ? parseStoredJson(answer_json) : null,
-        explanation: attempt ? e.explanation : null, feedback: feedback || null,
+        explanation: attempt ? e.explanation : null, rubric: attempt ? e.rubric || null : null, feedback: feedback || null,
       })),
     })),
     consolidation_tasks: tasks,
@@ -206,7 +203,8 @@ function previewLesson(user, lessonId) {
     SELECT e.id, e.card_id, e.question_type, e.prompt, e.options_json,
            e.points, e.sort_order, e.is_required, e.max_attempts
     FROM card_exercises e JOIN knowledge_cards c ON c.id = e.card_id
-    WHERE c.lesson_id = ? AND c.status = 'published' ORDER BY e.sort_order, e.id
+    WHERE c.lesson_id = ? AND c.status = 'published'
+      AND NOT EXISTS (SELECT 1 FROM retired_exercises x WHERE x.exercise_id=e.id) ORDER BY e.sort_order, e.id
   `).all(lessonId);
   return {
     read_only: true,
@@ -348,6 +346,7 @@ function submitExercise(studentId, exerciseId, answer) {
     correct,
     score,
     explanation: exercise.explanation || null,
+    rubric: exercise.rubric || null,
     correct_answer: expected,
     attempt_no: attemptNo,
     card_completed: cardCompleted,
@@ -470,9 +469,10 @@ function listManagedCards(user, lessonId) {
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
       ...item,
       options: parseStoredJson(item.options_json, []),
-      answer_json: user.role === 'admin' ? item.answer_json : undefined,
-      answer: user.role === 'admin' ? parseStoredJson(item.answer_json) : undefined,
-      explanation: user.role === 'admin' ? item.explanation : undefined,
+      answer_json: item.answer_json,
+      answer: parseStoredJson(item.answer_json),
+      explanation: item.explanation,
+      rubric: item.rubric || null,
     })),
   }));
 }
@@ -585,6 +585,7 @@ function exercisePayload(data) {
     options_json: optionJson.encoded,
     answer_json: answerJson.encoded,
     explanation: text(data.explanation, 5000, true),
+    rubric: data.question_type === 'short_answer' ? text(data.rubric, 5000, false) : null,
     points: integer(data.points, { min: 1, max: 100, fallback: 1 }),
     sort_order: integer(data.sort_order, { min: 0, max: 10000, fallback: 0 }),
     is_required: data.is_required === false || data.is_required === 0 ? 0 : 1,
@@ -601,10 +602,10 @@ function createExercise(user, cardId, data) {
   const result = db.prepare(`
     INSERT INTO card_exercises (
       card_id, question_type, prompt, options_json, answer_json, explanation,
-      points, sort_order, is_required, max_attempts
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      points, sort_order, is_required, max_attempts, rubric
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(card.id, value.question_type, value.prompt, value.options_json, value.answer_json,
-    value.explanation, value.points, value.sort_order, value.is_required, value.max_attempts);
+    value.explanation, value.points, value.sort_order, value.is_required, value.max_attempts, value.rubric);
   return { id: Number(result.lastInsertRowid) };
 }
 
@@ -619,10 +620,10 @@ function updateExercise(user, exerciseId, data) {
   db.prepare(`
     UPDATE card_exercises SET question_type = ?, prompt = ?, options_json = ?,
       answer_json = ?, explanation = ?, points = ?, sort_order = ?, is_required = ?,
-      max_attempts = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+      max_attempts = ?, rubric = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
   `).run(value.question_type, value.prompt, value.options_json, value.answer_json,
     value.explanation, value.points, value.sort_order, value.is_required,
-    value.max_attempts, current.id);
+    value.max_attempts, value.rubric, current.id);
   return { id: current.id };
 }
 
