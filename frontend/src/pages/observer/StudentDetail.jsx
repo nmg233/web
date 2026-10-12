@@ -1,33 +1,32 @@
+import {formatBeijingTime} from '../../utils/date';
+import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button, Card, Collapse, Descriptions, Empty, List, Progress, Space, Tag, Timeline, Typography } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { observerAPI } from '../../api';
+import {ReflectionFields} from '../../student/ArchiveRecords';
 import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
 
-export default function ObserverStudentDetail() {
+export default function ObserverStudentDetail(){const{studentId}=useParams();return <ObserverStudentView key={studentId}/>;}
+function ObserverStudentView() {
   const { studentId } = useParams(); const navigate = useNavigate(); const [data, setData] = useState(null); const [error, setError] = useState('');
-  const sequence = useRef(0);
-  const location = useLocation();
-  const load = async () => {
-    const request = ++sequence.current; setData(null); setError('');
-    try { const payload = await observerAPI.student(studentId); if (request === sequence.current) setData(payload); }
-    catch (err) { if (request === sequence.current) setError(err?.response?.data?.error || '无法加载学生学情'); }
-  };
-  useEffect(() => { load(); return () => { sequence.current++; }; }, [studentId]); // eslint-disable-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  if (!data || data.student.id !== Number(studentId)) return <PageContainer title="学生学情"><AsyncPageState loading={!error} error={error} onRetry={load}><span /></AsyncPageState></PageContainer>;
+  const sequence=useRef(0),location=useLocation();
+  const load=async()=>{const ticket=++sequence.current;setData(null);setError('');try{const payload=await observerAPI.student(studentId);if(ticket===sequence.current)setData(payload);}catch(error){if(ticket===sequence.current)setError(error.response?.data?.error||siteText('site.97c8fe502eb8f1f2'));}};
+  useEffect(()=>{load();return()=>{sequence.current++;};},[studentId]); // eslint-disable-line react-hooks/set-state-in-effect,react-hooks/exhaustive-deps
+  if (!data||data.student.id!==Number(studentId)) return <PageContainer title={siteText("site.67a8d3d9162a3388")}><AsyncPageState loading={!error} error={error} onRetry={load}><span /></AsyncPageState></PageContainer>;
   const { student } = data;
   return <PageContainer title={student.real_name} description={`${student.school_name || '-'} · ${student.class_name || '-'} · 只读学情档案`} extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(location.state?.returnTo?.startsWith('/observer/students?') ? location.state.returnTo : '/observer/students')}>返回学生列表</Button>}>
     <Card className="content-card" style={{ marginBottom: 16 }}><Descriptions><Descriptions.Item label="登录账号">{student.username}</Descriptions.Item><Descriptions.Item label="年级">{student.grade || '-'}</Descriptions.Item><Descriptions.Item label="班级">{student.class_name || '-'}</Descriptions.Item></Descriptions></Card>
-    <Card className="content-card" title="课程进展" style={{ marginBottom: 16 }}><List dataSource={data.courses} locale={{ emptyText: <Empty description="暂无课程" /> }} renderItem={(c) => <List.Item><List.Item.Meta title={c.title} description={<Space orientation="vertical"><Typography.Text>{c.completed_lessons}/{c.lesson_count} 个课时已完成</Typography.Text><Typography.Text>{c.completion?.completed ? `已结课 · ${c.completion.completed_at || '时间未记录'}（保留结课课时清单）` : '尚未结课'}</Typography.Text><Space wrap>{(c.lessons || []).map((lesson) => <Button key={lesson.id} size="small" onClick={() => navigate(`/courses/${c.id}/lessons/${lesson.id}/preview`, {state: {returnTo: `/observer/students/${studentId}`,parentState:location.state}})}>预览：{lesson.title}{lesson.status === 'cancelled' ? '（取消历史）' : ''}</Button>)}</Space></Space>} /><Progress style={{ maxWidth: 240 }} percent={c.completion?.percent || 0} /></List.Item>} /></Card>
+    <Card className="content-card" title="课程进展" style={{ marginBottom: 16 }}><List dataSource={data.courses} locale={{ emptyText: <Empty description="暂无课程" /> }} renderItem={(c) => <List.Item><List.Item.Meta title={c.title} description={<Space orientation="vertical"><Typography.Text>{c.completed_lessons}/{c.lesson_count} 个课时已完成</Typography.Text><Typography.Text>{c.completion?.completed ? `已结课 · ${(c.completion.completed_at ? formatBeijingTime(c.completion.completed_at) : '时间未记录')}（保留结课课时清单）` : '尚未结课'}</Typography.Text><Space wrap>{(c.lessons || []).map((lesson) => <Button key={lesson.id} size="small" onClick={() => navigate(`/courses/${c.id}/lessons/${lesson.id}/preview`, {state: {returnTo: `/observer/students/${studentId}`,parentState:location.state}})}>预览：{lesson.title}{lesson.status === 'cancelled' ? '（取消历史）' : ''}</Button>)}</Space></Space>} /><Progress style={{ maxWidth: 240 }} percent={c.completion?.percent || 0} /></List.Item>} /></Card>
     <div className="learning-shell"><Card className="content-card" title="课时与学习报告"><List dataSource={data.lessons} locale={{ emptyText: '暂无课时学习记录' }} renderItem={(l) => <List.Item><List.Item.Meta title={`${l.course_title} · ${l.lesson_title}`} description={<Space direction="vertical"><Progress percent={l.progress || 0} size="small" /><Typography.Text>{l.summary || '尚未提交学习报告'}</Typography.Text>
       <Space wrap><Tag color={l.stages?.review_completed ? 'green' : 'default'}>课堂回顾{l.stages?.review_completed ? '已确认' : '未完成'}</Tag><Tag>卡片 {l.stages?.cards_completed || 0}/{l.stages?.cards_total || 0}</Tag><Tag color={['submitted','approved'].includes(l.report_status) ? 'green' : 'default'}>报告反思{['submitted','approved'].includes(l.report_status) ? '已提交' : l.report_status === 'rejected' ? '待修改' : '未提交'}</Tag><Tag>内容版本 {l.content_version || '尚未开始'}</Tag></Space>
-      <Typography.Text type="secondary">最近更新：{l.updated_at || '尚无学习记录'}</Typography.Text>
-      <Typography.Text>报告版本：{l.report_version ? `第 ${l.report_version} 版` : '尚未提交'} · 报告评分：{l.score === null || l.score === undefined ? '未评分' : `${l.score} 分`} · 评审时间：{l.reviewed_at || '尚未评审'}</Typography.Text>
+      <Typography.Text type="secondary">最近更新：{(l.updated_at ? formatBeijingTime(l.updated_at) : '尚无学习记录')}</Typography.Text>
+      <Typography.Text>报告版本：{l.report_version ? `第 ${l.report_version} 版` : '尚未提交'} · 报告评分：{l.score === null || l.score === undefined ? '未评分' : `${l.score} 分`} · 评审时间：{(l.reviewed_at ? formatBeijingTime(l.reviewed_at) : '尚未评审')}</Typography.Text>
       {l.stages?.resubmission_required && <Typography.Text type="warning">此报告已转为补学历史，以上评分和评语属于旧版；学生须补学并重提新版。</Typography.Text>}
-      <Collapse size="small" items={[{key:'cards',label:'查看卡片与答题进度',children:l.cards?.map((c) => <Typography.Paragraph key={c.id}>{c.title} · {c.completed_at ? '已完成' : '未完成'} · 作答 {c.answered}/{c.exercise_count} · 客观题 {c.best_score === null ? '无评分题' : `${c.best_score} 分`}</Typography.Paragraph>)}]} />{l.review_comment && <Typography.Text type="secondary">导师意见：{l.review_comment}</Typography.Text>}</Space>} /><Tag>{({approved:'评审通过',submitted:'待评审',rejected:'需修改',draft:'草稿'})[l.report_status] || '未提交'}</Tag></List.Item>} /></Card>
-      <Card className="content-card" title="近期成长轨迹"><Timeline items={data.timeline.map((event) => ({ children: <><Typography.Text>{event.description}</Typography.Text><br /><Typography.Text type="secondary">{event.created_at}</Typography.Text></> }))} /></Card></div>
+      <Collapse size="small" items={[{key:'report',label:'报告正文与反思',children:<><Descriptions column={1}>{[['key_points','知识要点'],['application','应用实践'],['difficulties','困难'],['next_plan','后续计划']].map(([key,label])=><Descriptions.Item key={key} label={label}>{l[key]||'未填写'}</Descriptions.Item>)}</Descriptions>{data.reflections?.filter(r=>r.report_id===l.report_id).map(r=><div key={r.id}>{r.reflection_version===2?<ReflectionFields reflection={r}/>:<Descriptions column={1}>{[['difficulty','困难'],['solution','解决方式'],['improvement','改进'],['new_question','新问题']].map(([key,label])=><Descriptions.Item key={key} label={label}>{r[key]||'未填写'}</Descriptions.Item>)}</Descriptions>}</div>)}</>},{key:'cards',label:'查看卡片与答题进度',children:l.cards?.map((c) => <Typography.Paragraph key={c.id}>{c.title} · {c.completed_at ? '已完成' : '未完成'} · 作答 {c.answered}/{c.exercise_count} · 客观题 {c.best_score === null ? '无评分题' : `${c.best_score} 分`}</Typography.Paragraph>)}]} />{l.review_comment && <Typography.Text type="secondary">导师意见：{l.review_comment}</Typography.Text>}</Space>} /><Tag>{({approved:'评审通过',submitted:'待评审',rejected:'需修改',draft:'草稿'})[l.report_status] || '未提交'}</Tag></List.Item>} /></Card>
+      <Card className="content-card" title="近期成长轨迹"><Timeline items={data.timeline.map((event) => ({ children: <><Typography.Text>{event.description}</Typography.Text><br /><Typography.Text type="secondary">{formatBeijingTime(event.created_at)}</Typography.Text></> }))} /></Card></div>
     <Card className="content-card" title="已通过成果" style={{ marginTop: 16 }}><List dataSource={data.approved_works} locale={{ emptyText: '暂无已通过成果' }} renderItem={(work) => <List.Item><List.Item.Meta title={work.title} description={`${work.course_title || ''} · ${work.task_title || ''}`} /><Tag color="green">已通过</Tag></List.Item>} /></Card>
   </PageContainer>;
 }

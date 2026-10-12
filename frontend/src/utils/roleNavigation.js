@@ -2,7 +2,7 @@ export const ROLE_HOME = {
   admin: '/dashboard',
   academic_mentor: '/dashboard',
   teacher: '/observer',
-  student: '/dashboard',
+  student: '/explore',
   media: '/dashboard',
 };
 
@@ -18,6 +18,7 @@ const COMMON_RULES = [
 
 const ROLE_PATH_RULES = {
   admin: [
+    /^\/reward-management$/,
     /^\/dashboard(?:\/schools\/\d+|\/ai)?$/,
     /^\/glider$/,
     /^\/courses(?:\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,
@@ -44,6 +45,11 @@ const ROLE_PATH_RULES = {
     /^\/archives$/,
   ],
   student: [
+    /^\/me$/,
+    /^\/courses\/\d+\/(?:lab|glider|archives|reflection|assistant|tasks(?:\/\d+)?|works(?:\/(?:upload|\d+))?)$/,
+    /^\/explore$/,
+    /^\/lab$/,
+    /^\/archives\/rewards$/,
     /^\/dashboard(?:\/ai)?$/,
     /^\/glider$/,
     /^\/courses(?:\/\d+|\/\d+\/learn|\/\d+\/lessons\/\d+\/learn)?$/,
@@ -58,7 +64,7 @@ const ROLE_PATH_RULES = {
 };
 
 export function canRoleAccessPath(role, path) {
-  if (!path || !path.startsWith('/')) return false;
+  if (typeof path !== 'string' || !path.startsWith('/') || path.startsWith('//') || path.includes('\\') || [...path].some((char) => char.charCodeAt(0) <= 32 || char.charCodeAt(0) === 127 || char.charCodeAt(0) === 92)) return false;
   const pathname = path.split(/[?#]/, 1)[0];
   return [...COMMON_RULES, ...(ROLE_PATH_RULES[role] || [])].some((rule) => rule.test(pathname));
 }

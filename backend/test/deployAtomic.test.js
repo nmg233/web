@@ -42,7 +42,7 @@ node() {
 }
 sqlite3() { local target; target=$(printf '%s' "$2" | command sed "s/^\\.backup '//;s/'$//"); command cp "$1" "$target"; }
 systemctl() { echo "service:$1" >> "$MOCK_LOG"; if [[ "$1" == show ]]; then echo "$CURRENT_LINK/backend"; fi; }
-curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":21}' "$MOCK_SHA"; }
+curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":1025}' "$MOCK_SHA"; }
 sleep() { return 0; }
 readlink() { if [[ "$2" == "$CURRENT_LINK" ]]; then command cat "$CURRENT_LINK"; else command readlink "$@"; fi; }
 ln() { printf '%s\n' "$3" > "$4"; echo switch >> "$MOCK_LOG"; }

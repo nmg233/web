@@ -1,0 +1,85 @@
+{
+  "baseline": "6a4d7dd9647a6b6705119d28941d248658ec829c",
+  "pages": [
+    {
+      "title": "徽章陈列室",
+      "route": "/me/badges",
+      "ids": [
+        "badgeRoom.entry",
+        "badgeRoom.title",
+        "badgeRoom.account",
+        "badgeRoom.back",
+        "badgeRoom.loading",
+        "badgeRoom.error",
+        "badgeRoom.earnedTitle",
+        "badgeRoom.lockedTitle",
+        "badgeRoom.earned",
+        "badgeRoom.locked",
+        "badgeRoom.noEarned",
+        "badgeRoom.allEarned",
+        "badgeRoom.noDefinitions",
+        "badgeRoom.missingHighlight",
+        "badgeRoom.close",
+        "badgeRoom.condition",
+        "badgeRoom.earnedCondition",
+        "badgeRoom.time",
+        "badgeRoom.source",
+        "badgeRoom.satisfied",
+        "badgeRoom.noDescription",
+        "badgeRoom.demo.title",
+        "badgeRoom.demo.scope",
+        "badgeRoom.demo.exchange",
+        "badgeRoom.demo.condition",
+        "badgeRoom.demo.shop",
+        "next3.badges.history",
+        "next3.badges.lesson",
+        "next3.badges.demoSource",
+        "next3.retry"
+      ],
+      "shot": "room-1440x900.png"
+    },
+    {
+      "title": "我的姓名与徽章入口",
+      "route": "/me",
+      "ids": [
+        "badgeRoom.entry",
+        "system.me.002",
+        "system.me.003",
+        "system.me.004",
+        "system.me.005"
+      ],
+      "shot": "me-1440x900.png"
+    },
+    {
+      "title": "获章反馈与演示兑换迁移",
+      "route": "/me/badges",
+      "ids": [
+        "next3.award.title",
+        "next3.award.skip",
+        "next3.award.view",
+        "next3.award.before",
+        "next3.award.after",
+        "next3.award.real",
+        "next3.exchange.digital",
+        "next3.exchange.demo"
+      ],
+      "shot": "room-1440x900.png"
+    },
+    {
+      "title": "小智浮窗与点击",
+      "route": "/explore",
+      "ids": [
+        "assistant.open",
+        "assistant.close",
+        "assistant.name",
+        "assistant.send",
+        "system.robot.001",
+        "system.robot.002",
+        "system.robot.003",
+        "next.robot.reset"
+      ],
+      "shot": "robot-1440x900.png"
+    }
+  ],
+  "scope": "Incremental snapshots only; original 46 HTML files unchanged; same IDs and changed-only validation."
+}

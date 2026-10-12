@@ -60,6 +60,12 @@ function userDeletionBlockers(userId) {
       ['evaluations', '学生评价'],
       ['growth_records', '学生成长记录'],
       ['glider_simulations', '实验模拟记录'],
+      ['student_coin_ledger', '真实金币流水'],
+      ['student_coin_checkins', '真实签到记录'],
+      ['student_badge_grants', '课时徽章记录'],
+      ['reward_orders', '真实礼品兑换订单'],
+      ['reward_badge_grants', '兑换徽章记录'],
+      ['demo_exchange_events', '历史演示兑换记录'],
       ['project_team_members', '微课题参与记录'],
     ].map(([table, label]) => ({
       label,
@@ -104,6 +110,12 @@ function deleteUserWithWorks(userId) {
   const simDirs = sims.map((s) => path.join(require('../middleware/upload').UPLOAD_ROOT, 'glider', String(s.id)));
   // 先事务删除用户（作品/档案/反思等经外键级联清理），提交后再删物理文件
   db.transaction(() => {
+    // Recheck after obtaining the write lock: another process may have added
+    // history since the controller's earlier, user-friendly preflight.
+    const current = db.prepare('SELECT role FROM users WHERE id=?').get(userId);
+    if (current?.role === 'admin') throw Object.assign(new Error('不能删除管理员账号'), {status:400});
+    const blockers = userDeletionBlockers(userId);
+    if (blockers.length) throw Object.assign(new Error('该用户已有业务历史，无法删除：' + formatBlockers(blockers)), {status:400});
     db.prepare('DELETE FROM request_results WHERE actor_id=?').run(userId);
     db.prepare('DELETE FROM users WHERE id = ?').run(userId);
   }).immediate();
@@ -356,6 +368,13 @@ exports.updateUser = (req, res) => {
     const active = is_active === undefined ? existing.is_active : toBooleanInt(is_active);
 
     db.transaction(() => {
+      const current = db.prepare('SELECT role FROM users WHERE id=?').get(userId);
+      if (!current) throw Object.assign(new Error('用户不存在'), {status:404});
+      if (current.role === 'admin') throw Object.assign(new Error('不能通过此接口修改管理员账号'), {status:400});
+      if (role !== current.role) {
+        const blockers = userDeletionBlockers(userId);
+        if (blockers.length) throw Object.assign(new Error('账号已有业务历史或职责关联，请保留原身份；需要新身份时另建账号'), {status:409,blockers:blockers.map(({label,count})=>({label,count}))});
+      }
       db.prepare(
         `UPDATE users
          SET real_name = ?, role = ?, school_id = ?, class_id = ?, email = ?, phone = ?, profile = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
@@ -371,12 +390,12 @@ exports.updateUser = (req, res) => {
         const reason = typeof req.body.reason === 'string' && req.body.reason.trim() ? req.body.reason.trim() : '管理员编辑资料调整账号状态';
         db.prepare('INSERT INTO account_status_events(user_id,actor_id,action,reason) VALUES(?,?,?,?)').run(userId,req.user.id,active ? 'restore' : 'disable',reason);
       }
-    })();
+    }).immediate();
 
     res.json({ message: '用户信息已更新' });
   } catch (err) {
     console.error('更新用户错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试', ...(err.blockers ? {blockers:err.blockers} : {}) });
   }
 };
 
@@ -397,7 +416,7 @@ exports.deleteUser = (req, res) => {
     res.json({ message: `用户 ${user.real_name} 已删除` });
   } catch (err) {
     console.error('删除用户错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 
@@ -429,8 +448,13 @@ exports.batchDeleteUsers = (req, res) => {
         blockedMsgs.push(`${user.real_name}（${blockers.map((b) => `${b.label} ${b.count} 条`).join('、')}）`);
         continue;
       }
-      deleteUserWithWorks(id);
-      deleted.push(user.real_name);
+      try {
+        deleteUserWithWorks(id);
+        deleted.push(user.real_name);
+      } catch (err) {
+        if (err.status !== 400) throw err;
+        blockedMsgs.push(user.real_name + '（' + err.message + '）');
+      }
     }
 
     const msg = `已删除 ${deleted.length} 名用户`;
@@ -492,7 +516,7 @@ exports.deleteStudent = (req, res) => {
     res.json({ message: '学生已删除' });
   } catch (err) {
     console.error('删除学生错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status || 500).json({ error: err.status ? err.message : '操作失败，请稍后重试' });
   }
 };
 

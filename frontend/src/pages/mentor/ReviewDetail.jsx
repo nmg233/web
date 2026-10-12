@@ -1,3 +1,5 @@
+import {copyText as siteText, copyTemplate as siteTemplate} from '../../content/copy';
+import {ReflectionFields} from '../../student/ArchiveRecords';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
@@ -32,79 +34,73 @@ function AnswerFeedback({ exercise, reportId, readOnly }) {
 }
 
 const dimensions = [
-  ['knowledge_understanding', '知识理解'],
-  ['problem_analysis', '问题分析'],
-  ['practical_application', '实践应用'],
-  ['reflection_expression', '反思表达'],
+  ['knowledge_understanding', siteText("site.8b310548b22c624b")],
+  ['problem_analysis', siteText("site.9603aab650dcabfc")],
+  ['practical_application', siteText("site.fd4fcc0eeeadf290")],
+  ['reflection_expression', siteText("site.e5e4562ec821dc2b")],
 ];
 
 export default function ReviewDetail() {
-  const location = useLocation();
   const { reportId } = useParams();
-  const navigate = useNavigate();
+  const navigate=useNavigate(),location=useLocation(),sequence=useRef(0);
+  const queueReturn=returnContext(location.state?.returnTo || location.state?.queueReturn, '/mentor/reviews');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
-  const sequence = useRef(0);
   const load = async () => {
-    const request = ++sequence.current;
-    setData(null); setLoading(true); setError('');
-    try { const payload = await mentorReviewAPI.detail(reportId); if (request !== sequence.current) return; setData(payload); form.resetFields(); }
-    catch (err) { if (request === sequence.current) setError(err?.response?.data?.error || '无法加载评审详情'); }
-    finally { if (request === sequence.current) setLoading(false); }
+    const ticket=++sequence.current;setLoading(true);setError('');setData(null);
+    try {const result=await mentorReviewAPI.detail(reportId);if(ticket===sequence.current)setData(result);}
+    catch(err){if(ticket===sequence.current)setError(err?.response?.data?.error||siteText("site.d45f7e01a58c637e"));}
+    finally{if(ticket===sequence.current)setLoading(false);}
   };
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { load(); return () => { sequence.current++; Modal.destroyAll(); }; }, [reportId]);
+  useEffect(() => { load();return()=>{sequence.current++;Modal.destroyAll();}; }, [reportId]);
 
   const review = async (status) => {
-    if (!data || data.report.id !== Number(reportId) || loading || data.read_only) return;
-    const request = sequence.current;
-    const targetId = data.report.id;
+    if(!data||data.report.id!==Number(reportId)||loading||data.read_only)return;const ticket=sequence.current;
     const values = await form.validateFields(['score', 'comment', 'dimensions']);
-    if (status === 'rejected' && !values.comment?.trim()) return message.warning('退回时请填写修改意见');
+    if (status === 'rejected' && !values.comment?.trim()) return message.warning(siteText("site.58f041e733c2002d"));
     Modal.confirm({
-      title: status === 'approved' ? '确认通过这份报告？' : '确认退回第三阶段修改？',
-      content: `${data.student.real_name} · ${data.lesson.title} · ${values.score} 分`,
+      title: status === 'approved' ? siteText("site.869aec222b9107ed") : siteText("site.ffedc448a6b1bec1"),
+      content: siteTemplate("site.806761112dc6ee0e", {slot0: (data.student.real_name), slot1: (data.lesson.title), slot2: (values.score)}),
       onOk: async () => {
-        if (request !== sequence.current) throw new Error('页面已切换，请重新确认评审对象');
+        if(ticket!==sequence.current)throw new Error('页面已切换，请重新确认评审对象');
         setSubmitting(true);
         try {
-          await mentorReviewAPI.review(targetId, { status, comment: values.comment, score: values.score, dimensions: values.dimensions });
-          if (request !== sequence.current) return;
-          message.success('评审结果已提交'); await load();
-        } finally { if (request === sequence.current) setSubmitting(false); }
+          await mentorReviewAPI.review(reportId, { status, comment: values.comment, score: values.score, dimensions: values.dimensions });
+          if(ticket===sequence.current){message.success(siteText("site.e7740768d7a65239")); await load();}
+        } finally { if(ticket===sequence.current)setSubmitting(false); }
       },
     });
   };
 
-  if (!data || data.report.id !== Number(reportId)) return <PageContainer title="学习报告评审"><AsyncPageState loading={loading} error={error} onRetry={load}><span /></AsyncPageState></PageContainer>;
+  if (!data||data.report.id!==Number(reportId)) return <PageContainer title={siteText("site.e6893badb42bf4e0")}><AsyncPageState loading={loading} error={error} onRetry={load}><span /></AsyncPageState></PageContainer>;
   const { report, reflection, cards, progress } = data;
-  const dimensionItems = dimensions.map(([key, label]) => ({ key, label, children: report.score_dimensions?.[key] === undefined ? '-' : `${report.score_dimensions[key]} 分` }));
+  const dimensionItems = dimensions.map(([key, label]) => ({ key, label, children: report.score_dimensions?.[key] === undefined ? '-' : siteTemplate("site.27a3004adf4f8669", {slot0: (report.score_dimensions[key])}) }));
 
   return <PageContainer
     title={`${data.student.real_name} · ${data.lesson.title}`}
     description={`${data.course.title} · 学习报告第 ${report.version} 版 · ${report.status === 'submitted' ? '待评审' : report.status === 'approved' ? '已通过' : '需修改'}`}
-    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(returnContext(location.state?.returnTo, '/mentor/reviews'))}>返回评审队列</Button>}
+    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(queueReturn)}>返回评审队列</Button>}
   >
-    {data.replacement && <Alert type="warning" showIcon message="此旧报告仅保留历史，不再评审" description="教学内容已补齐，学生完成补学并提交新版后，导师评审新版报告。" />}
-    <div className="mentor-review-layout">
+    {data.replacement&&<Alert type="warning" title="此旧报告仅保留历史，不再评审" description="学生完成补学并提交新版报告后，请评审新版。"/>}<div className="mentor-review-layout">
       <div>
-        <Card className="content-card" title="学习报告" style={{ marginBottom: 16 }}><Descriptions column={1} bordered size="small">
-          <Descriptions.Item label="学习总结">{report.summary}</Descriptions.Item>
-          <Descriptions.Item label="关键收获">{report.key_points || '-'}</Descriptions.Item>
-          <Descriptions.Item label="应用设想">{report.application || '-'}</Descriptions.Item>
-          <Descriptions.Item label="困难与疑问">{report.difficulties || '-'}</Descriptions.Item>
-          <Descriptions.Item label="下一步计划">{report.next_plan || '-'}</Descriptions.Item>
+        <Card className="content-card" title={siteText("site.d0a14bf38d967f42")} style={{ marginBottom: 16 }}><Descriptions column={1} bordered size="small">
+          <Descriptions.Item label={siteText("site.fe885b9c3b0a779f")}>{report.summary}</Descriptions.Item>
+          <Descriptions.Item label={siteText("site.5820acd0ba97b640")}>{report.key_points || '-'}</Descriptions.Item>
+          <Descriptions.Item label={siteText("site.0754b0e16f1d0309")}>{report.application || '-'}</Descriptions.Item>
+          <Descriptions.Item label={siteText("site.5b29b18b40d6b61a")}>{report.difficulties || '-'}</Descriptions.Item>
+          <Descriptions.Item label={siteText("site.824021374595d011")}>{report.next_plan || '-'}</Descriptions.Item>
         </Descriptions></Card>
-        <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`, {state: location.state})} />
-        <Card className="content-card" title="结构化反思" style={{ marginBottom: 16 }}><Descriptions column={1} size="small">
+        <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`, {state: {returnTo:queueReturn}})} />
+        <Card className="content-card" title="反思记录" style={{ marginBottom: 16 }}>{reflection?.reflection_version===2?<ReflectionFields reflection={reflection}/>:<Descriptions column={1} size="small">
           <Descriptions.Item label="遇到的困难">{reflection?.difficulty || '-'}</Descriptions.Item>
           <Descriptions.Item label="解决方式">{reflection?.solution || '-'}</Descriptions.Item>
           <Descriptions.Item label="可以改进之处">{reflection?.improvement || '-'}</Descriptions.Item>
           <Descriptions.Item label="新的问题">{reflection?.new_question || '-'}</Descriptions.Item>
-        </Descriptions></Card>
+        </Descriptions>}</Card>
         <Card className="content-card" title="知识学习证据"><Table size="small" pagination={false} rowKey="id" dataSource={cards} expandable={{ expandedRowRender: (c) => <Space direction="vertical" style={{ width: '100%' }}>{c.exercises.map((e) => <Card key={e.id} size="small"><AnswerFeedback exercise={e} reportId={report.id} readOnly={data.read_only || data.history[0]?.id !== report.id} /></Card>)}</Space> }} columns={[
           { title: '知识卡片', dataIndex: 'title' },
           { title: '状态', render: (_, row) => <Tag color={row.completed_at ? 'green' : 'default'}>{row.completed_at ? '已完成' : '未完成'}</Tag> },
@@ -114,16 +110,16 @@ export default function ReviewDetail() {
       </div>
 
       <aside className="mentor-review-aside">
-        <Card className="content-card" title="学习闭环" style={{ marginBottom: 16 }}><Progress type="circle" percent={progress.percent || 0} /><Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>课堂回顾、知识卡片、报告与反思共同作为评审依据。</Typography.Paragraph></Card>
-        {report.status === 'submitted' ? <Card className="content-card" title="评审结论">
+        <Card className="content-card" title={siteText("site.dfc40202fe68dbc0")} style={{ marginBottom: 16 }}><Progress type="circle" percent={progress.percent || 0} /><Typography.Paragraph type="secondary" style={{ marginTop: 16 }}>{siteText("site.ca9c60a993722867")}</Typography.Paragraph></Card>
+        {report.status === 'submitted' && !data.read_only ? <Card className="content-card" title={siteText("site.a486b98a9daf6c05")}>
           <Form form={form} layout="vertical">
-            <Form.Item name="score" label="总分" rules={[{ required: true, message: '请填写总分' }, { type: 'number', min: 0, max: 100 }]}><InputNumber min={0} max={100} precision={0} addonAfter="分" style={{ width: '100%' }} /></Form.Item>
-            <Collapse ghost items={[{ key: 'dimensions', label: '可选维度评分', children: <>{dimensions.map(([key, label]) => <Form.Item key={key} name={['dimensions', key]} label={label} rules={[{ type: 'number', min: 0, max: 100 }]}><InputNumber min={0} max={100} precision={0} addonAfter="分" style={{ width: '100%' }} /></Form.Item>)}</> }]} />
-            <Form.Item name="comment" label="评审意见"><Input.TextArea rows={5} maxLength={5000} showCount placeholder="通过时可填写鼓励和建议；退回时必须说明修改要求" /></Form.Item>
-            <Space direction="vertical" style={{ width: '100%' }}><Button block type="primary" loading={submitting} onClick={() => review('approved')}>通过报告</Button><Button block danger loading={submitting} onClick={() => review('rejected')}>退回第三阶段修改</Button></Space>
+            <Form.Item name="score" label={siteText("site.1aa2ecc1e57c07cf")} rules={[{ required: true, message: siteText("site.3c523a18c4a7635b") }, { type: 'number', min: 0, max: 100 }]}><InputNumber min={0} max={100} precision={0} addonAfter={siteText("site.8a347b2b332813f5")} style={{ width: '100%' }} /></Form.Item>
+            <Collapse ghost items={[{ key: 'dimensions', label: siteText("site.84f1cf54e14f87c2"), children: <>{dimensions.map(([key, label]) => <Form.Item key={key} name={['dimensions', key]} label={label} rules={[{ type: 'number', min: 0, max: 100 }]}><InputNumber min={0} max={100} precision={0} addonAfter={siteText("site.8a347b2b332813f5")} style={{ width: '100%' }} /></Form.Item>)}</> }]} />
+            <Form.Item name="comment" label={siteText("site.980050611b8a1567")}><Input.TextArea rows={5} maxLength={5000} showCount placeholder={siteText("site.0ac9b9a8a391207a")} /></Form.Item>
+            <Space direction="vertical" style={{ width: '100%' }}><Button block type="primary" loading={submitting} onClick={() => review('approved')}>{siteText("site.f2e5aaa39d3ad41e")}</Button><Button block danger loading={submitting} onClick={() => review('rejected')}>{siteText("site.38fc6d58c53b7b27")}</Button></Space>
           </Form>
-        </Card> : <Card className="content-card" title="评审结果">
-          <Alert type={report.status === 'approved' ? 'success' : 'warning'} showIcon message={`${report.status === 'approved' ? '报告已通过' : '报告已退回修改'} · ${Number.isInteger(report.score) ? `${report.score} 分` : '未评分'}`} description={report.review_comment} />
+        </Card> : <Card className="content-card" title={siteText("site.c6321b674a914475")}>
+          <Alert type={report.status === 'approved' ? 'success' : 'warning'} showIcon message={`${report.status === 'approved' ? siteText("site.93cd797fbf2af309") : siteText("site.b6e5971ed05fd1cb")} · ${Number.isInteger(report.score) ? `${report.score} 分` : siteText("site.5e53e44a66a97b5e")}`} description={report.review_comment} />
           {report.score_dimensions && <Descriptions column={1} size="small" items={dimensionItems} style={{ marginTop: 16 }} />}
         </Card>}
       </aside>

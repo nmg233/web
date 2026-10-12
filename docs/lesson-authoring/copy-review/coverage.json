@@ -1,0 +1,72 @@
+{
+  "baseline": "2296311a57d1cf9d5995c62dd38651327f9c1707",
+  "pages": [
+    {
+      "title": "真实课时原位编辑",
+      "route": "/courses/:id?tab=maintenance",
+      "ids": [
+        "authoring.edit",
+        "authoring.mode.edit",
+        "authoring.mode.preview",
+        "authoring.panel",
+        "authoring.save",
+        "authoring.saved",
+        "authoring.close",
+        "authoring.retry",
+        "authoring.required",
+        "authoring.optional",
+        "authoring.discard",
+        "authoring.previewSafety",
+        "authoring.saveMeaning",
+        "authoring.maintainerAnswer",
+        "authoring.exercise.edit",
+        "authoring.resource.edit",
+        "authoring.field.schedule",
+        "authoring.field.title",
+        "authoring.field.description",
+        "authoring.field.teaching_tip",
+        "authoring.field.review_content",
+        "authoring.field.cards",
+        "authoring.field.exercises",
+        "authoring.field.tasks",
+        "authoring.field.report_guidance",
+        "authoring.field.experiment_guidance",
+        "authoring.field.article",
+        "authoring.field.article_title",
+        "authoring.field.moments_note",
+        "authoring.field.resources",
+        "authoring.field.replays",
+        "authoring.help.review_content",
+        "authoring.help.description",
+        "authoring.help.teaching_tip",
+        "authoring.help.report_guidance",
+        "authoring.help.experiment_guidance",
+        "authoring.help.article",
+        "authoring.help.moments_note",
+        "authoring.resource.order"
+      ],
+      "shot": "edit-1440x900.png"
+    },
+    {
+      "title": "参观文章段落与图片",
+      "route": "/courses/:id?tab=maintenance",
+      "ids": [
+        "authoring.blocks.help",
+        "authoring.block.paragraph",
+        "authoring.block.image",
+        "authoring.up",
+        "authoring.down",
+        "authoring.removeBlock",
+        "authoring.paragraph",
+        "authoring.image.select",
+        "authoring.image.title",
+        "authoring.image.caption",
+        "authoring.image.loading",
+        "authoring.addParagraph",
+        "authoring.addImage"
+      ],
+      "shot": "article-edit-1440x900.png"
+    }
+  ],
+  "scope": "Incremental snapshots only; original 46 HTML files unchanged; same IDs and changed-only validation."
+}

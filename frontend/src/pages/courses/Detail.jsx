@@ -1,80 +1,61 @@
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, Progress, message, Checkbox, Select, Upload, Popconfirm, Dropdown } from 'antd';
-import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { courseAPI, studentAPI, authAPI, taskAPI } from '../../api';
-import { useAuth } from '../../store/AuthContext';
 import ReplaySummary from '../../components/common/ReplaySummary';
-import SignedReplayPlayer from '../../components/common/SignedReplayPlayer';
+import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Card, Descriptions, Table, Button, Tag, Tabs, Form, Input, Modal, Result, Space, Typography, Alert, message, Checkbox, Select, Upload, Popconfirm } from 'antd';
+import { ArrowLeftOutlined, DownloadOutlined, PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { courseAPI, taskAPI, studentAPI, authAPI } from '../../api';
+import { useAuth } from '../../store/AuthContext';
+import ContentMaintenance from './ContentMaintenance';
 import LessonReplays from '../../components/courses/LessonReplays';
-import { lessonReplayFields, replayFileError } from '../../utils/replayUpload';
-import { requestKey } from '../../utils/requestKey';
+import SignedReplayPlayer from '../../components/common/SignedReplayPlayer';
+import LessonVideoUpload from '../../components/courses/LessonVideoUpload';
+import CancellationButton from '../../components/courses/CancellationButton';
+import {maintenanceText as c} from './maintenanceCopy';
 
 const { Title, Text } = Typography;
 
 
-const GRADE_LABELS = { primary: '小学', junior: '初中', senior: '高中' };
-const DIFFICULTY_LABELS = { basic: '基础', advanced: '进阶', challenge: '挑战' };
-const STATUS_LABELS = { draft: '草稿', published: '已发布', archived: '已归档' };
+const GRADE_LABELS = { primary: siteText("site.915e2ea85c7ce8af"), junior: siteText("site.1fa6b3e6d10c1e1d"), senior: siteText("site.74bf169b5a9e05ba") };
+const DIFFICULTY_LABELS = { basic: siteText("site.f266a529f1e7e8d2"), advanced: siteText("site.51d5932003a89c23"), challenge: siteText("site.51031a148ed65878") };
+const STATUS_LABELS = { draft: siteText("site.04248d0f2f479939"), published: siteText("site.20cbdcda701a2e89"), archived: siteText("site.dc47afd16bc5d23b") };
 const RESOURCE_TYPE_LABELS = {
-  lesson_plan: '教案', guide_card: '指导卡', template: '模板',
-  courseware: '课件', video: '视频', other: '其他',
+  lesson_plan: siteText("site.c5c3f9aeaa4ce1ba"), guide_card: siteText("site.4e8455bcf26e60ae"), template: siteText("site.c807d31728957e93"),
+  courseware: siteText("site.1e519a121604edfc"), video: siteText("site.1a67bc5b8cb35bd5"), other: siteText("site.7c07df51a5eaa747"),
 };
 
-export default function CourseDetail() {
-  const { id } = useParams();
-  return <CourseDetailPage key={id} />;
-}
-
+export default function CourseDetail(){const{id}=useParams();return <CourseDetailPage key={id}/>;}
 function CourseDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [search,setSearch]=useSearchParams();
+  const requestRevision=useRef(0),playSequence=useRef(0),candidateSequence=useRef(0),classSequence=useRef(0);
+  const [videoLesson,setVideoLesson]=useState(null),[videoBusy,setVideoBusy]=useState(false),[videoDirty,setVideoDirty]=useState(false),[playingReplayId,setPlayingReplayId]=useState(null);
   const [course, setCourse] = useState(null);
-  const requests = useRef({ load: 0, play: 0, replays: 0 });
-  const mounted = useRef(false);
-  const replayBusy = useRef(false);
-  const replaySession = useRef(0);
-  const candidateRequests = useRef({ list: 0, classes: 0 });
-  const [uploadPercent, setUploadPercent] = useState(0);
-  const replayAbort = useRef(null);
-  const [uploadNotice,setUploadNotice] = useState('');
-  const [checkingUpload,setCheckingUpload] = useState(false);
-  const [searchParams] = useSearchParams();
-  const uploadStorageKey = (lessonId) => `pbl:replay-upload:${user?.id}:${id}:${lessonId}`;
-  const uploadStorage = (key, value) => { try { if(value) sessionStorage.setItem(key,JSON.stringify(value)); else sessionStorage.removeItem(key); } catch { /* 隐私模式下仍可在当前页面重试 */ } };
-  const replayRequest = useRef({ fingerprint: '', key: '' });
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [lessons, setLessons] = useState([]);
   const [resources, setResources] = useState([]);
   const [replays, setReplays] = useState([]);
   const [replayUrl, setReplayUrl] = useState(null);
-  const [playingReplayId, setPlayingReplayId] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const creationLock=useRef(false),[creating,setCreating]=useState(false);
   const [lessonModal, setLessonModal] = useState(false);
-  const [editingLesson,setEditingLesson] = useState(null);
-  const [editingTask,setEditingTask] = useState(null);
-  const [maintenanceSaving,setMaintenanceSaving] = useState(false);
-  const maintenanceBusy = useRef(false);
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [replayModal, setReplayModal] = useState(false);
   const [editingReplay, setEditingReplay] = useState(null);
-  const [replayLesson, setReplayLesson] = useState(null);
-  const [replayFile, setReplayFile] = useState(null);
   const [replayUploading, setReplayUploading] = useState(false);
   const [resourceModal, setResourceModal] = useState(false);
-  const [editingResource,setEditingResource] = useState(null);
   const [resourceFile, setResourceFile] = useState(null);
   const [resourceUploading, setResourceUploading] = useState(false);
-  const resourceBusy = useRef(false);
   const [lessonForm] = Form.useForm();
   const [taskForm] = Form.useForm();
   const [replayForm] = Form.useForm();
-  const replaySummary = Form.useWatch('summary', replayForm);
+  const replaySummary=Form.useWatch('summary',replayForm);
   const [resourceForm] = Form.useForm();
   // 选课导入（执行导师/管理员）
   const [importOpen, setImportOpen] = useState(false);
@@ -92,80 +73,52 @@ function CourseDetailPage() {
   const [removeLoading, setRemoveLoading] = useState(false);
 
   const loadData = async () => {
-    const sequence = ++requests.current.load;
-    const replaySequence = ++requests.current.replays;
+    const revision=++requestRevision.current;
     setPageLoading(true);
     setLoadError('');
     try {
       const res = await courseAPI.detail(id);
-      if (sequence !== requests.current.load) return;
+      if(revision!==requestRevision.current)return;
       setCourse(res.course);
       setLessons(res.lessons || []);
       setResources(res.resources || []);
-      courseAPI.listReplays(id).then((replayRes) => { if (sequence === requests.current.load && replaySequence === requests.current.replays) setReplays(replayRes.replays || []); }).catch(() => {});
+      courseAPI.listReplays(id).then((replayRes) => {if(revision===requestRevision.current)setReplays(replayRes.replays || []);}).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
       setTeachers(res.teachers || []);
     } catch (err) {
-      if (sequence !== requests.current.load) return;
+      if(revision!==requestRevision.current)return;
       setCourse(null);
-      setLoadError(err?.response?.data?.error || '课程不存在，或当前身份无权查看。');
+      setLoadError(err?.response?.data?.error || siteText("site.2dff4fe99bd33a63"));
     } finally {
-      if (sequence === requests.current.load) setPageLoading(false);
+      if(revision===requestRevision.current)setPageLoading(false);
     }
   };
 
   // 页面首次进入时加载完整详情；loadData 会在异步回调中更新多个状态。
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { mounted.current = true; setCourse(null); setReplayUrl(null); loadData(); return () => { mounted.current = false; replayAbort.current?.abort(); replaySession.current++; requests.current.load++; requests.current.play++; requests.current.replays++; candidateRequests.current.list++; candidateRequests.current.classes++; Modal.destroyAll(); }; }, [id]);
-  useEffect(() => {
-    if(!pageLoading && searchParams.get('lesson')) document.getElementById(`lesson-${Number(searchParams.get('lesson'))}`)?.scrollIntoView({block:'start'});
-  }, [pageLoading,searchParams]);
+  useEffect(() => { loadData(); return()=>{requestRevision.current++;playSequence.current++;candidateSequence.current++;classSequence.current++;}; }, [id]);
 
   const handleAddLesson = async (values) => {
-    if(maintenanceBusy.current) return;
-    maintenanceBusy.current=true; setMaintenanceSaving(true);
+    if(creationLock.current)return;creationLock.current=true;setCreating(true);
     try {
-      if(editingLesson) await courseAPI.updateLesson(editingLesson.id,values);
-      else await courseAPI.addLesson(id, values);
-      if(!mounted.current) return;
-      message.success(editingLesson ? '课时已更新' : '课时添加成功');
+      await courseAPI.addLesson(id, values);
+      message.success(siteText("site.aedcc7ad1fa4519e"));
       setLessonModal(false);
       lessonForm.resetFields();
       loadData();
-    } catch { /* handled */ } finally {maintenanceBusy.current=false; if(mounted.current)setMaintenanceSaving(false);}
+    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
   };
 
   const handleAddTask = async (values) => {
-    if(maintenanceBusy.current) return;
-    maintenanceBusy.current=true; setMaintenanceSaving(true);
+    if(creationLock.current)return;creationLock.current=true;setCreating(true);
     try {
-      if(editingTask) await taskAPI.update(editingTask.id,values);
-      else await courseAPI.addTask(activeLesson.id, values);
-      if(!mounted.current) return;
-      message.success(editingTask ? '任务已更新' : '任务添加成功');
+      await courseAPI.addTask(activeLesson.id, values);
+      message.success(siteText("site.4b5970447d3bcea5"));
       setTaskModal(false);
       taskForm.resetFields();
       loadData();
-    } catch { /* handled */ } finally {maintenanceBusy.current=false; if(mounted.current)setMaintenanceSaving(false);}
-  };
-
-  const openLesson = (lesson=null) => {
-    setEditingLesson(lesson); lessonForm.resetFields();
-    if(lesson) lessonForm.setFieldsValue({...lesson,start_at:lesson.start_at?.replace(' ','T'),end_at:lesson.end_at?.replace(' ','T')});
-    setLessonModal(true);
-  };
-  const openTask = (lesson,task=null) => {
-    setEditingTask(task); setActiveLesson(lesson); taskForm.resetFields();
-    if(task) taskForm.setFieldsValue({...task,require_upload:Boolean(task.require_upload),deadline:task.deadline?.replace(' ','T')});
-    setTaskModal(true);
-  };
-  const cancelLesson = (lesson) => {
-    let reason='';
-    Modal.confirm({title:`取消课时「${lesson.title}」？`,content:<><p>待评、待修改报告或成果未处理时不能取消。取消后保留历史，不再允许学习写入。</p><Input.TextArea maxLength={500} placeholder="必填：取消原因" onChange={(event)=>{reason=event.target.value;}} /></>,okText:'确认取消课时',cancelText:'返回',onOk:async()=>{
-      if(!reason.trim()) {message.warning('请填写取消原因'); throw new Error('取消原因必填');}
-      await courseAPI.cancelLesson(lesson.id,reason.trim()); if(mounted.current) {message.success('课时已取消');loadData();}
-    }});
+    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
   };
 
   const downloadResource = async (r) => {
@@ -174,132 +127,57 @@ function CourseDetailPage() {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = r.download_name || r.title || '课程资源';
+      anchor.download = r.download_name || r.file_name || r.title || siteText("site.4902db407c8b5af0");
       anchor.click();
       URL.revokeObjectURL(url);
     } catch { /* handled */ }
   };
 
   const playReplay = async (replayId) => {
-    const sequence = ++requests.current.play;
+    const sequence=++playSequence.current;
     try {
       // 签名流式地址直挂 <video>：支持 Range 拖动，避免整段 blob 下载
       const res = await courseAPI.streamUrl(replayId);
-      if (sequence === requests.current.play) { setReplayUrl(res.url); setPlayingReplayId(replayId); }
+      if(sequence===playSequence.current){setReplayUrl(res.url);setPlayingReplayId(replayId);}
     } catch { /* handled */ }
   };
 
-  const refreshReplays = async () => {
-    const sequence = requests.current.load;
-    const replaySequence = ++requests.current.replays;
-    // 不卸载页面和页签；刷新课时视频与开放检查，避免上传成功后仍显示旧提示。
-    const results = await Promise.allSettled([courseAPI.listReplays(id), courseAPI.detail(id)]);
-    if (!mounted.current || sequence !== requests.current.load || replaySequence !== requests.current.replays) return;
-    if (results[0].status === 'fulfilled') setReplays(results[0].value.replays || []);
-    if (results[1].status === 'fulfilled') { setCourse(results[1].value.course); setLessons(results[1].value.lessons || []); }
-    if (results.some((result) => result.status === 'rejected')) message.warning('操作已成功，但列表刷新失败，请重新加载课程核对结果，勿重复上传。');
+  const refreshReplays = () => {
+    courseAPI.listReplays(id).then((res) => setReplays(res.replays || [])).catch(() => {});
   };
 
-  const openReplayModal = (replay = null, lesson = null) => {
-    if (replayBusy.current) return;
-    if (!replay && (!lesson || lesson.status === 'cancelled')) return;
-    let pendingFields=null;
-    setUploadNotice('');
-    if(!replay && lesson) {
-      try {
-        const pending = JSON.parse(sessionStorage.getItem(uploadStorageKey(lesson.id)) || 'null');
-        if(pending?.key && pending?.fingerprint) {
-          replayRequest.current = pending;
-          const stored=JSON.parse(pending.fingerprint);
-          if(Array.isArray(stored) && String(stored[0])===String(id) && String(stored[1]?.lesson_id)===String(lesson.id)) pendingFields=stored[1];
-          setUploadNotice('上次上传结果未确认。已恢复原视频信息；先查询结果，未保存时重新选择相同文件后重试。');
-        }
-        else replayRequest.current = {fingerprint:'',key:''};
-      } catch { replayRequest.current = {fingerprint:'',key:''}; }
-    }
-    replaySession.current++;
+  const openReplayModal = (replay = null) => {
     setEditingReplay(replay);
-    setReplayLesson(lesson || lessons.find((item) => item.id === replay?.lesson_id) || null);
-    setReplayFile(null);
-    setUploadPercent(0);
     replayForm.resetFields();
     if (replay) {
       replayForm.setFieldsValue({
-        title: replay.title,
-        lesson_id: replay.lesson_id,
+        title: replay.title, lesson_id:replay.lesson_id,summary:replay.summary||'',
         description: replay.description,
-        summary: replay.summary || '',
         duration_seconds: replay.duration_seconds,
         recording_date: replay.recording_date,
         sort_order: replay.sort_order,
       });
-    } else replayForm.setFieldsValue(pendingFields || { title: `${lesson.title} · 课堂回放` });
+    }
     setReplayModal(true);
   };
 
   const handleReplaySubmit = async (values) => {
-    if (replayBusy.current) return;
-    let fields;
-    if (!editingReplay) {
-      const error = replayFileError(replayFile);
-      if (error) return message.error(error);
-      try { fields = lessonReplayFields(id, lessons, replayLesson, values); }
-      catch (err) { return message.error(err.message); }
-    }
-    replayBusy.current = true;
-    const session = replaySession.current;
+    if (!editingReplay) return;
     setReplayUploading(true);
     try {
-      if (editingReplay) {
-        await courseAPI.updateReplay(editingReplay.id, { ...values, lesson_id: editingReplay.lesson_id || values.lesson_id });
-      } else {
-        const formData = new FormData();
-        formData.append('file', replayFile);
-        for (const [key, value] of Object.entries(fields)) formData.append(key, value);
-        const fingerprint = JSON.stringify([id, fields, replayFile.name, replayFile.size, replayFile.lastModified]);
-        if (replayRequest.current.fingerprint !== fingerprint) replayRequest.current = { fingerprint, key: requestKey() };
-        uploadStorage(uploadStorageKey(replayLesson.id),replayRequest.current);
-        formData.append('request_key', replayRequest.current.key);
-        setUploadPercent(0);
-        replayAbort.current = new AbortController();
-        await courseAPI.uploadReplay(id, formData, (event) => { if (mounted.current && session === replaySession.current) setUploadPercent(event.total ? Math.round(event.loaded / event.total * 100) : 0); }, replayAbort.current.signal);
-      }
-      if (!mounted.current || session !== replaySession.current) return;
-      replayRequest.current = { fingerprint: '', key: '' };
-      if(!editingReplay) uploadStorage(uploadStorageKey(replayLesson.id),null);
-      message.success(editingReplay ? '回放信息已更新' : `视频已上传到「${replayLesson.title}」`);
+      await courseAPI.updateReplay(editingReplay.id, values);
+      message.success(siteText("site.4dc7e394e242fd27"));
       setReplayModal(false);
-      replaySession.current++;
       refreshReplays();
-    } catch {
-      if(mounted.current && session === replaySession.current && !editingReplay) setUploadNotice('上传未确认：停止等待或网络中断不代表服务器已回滚。请先查询结果，或使用相同文件、信息和请求标识重试。');
-    } finally {
-      replayAbort.current = null;
-      replayBusy.current = false;
-      if (mounted.current) setReplayUploading(false);
+    } catch { /* handled */ } finally {
+      setReplayUploading(false);
     }
-  };
-
-  const checkReplayUpload = async () => {
-    if(!replayRequest.current.key || checkingUpload) return;
-    const session=replaySession.current;
-    setCheckingUpload(true);
-    try {
-      const result=await courseAPI.replayUploadResult(id,replayRequest.current.key);
-      if(!mounted.current || session !== replaySession.current) return;
-      if(result.state === 'saved') {
-        uploadStorage(uploadStorageKey(replayLesson.id),null); replayRequest.current={fingerprint:'',key:''};
-        message.success(`已确认保存：${result.replay.title}`); setReplayModal(false); replaySession.current++; refreshReplays();
-      } else setUploadNotice(result.state === 'removed' ? '该上传曾成功，但视频已被删除；请重新上传。' : '暂未查到保存结果，服务端可能仍在处理。请稍后查询；相同内容重试不会重复建记录。');
-    } catch { /* handled */ } finally {if(mounted.current)setCheckingUpload(false);}
   };
 
   const handleDeleteReplay = async (replayId) => {
     try {
       await courseAPI.deleteReplay(replayId);
-      if (!mounted.current) return;
-      message.success('回放已删除');
-      requests.current.play++;
+      message.success(siteText("site.890f350e75659b87"));
       if (replayUrl) setReplayUrl(null);
       refreshReplays();
     } catch { /* handled */ }
@@ -307,28 +185,28 @@ function CourseDetailPage() {
 
   // 发布/撤回：不强制课程须有课时，仅在 0 课时时给提示
   const handleChangeStatus = (targetStatus) => {
-    if(targetStatus==='draft' && course.has_learning_history) return message.warning('已有学生学习记录，不能撤回草稿；请先处理待评/待修改报告及成果，再归档。');
+    if(targetStatus==='draft'&&course.has_learning_history)return message.warning('已有学习记录，不能撤回草稿；请先处理待评和待修改内容，再归档。');
     const apply = async () => {
       try {
         await courseAPI.update(id, { status: targetStatus });
-        message.success(targetStatus === 'published' ? '课程已发布' : '已撤回为草稿');
+        message.success(targetStatus === 'published' ? siteText("site.e5bd83eeb86bbb32") : siteText("site.79820bcc3250859e"));
         loadData();
       } catch { /* handled */ }
     };
     if (targetStatus === 'published' && lessons.length === 0) {
       Modal.confirm({
-        title: '课程还没有课时',
-        content: '发布后学生即可看到课程信息，但当前还没有课时内容。确认现在发布？',
-        okText: '确认发布', cancelText: '再准备一下',
+        title: siteText("site.8e2f4c50f92b7904"),
+        content: siteText("site.04a00ace3bb993f2"),
+        okText: siteText("site.8ea02d1fc1705315"), cancelText: siteText("site.c7d073fde6e4c69c"),
         onOk: apply,
       });
       return;
     }
     if (targetStatus === 'draft') {
       Modal.confirm({
-        title: '撤回为草稿？',
-        content: '撤回后学生将无法再看到该课程。',
-        okText: '确认撤回', cancelText: '取消',
+        title: siteText("site.f34b4468f5ea2c6b"),
+        content: siteText("site.9486385008b4b0fe"),
+        okText: siteText("site.c995ba6f76b81102"), cancelText: siteText("site.e22a4167edd7f34b"),
         onOk: apply,
       });
       return;
@@ -336,24 +214,21 @@ function CourseDetailPage() {
     apply();
   };
 
-  const openResourceModal = (resource=null) => {
-    setEditingResource(resource);
+  const openResourceModal = () => {
     setResourceFile(null);
     resourceForm.resetFields();
-    if(resource) resourceForm.setFieldsValue(resource);
     setResourceModal(true);
   };
 
   // ==== 选课导入 ====
   const loadCandidates = async (query = {}) => {
-    const sequence = ++candidateRequests.current.list;
+    const sequence=++candidateSequence.current;
     setCandidateLoading(true);
     try {
       const res = await courseAPI.enrollCandidates(id, query);
-      if (sequence !== candidateRequests.current.list) return;
-      setCandidates(res.students || []);
+      if(sequence===candidateSequence.current)setCandidates(res.students || []);
     } catch { /* handled */ } finally {
-      if (sequence === candidateRequests.current.list) setCandidateLoading(false);
+      if(sequence===candidateSequence.current)setCandidateLoading(false);
     }
   };
 
@@ -371,14 +246,14 @@ function CourseDetailPage() {
   };
 
   const handleCandidateSchoolChange = async (sid) => {
-    const sequence = ++candidateRequests.current.classes;
+    const sequence=++classSequence.current;
     setCandidateSchool(sid);
     setCandidateClass(undefined);
     if (sid) {
       try {
         const res = await studentAPI.getClasses(sid);
-        if (sequence === candidateRequests.current.classes) setCandidateClasses(res.classes || []);
-      } catch { if (sequence === candidateRequests.current.classes) setCandidateClasses([]); }
+        if(sequence===classSequence.current)setCandidateClasses(res.classes || []);
+      } catch { setCandidateClasses([]); }
     } else {
       setCandidateClasses([]);
     }
@@ -386,13 +261,13 @@ function CourseDetailPage() {
 
   const handleImportSubmit = async () => {
     if (selectedKeys.length === 0) {
-      message.warning('请先选择要导入的学生');
+      message.warning(siteText("site.2d649e0bbd6a81a5"));
       return;
     }
     setImporting(true);
     try {
       const res = await courseAPI.enroll(id, selectedKeys);
-      message.success(res.message || `已导入 ${res.added} 名学生`);
+      message.success(res.message || siteTemplate("site.e14c5b851bc2293a", {slot0: (res.added)}));
       setImportOpen(false);
       loadData();
     } catch { /* handled */ } finally {
@@ -407,13 +282,13 @@ function CourseDetailPage() {
 
   const handleRemoveSubmit = async () => {
     if (!removeReason.trim()) {
-      message.warning('请填写移除原因（将记录在审计中）');
+      message.warning(siteText("site.d9fa4b1c578aebde"));
       return;
     }
     setRemoveLoading(true);
     try {
       await courseAPI.removeEnrollment(id, removeTarget.id, removeReason.trim());
-      message.success('报名已移除');
+      message.success(siteText("site.6864a632392055a3"));
       setRemoveTarget(null);
       loadData();
     } catch { /* handled */ } finally {
@@ -422,134 +297,118 @@ function CourseDetailPage() {
   };
 
   const handleResourceSubmit = async (values) => {
-    if(resourceBusy.current) return;
-    if (!editingResource && !resourceFile) {
-      message.error('请选择资料文件（≤50MB）');
+    if (!resourceFile) {
+      message.error(siteText("site.cab7e3595e158720"));
       return;
     }
-    resourceBusy.current=true; setResourceUploading(true);
+    setResourceUploading(true);
     try {
-      if(editingResource) await courseAPI.updateResource(editingResource.id,{...values,lesson_id:values.lesson_id || null});
-      else {
       const formData = new FormData();
       formData.append('file', resourceFile);
       formData.append('title', values.title || '');
       formData.append('resource_type', values.resource_type || 'courseware');
-      formData.append('lesson_id', values.lesson_id || '');
-      formData.append('description', values.description || '');
+      formData.append('lesson_id',values.lesson_id||'');formData.append('description',values.description||'');
       await courseAPI.uploadResource(id, formData);
-      }
-      if(!mounted.current) return;
-      message.success(editingResource ? '资料信息已更新' : '资料上传成功');
+      message.success(siteText("site.85ab24305a450143"));
       setResourceModal(false);
       loadData();
     } catch { /* handled */ } finally {
-      resourceBusy.current=false;
-      if(mounted.current)setResourceUploading(false);
+      setResourceUploading(false);
     }
   };
 
-  if (!course || course.id !== Number(id)) return pageLoading
+  if (!course||String(course.id)!==String(id)) return pageLoading
     ? <div style={{ padding: 24 }}><Card loading /></div>
-    : <Result status={loadError.includes('无权') ? '403' : '404'} title="无法打开课程" subTitle={loadError} extra={<Space><Button onClick={() => navigate('/courses')}>返回课程列表</Button><Button type="primary" onClick={loadData}>重新加载</Button></Space>} />;
+    : <Result status={loadError.includes('无权') ? '403' : '404'} title={siteText("site.c02911e9c1fd083a")} subTitle={loadError} extra={<Space><Button onClick={() => navigate('/courses')}>{siteText("site.897cdc66aa4c5c61")}</Button><Button type="primary" onClick={loadData}>{siteText("site.b10cc60cc2f17883")}</Button></Space>} />;
 
   const isStudent = user?.role === 'student';
   const isEnrolled = isStudent && enrollments.some((e) => e.student_id === user.id);
-  const availableLessons = lessons.filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false);
-  const firstLearningLesson = availableLessons.find((l) => l.progress > 0 && l.progress < 100)
-    || availableLessons.find((l) => l.progress < 100) || availableLessons[0];
-  const canEdit = course.can_manage && course.status !== 'archived';
+  const availableLessons=lessons.filter(l=>l.status!=='cancelled'&&l.learning_in_scope!==false);
+  const firstLearningLesson=availableLessons.find(l=>l.progress>0&&l.progress<100)||availableLessons.find(l=>l.progress<100)||availableLessons[0];
+  const canEdit=course.can_manage&&course.status!=='archived',canReplayWrite=canEdit;
 
   const tabItems = [
+    ...(course.can_manage?[{key:'maintenance',label:c('title'),children:<ContentMaintenance key={id} id={id}/>}]:[]),
     {
-      key: 'lessons', label: '课时安排',
+      key: 'lessons', label: siteText("site.da605a00c0cc8f39"),
       children: (
         <div>
           {canEdit && (
-            <Button type="dashed" icon={<PlusOutlined />} onClick={() => openLesson()} style={{ marginBottom: 16 }}>添加课时</Button>
+            <Button type="dashed" icon={<PlusOutlined />} onClick={() => setLessonModal(true)} style={{ marginBottom: 16 }}>{siteText("site.fefe81c54427efe9")}</Button>
           )}
           {lessons.map((lesson) => (
-            <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8,scrollMarginTop:80 }} title={lesson.title}
-              extra={<Space wrap>
-                {isEnrolled && lesson.status !== 'cancelled' && lesson.learning_in_scope !== false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>进入课后学习</Button>}
-                {course.can_manage && <Button type={canEdit && lesson.status !== 'cancelled' ? 'primary' : 'default'} size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/${canEdit && lesson.status !== 'cancelled' ? 'content' : 'preview'}`, { state: { returnTo: `/courses/${course.id}` } })}>{canEdit && lesson.status !== 'cancelled' ? '设置知识卡片与习题' : '预览知识卡片与习题'}</Button>}
-                {canEdit && lesson.status !== 'cancelled' && <Dropdown trigger={['click']} menu={{items:[{key:'edit',label:'编辑课时'},{key:'task',label:'添加独立成果任务'},{key:'cancel',label:'取消课时',danger:true}],onClick:({key})=>key==='edit' ? openLesson(lesson) : key==='task' ? openTask(lesson) : cancelLesson(lesson)}}><Button size="small">课时管理</Button></Dropdown>}
+            <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8 }} title={lesson.title}
+              extra={<Space>
+                {isEnrolled && lesson.status!=='cancelled' && lesson.learning_in_scope!==false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>{siteText("site.7cbfd4a69b6bd74e")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
               </Space>}
             >
-              {lesson.status === 'cancelled' && <Tag color="red">已取消，仅保留历史</Tag>}
-              {lesson.readiness && !lesson.readiness.ready && <Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}
-              {lesson.description && <p>{lesson.description}</p>}
+              {course.can_manage&&!canEdit&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
               <Space wrap size={[4, 0]}>
-                {lesson.duration && <Tag>{lesson.duration} 分钟</Tag>}
-                {lesson.start_at && <Tag color="blue">上课 {lesson.start_at.replace('T', ' ')}</Tag>}
-                {lesson.location && <Tag color="green">地点：{lesson.location}</Tag>}
-                {lesson.instructor_name && <Tag>授课：{lesson.instructor_name}</Tag>}
+                {lesson.duration && <Tag>{lesson.duration}{siteText("site.3b8590060236e9d8")}</Tag>}
+                {lesson.start_at && <Tag color="blue">{siteText("site.a1cddcd6c59eb5bc")}{lesson.start_at.replace('T', ' ')}</Tag>}
+                {lesson.location && <Tag color="green">{siteText("site.e022dc43a291c7c7")}{lesson.location}</Tag>}
+                {lesson.instructor_name && <Tag>{siteText("site.14a915e6ecc03d59")}{lesson.instructor_name}</Tag>}
               </Space>
-              <LessonReplays lesson={lesson} replays={replays} canEdit={canEdit}
-                playing={replayUrl ? { id: playingReplayId, url: replayUrl } : null}
-                onUpload={(target) => openReplayModal(null, target)} onEdit={openReplayModal}
-                onDelete={handleDeleteReplay} onPlay={playReplay} />
-              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Space wrap><Link to={`/tasks/${task.id}`}>{task.title}</Link>{task.deadline && <Tag>截止 {task.deadline}</Tag>}{task.status==='cancelled' && <Tag>已取消，保留历史</Tag>}{canEdit && lesson.status !== 'cancelled' && task.status!=='cancelled' && <><Button size="small" onClick={()=>openTask(lesson,task)}>编辑任务</Button><Popconfirm title="取消独立成果任务？已有作品的任务不能取消。" onConfirm={async()=>{await taskAPI.cancel(task.id);if(mounted.current)loadData();}}><Button size="small" danger>取消任务</Button></Popconfirm></>}</Space></div>)}
+              {canEdit&&lesson.status!=='cancelled'&&<Space wrap><Button size="small" onClick={()=>setSearch({tab:'maintenance',lesson:String(lesson.id)})}>编辑课时安排</Button><CancellationButton label="取消课时" onCancel={reason=>courseAPI.cancelLesson(lesson.id,reason)} refresh={loadData}/></Space>}
+              <LessonReplays lesson={lesson} replays={replays} canEdit={canEdit} playing={search.get('tab')==='lessons' ? {id:playingReplayId,url:replayUrl} : null} onUpload={setVideoLesson} onEdit={openReplayModal} onDelete={handleDeleteReplay} onPlay={playReplay}/>
+              {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Link to={`/tasks/${task.id}`}>{task.title}</Link>{canEdit&&lesson.status!=='cancelled'&&task.status!=='cancelled'&&<CancellationButton label="取消独立任务" onCancel={reason=>taskAPI.cancel(task.id,reason)} refresh={loadData}/>} {task.status==='cancelled'&&<Tag>已取消，仅查看历史</Tag>}{task.deadline && <Tag style={{ marginLeft: 8 }}>{siteText("site.b13857ca6ccf3773")}{task.deadline}</Tag>}</div>)}
             </Card>
           ))}
         </div>
       ),
     },
     {
-      key: 'replays', label: '课程回放',
+      key: 'replays', label: siteText("site.d9187a1e51d156a9"),
       children: (
         <div>
-          {canEdit && <p><Text type="secondary">上传入口在「课时安排」中各课时的「上传本课时视频」，此处汇总展示回放。</Text></p>}
-          {replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl} />}
+          <Alert type="info" title="此处汇总已有回放；新视频请由对应课时的上传入口添加。"/>
+          {search.get('tab')==='replays' && replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl}/>}
           {replays.length === 0 ? (
-            <Typography.Text type="secondary">暂无课程回放</Typography.Text>
+            <Typography.Text type="secondary">{siteText("site.999eaf8d1129e1db")}</Typography.Text>
           ) : replays.map((replay) => (
             <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
-              extra={canEdit && !replay.lesson_id && (
+              extra={canReplayWrite && (
                 <Space size={4}>
-                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>编辑</Button>
-                  <Popconfirm title="确定删除该回放？" okText="删除" cancelText="取消" onConfirm={() => handleDeleteReplay(replay.id)}>
-                    <Button size="small" type="link" danger icon={<DeleteOutlined />}>删除</Button>
+                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>{siteText("site.3be380b766bc89c7")}</Button>
+                  <Popconfirm title={siteText("site.e0427eaf97caa346")} okText={siteText("site.112c8da10fb2fc22")} cancelText={siteText("site.e22a4167edd7f34b")} onConfirm={() => handleDeleteReplay(replay.id)}>
+                    <Button size="small" type="link" danger icon={<DeleteOutlined />}>{siteText("site.631573e93be5f4cf")}</Button>
                   </Popconfirm>
                 </Space>
               )}
             >
               <Space>
                 <span>{replay.title}</span>
-                <Tag>{replay.lesson_id ? (lessons.find((lesson) => lesson.id === replay.lesson_id)?.title || '课时回放') : '历史课程共享回放'}</Tag>
                 {replay.recording_date && <Tag>{replay.recording_date}</Tag>}
-                {replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)} 分钟</Tag>}
-                <Button size="small" type="link" onClick={() => playReplay(replay.id)}>播放</Button>
+                {replay.description&&<Text>{replay.description}</Text>}<ReplaySummary replay={replay}/>{replay.duration_seconds && <Tag>{Math.round(replay.duration_seconds / 60)}{siteText("site.3b8590060236e9d8")}</Tag>}
+                <Button size="small" type="link" onClick={() => playReplay(replay.id)}>{siteText("site.f84d9738a00e4415")}</Button>
               </Space>
-              {replay.description && <Text>{replay.description}</Text>}
-              <ReplaySummary replay={replay} />
             </Card>
           ))}
         </div>
       ),
     },
     {
-      key: 'resources', label: '课程资源',
+      key: 'resources', label: siteText("site.3e044f87f3feccbe"),
       children: (
         <div>
           {canEdit && (
             <Space style={{ marginBottom: 16 }}>
-              <Button type="dashed" icon={<UploadOutlined />} onClick={()=>openResourceModal()}>上传资料</Button>
-              <Button onClick={() => navigate(`/courses/${id}/ai-knowledge`)}>管理 AI 知识库</Button>
+              <Button type="dashed" icon={<UploadOutlined />} onClick={openResourceModal}>{siteText("site.c08b0c09523e5703")}</Button>
+              <Button onClick={() => navigate(`/courses/${id}/ai-knowledge`)}>{siteText("site.263bba4fd46502bf")}</Button>
             </Space>
           )}
           {resources.length === 0 ? (
-            <Typography.Text type="secondary">暂无课程资源</Typography.Text>
+            <Typography.Text type="secondary">{siteText("site.085f6dae2da392eb")}</Typography.Text>
           ) : resources.map((r) => (
             <Card key={r.id} size="small" style={{ marginBottom: 8 }}>
-              <Space wrap>
+              <Space>
                 <Tag>{RESOURCE_TYPE_LABELS[r.resource_type] || r.resource_type}</Tag>
-                <Tag>{r.lesson_id ? lessons.find(l=>l.id===r.lesson_id)?.title || '课时资料' : '课程共享资料'}</Tag>
                 <span>{r.title}</span>
                 {r.has_file && (
-                  <Button size="small" type="link" icon={<DownloadOutlined />} onClick={() => downloadResource(r)}>下载</Button>
+                  <Button size="small" type="link" icon={<DownloadOutlined />} onClick={() => downloadResource(r)}>{siteText("site.cd605a47fc086d92")}</Button>
                 )}
-                {canEdit && !lessons.some(l=>l.id===r.lesson_id && l.status==='cancelled') && <><Button size="small" onClick={()=>openResourceModal(r)}>编辑资料信息</Button><Popconfirm title="删除资料？已有学习快照的资料需保留，不可删除。" onConfirm={async()=>{await courseAPI.deleteResource(r.id);if(mounted.current)loadData();}}><Button size="small" danger>删除资料</Button></Popconfirm></>}
               </Space>
             </Card>
           ))}
@@ -562,22 +421,20 @@ function CourseDetailPage() {
   if (course.can_manage) {
     tabItems.push({
       key: 'students',
-      label: `选课学生 (${enrollments.length})`,
+      label: siteTemplate("site.1855c2b52efc1b42", {slot0: (enrollments.length)}),
       children: (
         <div>
-          {course.can_enroll && <Button type="dashed" icon={<PlusOutlined />} onClick={openImportModal} style={{ marginBottom: 16 }}>
-            导入学生
-          </Button>}
+          {course.can_enroll && <Button type="dashed" icon={<PlusOutlined />} onClick={openImportModal} style={{ marginBottom: 16 }}>{siteText("site.8d2d0f2814c2bb12")}</Button>}
           <Table dataSource={enrollments} rowKey="id" pagination={false} size="small"
             columns={[
-              { title: '姓名', dataIndex: 'student_name' },
-              { title: '学校', dataIndex: 'school_name' },
-              { title: '班级', dataIndex: 'class_name' },
-              { title: '导入人', dataIndex: 'enrolled_by_name', render: (v) => v || '—' },
+              { title: siteText("site.7cc5822b69416ce2"), dataIndex: 'student_name' },
+              { title: siteText("site.cc937981f7d3ce49"), dataIndex: 'school_name' },
+              { title: siteText("site.9ef404bec164f565"), dataIndex: 'class_name' },
+              { title: siteText("site.b7ad43ba120a0833"), dataIndex: 'enrolled_by_name', render: (v) => v || '—' },
               ...(user?.role === 'admin' ? [{
-                title: '操作', key: 'actions',
+                title: siteText("site.9f6296c8ef30b865"), key: 'actions',
                 render: (_, r) => (
-                  <Button size="small" type="link" danger onClick={() => openRemoveModal(r)}>移除报名</Button>
+                  <Button size="small" type="link" danger onClick={() => openRemoveModal(r)}>{siteText("site.7af36450c6a484ec")}</Button>
                 ),
               }] : []),
             ]}
@@ -588,17 +445,19 @@ function CourseDetailPage() {
   }
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/courses')}>返回</Button>
+    <div className={course.can_manage?'course-maintenance-page':undefined}>
+      <Space className="course-detail-header" style={{ marginBottom: 16 }}>
+        <Link className="ant-btn ant-btn-default" to="/courses"><ArrowLeftOutlined/>{siteText("site.2b2602fe97ea824d")}</Link>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
         {canEdit && course.status !== 'published' && (
-          <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>发布课程</Button>
+          <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>{siteText("site.ad9e34aa52b0b6e6")}</Button>
         )}
         {canEdit && course.status === 'published' && (
-          <Button size="small" disabled={course.has_learning_history} title={course.has_learning_history ? '已有学习记录，请使用归档并先处理待评/待修改内容' : undefined} onClick={() => handleChangeStatus('draft')}>撤回为草稿</Button>
+          <Button size="small" disabled={course.has_learning_history} title={course.has_learning_history?'已有学习记录，请处理待评和待修改内容后归档':undefined} onClick={() => handleChangeStatus('draft')}>{siteText("site.64c911e2e80f6704")}</Button>
         )}
-        {isStudent && isEnrolled && <Tag color="green">已选修</Tag>}
+        {isStudent && isEnrolled && <Tag color="green">{siteText("site.ae2a3b18e87b22b3")}</Tag>}
+        {isStudent && isEnrolled && firstLearningLesson && <Button type="primary" onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>{siteText("site.11b1c4c4c18d18a4")}</Button>}
+        {isStudent && isEnrolled && <Button type="link" onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>{siteText("site.a240a3a770a5bcff")}</Button>}
       </Space>
 
       {isStudent ? (
@@ -606,7 +465,7 @@ function CourseDetailPage() {
           {/* 学生视角：线下课程主页 */}
           {(() => {
             const upcoming = lessons
-              .filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false && l.start_at && new Date(l.start_at) >= Date.now() - 3600 * 1000)
+              .filter((l) => l.start_at && new Date(l.start_at) >= Date.now() - 3600 * 1000)
               .sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)))[0];
             return (
               <div>
@@ -614,27 +473,26 @@ function CourseDetailPage() {
                   <div>
                     {upcoming ? (
                       <>
-                        <Text strong style={{ fontSize: 16 }}>📅 下一次上课：{upcoming.start_at.replace('T', ' ')}</Text>
+                        <Text strong style={{ fontSize: 16 }}>{siteText("site.687e685bda795096")}{upcoming.start_at.replace('T', ' ')}</Text>
                         <br />
                         <Text type="secondary">
                           {upcoming.title}{upcoming.location ? ` · 📍 ${upcoming.location}` : ''}{upcoming.instructor_name ? ` · 👨‍🏫 ${upcoming.instructor_name}` : ''}
                         </Text>
                       </>
                     ) : (
-                      <Text type="secondary">暂无排课安排</Text>
+                      <Text type="secondary">{siteText("site.8944919bb84ebbbc")}</Text>
                     )}
                   </div>
                   <Space wrap>
-                    <Tag>{lessons.filter((l) => l.status !== 'cancelled' && l.learning_in_scope !== false).length} 次线下课</Tag>
-                    {course.completion?.completed && <Tag color="green">已结课 · {course.completion.completed_at}</Tag>}
-                    <Tag>{tasks.length} 个课后任务</Tag>
-                    <Tag>{resources.length} 份课堂资料</Tag>
+                    <Tag>{lessons.length}{siteText("site.8db3bc495c5934e1")}</Tag>
+                    <Tag>{tasks.length}{siteText("site.11559bef23a71a7d")}</Tag>
+                    <Tag>{resources.length}{siteText("site.197c51376e154c20")}</Tag>
                   </Space>
                 </div>
                 <div style={{ marginTop: 12 }}>
                   <Space wrap>
-                    <Button type="primary" disabled={!firstLearningLesson} onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>继续课后学习</Button>
-                    <Button onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>灵境小智</Button>
+                    <Button type="primary" disabled={!firstLearningLesson} onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>{siteText("site.fa2c7e0671985094")}</Button>
+                    <Button onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>{siteText("site.a240a3a770a5bcff")}</Button>
                   </Space>
                 </div>
               </div>
@@ -644,128 +502,85 @@ function CourseDetailPage() {
       ) : (
         <Card style={{ marginBottom: 16 }}>
           <Descriptions column={2} size="small">
-            <Descriptions.Item label="主题">{course.theme || '—'}</Descriptions.Item>
-            <Descriptions.Item label="适用学段">{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
-            <Descriptions.Item label="难度">{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
-            <Descriptions.Item label="状态"><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
-            <Descriptions.Item label="创建者">{course.creator_name}</Descriptions.Item>
-            <Descriptions.Item label="总课时">{course.total_hours || '—'}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.49a8a615cf6059c2")}>{course.theme || '—'}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.af8cc19b47947748")}>{GRADE_LABELS[course.grade_level] || course.grade_level}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.9dc48f0148d99859")}>{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.7271ab6693f110e3")}><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
+            <Descriptions.Item label={siteText("site.e097bc496098bb01")}>{course.creator_name}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.ed42d8611e8bbbf1")}>{course.total_hours || '—'}</Descriptions.Item>
           </Descriptions>
           {course.description && <p style={{ marginTop: 12 }}>{course.description}</p>}
         </Card>
       )}
 
-      <Tabs items={tabItems} destroyOnHidden />
+      <Modal open={Boolean(videoLesson)} title={videoLesson?'上传视频 · '+videoLesson.title:''} footer={null} closable={!videoBusy} maskClosable={!videoBusy} onCancel={()=>{if(videoBusy)return;if(videoDirty&&!window.confirm('关闭将丢失尚未上传的文件选择和填写内容；结果未确认的上传可重新进入本课时查询。确定关闭？'))return;setVideoDirty(false);setVideoLesson(null);}} destroyOnHidden width={720}>{videoLesson&&<LessonVideoUpload key={videoLesson.id} courseId={id} courseTitle={course.title} lesson={videoLesson} refresh={loadData} onBusyChange={setVideoBusy} onDirtyChange={setVideoDirty}/>}</Modal>
+      <Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>
 
       {/* 添加课时 Modal */}
-      <Modal title={editingLesson ? '编辑课时' : '添加课时'} open={lessonModal} confirmLoading={maintenanceSaving} onCancel={() => {if(!maintenanceBusy.current)setLessonModal(false);}} onOk={() => lessonForm.submit()}>
-        <Form form={lessonForm} layout="vertical" disabled={maintenanceSaving} onFinish={handleAddLesson}>
-          <Form.Item name="title" label="课时名称" rules={[{ required: true, whitespace:true }]}><Input maxLength={200} /></Form.Item>
-          <Form.Item name="description" label="描述"><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="duration" label="时长（分钟）"><Input type="number" /></Form.Item>
-          <Form.Item name="start_at" label="上课时间"><Input type="datetime-local" /></Form.Item>
-          <Form.Item name="end_at" label="下课时间"><Input type="datetime-local" /></Form.Item>
-          <Form.Item name="location" label="上课地点"><Input placeholder="如：北航 XX 实验室" /></Form.Item>
-          <Form.Item name="instructor_id" label="执行导师">
-            <Select allowClear placeholder="选择执行导师"
-              options={teachers.map((t) => ({ value: t.id, label: `${t.real_name}${t.role === 'academic_mentor' ? '（执行导师）' : ''}` }))} />
+      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setLessonModal(false)} onOk={() => lessonForm.submit()}>
+        <Form name="course-add-lesson" form={lessonForm} layout="vertical" onFinish={handleAddLesson}>
+          <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="duration" label={siteText("site.8e7a7f1c84586481")}><Input type="number" /></Form.Item>
+          <Form.Item name="start_at" label={siteText("site.4f022f7e3f45379e")}><Input type="datetime-local" /></Form.Item>
+          <Form.Item name="end_at" label={siteText("site.e430a5bb677f246f")}><Input type="datetime-local" /></Form.Item>
+          <Form.Item name="location" label={siteText("site.54e6311a084c22d6")}><Input placeholder={siteText("site.c9dfa057df4ffef5")} /></Form.Item>
+          <Form.Item name="instructor_id" label={siteText("site.4d2fcd604d171006")}>
+            <Select allowClear placeholder={siteText("site.6fbb320ac590c0a7")}
+              options={teachers.map((t) => ({ value: t.id, label: `${t.real_name}${t.role === 'academic_mentor' ? siteText("site.93acd22f8d8d1880") : ''}` }))} />
           </Form.Item>
         </Form>
       </Modal>
 
       {/* 添加任务 Modal */}
-      <Modal title={editingTask ? '编辑独立成果任务' : '添加独立成果任务'} open={taskModal} confirmLoading={maintenanceSaving} onCancel={() => {if(!maintenanceBusy.current)setTaskModal(false);}} onOk={() => taskForm.submit()}>
-        <Form form={taskForm} layout="vertical" disabled={maintenanceSaving} onFinish={handleAddTask}>
-          <Form.Item name="title" label="任务名称" rules={[{ required: true, whitespace:true }]}><Input maxLength={200}/></Form.Item>
-          <Form.Item name="description" label="描述"><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="task_type" label="任务类型" initialValue="inquiry">
+      <Modal title={siteText("site.9886a9520506bd4a")} open={taskModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setTaskModal(false)} onOk={() => taskForm.submit()}>
+        <Form name="course-add-task" form={taskForm} layout="vertical" onFinish={handleAddTask}>
+          <Form.Item name="title" label={siteText("site.7116edd08327c83e")} rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="task_type" label={siteText("site.b2c1b05dc0234230")} initialValue="inquiry">
             <Select options={[['inquiry', '调研'], ['experiment', '实验'], ['creation', '创作'], ['reflection', '反思'], ['presentation', '展示']].map(([value, label]) => ({ value, label }))} />
           </Form.Item>
           <Form.Item name="require_upload" valuePropName="checked" initialValue>
-            <Checkbox>要求上传附件</Checkbox>
+            <Checkbox>{siteText("site.e62392330f330902")}</Checkbox>
           </Form.Item>
-          <Form.Item name="deadline" label="截止时间"><Input type="datetime-local" /></Form.Item>
+          <Form.Item name="deadline" label={siteText("site.4cb827754c771853")}><Input type="datetime-local" /></Form.Item>
         </Form>
       </Modal>
       {/* 上传/编辑回放 Modal */}
       <Modal
-        title={editingReplay ? '编辑回放' : `上传本课时视频：${replayLesson?.title || ''}`}
+        title={siteText("site.fded6c93a3178971")}
         open={replayModal}
-        onCancel={() => { if (!replayBusy.current) { replaySession.current++; setReplayModal(false); } }}
+        onCancel={() => !replayUploading && setReplayModal(false)}
+        closable={!replayUploading} maskClosable={!replayUploading}
         onOk={() => replayForm.submit()}
         confirmLoading={replayUploading}
-        closable={!replayUploading}
-        maskClosable={!replayUploading}
-        keyboard={!replayUploading}
-        cancelButtonProps={{ disabled: replayUploading }}
-        okText={editingReplay ? '保存信息' : '上传到本课时'}
-        cancelText="取消"
       >
-        {uploadNotice && <p role="status"><Text type="warning">{uploadNotice}</Text></p>}
-        {!editingReplay && uploadNotice && !replayUploading && <Button loading={checkingUpload} onClick={checkReplayUpload}>查询上次上传结果</Button>}
-        {!editingReplay && replayUploading && <Button danger onClick={() => replayAbort.current?.abort()}>停止上传并确认结果</Button>}
-        <Form form={replayForm} layout="vertical" onFinish={handleReplaySubmit} disabled={replayUploading}>
-          {!editingReplay && <p><Text strong>课程：{course.title} / 课时：{replayLesson?.title}</Text><br /><Text type="secondary">视频自动绑定此课时，无需再次选择；不会上传为课程共享回放。</Text></p>}
-          <Form.Item name="title" label="回放标题" rules={[{ required: true, whitespace: true, message: '请输入回放标题' }]}>
-            <Input placeholder="如：第 3 讲 机翼上反角实验" />
+        <Form name="course-replay" form={replayForm} layout="vertical" onFinish={handleReplaySubmit}>
+          <Form.Item name="title" label={siteText("site.fa48a8381177028f")} rules={[{ required: true, message: siteText("site.b13f5c72c867a33d") }]}>
+            <Input placeholder={siteText("site.f700a95cbcca2664")} />
           </Form.Item>
-          {!editingReplay && (
-            <Form.Item label="视频文件" required>
-              <Upload
-                accept=".mp4,.webm"
-                maxCount={1}
-                disabled={replayUploading}
-                beforeUpload={(file) => { const error = replayFileError(file); if (error) { message.error(error); return Upload.LIST_IGNORE; } setReplayFile(file); return false; }}
-                onRemove={() => setReplayFile(null)}
-                fileList={replayFile ? [{ uid: '-1', name: replayFile.name }] : []}
-              >
-                <Button icon={<UploadOutlined />}>选择视频（mp4/webm，≤500MB）</Button>
-              </Upload>
-            </Form.Item>
-          )}
-          {editingReplay?.lesson_id && <p><Text strong>所属课时：{replayLesson?.title || '原绑定课时'}</Text><br /><Text type="secondary">编辑视频信息不会改变课时归属；已开始学生仍使用原学习快照。</Text></p>}
-          {editingReplay && !editingReplay.lesson_id && <Form.Item name="lesson_id" label="所属课时（历史共享回放可补绑定）" extra="保留历史共享视频，也可补绑定到课时；已开始学生仍使用原学习快照。"><Select allowClear options={lessons.filter((l) => l.status !== 'cancelled').map((l) => ({ label: l.title, value: l.id }))} /></Form.Item>}
-          {replayUploading && (editingReplay ? <Text type="secondary">正在保存视频信息，请勿离开当前课程。</Text> : <><Progress percent={uploadPercent} status="active" /><Text type="secondary">{uploadPercent >= 100 ? '文件已传输，等待服务器确认保存。' : '正在上传，请勿离开当前课程。'} 上传期间不能修改或关闭表单。</Text></>)}
-          <Form.Item name="description" label="视频简介" rules={[{ required: true, whitespace: true, message: '请填写视频简介' }]}><Input.TextArea rows={2} /></Form.Item>
-          <Tabs items={[
-            { key: 'edit', label: '编辑 Markdown', forceRender: true, children: <Form.Item name="summary" label="回放内容摘要（课程纪要）" extra="支持标题、加粗、列表、链接、代码块和表格；课程结束后可单独更新，无需重新上传视频。" rules={[{ max: 10000, message: '摘要不能超过 10000 个字符' }]}>
-              <Input.TextArea rows={6} showCount maxLength={10000} placeholder={'## 课程纪要\n\n**重点知识**\n\n- 要点一\n- 要点二'} />
-            </Form.Item> },
-            { key: 'preview', label: '预览', children: <div style={{ marginBottom: 16 }}><ReplaySummary replay={{ summary: replaySummary }} /></div> },
-          ]} />
-          <Upload accept=".txt,.md" disabled={replayUploading} showUploadList={false} beforeUpload={async (file) => {
-            const session = replaySession.current;
-            if (!/\.(txt|md)$/i.test(file.name) || file.size > 100000) { message.error('请选择不超过 100KB 的 UTF-8 文本或 Markdown 文件'); return Upload.LIST_IGNORE; }
-            try {
-              const summary = await file.text();
-              if (!mounted.current || session !== replaySession.current || replayBusy.current) return false;
-              if (summary.length > 10000) message.error('摘要不能超过 10000 个字符');
-              else { replayForm.setFieldValue('summary', summary); message.success('摘要已导入，请保存回放信息'); }
-            } catch { message.error('无法读取摘要文件，请重试'); }
-            return false;
-          }}><Button icon={<UploadOutlined />} style={{ marginBottom: 16 }}>从文件导入摘要（.txt / .md）</Button></Upload>
-          <Form.Item name="duration_seconds" label="时长（秒）"><Input type="number" min={1} /></Form.Item>
-          <Form.Item name="recording_date" label="录制日期"><Input type="date" /></Form.Item>
-          <Form.Item name="sort_order" label="排序（数字越小越靠前）"><Input type="number" min={0} /></Form.Item>
+          <Form.Item name="description" label={siteText("site.bf27f6738755a67e")}><Input.TextArea rows={2} /></Form.Item>
+          <Form.Item name="lesson_id" label="所属课时（留空为课程共享）"><Select allowClear options={lessons.filter(l=>l.status!=='cancelled').map(l=>({value:l.id,label:l.title}))}/></Form.Item><Tabs items={[{key:'summary',label:'回放摘要',forceRender:true,children:<Form.Item name="summary" label="课程纪要（Markdown）" rules={[{max:10000}]}><Input.TextArea rows={6} maxLength={10000}/></Form.Item>},{key:'preview',label:'摘要预览',children:<ReplaySummary replay={{summary:replaySummary}}/>}]}/><Upload accept=".txt,.md" showUploadList={false} beforeUpload={async file=>{if(!/\.(txt|md)$/i.test(file.name)||file.size>100000){message.error('请选择不超过100KB的文本或Markdown文件');return Upload.LIST_IGNORE;}const summary=await file.text();if(summary.length>10000)message.error('摘要不能超过10000个字符');else replayForm.setFieldValue('summary',summary);return false;}}><Button>导入摘要文件</Button></Upload>
+          <Form.Item name="duration_seconds" label={siteText("site.9b2b59ed8d6a4a4d")}><Input type="number" min={1} /></Form.Item>
+          <Form.Item name="recording_date" label={siteText("site.423c18eabf100c54")}><Input type="date" /></Form.Item>
+          <Form.Item name="sort_order" label={siteText("site.df2f829f992f1b4c")}><Input type="number" min={0} /></Form.Item>
         </Form>
       </Modal>
 
       {/* 上传课程资料 Modal */}
       <Modal
-        title={editingResource ? '编辑资料信息（不更换文件，历史快照保留）' : '上传课程资料'}
+        title={siteText("site.660b0292fc93d53d")}
         open={resourceModal}
-        onCancel={() => {if(!resourceUploading)setResourceModal(false);}}
+        onCancel={() => setResourceModal(false)}
         onOk={() => resourceForm.submit()}
         confirmLoading={resourceUploading}
       >
-        <Form form={resourceForm} layout="vertical" disabled={resourceUploading} onFinish={handleResourceSubmit}>
-          <Form.Item name="lesson_id" label="所属课时（不选择则为课程共享资料）"><Select allowClear options={lessons.filter((l) => l.status !== 'cancelled').map((l) => ({ label: l.title, value: l.id }))} /></Form.Item>
-          <Form.Item name="description" label="资料说明"><Input.TextArea /></Form.Item>
-          <Form.Item name="title" label="资料名称"><Input placeholder="如：第 1 讲讲义" /></Form.Item>
-          <Form.Item name="resource_type" label="资料类型" initialValue="courseware">
+        <Form form={resourceForm} layout="vertical" onFinish={handleResourceSubmit}><Form.Item name="lesson_id" label="所属课时（留空为课程共享）"><Select allowClear options={lessons.filter(l=>l.status!=='cancelled').map(l=>({value:l.id,label:l.title}))}/></Form.Item><Form.Item name="description" label="资料说明"><Input.TextArea/></Form.Item>
+          <Form.Item name="title" label={siteText("site.1b5d943b1d92d50b")}><Input placeholder={siteText("site.6526e59c7db323b2")} /></Form.Item>
+          <Form.Item name="resource_type" label={siteText("site.bfbcad199b0422a2")} initialValue="courseware">
             <Select options={Object.entries(RESOURCE_TYPE_LABELS).map(([value, label]) => ({ value, label }))} />
           </Form.Item>
-          {!editingResource && <Form.Item label="文件" required>
+          <Form.Item label={siteText("site.9369b36b24652b4a")} required>
             <Upload
               accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.pdf,.doc,.docx,.ppt,.pptx,.txt,.zip,.obj,.glb,.gltf,.stl"
               maxCount={1}
@@ -773,68 +588,66 @@ function CourseDetailPage() {
               onRemove={() => setResourceFile(null)}
               fileList={resourceFile ? [{ uid: '-1', name: resourceFile.name }] : []}
             >
-              <Button icon={<UploadOutlined />}>选择文件（≤50MB）</Button>
+              <Button icon={<UploadOutlined />}>{siteText("site.fbf7edda6f07e5c2")}</Button>
             </Upload>
-            <Typography.Text type="secondary">AI 知识库仅解析可提取文字的 PDF、DOCX、PPTX、TXT。旧版 DOC/PPT 需先转换；扫描版 PDF 需先 OCR。</Typography.Text>
-          </Form.Item>}
+            <Typography.Text type="secondary">{siteText("site.20863779519d334a")}</Typography.Text>
+          </Form.Item>
         </Form>
       </Modal>
       {/* 导入学生 Modal（执行导师/管理员） */}
       <Modal
-        title="导入学生"
+        title={siteText("site.8b75c392697bd92d")}
         open={importOpen}
         onCancel={() => setImportOpen(false)}
         onOk={handleImportSubmit}
-        okText={`导入（已选 ${selectedKeys.length} 人）`}
+        okText={siteTemplate("site.e89a14c2a7dab7fd", {slot0: (selectedKeys.length)})}
         okButtonProps={{ disabled: selectedKeys.length === 0 }}
         confirmLoading={importing}
         width={680}
       >
         <Space style={{ marginBottom: 12 }} wrap>
           <Input.Search
-            placeholder="搜索姓名/用户名" allowClear style={{ width: 200 }}
+            placeholder={siteText("site.4a2756b726bf5c72")} allowClear style={{ width: 200 }}
             onSearch={(v) => loadCandidates({ search: v || undefined, school_id: candidateSchool, class_id: candidateClass })}
           />
           <Select
-            placeholder="按学校筛选" allowClear style={{ width: 180 }} value={candidateSchool}
+            placeholder={siteText("site.50925fa6938c5046")} allowClear style={{ width: 180 }} value={candidateSchool}
             onChange={handleCandidateSchoolChange}
             options={schoolOptions.map((s) => ({ value: s.id, label: s.name }))}
           />
           <Select
-            placeholder="按班级筛选" allowClear style={{ width: 160 }} value={candidateClass}
+            placeholder={siteText("site.fe64a764abedeaf2")} allowClear style={{ width: 160 }} value={candidateClass}
             onChange={(v) => { setCandidateClass(v); loadCandidates({ search: undefined, school_id: candidateSchool, class_id: v }); }}
             options={candidateClasses.map((c) => ({ value: c.id, label: `${c.grade || ''} ${c.name}` }))}
           />
-          <Button size="small" onClick={() => loadCandidates({ school_id: candidateSchool, class_id: candidateClass })}>查询</Button>
+          <Button size="small" onClick={() => loadCandidates({ school_id: candidateSchool, class_id: candidateClass })}>{siteText("site.1921df656c6e27c8")}</Button>
         </Space>
         <Table
           rowKey="id" size="small" loading={candidateLoading} dataSource={candidates}
           pagination={{ pageSize: 8 }} scroll={{ y: 320 }}
           rowSelection={{ selectedRowKeys: selectedKeys, onChange: setSelectedKeys }}
           columns={[
-            { title: '姓名', dataIndex: 'real_name' },
-            { title: '学校', dataIndex: 'school_name', render: (v) => v || '—' },
-            { title: '班级', dataIndex: 'class_name', render: (v) => v || '—' },
+            { title: siteText("site.7cc5822b69416ce2"), dataIndex: 'real_name' },
+            { title: siteText("site.cc937981f7d3ce49"), dataIndex: 'school_name', render: (v) => v || '—' },
+            { title: siteText("site.9ef404bec164f565"), dataIndex: 'class_name', render: (v) => v || '—' },
           ]}
         />
       </Modal>
 
       {/* 管理员异常修正：移除报名 Modal */}
       <Modal
-        title={`移除报名：${removeTarget?.student_name || ''}`}
+        title={siteTemplate("site.c77da5bc102ef95c", {slot0: (removeTarget?.student_name || '')})}
         open={!!removeTarget}
         onCancel={() => setRemoveTarget(null)}
         onOk={handleRemoveSubmit}
-        okText="确认移除"
+        okText={siteText("site.1d3177bb1eacaf96")}
         okButtonProps={{ danger: true }}
         confirmLoading={removeLoading}
       >
-        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-          移除后该生将无法再访问课程与任务。该操作会记录在成长档案审计中；若该生已产生任何学习记录，系统将拒绝移除。
-        </Text>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{siteText("site.4e04893643352b86")}</Text>
         <Input.TextArea
           rows={3}
-          placeholder="请填写移除原因（必填，将随审计记录保存）"
+          placeholder={siteText("site.44f94a35f36c9737")}
           value={removeReason}
           onChange={(e) => setRemoveReason(e.target.value)}
         />

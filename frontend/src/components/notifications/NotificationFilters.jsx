@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { Select, Space } from 'antd';
 import {
   notificationCategoryOptions,
@@ -12,7 +13,7 @@ export default function NotificationFilters({ value, onChange }) {
     <Space wrap>
       <Select
         allowClear
-        placeholder="阅读状态"
+        placeholder={siteText("site.7c191691d853b210")} aria-label={siteText("site.7c191691d853b210")}
         value={value.read}
         options={notificationReadOptions}
         onChange={(read) => update('read', read)}
@@ -20,7 +21,7 @@ export default function NotificationFilters({ value, onChange }) {
       />
       <Select
         allowClear
-        placeholder="通知分类"
+        placeholder={siteText("site.3b8d1245d0ec36bd")} aria-label={siteText("site.3b8d1245d0ec36bd")}
         value={value.category}
         options={notificationCategoryOptions}
         onChange={(category) => update('category', category)}
@@ -28,7 +29,7 @@ export default function NotificationFilters({ value, onChange }) {
       />
       <Select
         allowClear
-        placeholder="通知级别"
+        placeholder={siteText("site.2a077b850aea3fa3")} aria-label={siteText("site.2a077b850aea3fa3")}
         value={value.level}
         options={notificationLevelOptions}
         onChange={(level) => update('level', level)}

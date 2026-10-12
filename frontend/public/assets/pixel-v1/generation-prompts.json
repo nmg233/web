@@ -1,0 +1,54 @@
+{
+  "version": "pixel-v1",
+  "tool": "built-in image_gen.imagegen",
+  "generatedOn": "2026-10-03",
+  "artDirection": "晴空观测站",
+  "assets": [
+    {
+      "id": "hero-voyage",
+      "file": "hero-voyage.png",
+      "prompt": "Use case: stylized-concept. Original production pixel-art asset for a Chinese middle-school science exploration platform set in 2057, art direction 'Clear Sky Observatory'. Cohesive 16-bit-inspired hand-placed pixel style, unmistakable crisp square pixel clusters, logical pixel grid about 4 output pixels, integer stair-step silhouettes, no antialiasing or blur, flat color clusters with 2-3 shade steps, restrained 24-color palette. Palette deep navy #102D40 outlines, steel blue #1C4355, sky cyan #BBDDED and #75BCD9, warm ivory #FFF9E9, teal #087F78, mint #BCEADB, foliage #468C62, rocks #567888, tiny warm gold #F3C76B details. Three-quarter orthographic view, sunlight from upper left, friendly science expedition rather than farming. No letters, numbers, labels, logos, watermark, UI, borders, buttons, or humans. This must be standalone original art, never copying a known game, artist, character or reference scene. Asset type: wide landscape header environment, horizontal 3:1 composition. Bright calm blue sky, layered crisp white cloud banks, a distant pale ringed planet; on the RIGHT two floating grassy rocky islands, a modest ivory and teal future observatory with small antenna and solar wing, plants, a narrow turquoise waterfall to the cloud sea. Left 45 percent deliberately uncluttered mostly pale sky and distant clouds as a crop-safe quiet zone; all recognizable structures within the central-right 55 percent. Large readable pixel shapes, not densely packed texture. No foreground frame. Enough vertical sky margin for cropping to a 180px tall webpage header.",
+      "transparent_background": false,
+      "sourceGenerationFile": "exec-baaeb035-93f9-49eb-9490-c34a856954c9.png"
+    },
+    {
+      "id": "course-voyage",
+      "file": "course-voyage.png",
+      "prompt": "Use case: stylized-concept. Original production pixel-art asset for a Chinese middle-school science exploration platform set in 2057, art direction 'Clear Sky Observatory'. Cohesive 16-bit-inspired hand-placed pixel style, unmistakable crisp square pixel clusters, logical pixel grid about 4 output pixels, integer stair-step silhouettes, no antialiasing or blur, flat color clusters with 2-3 shade steps, restrained 24-color palette. Palette deep navy #102D40 outlines, steel blue #1C4355, sky cyan #BBDDED and #75BCD9, warm ivory #FFF9E9, teal #087F78, mint #BCEADB, foliage #468C62, rocks #567888, tiny warm gold #F3C76B details. Three-quarter orthographic view, sunlight from upper left, friendly science expedition rather than farming. No letters, numbers, labels, logos, watermark, UI, borders, buttons, or humans. This must be standalone original art, never copying a known game, artist, character or reference scene. Asset type: reusable landscape 3:2 course cover. A compact ivory research dome with teal windows, an elegant small white deep-space shuttle on a launch pad, fern-like plants, instrument mast and blue solar panels on a grassy cliff above a turquoise sea of clouds; distant small ringed planet in a clear sky. Closer and simpler than an environment panorama. One strong visual focal point, readable at a 280 by 180 pixel card. Balanced centered composition, clean pixel silhouette. No text or map route. This is generic future exploration visual, not a depiction of a named specific lesson.",
+      "transparent_background": false,
+      "sourceGenerationFile": "exec-bd52b631-8757-4636-8a9d-70bf271cfeec.png"
+    },
+    {
+      "id": "island-observatory",
+      "file": "island-observatory.png",
+      "prompt": "Use case: stylized-concept. Original production pixel-art asset for a Chinese middle-school science exploration platform set in 2057, art direction 'Clear Sky Observatory'. Cohesive 16-bit-inspired hand-placed pixel style, unmistakable crisp square pixel clusters, logical pixel grid about 4 output pixels, integer stair-step silhouettes, no antialiasing or blur, flat color clusters with 2-3 shade steps, restrained 24-color palette. Palette deep navy #102D40 outlines, steel blue #1C4355, sky cyan #BBDDED and #75BCD9, warm ivory #FFF9E9, teal #087F78, mint #BCEADB, foliage #468C62, rocks #567888, tiny warm gold #F3C76B details. Three-quarter orthographic view, sunlight from upper left, friendly science expedition rather than farming. No letters, numbers, labels, logos, watermark, UI, borders, buttons, or humans. This must be standalone original art, never copying a known game, artist, character or reference scene. Asset type: isolated transparent map module. ONE small floating rocky island with an ivory hemispherical observatory, teal doorway, a little golden antenna, two low shrubs and a strip of bright green turf, tiny narrow waterfall along the right rocky side. Three-quarter view, broad top with tapered angular rock underside. Entire island visible with generous transparent padding on every side, centered. No sky, no ground plane, no background, no shadow outside the subject. True transparent alpha background. Designed to sit under numbered HTML lesson nodes.",
+      "transparent_background": true,
+      "sourceGenerationFile": "exec-92d79b4c-e00c-4e91-b74b-ad689f5e7b11.png"
+    },
+    {
+      "id": "island-relay",
+      "file": "island-relay.png",
+      "prompt": "Use case: stylized-concept. Original production pixel-art asset for a Chinese middle-school science exploration platform set in 2057, art direction 'Clear Sky Observatory'. Cohesive 16-bit-inspired hand-placed pixel style, unmistakable crisp square pixel clusters, logical pixel grid about 4 output pixels, integer stair-step silhouettes, no antialiasing or blur, flat color clusters with 2-3 shade steps, restrained 24-color palette. Palette deep navy #102D40 outlines, steel blue #1C4355, sky cyan #BBDDED and #75BCD9, warm ivory #FFF9E9, teal #087F78, mint #BCEADB, foliage #468C62, rocks #567888, tiny warm gold #F3C76B details. Three-quarter orthographic view, sunlight from upper left, friendly science expedition rather than farming. No letters, numbers, labels, logos, watermark, UI, borders, buttons, or humans. This must be standalone original art, never copying a known game, artist, character or reference scene. Asset type: isolated transparent map module in exactly the same family as a floating observatory island. ONE small floating island with a squat ivory and teal deep-space communication station, small parabolic antenna angled toward upper left, a blue solar panel and three compact shrubs on grassy terrain. Broad top, tapered stepped rocky underside, one short water stream. Entire silhouette fits inside with transparent padding, centered, no sky or background or ground plane, true alpha transparency. Restrained detail, readable as a small map decoration.",
+      "transparent_background": true,
+      "sourceGenerationFile": "exec-a8962155-0bdd-4204-919e-1d9c7b30316e.png"
+    },
+    {
+      "id": "companion-cat",
+      "file": "companion-cat.png",
+      "prompt": "Use case: stylized-concept. Original production pixel-art asset for a Chinese middle-school science exploration platform set in 2057, art direction 'Clear Sky Observatory'. Cohesive 16-bit-inspired hand-placed pixel style, unmistakable crisp square pixel clusters, logical pixel grid about 4 output pixels, integer stair-step silhouettes, no antialiasing or blur, flat color clusters with 2-3 shade steps, restrained 24-color palette. Palette deep navy #102D40 outlines, steel blue #1C4355, sky cyan #BBDDED and #75BCD9, warm ivory #FFF9E9, teal #087F78, mint #BCEADB, foliage #468C62, rocks #567888, tiny warm gold #F3C76B details. Three-quarter orthographic view, sunlight from upper left, friendly science expedition rather than farming. No letters, numbers, labels, logos, watermark, UI, borders, buttons, or humans. This must be standalone original art, never copying a known game, artist, character or reference scene. Asset type: original static learning-companion sprite. ONE friendly small cream-and-teal robotic exploration cat sitting upright with curled tail, large navy pixel eyes, ivory fur-like casing, warm gold ear interiors, a teal lightweight explorer collar with one square signal light, tiny navy boots/paws. Distinct original character, youthful but not babyish, curious gentle expression, not a known fictional cat, no handheld book or text. Three-quarter front-facing pose. Chunky clean pixel clusters, approximately 64 by 64 logical pixel silhouette with 1 logical pixel navy outline, 2 shade levels. Full head ears feet and curled tail visible, centered with modest even transparent margin; genuine transparent background. No checkerboard baked into image, no ground, no shadow outside character.",
+      "transparent_background": true,
+      "sourceGenerationFile": "exec-5b5f569d-708c-4143-86e3-6d9f842e7737.png"
+    },
+    {
+      "id": "planet-ring-v2",
+      "file": "planet-ring-v2.png",
+      "prompt": "Create one tiny game sprite: a ringed planet, ORIGINAL flat pixel-art asset for a science exploration game. This is NOT an illustration, NOT a realistic painting. Native appearance of a 64 by 48 pixel sprite enlarged with nearest neighbor, large uniformly square pixels. The planet is a compact stepped circle in sky blue with 3 flat blocky teal patches, with an ivory and warm gold ring. Navy 1-pixel stepped outline. Use only six flat colors #102D40 #087F78 #BBDDED #FFF9E9 #F3C76B #BCEADB. Transparent background, everything outside the silhouette is fully transparent: absolutely NO outer glow, NO halo, NO aura, NO light bloom, NO shadow outside silhouette, NO gradients, NO blur, NO stars. Crisp squared stair-step edge. All filled sprite pixels fully opaque. Center object with small transparent padding. No text.",
+      "transparent_background": true,
+      "sourceGenerationFile": "exec-f5201c18-31a4-44c5-a715-c5a202c8de19.png"
+    }
+  ],
+  "revisionNotes": [
+    "planet-ring 初稿及一次编辑仍含光晕，未纳入应用；最终重新生成简洁的 planet-ring-v2。原始工具输出保留在本地生成目录。",
+    "PNG 为原始高分辨率母版，没有以脚本处理图像。生成参数中的色数/颗粒为艺术方向提示，并非已量化的逐像素保证。"
+  ]
+}

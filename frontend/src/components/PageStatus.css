@@ -1,0 +1,12 @@
+.page-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-height: 320px; padding: 32px 20px; text-align: center; color: var(--pixel-muted, #526974); font-size: 16px; line-height: 1.65; }
+.page-loading p { margin: 0; overflow-wrap: anywhere; }
+.student-pixel .student-page-status { width: 100%; max-width: 880px; margin: 0 auto; padding: 48px 24px; }
+.student-pixel .student-status-code { color: var(--pixel-teal); font: 700 16px/1.5 ui-monospace, Consolas, monospace; }
+.student-pixel .student-page-status h1 { margin: 12px 0; font-size: clamp(22px, 3vw, 28px); line-height: 1.5; overflow-wrap: anywhere; }
+.student-pixel .student-page-status h1:focus { outline: 3px solid var(--pixel-gold); outline-offset: 4px; }
+.student-pixel .student-page-status p { color: var(--pixel-muted); margin: 0 0 24px; overflow-wrap: anywhere; }
+.student-pixel .student-status-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.student-pixel .student-status-actions .ant-btn { height: auto; min-height: 44px; white-space: normal; }
+@media (max-width: 599px) { .student-pixel .student-page-status { padding: 24px 16px; } .student-pixel .student-page-status .pixel-panel { padding: 20px; } }
+.student-pixel .student-status-return { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 16px; color: var(--pixel-paper); background: var(--pixel-teal); border: 2px solid var(--pixel-navy); box-shadow: 0 3px 0 var(--pixel-navy); font-weight: 700; text-decoration: none; }
+.student-pixel .student-status-return:hover { background: var(--pixel-navy-light); }

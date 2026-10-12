@@ -1,3 +1,4 @@
+import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, Card, Table, Button, Modal, Form, Input, Select, Typography, Space, Popconfirm, message } from 'antd';
@@ -83,7 +84,7 @@ function SchoolDetailContent({ id }) {
   return (
     <div>
       <Space wrap style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/dashboard')}>返回</Button>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/dashboard')}>{siteText("site.b73ce2dcf812a7a6")}</Button>
         <Title level={4} style={{ margin: 0 }}>{school.name}</Title>
         <Popconfirm title={school.is_active ? '停用后只停止新建班级和账号，现有账号继续使用。确认停用？' : '确认恢复学校新增功能？'} onConfirm={() => mutate(
           () => studentAPI.schoolStatus(school.id, !school.is_active), () => message.success('学校状态已更新'))}>
@@ -91,29 +92,29 @@ function SchoolDetailContent({ id }) {
         </Popconfirm>
       </Space>
       {error && <Alert type="error" showIcon message="刷新失败，当前可能是旧数据，请刷新后操作" action={<Button onClick={loadData}>刷新</Button>} />}
-      <Card title="班级管理" extra={<Button disabled={!school.is_active || saving || error} type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>添加班级</Button>}>
-        <p>班级总数：{school.class_count} | 用户数：{school.user_count}</p>
+      <Card title="班级管理" extra={<Button disabled={!school.is_active || saving || error} type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>{siteText("site.22b061ce1adc5769")}</Button>}>
+        <p>{siteText("site.bf0905ea17af8ae9")}{school.class_count}{siteText("site.99547bc35c5208d5")}{school.user_count}</p>
         <p>学校 ID：{school.id} | 建号缩写：{school.account_code || '首次创建账号时生成并固定'}；重名组织导入请使用 ID</p>
-        {school.region && <p>地区：{school.region}</p>}
+        {school.region && <p>{siteText("site.d482f31f2d70ab2f")}{school.region}</p>}
         <Table dataSource={classes} rowKey="id" pagination={false} columns={[
-          { title: '班级 ID', dataIndex: 'id' }, { title: '班级名称', dataIndex: 'name' },
-          { title: '年级', dataIndex: 'grade' }, { title: '学生数', dataIndex: 'student_count' },
-          { title: '操作', render: (_, record) => <Space wrap>
+          { title: '班级 ID', dataIndex: 'id' }, { title: siteText("site.b6a7dd9d0c51ffb1"), dataIndex: 'name' },
+          { title: siteText("site.8fbb38fb943dc6ac"), dataIndex: 'grade' }, { title: siteText("site.89753b0be748da07"), dataIndex: 'student_count' },
+          { title: siteText("site.78001350cfb800a2"), render: (_, record) => <Space wrap>
             <Button type="link" disabled={saving || error} onClick={() => openTransfer(record)}>整班迁校</Button>
             <Button type="link" onClick={() => openHistory(record)}>迁移记录</Button>
             <Popconfirm title="确定删除？关联账号的班级不能直接删除。" onConfirm={() => mutate(
-              () => dashboardAPI.deleteClass(id, record.id), () => message.success('班级已删除'))}>
-              <Button type="link" danger disabled={saving || error}>删除</Button>
+              () => dashboardAPI.deleteClass(id, record.id), () => message.success(siteText("site.6bbe70fe089ff380")))}>
+              <Button type="link" danger disabled={saving || error}>{siteText("site.96840cf630e14480")}</Button>
             </Popconfirm>
           </Space> },
         ]} />
       </Card>
-      <Modal title="添加班级" open={modalOpen} confirmLoading={saving} onCancel={() => { if (!saving) setModalOpen(false); }} onOk={() => form.submit()}>
+      <Modal title={siteText("site.22b061ce1adc5769")} open={modalOpen} confirmLoading={saving} onCancel={() => { if (!saving) setModalOpen(false); }} onOk={() => form.submit()}>
         <Form form={form} layout="vertical" disabled={saving} onFinish={(values) => mutate(() => dashboardAPI.addClass(id, values), () => {
-          message.success('班级添加成功'); setModalOpen(false); form.resetFields();
+          message.success(siteText("site.b9bab890fc891a62")); setModalOpen(false); form.resetFields();
         })}>
-          <Form.Item name="name" label="班级名称" rules={[{ required: true, whitespace: true }]}><Input /></Form.Item>
-          <Form.Item name="grade" label="年级"><Input placeholder="如：三年级" /></Form.Item>
+          <Form.Item name="name" label={siteText("site.b6a7dd9d0c51ffb1")} rules={[{ required: true, whitespace: true }]}><Input /></Form.Item>
+          <Form.Item name="grade" label={siteText("site.8fbb38fb943dc6ac")}><Input placeholder="如：三年级" /></Form.Item>
         </Form>
       </Modal>
       <Modal title={'整班迁校：' + (transfer?.name || '')} open={Boolean(transfer)} confirmLoading={saving}

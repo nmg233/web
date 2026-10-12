@@ -1,0 +1,97 @@
+.student-pixel .space-map { color:#183457; }
+.student-pixel [data-space-theme='voyage'] .space-map { color:#edf4ff; }
+.student-pixel [data-space-theme='voyage'] .space-map :is(.pixel-map-header h2,.pixel-map-overview h3) { color:#fff4dc; }
+.student-pixel [data-space-theme='voyage'] .space-map :is(.space-route-summary>span,.pixel-map-course-progress>span) { color:#bad0ef; }
+.student-pixel .space-map .pixel-map-header { align-items:center; margin-bottom:8px; }
+.student-pixel .space-map .pixel-map-header h2 { font-size:30px; font-weight:500; margin:0; }
+.student-pixel .space-map .pixel-map-back { display:none; }
+.space-map-test-note { margin:0 0 10px; color:#f5d699; font-size:14px; line-height:1.5; }
+[data-map-theme='campus'] .space-map-test-note { color:#715021; }
+.student-pixel .space-map .pixel-map-overview { margin:12px 0; gap:16px; }
+.space-route-summary { display:flex; align-items:baseline; gap:12px; }
+.student-pixel .space-map .space-route-summary h3 { font-size:21px; margin:0; font-weight:500; }
+.student-pixel .space-map .pixel-map-course-progress { width:210px; }
+.student-pixel .space-map .pixel-map-course-progress>span { font-size:14px; }
+.student-pixel .space-map .pixel-map-layout { display:block; }
+.student-pixel .space-map .pixel-map-stage { min-height:470px; padding:0 16px 14px; background:#071b42; border:2px solid #698ab5; box-shadow:5px 5px 0 #030e24; overflow:hidden; }
+.space-map-art.space-scene { position:absolute; z-index:-2; inset:0; width:100%; height:100%; }
+.space-map-art img { object-position:center; opacity:1; }
+.student-pixel .space-map .pixel-map-stage:after { content:''; position:absolute; inset:0; z-index:-1; background:#081a4340; pointer-events:none; }
+.student-pixel .space-map .pixel-map-region.route-group { padding:20px 0 24px; border:0; background:transparent; }
+.student-pixel .space-map .pixel-map-region-title { color:#fff3d7; background:#0c214ced; border:1px solid #9bb9dc; box-shadow:3px 3px 0 #07152e; font-size:16px; font-weight:500; }
+.student-pixel .space-map .pixel-map-region-index { background:#f0ce80; color:#173459; font-family:var(--space-font); }
+.student-pixel .space-map .pixel-map-platform { padding-top:20px; }
+.student-pixel .space-map .pixel-map-route-canvas { position:relative; }
+.student-pixel .space-map .pixel-map-route { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:56px 36px; padding:0 32px; margin:0; list-style:none; z-index:1; }
+.student-pixel .space-map .pixel-map-route-stop { position:relative; grid-row:var(--stop-row); grid-column:var(--stop-column); padding:var(--stop-lift) 0 4px; min-width:0; }
+.student-pixel .space-map .route-node { min-height:0; gap:0; align-items:center; justify-content:flex-start; padding:0; color:#163553; flex-direction:column; text-align:center; }
+.student-pixel .space-map .pixel-map-route .route-node { width:min(100%,220px);margin-inline:auto; }
+.space-lesson-place { display:block; position:relative; width:min(100%,220px); aspect-ratio:1; flex-shrink:0; }
+.space-place-art { width:100%; height:100%; display:block; object-fit:contain; image-rendering:pixelated; }
+/* Unknown courses retain neutral markers on their campus scene. */
+.space-lesson-place[data-place='campus'] { height:108px; aspect-ratio:auto; }
+.space-lesson-place[data-place='campus'] .space-place-number { left:50%; top:40%; transform:translateX(-50%); width:42px; height:42px; display:grid; place-items:center; font-size:20px; }
+.space-landing-anchor { position:absolute; left:var(--landing-x); top:var(--landing-y); width:12px; height:8px; transform:translate(-50%,-50%); background:#dff6ff; border:2px solid #28466f; }
+.space-place-number { position:absolute; left:6%; top:57%; min-width:28px; padding:3px 5px; background:#f8edce; border:2px solid #173355; color:#173355; font-size:17px; line-height:1; box-shadow:2px 2px 0 #07152e; }
+.space-place-current { position:absolute; top:8%; left:50%; transform:translateX(-50%); padding:3px 7px; color:#302c20; background:#ffd276; border:2px solid #554229; white-space:nowrap; font-size:14px; }
+.space-place-selection { position:absolute; right:1%; bottom:22%; font-size:13px; line-height:1.2; background:#c5f5fc; color:#122d4b; padding:3px 5px; border:1px solid #30627f; }
+.space-place-complete { position:absolute; right:6%; top:45%; color:#103f37; background:#acf0cf; border:2px solid #164d41; width:26px; height:26px; font-size:17px; }
+.route-node[aria-pressed='true'] .space-landing-anchor { width:30px; height:14px; background:#baf6ff; border:3px solid #167b9c; outline:2px solid #ddffff; outline-offset:2px; }
+.space-place-fallback { display:grid; place-items:center; height:100%; color:#edf6ff; background:#102951; border:1px dashed #afc8e7; padding:28px; font-size:15px; }
+.student-pixel .space-map .pixel-map-node-label { max-width:100%; width:200px; padding:6px 9px; margin-top:-8px; background:#edf2f8f5; border:1px solid #486991; box-shadow:3px 3px 0 #0b1d3d; align-items:center; }
+.student-pixel .space-map .route-node[aria-pressed='true'] .pixel-map-node-label { background:#e1f6fb; box-shadow:3px 3px 0 #347c98; border-color:#6ed8f0; }
+.student-pixel .space-map .pixel-map-node-label strong { font-weight:500; font-size:16px; }
+.student-pixel .space-map .pixel-map-node-label .pixel-tag { font-size:13px; line-height:1.5; }
+.student-pixel .space-map .route-node:focus-visible { outline:3px solid #fff2b0; outline-offset:4px; box-shadow:0 0 0 7px #2b6699; }
+.student-pixel .space-map .pixel-map-route-track { position:absolute; inset:0; overflow:visible; width:100%; height:100%; pointer-events:none; z-index:0;stroke-linecap:round;stroke-linejoin:round; }
+.student-pixel .space-map .pixel-map-track-outline { fill:none; stroke:#0b2854; stroke-width:8; }
+.student-pixel .space-map .pixel-map-track-dashes { fill:none; stroke:#ffe8a5; stroke-width:3; stroke-dasharray:8 7; }
+.student-pixel .space-map .pixel-map-region-bridge { color:#f7db8f; border-color:#f7db8f; }
+.student-pixel .space-map .pixel-map-route-note { background:#0a1e43eb; color:#e0ecfc; border:1px solid #6584ac; font-size:14px; }
+.student-pixel .space-map .pixel-map-details { border-color:#8ca8c9; box-shadow:4px 4px 0 #020f2a; background:#fdf6e5; color:#173350; padding:20px; }
+.student-pixel .space-map .pixel-map-details h3 { font-size:24px; font-weight:500; }
+.student-pixel .space-map .pixel-map-details .ant-descriptions { font-size:14px; }
+.student-pixel .space-map .pixel-map-course-info { color:#193654; }
+.student-pixel .space-course-todos { background:#edf2f8; color:#193654; margin-bottom:0; border:1px solid #718db1; }
+.space-course-todos .home-todo { display:flex; justify-content:space-between; gap:20px; border-bottom:1px solid #bcc9da; padding:16px 0; color:#193654; }
+.space-course-todos .home-todo h3 { font-size:20px; margin:0 0 6px; color:#193654; }
+.space-course-todos .home-todo p { margin:6px 0; }
+.space-course-todos .home-todo-action { align-self:center; flex-shrink:0; }
+.space-map-extra { display:flex; flex-wrap:wrap; gap:24px; padding:24px 0; }
+.space-map-extra a { color:#174983; border-bottom:1px solid currentColor; }
+[data-space-theme='voyage'] .space-map-extra a { color:#deebff; }
+@media(max-width:1199px) {
+  .student-pixel .space-map .pixel-map-stage { padding-inline:12px; }
+  .student-pixel .space-map .pixel-map-route { column-gap:24px;padding-inline:28px; }
+}
+@media(max-width:991px) {
+  .student-pixel .space-map .pixel-map-layout { display:block; }
+  .student-pixel .space-map .pixel-map-region-bridge { left:50%; }
+  .student-pixel .space-map .pixel-map-header h2 { font-size:25px; }
+}
+@media(max-width:767px) {
+  .space-content .page-container:has(.space-map) { padding:12px 14px 20px!important; }
+  .student-pixel .space-map .pixel-map-header { display:block; margin-bottom:6px; }
+  .student-pixel .space-map .pixel-map-header h2 { font-size:20px; line-height:1.35; }
+  .student-pixel .space-map .pixel-map-header-actions { margin-top:8px; gap:8px; }
+  .student-pixel .space-map .pixel-map-header-actions .pixel-button { height:36px; min-height:36px; padding:4px 10px; font-size:16px; }
+  .space-map-test-note { margin-bottom:8px; font-size:14px; }
+  .student-pixel .space-map .pixel-map-overview { flex-direction:row; align-items:center; gap:8px; margin:8px 0; }
+  .student-pixel .space-map .space-route-summary { gap:6px; }
+  .student-pixel .space-map .space-route-summary h3 { font-size:18px; }
+  .student-pixel .space-map .space-route-summary>span { font-size:14px; white-space:nowrap; }
+  .student-pixel .space-map .pixel-map-course-progress { width:132px; }
+  .student-pixel .space-map .pixel-map-course-progress>span { font-size:13px; }
+  .student-pixel .space-map .pixel-map-route { display:flex; flex-direction:column; gap:36px; margin:0; padding-inline:12px; }
+  .student-pixel .space-map .pixel-map-route-stop { padding:0 0 12px; width:100%; }
+  .student-pixel .space-map .pixel-map-route .route-node { width:210px; max-width:100%; margin-inline:auto; flex-direction:column; align-items:center; gap:0; text-align:center; }
+  .student-pixel .space-map .pixel-map-node-label { width:200px; max-width:100%; align-items:center; margin-top:-8px; }
+  .student-pixel .space-map .pixel-map-stage { padding-inline:10px; }
+  .student-pixel .space-map .pixel-map-region-title { font-size:15px; }
+  .student-pixel .space-map .pixel-map-platform { padding-top:12px; }
+  .student-pixel .space-map .pixel-map-region.route-group { padding-top:14px; }
+  .space-map-art img { object-fit:cover; object-position:65% center; }
+  .space-course-todos .home-todo { flex-direction:column; }
+  .space-course-todos .home-todo-action { align-self:stretch; }
+  .space-course-todos .home-todo-action button { width:100%; }
+}

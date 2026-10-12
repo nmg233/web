@@ -1,0 +1,100 @@
+@font-face{font-family:'ChillReunion';src:url('/fonts/chill-reunion/ChillReunion-Round.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+:root{--space-ink:#132a49;--space-blue:#245eb7;--space-paper:#fbf6e8;--space-font:'ChillReunion','Microsoft YaHei',sans-serif;font-synthesis:none}
+body,.student-pixel,button,input,textarea,select,.ant-app,.ant-modal,.ant-message,.ant-notification{font-family:var(--space-font)!important}
+.student-pixel [data-space-theme]{min-height:100vh;background:#e9eff2;color:var(--space-ink)}
+.student-pixel [data-space-theme='voyage']{background:#0a193b;color:#f9f4e5}
+.space-scene{display:block;overflow:hidden;background:#143669;min-width:0}
+.space-scene img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.space-scene[data-art-failed]{background:#193c71}
+.space-shell.student-shell{display:flex;min-height:100dvh;padding:0;background:transparent}
+.space-shell-main{min-width:0;flex:1}
+.space-header{position:sticky;top:0;z-index:25;display:flex;align-items:center;gap:24px;min-height:76px;padding:12px 32px;border-bottom:3px solid #193252;background:#fcf7e9;color:#193252}
+.space-platform-brand{display:inline-flex;align-items:center;gap:12px;font-size:24px;color:inherit;white-space:nowrap}
+.space-platform-nav{display:flex;align-self:stretch;gap:28px;margin-left:32px}
+.space-platform-nav a{display:flex;align-items:center;padding:0 12px;color:#38506b;font-size:21px;border-bottom:4px solid transparent}
+.space-platform-nav a[aria-current]{color:#133975;border-bottom-color:#e0ac39}
+.space-header-actions{display:flex;align-items:center;gap:24px;margin-left:auto}
+.space-header-actions .student-points{border:0;padding:5px;color:#233d5e;background:transparent;white-space:nowrap}
+.space-header-actions .student-points strong{color:#725218;font-family:var(--space-font)}
+.space-account{display:flex;align-items:center;gap:8px;max-width:180px;color:inherit}
+.space-account span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.space-header-context{display:flex;gap:14px;align-items:center;min-width:0;font-size:20px}
+.space-header-context>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.space-menu-button{padding:7px;background:#f7edcf;border:2px solid #283f61;line-height:1;color:#283f61}
+.space-sidebar{flex:0 0 224px;position:sticky;top:0;height:100dvh;z-index:26;border-right:3px solid #304b75}
+.space-course-navigation{display:flex;position:relative;isolation:isolate;flex-direction:column;min-height:100%;height:100%;overflow:hidden;padding:20px 16px;background:#071839;color:#fcf5df}
+.space-exit{display:flex;align-items:center;gap:8px;padding:10px 4px;color:#deecff!important;font-size:16px}
+.space-course-brand{display:flex;flex-direction:column;align-items:center;margin:22px 0 28px;gap:8px;text-align:center;color:#fcf5df!important;position:relative;z-index:1}
+.space-course-brand img{width:112px;height:80px;object-fit:contain;image-rendering:pixelated}
+.space-course-brand strong{font-size:24px;line-height:1.35;overflow-wrap:anywhere}
+.space-course-brand>span{font-size:13px;letter-spacing:2px;color:#b6d3fa}
+.space-course-navigation nav{display:grid;gap:16px;position:relative;z-index:1}
+.space-course-navigation nav>a{display:flex;align-items:center;gap:12px;padding:15px 12px;background:#0b2048ee;border:2px solid #6d89b1;color:#dfebff;font-size:21px;box-shadow:3px 3px 0 #020e25}
+.space-course-navigation nav>a>span:last-child{margin-left:auto}
+.space-course-navigation nav>a[aria-current]{background:#fff4ce;color:#173c73;border-color:#fff4ce;box-shadow:4px 4px 0 #a47b2c}
+.space-assistant-link{position:relative;z-index:1;display:flex;gap:8px;align-items:center;margin-top:24px;padding:12px;background:#102547d9;color:#f4edce!important;border:1px solid #7393bf;font-size:15px}
+.space-sidebar-art{position:absolute;z-index:-1;inset:200px 0 0;background:linear-gradient(#071839,transparent 20%),url('/assets/redesign-v2/web/vertical-480.webp') bottom/auto 100%;image-rendering:pixelated;opacity:.9}
+[data-course-theme='campus'] .space-sidebar-art{background-image:linear-gradient(#071839,transparent 20%),url('/assets/redesign-v2/web/campus-480.webp');background-position:center}
+.space-content.student-content{padding:0 0 32px;min-width:0;min-height:calc(100dvh - 76px)}
+.space-content .page-container{max-width:none;padding:28px!important}
+.space-sticky-return{position:sticky;top:76px;z-index:22;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;gap:12px;background:#fcf7e9;border-bottom:2px solid #9caecc}
+.space-sticky-return a{display:flex;align-items:center;gap:8px;color:#163d73}
+.space-selector{max-width:1500px;padding:52px 64px 64px;margin:0 auto;width:100%}
+.space-selector-heading{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-bottom:32px}
+.space-eyebrow{font-size:16px;letter-spacing:3px;color:#4e657f}
+.space-selector-heading h1{font-size:42px;line-height:1.2;margin:12px 0;color:#183457;font-weight:400}
+.space-selector-heading p{color:#50657c;font-size:18px;margin:0}
+.space-selector-heading .ant-input-search{max-width:260px}
+.space-course-selection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
+.space-course-card{display:flex;flex-direction:column;justify-content:space-between;position:relative;isolation:isolate;min-height:414px;overflow:hidden;color:#fff8e6!important;background:#16325e;border:3px solid #1a3657;box-shadow:6px 6px 0 #91a5b9}
+.space-course-card .space-scene,.space-real-cover{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.space-course-card:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(transparent 26%,#07173433 50%,#071734f7 86%)}
+.space-course-card-top{display:flex;justify-content:space-between;gap:12px;padding:20px;font-size:14px}
+.space-course-card-top span{padding:5px 9px;border:1px solid #b5cde7;background:#081c3bd9;color:#fdf6df}
+.space-course-card-copy{padding:26px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.space-course-card h2{margin:0 0 8px;font-size:32px;line-height:1.3;color:inherit;font-weight:400}
+.space-course-card p{font-size:16px;line-height:1.6;color:#e2e9f3;max-width:36em;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.space-course-enter{display:flex;align-items:center;gap:16px;border:2px solid #f4d58a;background:#f6df9d;color:#213754;padding:8px 14px;box-shadow:3px 3px 0 #8d6e35;white-space:nowrap;font-size:18px}
+.space-course-card:hover .space-course-enter{background:#fff4c9}
+.space-course-card:focus-visible{outline:4px solid #205fc3;outline-offset:6px}
+.space-empty{position:relative;min-height:460px;display:grid;place-items:center;border:3px solid #28435c}
+.space-empty>.space-scene{position:absolute;inset:0}
+.space-empty>div{position:relative;background:#fff9e9f5;padding:32px;max-width:90%;border:2px solid #223c5d}
+.space-notice{padding:12px 16px;background:#fff2ca;border-left:4px solid #bc8b28;color:#513d18}
+.space-personal{padding:32px;max-width:1280px;margin:auto}
+.space-personal-header{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 0}
+.space-personal-header h1{display:flex;gap:16px;align-items:center;font-size:32px;margin:8px 0;color:#163553}
+.space-personal-actions{display:flex;flex-wrap:wrap;gap:24px;padding:20px;background:#fff9e9;border:2px solid #bac7d0;align-items:center}
+.space-personal .page-container{padding:24px 0!important}
+.student-pixel .space-login.voyage-login{background:#eef1ed;padding:24px 48px;max-width:none;min-height:100dvh}
+.student-pixel .space-login .login-brand{max-width:1370px;margin:auto;color:#173555;gap:14px}
+.student-pixel .space-login .login-brand strong{font-size:26px}
+.student-pixel .space-login .login-brand span{font-size:14px;letter-spacing:2px;color:#60748c}
+.student-pixel .space-login .login-layout{max-width:1370px;margin:36px auto;grid-template-columns:minmax(0,1.6fr) minmax(350px,1fr);gap:0;min-height:600px;border:3px solid #1a3553;box-shadow:8px 8px 0 #a4b2c0}
+.student-pixel .space-login .login-scene{position:relative;padding:0;min-height:600px;background:#163555;overflow:hidden}
+.student-pixel .space-login .login-scene>.space-scene{position:absolute;inset:0}
+.student-pixel .space-login .space-login-caption{position:absolute;left:24px;top:24px;padding:16px 24px;background:#fbf4dfed;border:2px solid #193654;color:#193654}
+.student-pixel .space-login .space-login-caption h1{font-size:32px;margin:0;line-height:1.3;color:inherit}
+.student-pixel .space-login .space-login-caption p{color:#405c7b;margin:4px 0;font-size:18px}
+.student-pixel .space-login .login-panel{box-shadow:none;border:0;padding:48px 40px;background:#fff9e9}
+.student-pixel .space-login .login-footer{max-width:1370px;margin:auto;color:#50677d}
+.space-staff-shell .ant-layout-sider{background:#0e2848!important;border-right:3px solid #436583;background-image:linear-gradient(#0e2848ee 65%,#0e284888),url('/assets/redesign-v2/web/campus-480.webp')!important;background-size:cover!important;background-position:center bottom!important}
+.space-staff-shell .ant-menu-dark,.space-staff-shell .ant-menu-dark .ant-menu-sub{background:transparent}
+.space-staff-shell .ant-layout-header{background:#fff8e8!important;border-bottom:2px solid #bcc8d2}
+.space-staff-shell .ant-layout-content{background:#eef2f4!important}
+.student-pixel .space-shell :is(a,button,input,textarea):focus-visible{outline:3px solid #d59b22;outline-offset:4px}
+.space-shell *{scroll-margin-top:136px}
+@media(min-width:992px){[data-space-theme='voyage'] .space-header{background:#10274c;color:#fff2d5;border-color:#5271a1}[data-space-theme='voyage'] .space-header .student-points{color:#e9f4ff}[data-space-theme='voyage'] .space-header .student-points strong{color:#ffda89}}
+@media(max-width:1100px){.space-selector{padding:36px}.space-header{gap:16px;padding-inline:20px}.space-header-actions{gap:14px}.space-platform-nav{margin-left:0;gap:8px}.space-account span{display:none}.space-course-card{min-height:360px}.space-course-card h2{font-size:27px}}
+@media(max-width:767px){.space-header{min-height:68px;padding:10px 16px;flex-wrap:wrap;gap:8px 16px}.space-platform-brand{font-size:20px}.space-header-actions{gap:10px}.space-platform-nav{order:3;flex-basis:100%;height:40px;border-top:1px solid #c9d3da;justify-content:center}.space-platform-nav a{min-width:84px;justify-content:center;font-size:19px}.space-header-context{max-width:calc(100% - 152px);font-size:17px}.space-content.student-content{padding-bottom:24px}.space-content .page-container{padding:20px 14px!important}.space-selector{padding:26px 20px 40px}.space-selector-heading{display:block;margin-bottom:24px}.space-selector-heading h1{font-size:32px}.space-selector-heading p{font-size:16px}.space-selector-heading .ant-input-search{margin-top:20px;max-width:none}.space-course-selection{grid-template-columns:1fr;gap:28px}.space-course-card{min-height:360px;box-shadow:4px 4px 0 #91a5b9}.space-course-card-copy{padding:20px}.space-course-card-top{padding:14px;font-size:12px}.space-course-card h2{font-size:29px}.space-personal{padding:20px 14px}.space-personal-header{align-items:flex-start;flex-direction:column}.space-personal-actions{gap:18px}.space-sticky-return{top:68px;padding:8px 16px;font-size:15px}.student-pixel .space-login.voyage-login{padding:20px 16px}.student-pixel .space-login .login-layout{grid-template-columns:1fr;margin:20px 0;min-height:0}.student-pixel .space-login .login-scene{min-height:236px}.student-pixel .space-login .space-login-caption{top:16px;left:16px;padding:10px 14px}.student-pixel .space-login .space-login-caption h1{font-size:25px}.student-pixel .space-login .space-login-caption p{font-size:15px}.student-pixel .space-login .login-panel{padding:28px 22px}.student-pixel .space-login .login-footer{font-size:13px}.student-pixel .space-login .login-brand strong{font-size:23px}.student-pixel .space-login .login-brand span{display:none}.space-shell *{scroll-margin-top:130px}}
+@media(max-width:370px){.space-header{padding-inline:10px;gap:8px}.space-platform-brand{font-size:18px;gap:6px}.space-header-actions{gap:6px}.space-header-actions .student-points{gap:3px!important}.space-header-actions .student-points strong{font-size:17px}.space-selector{padding-inline:14px}}
+
+.student-pixel .space-login .login-layout{padding:0;width:100%;align-items:stretch;flex:0 0 auto}.student-pixel .space-login .login-scene{display:block;margin:0}.space-course-brand strong{font-size:21px;text-wrap:balance}.space-selector{margin:0 auto;width:100%}
+
+@media(max-width:767px){.space-header:has(.space-header-context){flex-wrap:nowrap}.space-header-context{flex:1;max-width:none;min-width:0}.space-header-context .space-menu-button{flex-shrink:0}}
+
+.space-staff-shell>.ant-layout>.ant-layout-content{padding:24px;min-width:0}@media(max-width:767px){.space-staff-shell>.ant-layout>.ant-layout-content{padding:16px}}
+
+.space-shell--course:has(.space-sticky-return) .space-content{background:#e9eff2;color:#193252}
+
+.student-pixel :is(span,strong,small,em,label,legend,h1,h2,h3,h4,h5,p,li,dt,dd){font-family:var(--space-font)!important}

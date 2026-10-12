@@ -1,3 +1,4 @@
+const {contentRevision:hash}=require('../helpers/contentRevision');
 const db = require('../config/database');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
 const learningGate = require('../helpers/learningGate');
@@ -114,6 +115,10 @@ function lessonPackage(studentId, lessonId) {
   const enrollment = assertStudentLesson(studentId, lessonId);
   const lesson = lessonContext(lessonId);
   let version = versions.boundVersion(db, studentId, lessonId);
+  const readOnly = lesson.presentation_type === 'visit' || lesson.content_state === 'preparing';
+  if (!version && readOnly) {
+    version = { id: null, legacy_compat: false, legacy_lesson_fields: false, supplement_source: null, content: versions.currentContent(db,lessonId) };
+  }
   if (!version) {
     const ready = versions.readiness(db, lessonId);
     if (!ready.ready) throw new LearningError(`课后学习尚未开放：${ready.issues.join('；')}`, 409, 'LESSON_CONTENT_INCOMPLETE');
@@ -139,18 +144,31 @@ function lessonPackage(studentId, lessonId) {
     resubmission_required:true, review_comment:'历史内容已补齐，请完成补学后重新提交新版报告。' } : originalReport;
   const reflection = report ? db.prepare('SELECT * FROM reflections WHERE report_id = ?').get(report.id) || null : null;
   const replays = version.content.replays.map(({ file_path, ...r }) => r);
-  const resources = version.content.resources.map(({ file_path, ...r }) => ({
-    ...r, has_file: Boolean(file_path), download_name: file_path ? require('path').basename(file_path) : null,
+  const resources = version.content.resources.map((resource) => ({
+    ...Object.fromEntries(['id','course_id','lesson_id','resource_type','title','description','display_order','file_size','file_name','file_type','created_at','updated_at'].map((field) => [field,resource[field]])),
+    has_file: Boolean(resource.file_path), download_name: resource.file_path ? require('path').basename(resource.file_path) : null,
   }));
+  // Older compatibility snapshots only recorded lesson id/title/description.
+  // Keep their recorded fields intact; new snapshots freeze the complete teaching content.
+  const teaching = { ...lesson, ...version.content.lesson };
+
 
   return {
     course: { id: lesson.course_id, title: lesson.course_title },
     lesson: {
-      id: lesson.id, title: lesson.title, description: lesson.description,
+      id: lesson.id, title: teaching.title, description: teaching.description, teaching_tip: teaching.teaching_tip,
+      presentation_type: teaching.presentation_type, content_state: lesson.content_state,
+      article_url: teaching.article_url, article_title: teaching.article_title, moments_note: teaching.moments_note,
+      review_content: teaching.review_content, report_guidance: teaching.report_guidance,
+      experiment_guidance: teaching.experiment_guidance, article_blocks: require('./articleBlocks').parse(teaching.article_blocks),
+      location: lesson.location, instructor_name: db.prepare('SELECT real_name FROM users WHERE id=?').get(lesson.instructor_id)?.real_name || null,
       duration: lesson.duration, start_at: lesson.start_at, end_at: lesson.end_at,
     },
+    read_only: readOnly,
+    learning_available: !readOnly,
+    read_only_reason: readOnly ? (lesson.content_state === 'preparing' ? '教学内容尚未准备完成，当前可查看资料，暂不能记录学习或提交' : '参观课时当前仅供查看资料，暂不能记录学习或提交') : null,
     enrollment_id: enrollment.enrollment_id,
-    content_version: { id: version.id, legacy_compat: Boolean(version.legacy_compat), repair: version.content.repair || null },
+    content_version: { id: version.id, legacy_compat: Boolean(version.legacy_compat), legacy_lesson_fields: version.legacy_lesson_fields, supplement_source: version.supplement_source, repair: version.content.repair || null },
     course_completion: versions.courseState(db, studentId, lesson.course_id),
     replays,
     resources,
@@ -171,7 +189,7 @@ function lessonPackage(studentId, lessonId) {
     consolidation_tasks: tasks,
     report,
     reflection,
-    progress: learningGate.recalculateLessonProgress(studentId, lessonId),
+    progress: readOnly ? learningGate.getLessonLearningState(studentId, lessonId) : learningGate.recalculateLessonProgress(studentId, lessonId),
   };
 }
 
@@ -223,8 +241,15 @@ function previewLesson(user, lessonId) {
   };
 }
 
+function assertLearningWritable(lessonId) {
+  const lesson = lessonContext(lessonId);
+  if (lesson.content_state === 'preparing') throw new LearningError('教学内容尚未准备，当前只允许查看资料',409,'CONTENT_PREPARING');
+  if (lesson.presentation_type === 'visit') throw new LearningError('参观课时当前只允许查看资料，不能记录学习或提交',409,'LESSON_READ_ONLY');
+}
+
 function completeReview(studentId, lessonId) {
   assertStudentLesson(studentId, lessonId);
+  assertLearningWritable(lessonId);
   requireStarted(studentId, lessonId);
   db.prepare(`
     INSERT INTO lesson_review_completions (student_id, lesson_id, completed_at, updated_at)
@@ -301,6 +326,7 @@ function submitExercise(studentId, exerciseId, answer) {
     throw new LearningError('练习不存在', 404, 'EXERCISE_NOT_FOUND');
   }
   assertStudentLesson(studentId, current.lesson_id);
+  assertLearningWritable(current.lesson_id);
   requireStarted(studentId, current.lesson_id);
   const card = assertCardOrder(studentId, current.lesson_id, current.card_id);
   const exercise = card.exercises.find((e) => e.id === Number(exerciseId));
@@ -358,6 +384,7 @@ function completeCard(studentId, cardId) {
   const card = db.prepare('SELECT id, lesson_id, status FROM knowledge_cards WHERE id = ?').get(cardId);
   if (!card) throw new LearningError('知识卡片不存在', 404, 'CARD_NOT_FOUND');
   assertStudentLesson(studentId, card.lesson_id);
+  assertLearningWritable(card.lesson_id);
   requireStarted(studentId, card.lesson_id);
   const snapshot = assertCardOrder(studentId, card.lesson_id, cardId);
   if (!learningGate.isReviewCompleted(studentId, card.lesson_id)) {
@@ -388,17 +415,13 @@ function validateReport(data) {
       difficulties: text(report.difficulties, 5000),
       next_plan: text(report.next_plan, 5000),
     },
-    reflection: {
-      difficulty: text(reflection.difficulty, 2000, true),
-      solution: text(reflection.solution, 2000),
-      improvement: text(reflection.improvement, 2000),
-      new_question: text(reflection.new_question, 2000),
-    },
+    reflection: (()=>{try{return require('../helpers/reflectionContent').validateReflection(reflection);}catch(e){throw new LearningError(e.message,e.status||400);}})(),
   };
 }
 
 function submitReport(studentId, lessonId, data) {
   const enrollment = assertStudentLesson(studentId, lessonId);
+  assertLearningWritable(lessonId);
   requireStarted(studentId, lessonId);
   if (!learningGate.canSubmitLessonReport(studentId, lessonId)) {
     throw new LearningError('请先完成课堂回顾、全部知识卡片和配套练习', 409, 'REPORT_LOCKED');
@@ -432,12 +455,13 @@ function submitReport(studentId, lessonId, data) {
     db.prepare(`
       INSERT INTO reflections (
         student_id, enrollment_id, lesson_id, report_id,
-        difficulty, solution, improvement, new_question
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        difficulty, solution, improvement, new_question,reflection_version,entry_note,together_note,extra_note
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       studentId, enrollment.enrollment_id, lessonId, id,
       payload.reflection.difficulty, payload.reflection.solution,
       payload.reflection.improvement, payload.reflection.new_question,
+      payload.reflection.reflection_version,payload.reflection.entry_note,payload.reflection.together_note,payload.reflection.extra_note,
     );
     learningGate.recalculateLessonProgress(studentId, lessonId);
   const context = lessonContext(lessonId);
@@ -466,8 +490,10 @@ function listManagedCards(user, lessonId) {
   const exercises = db.prepare(`SELECT * FROM card_exercises WHERE NOT EXISTS (SELECT 1 FROM retired_exercises x WHERE x.exercise_id = card_exercises.id) AND card_id IN (${ids.map(() => '?').join(',')}) ORDER BY sort_order, id`).all(...ids);
   return cards.map((card) => ({
     ...card,
+    content_revision:hash(card),
     exercises: exercises.filter((item) => item.card_id === card.id).map((item) => ({
       ...item,
+      content_revision:hash(item),
       options: parseStoredJson(item.options_json, []),
       answer_json: item.answer_json,
       answer: parseStoredJson(item.answer_json),
@@ -530,11 +556,12 @@ function createCard(user, lessonId, data) {
   `).run(lessonId, value.title, value.summary, value.content, value.key_points,
     value.common_mistakes, value.example_content, value.sort_order, value.is_required,
     value.estimated_minutes, value.status, user.id);
-  return { id: Number(result.lastInsertRowid) };
+  return { id: Number(result.lastInsertRowid), content_revision:hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(result.lastInsertRowid)) };
 }
 
 function updateCard(user, cardId, data) {
   const current = assertManageCard(user, cardId, true);
+  if(data.expected_revision!==undefined&&data.expected_revision!==hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(current.id)))throw new LearningError('内容已由其他维护者修改，请重新读取并核对后保存',409);
   const value = cardPayload({ ...current, ...data });
   db.prepare(`
     UPDATE knowledge_cards SET title = ?, summary = ?, content = ?, key_points = ?,
@@ -543,7 +570,7 @@ function updateCard(user, cardId, data) {
   `).run(value.title, value.summary, value.content, value.key_points, value.common_mistakes,
     value.example_content, value.sort_order, value.is_required, value.estimated_minutes,
     value.status, current.id);
-  return { id: current.id };
+  return { id: current.id,content_revision:hash(db.prepare('SELECT * FROM knowledge_cards WHERE id=?').get(current.id)) };
 }
 
 function deleteCard(user, cardId) {
@@ -606,11 +633,12 @@ function createExercise(user, cardId, data) {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(card.id, value.question_type, value.prompt, value.options_json, value.answer_json,
     value.explanation, value.points, value.sort_order, value.is_required, value.max_attempts, value.rubric);
-  return { id: Number(result.lastInsertRowid) };
+  return { id:Number(result.lastInsertRowid),content_revision:hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(result.lastInsertRowid)) };
 }
 
 function updateExercise(user, exerciseId, data) {
   const current = assertManageExercise(user, exerciseId, true);
+  if(data.expected_revision!==undefined&&data.expected_revision!==hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(current.id)))throw new LearningError('内容已由其他维护者修改，请重新读取并核对后保存',409);
   const value = exercisePayload({
     ...current,
     options: parseStoredJson(current.options_json, []),
@@ -624,7 +652,7 @@ function updateExercise(user, exerciseId, data) {
   `).run(value.question_type, value.prompt, value.options_json, value.answer_json,
     value.explanation, value.points, value.sort_order, value.is_required,
     value.max_attempts, value.rubric, current.id);
-  return { id: current.id };
+  return { id:current.id,content_revision:hash(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(current.id)) };
 }
 
 function deleteExercise(user, exerciseId) {
@@ -652,7 +680,7 @@ module.exports = {
   managedContext(user, lessonId) {
     const lesson = assertManageLesson(user, lessonId);
     return { lesson_id:lesson.id, course_id:lesson.course_id,
-      read_only:lesson.course_status === 'archived' || lesson.status === 'cancelled' };
+      read_only:!['admin', 'academic_mentor'].includes(user.role) || lesson.course_status === 'archived' || lesson.status === 'cancelled' };
   },
   repairLegacy(user, lessonId, studentId, reason) {
     if (user.role !== 'admin') throw new LearningError('仅管理员可以修复兼容快照',403);

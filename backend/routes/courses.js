@@ -12,6 +12,9 @@ router.get('/replays/:replayId/stream', optionalAuth,
 
 router.use(requireAuth);
 router.use(requirePasswordChanged);
+router.get('/upload-formats',requireRole('admin','academic_mentor'),(req,res)=>res.json({formats:require('../services/courseUploadPolicy').formats,resourceLimitMB:50,replayLimitMB:500,coverLimitMB:5,coverExtensions:['.jpg','.jpeg','.png','.webp'],replayExtensions:['.mp4','.webm']}));
+router.use('/:id/cover',require('./courseCovers'));
+router.use('/:id/maintenance',require('./courseMaintenance'));
 
 // 课程 CRUD
 router.get('/', requireRole('admin', 'academic_mentor', 'student', 'media'), controller.list);
@@ -33,7 +36,7 @@ router.put('/lessons/:lessonId', requireRole('admin', 'academic_mentor'), contro
 router.post('/lessons/:lessonId/cancel', requireRole('admin', 'academic_mentor'), controller.cancelLesson);
 
 // 资源
-router.post('/:id/resources', requireRole('admin', 'academic_mentor'), controller.requireCourseManagement, uploadResource.single('file'), validateUploadedFiles, controller.uploadResource);
+router.post('/:id/resources', requireRole('admin', 'academic_mentor'), controller.requireCourseManagement, uploadResource.single('file'), validateUploadedFiles, require('../services/courseUploadPolicy').validateResource, controller.uploadResource);
 
 // 课程回放
 router.get('/:id/replays', controller.listReplays);

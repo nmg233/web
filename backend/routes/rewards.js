@@ -1,0 +1,18 @@
+const router=require('express').Router(),s=require('../services/studentRewards');
+const {requireAuth,requirePasswordChanged,requireRole}=require('../middleware/auth');
+router.use(requireAuth,requirePasswordChanged,requireRole('student'),(req,res,next)=>{res.setHeader('Cache-Control','no-store');const allowed=req.method==='GET'?(req.path==='/coins/calendar'?['month']:req.path==='/coins/ledger'?['before']:[]):[];if(Object.keys(req.query).some(k=>!allowed.includes(k)))return res.status(400).json({error:'奖励仅操作当前账号'});next();});
+const action=fn=>(req,res,next)=>{try{res.json(fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}};
+router.get('/day',action(()=>{const now=new Date(),date=now.toLocaleDateString('en-CA',{timeZone:'Asia/Shanghai'});return {date,validForMs:Date.parse(date+'T00:00:00+08:00')+86400000-now.getTime()};}));
+router.get('/badges',action(req=>s.profile(req.user.id)));
+router.get('/lessons/:lessonId',action(req=>s.eligibility(req.user.id,req.params.lessonId)));
+router.post('/badges/reconcile',action(req=>{s.fields(req.body,[]);return s.reconcile(req.user.id);}));
+router.post('/badges/present',action(req=>s.present(req.user.id,req.body)));
+router.get('/exchanges',action(req=>({events:s.exchanges(req.user.id),demo:true})));
+router.post('/exchanges',action(req=>s.exchange(req.user.id,req.body)));
+const coins=require('../services/studentCoins');
+router.get('/coins',action(req=>coins.summary(req.user.id)));
+router.get('/coins/ledger',action(req=>coins.ledger(req.user.id,req.query.before)));
+router.get('/coins/calendar',action(req=>coins.calendar(req.user.id,req.query.month)));
+router.post('/coins/checkin',action(req=>{s.fields(req.body,[]);return coins.checkin(req.user.id);}));
+router.post('/coins/reconcile',action(req=>{s.fields(req.body,[]);return coins.reconcile(req.user.id);}));
+module.exports=router;

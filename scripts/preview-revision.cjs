@@ -15,7 +15,7 @@ Object.assign(process.env, {
 const app = req('./app');
 const db = req('./config/database');
 const hash = req('bcryptjs').hashSync('UiTest!1234',4);
-for (const [id,role] of [[1,'admin'],[2,'academic_mentor'],[3,'student'],[4,'student'],[5,'teacher']]) {
+for (const [id,role] of [[1,'admin'],[2,'academic_mentor'],[3,'student'],[4,'student'],[5,'teacher'],[6,'media']]) {
   db.prepare('INSERT INTO users (id,username,real_name,role,password_hash) VALUES (?,?,?,?,?)')
     .run(id,`revision_${id}`,`验收${role}${id}`,role,hash);
 }

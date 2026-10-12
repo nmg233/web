@@ -1,3 +1,4 @@
+import {copyText as siteText,copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select, message, Popconfirm, Radio } from 'antd';
@@ -76,7 +77,7 @@ export default function StudentList() {
   const handleDelete = async (id) => {
     try {
       await studentAPI.delete(id);
-      message.success('已删除');
+      message.success(siteText("site.95ef2d00209292e4"));
       loadData();
     } catch { /* handled */ }
   };
@@ -85,7 +86,7 @@ export default function StudentList() {
   const handleDeleteUser = async (u) => {
     try {
       await studentAPI.deleteUser(u.id);
-      message.success(`已删除 ${u.real_name}`);
+      message.success(siteTemplate("site.6ddbdcd2de13c412", {slot0: (u.real_name)}));
       loadData();
     } catch { /* handled */ }
   };
@@ -96,7 +97,7 @@ export default function StudentList() {
       <Tag color={color} style={{ cursor: 'pointer', margin: 0 }} onClick={() => navigate(`/students/${u.id}`)}>
         {icon} {u.real_name}（{u.username}）
       </Tag>
-      <Popconfirm title={`确定删除 ${u.real_name}？`} description="有关联学习记录的账号无法删除，请保留其成长档案。" okText="删除" cancelText="取消" onConfirm={() => handleDeleteUser(u)}>
+      <Popconfirm title={siteTemplate("site.f02b39b760005d3a", {slot0: (u.real_name)})} description="有关联学习记录的账号无法删除，请保留其成长档案。" okText={siteText("site.bf315139efc4bd6b")} cancelText="取消" onConfirm={() => handleDeleteUser(u)}>
         <Button type="text" size="small" danger icon={<DeleteOutlined />} />
       </Popconfirm>
     </span>
@@ -133,17 +134,17 @@ export default function StudentList() {
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Title level={4} style={{ margin: 0 }}>👥 用户管理</Title>
+          <Title level={4} style={{ margin: 0 }}>{siteText("site.0bb70a013282f249")}</Title>
           <Space>
-            <Button icon={<PlusOutlined />} onClick={() => setAddModal(true)}>添加用户</Button>
-            <Button icon={<UploadOutlined />} onClick={() => setImportOpen(true)}>批量导入</Button>
+            <Button icon={<PlusOutlined />} onClick={() => setAddModal(true)}>{siteText("site.d7ea606de22d9198")}</Button>
+            <Button icon={<UploadOutlined />} onClick={() => setImportOpen(true)}>{siteText("site.365fdbe0b91ea0b8")}</Button>
           </Space>
         </div>
         <Input.Search placeholder="搜索姓名或登录账号" value={search} onChange={(e) => { setSearch(e.target.value); setSelectedAccountIds([]); setAccountPage(1); }} style={{ width: 300, marginBottom: 16 }} />
         <Card size="small" title="登录账号清单" style={{ marginBottom: 16 }} extra={
           <Space>
-            <Button icon={<DownloadOutlined />} disabled={loading || !accounts.length} onClick={() => downloadAccounts(accounts)}>导出当前筛选结果</Button>
-            <Button icon={<DownloadOutlined />} disabled={loading || !selectedAccounts.length} onClick={() => downloadAccounts(selectedAccounts)}>导出已选（{selectedAccounts.length}）</Button>
+            <Button icon={<DownloadOutlined />} disabled={loading || !accounts.length} onClick={() => downloadAccounts(accounts)}>{siteText("site.b383c8e6ea42c837")}</Button>
+            <Button icon={<DownloadOutlined />} disabled={loading || !selectedAccounts.length} onClick={() => downloadAccounts(selectedAccounts)}>{siteText("site.78e8e8f54a07320b")}{selectedAccounts.length}）</Button>
           </Space>
         }>
           <Space wrap style={{ marginBottom: 12 }}>
@@ -152,22 +153,22 @@ export default function StudentList() {
               setSelectedAccountIds([]);
               setAccountPage(1);
             }} optionType="button" buttonStyle="solid" options={[
-              ['active', '正常'], ['disabled', '已停用'], ['archived', '已归档'], ['all', '全部'],
+              ['active', siteText("site.27bd684ecd70483e")], ['disabled', siteText("site.edf918cd0ad9a7fd")], ['archived', siteText("site.1e973eb3aa423e4e")], ['all', siteText("site.94f66c07732ad3f6")],
             ].map(([value, label]) => ({ value, label: `${label}（${allAccounts.filter(u => value === 'all' || accountStatus(u) === value).length}）` }))} />
-            <Text type="secondary">筛选仅作用于账号清单；数量按当前搜索结果统计。</Text>
+            <Text type="secondary">{siteText("site.ff896a9fe3c75dbe")}</Text>
           </Space>
           <Table rowKey="id" dataSource={accounts} loading={loading} size="small" pagination={{ pageSize: 10, current: accountPage, onChange: setAccountPage }} scroll={{ x: 700 }}
             rowSelection={{ selectedRowKeys: selectedAccountIds, onChange: setSelectedAccountIds }}
             columns={[
-              { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
-              { title: '状态', render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? '已归档' : r.is_active ? '正常' : '已停用'}</Tag> },
-              { title: '登录账号', dataIndex: 'username', render: (text) => <Text copyable>{text}</Text> },
-              { title: '身份', dataIndex: 'role', render: (role) => ({ student: '学生', teacher: '教师', academic_mentor: '执行导师' }[role] || role) },
-              { title: '学校', dataIndex: 'school_name' },
-              { title: '班级', dataIndex: 'class_name' },
+              { title: siteText("site.a8cf4b3239348baf"), dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
+              { title: siteText("site.3e92d5d5f629c04e"), render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? siteText("site.1e973eb3aa423e4e") : r.is_active ? siteText("site.27bd684ecd70483e") : siteText("site.edf918cd0ad9a7fd")}</Tag> },
+              { title: siteText("site.7fe326d5f6b1a1e5"), dataIndex: 'username', render: (text) => <Text copyable>{text}</Text> },
+              { title: siteText("site.f2a1e7f15c78c42f"), dataIndex: 'role', render: (role) => ({ student: siteText("site.bdba9afc2b4a2b4b"), teacher: siteText("site.ba006eaa7083e59c"), academic_mentor: siteText("site.39b0c0f95be4e85d") }[role] || role) },
+              { title: siteText("site.a473450293a6c262"), dataIndex: 'school_name' },
+              { title: siteText("site.f14bcc8e36d695f2"), dataIndex: 'class_name' },
             ]} />
         </Card>
-        <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>组织结构</Typography.Text>
+        <Typography.Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{siteText("site.7313821fcdd6d8ed")}</Typography.Text>
         <>
           {data.schools ? data.schools.map((school) => (
             <Card key={school.id} title={`🏫 ${school.name}`} style={{ marginBottom: 12 }} size="small">
@@ -200,14 +201,14 @@ export default function StudentList() {
         </>
 
         <TempPasswordModal result={createResult} onClose={() => setCreateResult(null)} />
-        <Modal title="添加用户" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }} width={500}>
+        <Modal title={siteText("site.d7ea606de22d9198")} open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }} width={500}>
           <Form form={form} layout="vertical" onFinish={handleAddUser}>
-            <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号；账号区分大小写，创建后保持不变"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
-            <Form.Item name="real_name" label="真实姓名" rules={[{ required: true, message: '请输入姓名' }]}><Input /></Form.Item>
-            <Form.Item name="role" label="身份" rules={[{ required: true, message: '请选择身份' }]}>
+            <Form.Item name="username" label={siteText("site.7fe326d5f6b1a1e5")} rules={usernameRules} extra="留空自动生成唯一账号；账号区分大小写，创建后保持不变"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
+            <Form.Item name="real_name" label="真实姓名" rules={[{ required: true, message: siteText("site.fc4772b274556778") }]}><Input /></Form.Item>
+            <Form.Item name="role" label={siteText("site.f2a1e7f15c78c42f")} rules={[{ required: true, message: siteText("site.bbe2d288e9964c1d") }]}>
               <Select options={[
-                { label: '学生', value: 'student' }, { label: '教师', value: 'teacher' },
-                { label: '执行导师', value: 'academic_mentor' },
+                { label: siteText("site.bdba9afc2b4a2b4b"), value: 'student' }, { label: siteText("site.ba006eaa7083e59c"), value: 'teacher' },
+                { label: siteText("site.39b0c0f95be4e85d"), value: 'academic_mentor' },
               ]} onChange={(v) => {
                 if (v === 'academic_mentor') {
                   form.setFieldsValue({ school_id: undefined, class_id: undefined });
@@ -216,17 +217,17 @@ export default function StudentList() {
               }} />
             </Form.Item>
             <p>账号留空按学校缩写_角色_姓名拼音_流水号生成；导师前缀 BUAA。初始密码为姓名拼音@123，首次登录必须改密。</p>
-            <Form.Item name="school_id" label="学校" dependencies={['role']}
+            <Form.Item name="school_id" label={siteText("site.a473450293a6c262")} dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
-                message: '学生和教师必须选择学校',
+                message: siteText("site.3fe88797aba72636"),
               })]}>
               <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
             </Form.Item>
-            <Form.Item name="class_id" label="班级" dependencies={['role']}
+            <Form.Item name="class_id" label={siteText("site.f14bcc8e36d695f2")} dependencies={['role']}
               rules={[({ getFieldValue }) => ({
                 required: ['student', 'teacher'].includes(getFieldValue('role')),
-                message: '学生和教师必须选择班级',
+                message: siteText("site.2d8c42fce41d2d93"),
               })]}>
               <Select options={classes.map((c) => ({ label: `${c.grade || ''} ${c.name}`, value: c.id }))} />
             </Form.Item>
@@ -242,39 +243,39 @@ export default function StudentList() {
 
   // Non-admin: table view
   const columns = [
-    { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
-    { title: '学校', dataIndex: 'school_name' },
-    { title: '班级', dataIndex: 'class_name' },
-    { title: '状态', render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? '已归档' : r.is_active ? '正常' : '已停用'}</Tag> },
+    { title: siteText("site.a8cf4b3239348baf"), dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
+    { title: siteText("site.a473450293a6c262"), dataIndex: 'school_name' },
+    { title: siteText("site.f14bcc8e36d695f2"), dataIndex: 'class_name' },
+    { title: siteText("site.3e92d5d5f629c04e"), render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? siteText("site.1e973eb3aa423e4e") : r.is_active ? siteText("site.27bd684ecd70483e") : siteText("site.edf918cd0ad9a7fd")}</Tag> },
     ...(canManage(user?.role) ? [{
-      title: '操作', render: (_, r) => <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(r.id)}>删除</Button>
+      title: siteText("site.8f6953186e262f7a"), render: (_, r) => <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(r.id)}>{siteText("site.bf315139efc4bd6b")}</Button>
     }] : []),
   ];
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>👥 学生管理</Title>
+        <Title level={4} style={{ margin: 0 }}>{siteText("site.6ef7e345fa0ab6b8")}</Title>
         {canManage(user?.role) && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModal(true)}>添加学生</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModal(true)}>{siteText("site.8101bb5f63ade608")}</Button>
         )}
       </div>
-      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>仅显示您创建或受邀授课的课程中有报名记录的学生（含历史报名）。向课程导入新学生，请到课程详情操作。</Text>}
+      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{siteText("site.2a2f13a73dbaec91")}</Text>}
       <Card>
         <Input.Search placeholder="搜索学生" value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300, marginBottom: 16 }} />
         <Table dataSource={Array.isArray(data) ? data : []} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} />
       </Card>
 
       <TempPasswordModal result={createResult} onClose={() => setCreateResult(null)} />
-      <Modal title="添加学生" open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }}>
+      <Modal title={siteText("site.8101bb5f63ade608")} open={addModal} onCancel={() => setAddModal(false)} onOk={() => form.submit()} confirmLoading={creating} closable={!creating} maskClosable={!creating} cancelButtonProps={{ disabled: creating }}>
         <Form form={form} layout="vertical" onFinish={handleAddStudent}>
-          <Form.Item name="username" label="登录账号" rules={usernameRules} extra="留空自动生成唯一账号"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
+          <Form.Item name="username" label={siteText("site.7fe326d5f6b1a1e5")} rules={usernameRules} extra="留空自动生成唯一账号"><Input placeholder="如 BJFX-2026-0001" /></Form.Item>
           <Form.Item name="real_name" label="真实姓名" rules={[{ required: true }]}><Input /></Form.Item>
           <p>初始密码为姓名拼音@123，创建成功后请交付；用户首次登录必须改密。</p>
-          <Form.Item name="school_id" label="学校" rules={[{ required: true }]}>
+          <Form.Item name="school_id" label={siteText("site.a473450293a6c262")} rules={[{ required: true }]}>
             <Select onChange={handleSchoolChange} options={schools.map((s) => ({ label: s.name, value: s.id }))} />
           </Form.Item>
-          <Form.Item name="class_id" label="班级" rules={[{ required: true }]}>
+          <Form.Item name="class_id" label={siteText("site.f14bcc8e36d695f2")} rules={[{ required: true }]}>
             <Select options={classes.map((c) => ({ label: `${c.grade || ''} ${c.name}`, value: c.id }))} />
           </Form.Item>
           <Form.Item name="email" label="邮箱"><Input /></Form.Item>

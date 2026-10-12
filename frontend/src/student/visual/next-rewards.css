@@ -1,0 +1,10 @@
+.next-checkin,.next-badge-shelf{margin:20px 0;padding:24px;background:#fbf6e8;color:#132a49;border:2px solid #132a49;border-radius:12px}
+.next-checkin{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}.next-checkin h2{margin:0}.next-checkin p{margin:8px 0}.next-checkin .ant-alert{flex-basis:100%}
+.next-badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px}.next-badge-grid article{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;border:1px solid #b4c4cb;border-radius:12px;text-align:center;overflow-wrap:anywhere}.next-badge-grid ul{text-align:left;padding-left:20px}.next-badge-art{image-rendering:pixelated;object-fit:contain;flex-shrink:0}.next-badge-locked .next-badge-art{filter:grayscale(1);opacity:.55}
+.next-lesson-badge{display:flex;gap:14px;padding:16px;background:#ecf1ee;color:#132a49;border-radius:10px;margin:16px 0}.next-lesson-badge ul{padding-left:20px;margin:8px 0}.next-lesson-badge small{display:block}.next-award{position:relative;text-align:center;padding:20px 8px;animation:badge-arrive .42s ease-out both}.next-award:before{content:'';position:absolute;inset:12px;background:radial-gradient(ellipse at 50% 35%,#ffd27666,transparent 65%);z-index:-1}.next-award p{font-size:18px;line-height:1.7}.next-award-modal .ant-modal-body{max-height:65dvh;overflow:auto}.next-award-modal .ant-modal-footer{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}.next-award-modal .ant-modal-footer a{padding:10px 16px;background:#ffd276;color:#132a49;border-radius:8px}
+@keyframes badge-arrive{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.next-award{animation:none}}
+@media(max-width:480px){.next-checkin,.next-badge-shelf{padding:16px}.next-lesson-badge{flex-direction:column}.next-badge-grid{grid-template-columns:1fr}}
+
+.next-unknown-badge{display:grid;place-items:center;width:64px;height:64px;border:4px solid #7f8790;background:#dde0e2;color:#65717c;border-radius:50%;font-size:30px}
+.next-award .next-badge-art{margin-inline:auto}

@@ -1,9 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { fileURLToPath } from 'node:url'
-
-// three 的实际安装位置（renderer_3.js 位于 frontend 之外，裸导入需经 alias 解析）
-const THREE_DIR = fileURLToPath(new URL('./node_modules/three', import.meta.url))
+import process from 'node:process'
+import {fileURLToPath} from 'node:url'
+const THREE_DIR=fileURLToPath(new URL('./node_modules/three',import.meta.url))
 
 // ============================================
 // Content-Security-Policy（SPA 侧有效 CSP）
@@ -59,24 +58,15 @@ export default defineConfig({
       },
     },
   ],
-  resolve: {
-    // simulation/glider/web_renderer/renderer_3.js 从 frontend 外导入：
-    // 裸导入（three / three/addons/…）无法从 importer 位置向上找到 node_modules，需固定解析
-    alias: [
-      { find: /^three\/addons\//, replacement: `${THREE_DIR.replaceAll('\\', '/')}/examples/jsm/` },
-      { find: /^three$/, replacement: THREE_DIR },
-    ],
-  },
+  resolve: {alias:[{find:/^three\/addons\//,replacement:`${THREE_DIR.replaceAll('\\','/')}/examples/jsm/`},{find:/^three$/,replacement:THREE_DIR}]},
   server: {
-    // 允许 dev server 提供项目根（web/）内的模块：frontend 从 simulation/glider/
-    // 直接导入 renderer_3.js（避免双份维护拷贝）
-    fs: { allow: ['..'] },
+    fs: {allow:['..']},
     headers: {
       'Content-Security-Policy': DEV_CSP,
     },
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/uploads': 'http://localhost:3000',
+      '/api': process.env.API_PROXY_TARGET || 'http://127.0.0.1:3000',
+      '/uploads': process.env.API_PROXY_TARGET || 'http://127.0.0.1:3000',
     },
   },
 })

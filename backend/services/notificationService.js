@@ -149,10 +149,17 @@ function failOutbox(key,err) {
 }
 
 function deliverOutbox(row) {
-  const payload=JSON.parse(row.payload_json),recipients=JSON.parse(row.recipients_json);
-  const result=createForUsers({...payload,dedupeKey:row.event_key},recipients);
-  db.prepare('UPDATE notification_outbox SET delivered_at=CURRENT_TIMESTAMP,last_error=NULL,next_retry_at=NULL,quarantined_at=NULL WHERE event_key=?').run(row.event_key);
-  return result;
+  return db.transaction(() => {
+    const current=db.prepare('SELECT * FROM notification_outbox WHERE event_key=?').get(row.event_key);
+    if(!current || current.delivered_at)return null;
+    const payload=JSON.parse(current.payload_json),stored=JSON.parse(current.recipients_json);
+    // Older real-redemption events resolve current administrators at delivery time.
+    const recipients=stored==='admins'?userIdsByRoles(['admin']):stored;
+    const result=createForUsers({...payload,dedupeKey:current.event_key},recipients);
+    if(!result)throw new NotificationError('接收账号暂不可用，通知已保留待恢复',409);
+    db.prepare('UPDATE notification_outbox SET delivered_at=CURRENT_TIMESTAMP,last_error=NULL,next_retry_at=NULL,quarantined_at=NULL WHERE event_key=?').run(current.event_key);
+    return result;
+  }).immediate();
 }
 
 function retryOutbox() {

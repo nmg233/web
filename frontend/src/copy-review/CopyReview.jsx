@@ -1,0 +1,14 @@
+import {copyText as siteText} from "../content/copy";
+import {useState} from 'react';
+import {Alert,Button,Input,Select,Switch} from 'antd';
+import {useAuth} from '../store/AuthContext';
+import {reviewPages} from './catalog';
+import {reviewCopy,changedEdits,downloadDraft,storeReviewDraft,restoreReviewDraft} from './reviewData';
+import './review.css';
+export default function CopyReview(){
+ const {user}=useAuth(),[page,setPage]=useState('all'),[search,setSearch]=useState(''),[draft,setDraft]=useState({}),[notice,setNotice]=useState('');
+ if(user?.role!=='admin')return <Alert type="error" title={siteText("site.540a9ebc6f5b65ce")}/>;
+ const current=reviewPages.find(p=>p.id===page),entries=Object.entries(reviewCopy).filter(([id,e])=>(!current||current.sources.includes(e.sourceFile)||current.groups.includes(e.page))&&(!search||(id+e.text+e.position+e.page).includes(search)));
+ const change=(id,e)=>setDraft(d=>({...d,[id]:e}));
+ return <main className="copy-review"><h1>{siteText("site.9b500b1b2455badc")}</h1><Alert type="info" title={siteText("site.215df4730b63a938")}/><p>{siteText("site.2fbb7b6a8cdb720b")}{'{slot0}'}{siteText("site.e0245b29443c7df8")}</p><div className="copy-review-tools"><Select aria-label={siteText("site.b196e544dbc37fad")} value={page} onChange={setPage} options={[{value:'all',label:siteText("site.68ed1f56bcc8b3ea")},...reviewPages.map(p=>({value:p.id,label:p.title}))]}/><Input aria-label={siteText("site.b196994cfe6e63c2")} placeholder={siteText("site.51d740a9ca3a49cb")} value={search} onChange={e=>setSearch(e.target.value)}/><Button onClick={()=>{downloadDraft(draft);setNotice(siteText("site.29737544bf95eab7"));}}>{siteText("site.b61c26797c510183")}{changedEdits(draft).length}）</Button><Button onClick={()=>{try{storeReviewDraft(user.id,draft);setNotice(siteText("site.db20a8c07c4972f7"));}catch{setNotice(siteText("site.99ae496407031438"));}}}>{siteText("site.1c0993f324aec787")}</Button><Button onClick={()=>{try{setDraft(restoreReviewDraft(user.id));setNotice(siteText("site.3c2e5bf6f8cd2ec6"));}catch{setNotice(siteText("site.3f93036fa5d17d96"));}}}>{siteText("site.ad78cbccce716728")}</Button></div><p role="status">{notice}</p>{current&&<p>{current.roles.join(' / ')} · {current.routes.join('，')}</p>}<p>{entries.length}{siteText("site.a8afbcc95faf00f6")}</p>{entries.map(([id,e])=>{const value=draft[id]||e;return <article key={id}><small>{e.page} · {e.position} · {id}</small><p><span role="textbox" aria-label={id} contentEditable="plaintext-only" suppressContentEditableWarning data-copy-id={id} onBlur={event=>change(id,{text:event.currentTarget.textContent,enabled:value.enabled})}>{value.text}</span></p>{e.optional&&<label><Switch checked={value.enabled} onChange={enabled=>change(id,{text:value.text,enabled})}/>{siteText("site.c386fa25a5845e78")}</label>}{e.text.includes('{slot')&&<small>{siteText("site.7e937192671d718d")}</small>}</article>;})}</main>;
+}

@@ -8,8 +8,9 @@ const { mentorStudentScope, mentorStudentParams, canViewStudent } = require('../
 const { canViewArchive, canAddObservation } = require('../helpers/archivePolicy');
 const { canViewWork } = require('../helpers/workPolicy');
 const { courseBelongsToMentor } = require('../helpers/courseScope');
+const {validateReflection,columns:reflectionColumns}=require('../helpers/reflectionContent');
 
-function loadStudentArchive(studentId, user) {
+function loadStudentArchive(studentId, user, courseSpace = null) {
   const student = db.prepare(
     `SELECT u.*, s.name as school_name, c2.name as class_name, c2.grade
      FROM users u
@@ -36,12 +37,14 @@ function loadStudentArchive(studentId, user) {
       `).all(studentId, user.id, user.id).map((r) => r.id)
     : null;
 
+  const allowedEnrollments = user.role === 'student' ? db.prepare("SELECT e.id FROM enrollments e JOIN courses c ON c.id=e.course_id WHERE e.student_id=? AND e.status='active' AND c.status='published'").all(studentId).map(r=>r.id) : null;
+  const inScope = id => (!allowedEnrollments || allowedEnrollments.includes(id)) && (!courseSpace || db.prepare('SELECT id FROM enrollments WHERE id=? AND course_id=?').get(id,courseSpace));
   const courses = db.prepare(
-    `SELECT e.id AS enrollment_id, c.title, c.theme, c.grade_level, c.difficulty,
+    `SELECT e.id AS enrollment_id, c.id AS course_id, c.title, c.theme, c.grade_level, c.difficulty,
             e.enrolled_at, e.completed_at
      FROM enrollments e JOIN courses c ON e.course_id = c.id
      WHERE e.student_id = ? AND e.status = 'active' ORDER BY e.enrolled_at DESC`
-  ).all(studentId).filter((course) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(course.enrollment_id));
+  ).all(studentId).filter((course) => inScope(course.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(course.enrollment_id)));
 
   const works = db.prepare(`
       SELECT w.*, u.teacher_id AS student_teacher_id, u.school_id AS student_school_id, c.id AS course_id
@@ -51,7 +54,7 @@ function loadStudentArchive(studentId, user) {
       LEFT JOIN courses c ON c.id = e.course_id
       WHERE w.student_id = ? ORDER BY w.created_at DESC`
   ).all(studentId)
-    .filter((work) => canViewWork(user, work)
+    .filter((work) => (!courseSpace || Number(work.course_id) === courseSpace) && canViewWork(user, work)
       && (user.role !== 'teacher' || work.review_status === 'approved'))
     .map(toFileDto);
 
@@ -61,25 +64,26 @@ function loadStudentArchive(studentId, user) {
      LEFT JOIN lessons l ON r.lesson_id = l.id
      WHERE r.student_id = ? ORDER BY r.created_at DESC`
   ).all(studentId)
-    .filter((r) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id));
+    .filter((r) => inScope(r.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
 
   const evaluations = db.prepare(
     `SELECT ev.*, u2.real_name as evaluator_name
      FROM evaluations ev JOIN users u2 ON ev.evaluator_id = u2.id
      WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
   ).all(studentId)
-    .filter((ev) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(ev.enrollment_id));
+    .filter((ev) => inScope(ev.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(ev.enrollment_id)));
   const learningReports = db.prepare(`SELECT r.*, l.title AS lesson_title, c.title AS course_title,
     u.real_name AS reviewer_name FROM lesson_learning_reports r JOIN lessons l ON l.id = r.lesson_id
     JOIN courses c ON c.id = l.course_id LEFT JOIN users u ON u.id = r.reviewer_id
     WHERE r.student_id = ? ORDER BY r.submitted_at DESC, r.id DESC`).all(studentId)
-    .filter((r) => !mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id));
+    .filter((r) => inScope(r.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
 
   // 能力评分口径与作品可见性一致：教师仅统计其可见（approved）作品，其余角色全量
   const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=? AND w.id IN (SELECT value FROM json_each(?))`).get(studentId, JSON.stringify(works.map((w) => w.id)));
   const visibleWorkIds = new Set(works.map((work) => work.id));
   const growthRecords = db.prepare(`SELECT g.*, u.real_name recorder_name FROM growth_records g LEFT JOIN users u ON u.id=g.recorded_by WHERE g.student_id=? ORDER BY g.created_at DESC`).all(studentId)
     .filter((record) => {
+      if (courseSpace) return !!record.work_id && visibleWorkIds.has(record.work_id);
       if (user.role === 'teacher' && record.work_id) return visibleWorkIds.has(record.work_id);
       if (user.role === 'academic_mentor') {
         return record.work_id ? visibleWorkIds.has(record.work_id) : record.recorded_by === user.id;
@@ -147,7 +151,7 @@ exports.generate = (req, res) => {
     if (user.role === 'academic_mentor' && !canViewStudent(user, { id: Number(studentId) })) {
       return res.status(403).json({ error: '只能查看自己课程相关学生档案' });
     }
-    const archive = loadStudentArchive(studentId, user);
+    const archive = loadStudentArchive(studentId, user, req.courseSpace);
 
     if (!archive) {
       return res.status(403).json({ error: '学生不存在或无权访问' });
@@ -253,7 +257,7 @@ exports.showReflection = (req, res) => {
     const enrollments = db.prepare(
       `SELECT e.id as enrollment_id, c.id as course_id, c.title as course_title
        FROM enrollments e JOIN courses c ON e.course_id = c.id
-       WHERE e.student_id = ? AND e.status = 'active'`
+       WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published'`
     ).all(req.user.id);
 
     res.json({ title: '填写反思日志', enrollments, isMentor: false });
@@ -266,13 +270,15 @@ exports.showReflection = (req, res) => {
 // 提交反思日志（仅学生本人；每人每日限量1篇，日期边界按北京时间）
 exports.submitReflection = (req, res) => {
   try {
-    const { enrollment_id, lesson_id, difficulty, solution, improvement, new_question } = req.body;
+    const { enrollment_id, lesson_id } = req.body;
+    const reflection=validateReflection(req.body);
     const actualStudentId = req.user.id;
+    if (!enrollment_id) return res.status(400).json({error:'请选择有效课程报名记录'});
 
     let enrollmentCourseId = null;
     if (enrollment_id) {
       const enrollment = db.prepare(
-        'SELECT id, course_id FROM enrollments WHERE id = ? AND student_id = ? AND status = ?'
+        "SELECT e.id,e.course_id FROM enrollments e JOIN courses c ON c.id=e.course_id WHERE e.id = ? AND e.student_id = ? AND e.status = ? AND c.status='published'"
       ).get(enrollment_id, actualStudentId, 'active');
       if (!enrollment) {
         return res.status(400).json({ error: '所选课程报名记录不属于该学生' });
@@ -281,7 +287,7 @@ exports.submitReflection = (req, res) => {
     }
 
     if (lesson_id) {
-      const lesson = db.prepare('SELECT id, course_id FROM lessons WHERE id = ?').get(lesson_id);
+      const lesson = db.prepare("SELECT id, course_id FROM lessons WHERE id = ? AND status!='cancelled'").get(lesson_id);
       if (!lesson || (enrollmentCourseId && lesson.course_id !== enrollmentCourseId)) {
         return res.status(400).json({ error: '所选课时不属于当前课程' });
       }
@@ -299,10 +305,10 @@ exports.submitReflection = (req, res) => {
       }
 
       db.prepare(
-        `INSERT INTO reflections (student_id, enrollment_id, lesson_id, difficulty, solution, improvement, new_question)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO reflections (student_id, enrollment_id, lesson_id, ${reflectionColumns.join(',')})
+         VALUES (${Array(3+reflectionColumns.length).fill('?').join(',')})`
       ).run(studentId, enrollment_id || null, lesson_id || null,
-            difficulty || null, solution || null, improvement || null, new_question || null);
+            ...reflectionColumns.map(k=>reflection[k]));
       return true;
     });
 
@@ -313,6 +319,7 @@ exports.submitReflection = (req, res) => {
     res.json({ message: '反思日志提交成功！' });
   } catch (err) {
     console.error('提交反思错误:', err);
+    if(err.status)return res.status(err.status).json({error:err.message});
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
 };

@@ -1,20 +1,22 @@
+import {copyText as siteText} from "../content/copy";
 import { Layout, Dropdown, Space, Avatar, Button, Tag } from 'antd';
-import { UserOutlined, LogoutOutlined, MessageOutlined, KeyOutlined, MenuOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, MessageOutlined, KeyOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/AuthContext';
+import {copyText} from '../content/copy';
 import NotificationBell from './notifications/NotificationBell';
 
 const { Header } = Layout;
 
 const roleMap = {
-  admin: { label: '管理员', color: 'red' },
-  academic_mentor: { label: '执行导师', color: 'blue' },
-  teacher: { label: '教师', color: 'green' },
-  student: { label: '学生', color: 'cyan' },
-  media: { label: '新媒体', color: 'orange' },
+  admin: { label: siteText("site.914c8641600fe1aa"), color: 'red' },
+  academic_mentor: { label: siteText("site.16b0922bf4440284"), color: 'blue' },
+  teacher: { label: siteText("site.910bf83ce11120f1"), color: 'green' },
+  student: { label: siteText("site.d4be2a2085611f19"), color: 'cyan' },
+  media: { label: siteText("site.d84468ae4f97c91f"), color: 'orange' },
 };
 
-export default function HeaderBar({mobile=false,onMenu}) {
+export default function HeaderBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,31 +29,25 @@ export default function HeaderBar({mobile=false,onMenu}) {
   const roleInfo = roleMap[user?.role] || { label: user?.role, color: 'default' };
 
   return (
-    <Header style={{
-      background: '#fff', padding: mobile ? '0 8px' : '0 24px', display: 'flex',
-      alignItems: 'center', justifyContent: mobile ? 'space-between' : 'flex-end',
-      borderBottom: '1px solid #f0f0f0', height: 56
-    }}>
-      {mobile && <Button type="text" aria-label="打开导航菜单" icon={<MenuOutlined />} onClick={onMenu} />}
-      <Space size={mobile ? 4 : 'middle'}>
-        <NotificationBell />
+    <Header className="staff-header"><Button className="staff-back" aria-label={copyText('next2.staff.back')} onClick={()=>window.history.state?.idx? navigate(-1):navigate(user.role==='teacher'?'/observer':'/dashboard')}>← {copyText('next2.staff.back')}</Button>
+      <Space size="middle">
+        {!user?.force_reset_password && <NotificationBell />}
         <Button
           type="text"
           icon={<MessageOutlined />}
           onClick={() => navigate(user?.role === 'admin' ? '/feedback/manage' : '/feedback/new', { state: { from: location.pathname } })}
-        >
-          {mobile ? <span className="sr-only">意见反馈</span> : '意见反馈'}
-        </Button>
+        >{siteText("site.6fab694c40086820")}</Button>
         <Dropdown trigger={['click']} menu={{
           items: [
-            { key: 'change-password', icon: <KeyOutlined />, label: '修改密码', onClick: () => navigate('/change-password') },
-            { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', onClick: handleLogout }
+            { key: 'feedback', label: siteText("site.09215898ed70a2e6"), onClick: () => navigate('/feedback') },
+            { key: 'change-password', icon: <KeyOutlined />, label: siteText("site.85c6a7fd3b0ef803"), onClick: () => navigate('/change-password') },
+            { key: 'logout', icon: <LogoutOutlined />, label: siteText("site.30675e8fab1b63f1"), onClick: handleLogout }
           ]
         }}>
-          <Button type="text" aria-label="账户菜单" style={{height:'auto'}}><Space>
+          <Button type="text" className="staff-account" aria-label="账户菜单"><Space>
             <Avatar size="small" icon={<UserOutlined />} />
-            <span style={{ fontWeight: 500, maxWidth:mobile ? 72 : 240, overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{user?.real_name}</span>
-            {!mobile && <Tag color={roleInfo.color}>{roleInfo.label}</Tag>}
+            <span style={{ fontWeight: 500 }}>{user?.real_name}</span>
+            <Tag color={roleInfo.color}>{roleInfo.label}</Tag>
           </Space></Button>
         </Dropdown>
       </Space>

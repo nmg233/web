@@ -1,0 +1,642 @@
+{
+  "version": "pixel-v1",
+  "title": "晴空观测站 · 原创像素素材库",
+  "createdOn": "2026-10-03",
+  "scope": "学生公共布局、探索首页、课程地图及第八轮奖励演示图案；未引入参考图或第三方游戏素材",
+  "preview": "Vite 开发环境 /__pixel-preview；仅学生登录可见，无正式导航入口；第八轮新增 SVG 见 docs/round-08/index.html#assets",
+  "sourceFiles": "原PNG母版和SVG源码保留；web/为最近邻缩放与无损编码的派生文件；生成提示词保留在generation-prompts.json。",
+  "licenseStatus": {
+    "raster": "本项目通过内置图像工具生成，未使用参考图片作为输入。供本项目使用；不作排他版权或第三方素材已获许可的承诺。",
+    "vector": "本项目原创SVG源码，可随本项目修改维护。",
+    "references": "Stardew / Codédex 等仅研究视觉组织，未复制或发布其图像。"
+  },
+  "assets": [
+    {
+      "file": "hero-voyage.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-baaeb035-93f9-49eb-9490-c34a856954c9.png",
+      "purpose": "探索首页页头与地图远景；右侧场景、左侧HTML阅读面板",
+      "width": 2162,
+      "height": 727,
+      "format": "PNG",
+      "transparency": "RGB，无透明通道",
+      "crop": "cover，保持比例，允许场景边缘裁切；不能裁掉独立HTML文本",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "hero-voyage.png",
+      "promptSource": "generation-prompts.json#hero-voyage",
+      "webDerivatives": [
+        {
+          "file": "web/hero-voyage-640.webp",
+          "width": 640,
+          "height": 215,
+          "bytes": 154088,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 89.47
+        },
+        {
+          "file": "web/hero-voyage-960.webp",
+          "width": 960,
+          "height": 323,
+          "bytes": 304102,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 79.22
+        },
+        {
+          "file": "web/hero-voyage-1280.webp",
+          "width": 1280,
+          "height": 430,
+          "bytes": 481262,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 67.11
+        },
+        {
+          "file": "web/hero-voyage-2162.webp",
+          "width": 2162,
+          "height": 727,
+          "bytes": 1146438,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 21.65
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "1b574685c04c4541c7c9cbb3f65f2387e790395d6c8403e17a6dd647ece3f708"
+    },
+    {
+      "file": "course-voyage.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-bd52b631-8757-4636-8a9d-70bf271cfeec.png",
+      "purpose": "后端无封面或封面加载失败时的通用探索课程占位，不代表正式教学内容",
+      "width": 1536,
+      "height": 1024,
+      "format": "PNG",
+      "transparency": "RGB，无透明通道",
+      "crop": "cover，保持比例，允许场景边缘裁切；不能裁掉独立HTML文本",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "course-voyage.png",
+      "promptSource": "generation-prompts.json#course-voyage",
+      "webDerivatives": [
+        {
+          "file": "web/course-voyage-320.webp",
+          "width": 320,
+          "height": 213,
+          "bytes": 113768,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 94.02
+        },
+        {
+          "file": "web/course-voyage-640.webp",
+          "width": 640,
+          "height": 427,
+          "bytes": 361932,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 80.97
+        },
+        {
+          "file": "web/course-voyage-960.webp",
+          "width": 960,
+          "height": 640,
+          "bytes": 697994,
+          "alphaRange": [
+            255,
+            255
+          ],
+          "reductionPercentVsMaster": 63.29
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "33534a4a3dcd682c4d0cecb2acc3c673fc16770ec335d928adf5dbef973a9a4d"
+    },
+    {
+      "file": "island-observatory.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-92d79b4c-e00c-4e91-b74b-ad689f5e7b11.png",
+      "purpose": "地图区域可组合的观测浮岛装饰",
+      "width": 1312,
+      "height": 1199,
+      "format": "PNG",
+      "transparency": "RGBA，实际 alpha 范围 0–255",
+      "crop": "contain，保留完整轮廓，不非等比拉伸",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "island-observatory.png",
+      "promptSource": "generation-prompts.json#island-observatory",
+      "webDerivatives": [
+        {
+          "file": "web/island-observatory-192.webp",
+          "width": 192,
+          "height": 175,
+          "bytes": 19266,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 96.78
+        },
+        {
+          "file": "web/island-observatory-384.webp",
+          "width": 384,
+          "height": 351,
+          "bytes": 59086,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 90.13
+        },
+        {
+          "file": "web/island-observatory-576.webp",
+          "width": 576,
+          "height": 526,
+          "bytes": 114054,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 80.95
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "54d1c718ba9be919793c141f2536e9e11be9cb02522fda877b52ab4728f0266e"
+    },
+    {
+      "file": "island-relay.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-a8962155-0bdd-4204-919e-1d9c7b30316e.png",
+      "purpose": "地图区域可组合的通讯浮岛装饰",
+      "width": 1213,
+      "height": 1296,
+      "format": "PNG",
+      "transparency": "RGBA，实际 alpha 范围 0–255",
+      "crop": "contain，保留完整轮廓，不非等比拉伸",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "island-relay.png",
+      "promptSource": "generation-prompts.json#island-relay",
+      "webDerivatives": [
+        {
+          "file": "web/island-relay-192.webp",
+          "width": 192,
+          "height": 205,
+          "bytes": 33112,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 96.18
+        },
+        {
+          "file": "web/island-relay-384.webp",
+          "width": 384,
+          "height": 410,
+          "bytes": 99136,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 88.56
+        },
+        {
+          "file": "web/island-relay-576.webp",
+          "width": 576,
+          "height": 615,
+          "bytes": 192988,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 77.73
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "73ef7d94eec0b7f0fe5881e2bb011a060946f252ad2c9950440cefe61a6587ae"
+    },
+    {
+      "file": "companion-cat.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-5b5f569d-708c-4143-86e3-6d9f842e7737.png",
+      "purpose": "学习伙伴的静态透明形象；沿用原提问入口",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "transparency": "RGBA，实际 alpha 范围 0–255",
+      "crop": "contain，保留完整轮廓，不非等比拉伸",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "companion-cat.png",
+      "promptSource": "generation-prompts.json#companion-cat",
+      "webDerivatives": [
+        {
+          "file": "web/companion-cat-32.webp",
+          "width": 32,
+          "height": 32,
+          "bytes": 1240,
+          "alphaRange": [
+            0,
+            254
+          ],
+          "reductionPercentVsMaster": 99.85
+        },
+        {
+          "file": "web/companion-cat-48.webp",
+          "width": 48,
+          "height": 48,
+          "bytes": 2524,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 99.69
+        },
+        {
+          "file": "web/companion-cat-64.webp",
+          "width": 64,
+          "height": 64,
+          "bytes": 4342,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 99.47
+        },
+        {
+          "file": "web/companion-cat-96.webp",
+          "width": 96,
+          "height": 96,
+          "bytes": 9060,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 98.89
+        },
+        {
+          "file": "web/companion-cat-144.webp",
+          "width": 144,
+          "height": 144,
+          "bytes": 17726,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 97.82
+        },
+        {
+          "file": "web/companion-cat-192.webp",
+          "width": 192,
+          "height": 192,
+          "bytes": 28422,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 96.51
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "be73f4e2486f23c2fb05979c94462bacea58ab092127a8ad67370e0dc821f048"
+    },
+    {
+      "file": "planet-ring-v2.png",
+      "source": "project-generated",
+      "generationMethod": "内置 image_gen.imagegen",
+      "sourceGenerationFile": "exec-f5201c18-31a4-44c5-a715-c5a202c8de19.png",
+      "purpose": "素材库备用透明远景装饰；未绑定课程或课时",
+      "width": 1448,
+      "height": 1086,
+      "format": "PNG",
+      "transparency": "RGBA，实际 alpha 范围 0–255",
+      "crop": "contain，保留完整轮廓，不非等比拉伸",
+      "scale": "image-rendering: pixelated；大母版按显示尺寸缩小；避免把小预览反复插值放大",
+      "editableSource": "planet-ring-v2.png",
+      "promptSource": "generation-prompts.json#planet-ring-v2",
+      "webDerivatives": [
+        {
+          "file": "web/planet-ring-v2-192.webp",
+          "width": 192,
+          "height": 144,
+          "bytes": 10132,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 97.42
+        },
+        {
+          "file": "web/planet-ring-v2-384.webp",
+          "width": 384,
+          "height": 288,
+          "bytes": 30402,
+          "alphaRange": [
+            0,
+            255
+          ],
+          "reductionPercentVsMaster": 92.25
+        }
+      ],
+      "webMethod": "Pillow NEAREST resize + lossless WebP (exact alpha); no palette reduction or blur",
+      "masterSha256": "2547bc888a0bc00664704de541c6de09f24e1ad3f89e35f2ed4613cba9156648"
+    },
+    {
+      "file": "icons/map.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：map",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/map.svg"
+    },
+    {
+      "file": "icons/lab.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：lab",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/lab.svg"
+    },
+    {
+      "file": "icons/archive.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：archive",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/archive.svg"
+    },
+    {
+      "file": "icons/continue.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：continue",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/continue.svg"
+    },
+    {
+      "file": "icons/back.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：back",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/back.svg"
+    },
+    {
+      "file": "icons/notification.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：notification",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/notification.svg"
+    },
+    {
+      "file": "icons/coin.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：coin",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/coin.svg"
+    },
+    {
+      "file": "icons/help.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：help",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/help.svg"
+    },
+    {
+      "file": "icons/user.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：user",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/user.svg"
+    },
+    {
+      "file": "icons/close.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：close",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/close.svg"
+    },
+    {
+      "file": "icons/menu.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：menu",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/menu.svg"
+    },
+    {
+      "file": "icons/chevron-down.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：chevron-down",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/chevron-down.svg"
+    },
+    {
+      "file": "icons/check.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：check",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/check.svg"
+    },
+    {
+      "file": "icons/clock.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：clock",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/clock.svg"
+    },
+    {
+      "file": "icons/pin.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：pin",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/pin.svg"
+    },
+    {
+      "file": "icons/book.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：book",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/book.svg"
+    },
+    {
+      "file": "icons/cat.svg",
+      "source": "project-original",
+      "generationMethod": "原创整数坐标SVG绘制，无外部图标库素材",
+      "purpose": "统一像素图标：cat",
+      "width": 24,
+      "height": 24,
+      "format": "SVG",
+      "transparency": "透明背景",
+      "crop": "完整 viewBox，不裁切",
+      "scale": "默认24px，预览48px；个别紧凑控件16/20px使用矢量缩放",
+      "editableSource": "icons/cat.svg"
+    },
+    {
+      "id": "rewards-gift-notebook",
+      "file": "rewards/gift-notebook.svg",
+      "source": "project-original-svg",
+      "createdOn": "2026-10-04",
+      "width": 128,
+      "height": 128,
+      "purpose": "探索笔记本演示礼品",
+      "editableSource": "rewards/gift-notebook.svg",
+      "usage": "第八轮学生奖励页、详情与素材预览；演示视觉稿，不代表正式奖品或荣誉规则。",
+      "design": "原创整数坐标、直角和阶梯轮廓，深蓝 / 奶油 / 青绿 / 金色；透明背景，无嵌入文字或交互。"
+    },
+    {
+      "id": "rewards-gift-model",
+      "file": "rewards/gift-model.svg",
+      "source": "project-original-svg",
+      "createdOn": "2026-10-04",
+      "width": 128,
+      "height": 128,
+      "purpose": "飞行模型演示礼品",
+      "editableSource": "rewards/gift-model.svg",
+      "usage": "第八轮学生奖励页、详情与素材预览；演示视觉稿，不代表正式奖品或荣誉规则。",
+      "design": "原创整数坐标、直角和阶梯轮廓，深蓝 / 奶油 / 青绿 / 金色；透明背景，无嵌入文字或交互。"
+    },
+    {
+      "id": "rewards-gift-sticker",
+      "file": "rewards/gift-sticker.svg",
+      "source": "project-original-svg",
+      "createdOn": "2026-10-04",
+      "width": 128,
+      "height": 128,
+      "purpose": "探索贴纸演示礼品",
+      "editableSource": "rewards/gift-sticker.svg",
+      "usage": "第八轮学生奖励页、详情与素材预览；演示视觉稿，不代表正式奖品或荣誉规则。",
+      "design": "原创整数坐标、直角和阶梯轮廓，深蓝 / 奶油 / 青绿 / 金色；透明背景，无嵌入文字或交互。"
+    },
+    {
+      "id": "rewards-badge-record",
+      "file": "rewards/badge-record.svg",
+      "source": "project-original-svg",
+      "createdOn": "2026-10-04",
+      "width": 128,
+      "height": 128,
+      "purpose": "记录一次发现：演示已获得徽章",
+      "editableSource": "rewards/badge-record.svg",
+      "usage": "第八轮学生奖励页、详情与素材预览；演示视觉稿，不代表正式奖品或荣誉规则。",
+      "design": "原创整数坐标、直角和阶梯轮廓，深蓝 / 奶油 / 青绿 / 金色；透明背景，无嵌入文字或交互。"
+    },
+    {
+      "id": "rewards-badge-iterate",
+      "file": "rewards/badge-iterate.svg",
+      "source": "project-original-svg",
+      "createdOn": "2026-10-04",
+      "width": 128,
+      "height": 128,
+      "purpose": "尝试再改进：演示未获得徽章",
+      "editableSource": "rewards/badge-iterate.svg",
+      "usage": "第八轮学生奖励页、详情与素材预览；演示视觉稿，不代表正式奖品或荣誉规则。",
+      "design": "原创整数坐标、直角和阶梯轮廓，深蓝 / 奶油 / 青绿 / 金色；透明背景，无嵌入文字或交互。"
+    }
+  ],
+  "webDerivativeReport": "web/derivatives.json"
+}

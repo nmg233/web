@@ -87,7 +87,9 @@ test('本人课程及管理员跨课程管理仍可用，候选学生保留全�
     assert.equal((await api(`/courses/${id}`,'PUT',{title:'合法编辑'},token)).status,200);
     assert.equal((await api(`/courses/${id}/lessons`,'POST',{title:'合法课时'},token)).status,200);
     assert.equal((await api(`/courses/lessons/${id}/tasks`,'POST',{title:'合法任务'},token)).status,200);
+    // 负责执行导师与管理员均可维护回放；无关导师仍在文件解析前拒绝。
     assert.equal((await api(`/courses/replays/${id}`,'PUT',{title:'合法回放'},token)).status,200);
+    assert.equal((await api(`/courses/replays/${id}`,'PUT',{title:'管理员维护回放'},tokens.admin)).status,200);
     assert.equal((await api(`/courses/${id}/enroll/candidates`,'GET',undefined,token)).status,200);
     assert.equal((await api(`/courses/${id}/enroll`,'POST',{student_ids:[5]},token)).status,200);
   }
