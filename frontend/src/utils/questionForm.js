@@ -8,6 +8,6 @@ export function questionForm(exercise) {
 export function questionPayload(values) {
   const { blanks, ...fields } = values;
   const choice = ['single_choice', 'multiple_choice'].includes(values.question_type);
-  return { ...fields, options: choice ? values.options : [],
+  return { ...fields, rubric:values.question_type === 'short_answer' ? values.rubric || null : null, options: choice ? values.options : [],
     answer: values.question_type === 'fill_blank' ? { blanks: blanks.map((s) => s.split('\n').map((v) => v.trim()).filter(Boolean)) } : values.answer };
 }

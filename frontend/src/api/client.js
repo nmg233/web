@@ -39,6 +39,7 @@ async function doRefresh() {
   const refresh_token = localStorage.getItem('refresh_token');
   if (!refresh_token) throw new Error('缺少 refresh_token');
   const res = await authClient.post('/auth/refresh', { refresh_token });
+  if (localStorage.getItem('refresh_token') !== refresh_token) throw Object.assign(new Error('会话已切换'), { code: 'SESSION_CHANGED' });
   localStorage.setItem('token', res.data.token);
   localStorage.setItem('refresh_token', res.data.refresh_token);
   if (res.data.user) {
@@ -60,11 +61,13 @@ function clearAuthAndRedirect() {
 client.interceptors.request.use(
   async (config) => {
     if (!isRefreshOrLogin(config.url) && isTokenExpiringSoon()) {
+      const previousRefresh = localStorage.getItem('refresh_token');
       try {
         refreshPromise = refreshPromise || doRefresh().finally(() => { refreshPromise = null; });
         await refreshPromise;
-      } catch {
+      } catch (error) {
         refreshPromise = null;
+        if(error?.code === 'SESSION_CHANGED' || localStorage.getItem('refresh_token') !== previousRefresh) throw Object.assign(new Error('会话已切换，请在当前账号重新操作'),{code:'SESSION_CHANGED'});
       }
     }
     const token = localStorage.getItem('token');
@@ -83,8 +86,11 @@ client.interceptors.request.use(
 client.interceptors.response.use(
   (response) => response.data,
   async (error) => {
+    if (axios.isCancel(error) || error?.code === 'SESSION_CHANGED') return Promise.reject(error);
     const { config, response } = error;
     const url = config?.url || '';
+    const staleSession = () => config?.headers?.Authorization && config.headers.Authorization !== `Bearer ${localStorage.getItem('token')}`;
+    if ((response?.status === 401 || response?.data?.code === 'FORCE_RESET') && !isRefreshOrLogin(url) && staleSession()) return Promise.reject(error);
 
     if (response?.status === 401) {
       // 登录接口自身的 401（密码错误）：提示即可，不刷新不登出
@@ -108,8 +114,9 @@ client.interceptors.response.use(
           config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${token}`;
           return client(config); // 重试原请求
-        } catch {
+        } catch (refreshError) {
           refreshPromise = null;
+          if (refreshError?.code === 'SESSION_CHANGED' || staleSession()) return Promise.reject(error);
           clearAuthAndRedirect();
           return Promise.reject(error);
         }

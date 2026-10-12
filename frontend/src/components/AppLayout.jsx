@@ -1,5 +1,6 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { Layout, Spin } from 'antd';
+import { useState } from 'react';
+import { Layout, Spin, Result, Button, Drawer, Grid } from 'antd';
 import { useAuth } from '../store/AuthContext';
 import Sidebar from './Sidebar';
 import HeaderBar from './Header';
@@ -7,8 +8,11 @@ import HeaderBar from './Header';
 const { Content } = Layout;
 
 export default function AppLayout() {
-  const { user, loading } = useAuth();
+  const { user, loading, authError, retryAuth } = useAuth();
   const location = useLocation();
+  const screens = Grid.useBreakpoint();
+  const mobile = screens.md === false;
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (loading) {
     return (
@@ -18,6 +22,7 @@ export default function AppLayout() {
     );
   }
 
+  if (authError) return <Result status="warning" title="登录身份尚未确认" subTitle={authError} extra={<Button onClick={() => retryAuth().catch(() => {})}>重新验证</Button>} />;
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -29,10 +34,11 @@ export default function AppLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sidebar />
-      <Layout>
-        <HeaderBar />
-        <Content style={{ background: '#f5f7fa', minHeight: 360 }}>
+      {!mobile && <Sidebar />}
+      <Drawer title="PBL 科创平台" placement="left" size={260} open={mobile && menuOpen} onClose={() => setMenuOpen(false)}><Sidebar mobile onNavigate={() => setMenuOpen(false)} /></Drawer>
+      <Layout style={{minWidth:0}}>
+        <HeaderBar mobile={mobile} onMenu={() => setMenuOpen(true)} />
+        <Content style={{ background: '#f5f7fa', minHeight: 360, minWidth:0 }}>
           <Outlet />
         </Content>
       </Layout>

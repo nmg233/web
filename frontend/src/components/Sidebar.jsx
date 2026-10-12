@@ -35,7 +35,6 @@ const menuItems = {
   academic_mentor: [
     { key: '/dashboard', icon: <DashboardOutlined />, label: '工作台' },
     { key: '/courses', icon: <BookOutlined />, label: '课程管理' },
-    { key: '/mentor/content', icon: <BookOutlined />, label: '学习内容预览' },
     { key: '/students', icon: <TeamOutlined />, label: '学生管理' },
     { key: '/works', icon: <FileTextOutlined />, label: '作品管理' },
     { key: '/mentor/reviews', icon: <CheckSquareOutlined />, label: '学习报告评审' },
@@ -69,7 +68,7 @@ const menuItems = {
   ],
 };
 
-export default function Sidebar() {
+export default function Sidebar({ mobile = false, onNavigate }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -87,6 +86,8 @@ export default function Sidebar() {
     .filter((item) => location.pathname === item.key || location.pathname.startsWith(`${item.key}/`))
     .sort((a, b) => b.key.length - a.key.length)[0]?.key;
 
+  const menu = <Menu theme={mobile ? 'light' : 'dark'} mode="inline" selectedKeys={[selectedKey]} items={items} onClick={({key}) => { navigate(key); onNavigate?.(); }} />;
+  if (mobile) return menu;
   return (
     <Sider
       width={200}
@@ -103,13 +104,7 @@ export default function Sidebar() {
       }}>
         {collapsed ? 'PBL' : 'PBL 科创平台'}
       </div>
-      <Menu
-        theme="dark"
-        mode="inline"
-        selectedKeys={[selectedKey]}
-        items={items}
-        onClick={({ key }) => navigate(key)}
-      />
+      {menu}
     </Sider>
   );
 }

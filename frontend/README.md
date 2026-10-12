@@ -41,6 +41,7 @@ Vite 已配置 `/api` 与 `/uploads` 代理到 `http://localhost:3000`，Axios �
 | 命令 | 说明 |
 | --- | --- |
 | `npm run dev` | 启动开发服务器 |
+| `npm test` | 运行前端工具、组件渲染及会话乱序回归测试 |
 | `npm run lint` | 执行 ESLint 检查 |
 | `npm run build` | 构建生产文件到 `dist` |
 | `npm run preview` | 本地预览构建结果 |
@@ -63,9 +64,15 @@ index.html
 
 路由定义以 `src/App.jsx` 为准，主要包括：
 
-- `/login`、`/register`
+- `/login`、`/change-password`（公开注册已关闭）
 - `/dashboard`、`/dashboard/schools/:id`、`/dashboard/ai`
 - `/courses`、`/courses/create`、`/courses/:id`、`/courses/:id/edit`
+- `/courses/:courseId/lessons/:lessonId/learn`：学生三阶段课后学习
+- `/courses/:courseId/lessons/:lessonId/content`：管理员/负责课程导师编排
+- `/courses/:courseId/lessons/:lessonId/preview`：按授权只读预览
+- `/mentor/reviews`、`/mentor/reviews/:reportId`：报告评审
+- `/observer`、`/observer/students`、`/observer/students/:studentId`：教师只读学情
+- `/tasks`、`/tasks/:id`、`/glider`：课后任务与独立实验工具
 - `/students`、`/students/:id`
 - `/works`、`/works/upload`、`/works/:id`
 - `/archives`、`/archives/reflection`
@@ -77,11 +84,13 @@ index.html
 
 通知功能对所有已登录角色开放。顶部铃铛每 60 秒更新未读数，窗口重新获得焦点时也会刷新；展开铃铛可查看最近通知。通知中心支持阅读状态、分类和级别筛选，以及全部已读、清理已读、单条隐藏和已读/未读切换。当前通知仅通过站内轮询获取，不包含浏览器推送、邮件、短信、WebSocket 或 SSE。
 
-`/dashboard/schools/add` 和 `/students/import` 暂无对应的 React 路由，虽然部分按钮仍会导航到这两个地址。
+学校新建、账号导入使用页面弹窗，不导航到不存在的 `/dashboard/schools/add` 或 `/students/import`。导师单独的预览侧栏入口已移除，仍可从对应课时进入；AI、实验、独立成果和历史回放保留。手机宽度使用抽屉导航、学生课程卡片，不等同于 Android/iOS 真机验收。
 
 ## 已知限制
 
 - API 地址通过 `VITE_API_BASE` 环境变量配置，默认使用同源 `/api`。
-- ESLint 当前仍有未处理的 Hooks 和未使用导入问题。
-- 尚无前端自动化测试；反馈、通知与安全相关后端测试位于 `backend/test`。
+- ESLint、组件渲染与工具回归用上述命令检查；后端闭环测试位于 `backend/test`，本地全绿不代表生产已验收。
+- 生产构建仍有大分块提示，部分 Ant Design 旧组件存在弃用提示，尚需性能/组件迁移验收。
+- 视频支持短期播放地址续期、失败手动重试、上传停止与按请求标识查询结果；不提供断点续传/后台上传，近500MB弱网和长视频尚待实测。
+- 其余真实设备、生产部署、AI及数据恢复门禁见根目录的 `本轮整改进度与验收_2026-10-11.md`。
 - `src/assets/vite.svg`、`public/icons.svg` 等模板资源目前未被页面使用。

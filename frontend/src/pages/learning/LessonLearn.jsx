@@ -57,7 +57,7 @@ function Exercise({ exercise, onDone }) {
   }
   return <Card size="small" style={{ marginTop: 12 }}>
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Space><Text strong>{exercise.prompt}</Text><Tag>{exercise.points} 分</Tag></Space>
+      <Space><Text strong>{exercise.prompt}</Text><Tag>{exercise.question_type === 'short_answer' ? '简答 · 不自动评分' : `${exercise.points} 分`}</Tag></Space>
       {!exercise.attempted && <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, width: '100%' }}>{input}</fieldset>}
       {!exercise.attempted && !result && <Alert type="info" showIcon message="本题只有一次作答机会，提交后不能修改" />}
       {!exercise.attempted && !result && <Button type="primary" size="small" onClick={submit} loading={submitting} disabled={locked || !hasAnswer}>提交答案</Button>}

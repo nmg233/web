@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
   Alert, Button, Card, Collapse, Descriptions, Form, Input, InputNumber,
   Modal, Progress, Space, Table, Tag, Typography, message,
@@ -10,6 +10,7 @@ import PageContainer from '../../components/common/PageContainer';
 import AsyncPageState from '../../components/common/AsyncPageState';
 import ReportHistory from '../../components/common/ReportHistory';
 import { exerciseAnswer } from '../../utils/exerciseAnswer';
+import { returnContext } from '../../utils/returnContext';
 
 function AnswerFeedback({ exercise, reportId, readOnly }) {
   const [content, setContent] = useState(exercise.feedback?.content || '');
@@ -20,6 +21,7 @@ function AnswerFeedback({ exercise, reportId, readOnly }) {
     <Typography.Text>学生答案：{exerciseAnswer(exercise.student_answer, exercise.options)}</Typography.Text>
     <Typography.Text>参考答案：{exerciseAnswer(exercise.reference_answer, exercise.options)}</Typography.Text>
     <Typography.Paragraph>详解：{exercise.explanation}</Typography.Paragraph>
+    {exercise.rubric && <Typography.Paragraph>评价要点：{exercise.rubric}</Typography.Paragraph>}
     <Tag>{!exercise.attempted ? '未作答' : exercise.question_type === 'short_answer' ? '简答：不自动判对错' : exercise.correct === 1 ? '正确' : '不正确'}</Tag>
     <Input.TextArea disabled={readOnly || !exercise.attempted} value={content} onChange={(e) => setContent(e.target.value)} rows={2} maxLength={5000} placeholder="填写逐题反馈（学生可见）" />
     {!readOnly && <Button loading={saving} disabled={!content.trim() || !exercise.attempted} onClick={async () => {
@@ -37,6 +39,7 @@ const dimensions = [
 ];
 
 export default function ReviewDetail() {
+  const location = useLocation();
   const { reportId } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -83,7 +86,7 @@ export default function ReviewDetail() {
   return <PageContainer
     title={`${data.student.real_name} · ${data.lesson.title}`}
     description={`${data.course.title} · 学习报告第 ${report.version} 版 · ${report.status === 'submitted' ? '待评审' : report.status === 'approved' ? '已通过' : '需修改'}`}
-    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/mentor/reviews')}>返回评审队列</Button>}
+    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(returnContext(location.state?.returnTo, '/mentor/reviews'))}>返回评审队列</Button>}
   >
     {data.replacement && <Alert type="warning" showIcon message="此旧报告仅保留历史，不再评审" description="教学内容已补齐，学生完成补学并提交新版后，导师评审新版报告。" />}
     <div className="mentor-review-layout">
@@ -95,7 +98,7 @@ export default function ReviewDetail() {
           <Descriptions.Item label="困难与疑问">{report.difficulties || '-'}</Descriptions.Item>
           <Descriptions.Item label="下一步计划">{report.next_plan || '-'}</Descriptions.Item>
         </Descriptions></Card>
-        <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`)} />
+        <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`, {state: location.state})} />
         <Card className="content-card" title="结构化反思" style={{ marginBottom: 16 }}><Descriptions column={1} size="small">
           <Descriptions.Item label="遇到的困难">{reflection?.difficulty || '-'}</Descriptions.Item>
           <Descriptions.Item label="解决方式">{reflection?.solution || '-'}</Descriptions.Item>

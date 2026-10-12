@@ -10,7 +10,7 @@ import { useAuth } from '../../store/AuthContext';
 export default function ContentHub() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canEdit = user?.role === 'admin';
+  const canEdit = ['admin', 'academic_mentor'].includes(user?.role);
   const [lessons, setLessons] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);

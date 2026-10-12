@@ -11,7 +11,7 @@ const { Title } = Typography;
 
 const roleMap = {
   admin: { label: '管理员', color: 'red' },
-  academic_mentor: { label: '学术导师', color: 'blue' },
+  academic_mentor: { label: '执行导师', color: 'blue' },
   teacher: { label: '教师', color: 'green' },
   student: { label: '学生', color: 'cyan' },
 };
@@ -237,7 +237,7 @@ function StudentDetailContent() {
       <Modal title="编辑账号资料" open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => editForm.submit()} confirmLoading={editing} closable={!editing} maskClosable={!editing} cancelButtonProps={{disabled:editing}}>
         <Form form={editForm} layout="vertical" onFinish={saveEdit}>
           <Form.Item name="real_name" label="姓名" rules={[{required:true,whitespace:true}]}><Input maxLength={80}/></Form.Item>
-          <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:'学生'},{value:'teacher',label:'教师'},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
+          <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:'学生'},{value:'teacher',label:'教师'},{value:'academic_mentor',label:'执行导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
           <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select disabled={student.role==='student'} allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
           <Form.Item name="class_id" label="班级" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择班级'})]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item>
           <Form.Item name="email" label="邮箱"><Input/></Form.Item><Form.Item name="phone" label="手机号"><Input/></Form.Item><Form.Item name="profile" label="简介"><Input.TextArea/></Form.Item>

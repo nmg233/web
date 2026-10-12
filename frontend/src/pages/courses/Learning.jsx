@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Card, Descriptions, Empty, Space, Tag, Typography, message } from 'antd';
+import { Button, Card, Descriptions, Empty, Space, Tag, Typography, Result, Spin } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { courseAPI, workAPI } from '../../api';
 import ReplaySummary from '../../components/common/ReplaySummary';
+import SignedReplayPlayer from '../../components/common/SignedReplayPlayer';
 
 const { Title, Text } = Typography;
 
@@ -17,33 +18,46 @@ const REVIEW_STATUS = {
 // 不再提供手动进度标记；视频播放进度由播放器原生提供。
 export default function Learning() {
   const { id } = useParams();
+  return <LearningPage key={id}/>;
+}
+function LearningPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [replays, setReplays] = useState([]);
   const [replayUrl, setReplayUrl] = useState(null);
+  const [playingReplayId, setPlayingReplayId] = useState(null);
   const [works, setWorks] = useState([]);
+  const [error,setError]=useState('');
+  const sequence=useRef({load:0,play:0});
 
   const load = async () => {
+    const request=++sequence.current.load;
+    setError('');
     try {
       const res = await courseAPI.detail(id);
+      if(request !== sequence.current.load) return;
       setData(res);
-      courseAPI.listReplays(id).then((r) => setReplays(r.replays || [])).catch(() => {});
-      workAPI.list({ course_id: id }).then((r) => setWorks(r.works || [])).catch(() => {});
+      courseAPI.listReplays(id).then((r) => {if(request === sequence.current.load)setReplays(r.replays || []);}).catch(() => {});
+      workAPI.list({ course_id: id }).then((r) => {if(request === sequence.current.load)setWorks(r.works || []);}).catch(() => {});
     } catch {
-      message.error('加载学习内容失败');
+      if(request === sequence.current.load)setError('加载学习内容失败，请重试或返回课程。');
     }
   };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { const cursor=sequence; load(); return ()=>{cursor.current.load++;cursor.current.play++;}; }, [id]);
 
-  if (!data) return null;
+  if (!data) return error ? <Result status="error" title={error} extra={<Button onClick={load}>重试</Button>}/> : <Spin/>;
   const { course, tasks, resources } = data;
 
   const playReplay = async (replayId) => {
+    const request=++sequence.current.play;
     try {
       const res = await courseAPI.streamUrl(replayId);
+      if(request !== sequence.current.play) return;
       setReplayUrl(res.url);
+      setPlayingReplayId(replayId);
     } catch { /* handled */ }
   };
 
@@ -80,7 +94,7 @@ export default function Learning() {
 
       {/* ② 课程回放 */}
       <Card title="🎬 课程回放" style={{ marginBottom: 16 }}>
-        {replayUrl && <video controls src={replayUrl} style={{ width: '100%', maxHeight: 420, marginBottom: 16, background: '#000' }} />}
+        {replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl} />}
         {replays.length === 0 ? (
           <Empty description="暂无课程回放" />
         ) : (

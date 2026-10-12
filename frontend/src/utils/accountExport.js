@@ -1,6 +1,6 @@
 // 只导出账号清单，不包含密码、令牌或其他认证信息。
 export function accountsToCSV(accounts) {
-  const roles = { admin: '管理员', academic_mentor: '学术导师', teacher: '教师', student: '学生', media: '新媒体' };
+  const roles = { admin: '管理员', academic_mentor: '执行导师', teacher: '教师', student: '学生', media: '新媒体' };
   const cell = (value) => {
     let text = String(value ?? '');
     // 防止姓名、学校等用户输入被电子表格解释为公式。

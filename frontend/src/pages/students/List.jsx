@@ -162,7 +162,7 @@ export default function StudentList() {
               { title: '姓名', dataIndex: 'real_name', render: (text, r) => <Link to={`/students/${r.id}`}>{text}</Link> },
               { title: '状态', render: (_, r) => <Tag color={r.archived_at ? 'default' : r.is_active ? 'green' : 'red'}>{r.archived_at ? '已归档' : r.is_active ? '正常' : '已停用'}</Tag> },
               { title: '登录账号', dataIndex: 'username', render: (text) => <Text copyable>{text}</Text> },
-              { title: '身份', dataIndex: 'role', render: (role) => ({ student: '学生', teacher: '教师', academic_mentor: '学术导师' }[role] || role) },
+              { title: '身份', dataIndex: 'role', render: (role) => ({ student: '学生', teacher: '教师', academic_mentor: '执行导师' }[role] || role) },
               { title: '学校', dataIndex: 'school_name' },
               { title: '班级', dataIndex: 'class_name' },
             ]} />
@@ -183,7 +183,7 @@ export default function StudentList() {
             </Card>
           )) : null}
           {data.academicMentors?.length > 0 && (
-            <Card title="⭐ 学术导师" style={{ marginBottom: 12 }} size="small">
+            <Card title="⭐ 执行导师" style={{ marginBottom: 12 }} size="small">
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {data.academicMentors.map((m) => renderUserTag(m, 'purple', '⭐'))}
               </div>
@@ -207,7 +207,7 @@ export default function StudentList() {
             <Form.Item name="role" label="身份" rules={[{ required: true, message: '请选择身份' }]}>
               <Select options={[
                 { label: '学生', value: 'student' }, { label: '教师', value: 'teacher' },
-                { label: '学术导师', value: 'academic_mentor' },
+                { label: '执行导师', value: 'academic_mentor' },
               ]} onChange={(v) => {
                 if (v === 'academic_mentor') {
                   form.setFieldsValue({ school_id: undefined, class_id: undefined });
