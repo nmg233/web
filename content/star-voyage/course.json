@@ -1,0 +1,389 @@
+{
+  "format": "pbl-course-package-v1",
+  "packageId": "star-voyage-initial",
+  "revision": 1,
+  "source": {
+    "description": "当前本机星海远航课程的维护内容；保留准备中与未知关卡，不含学生数据",
+    "reference": "3dddc632cc34ce3e77c10392785441837b53842f"
+  },
+  "course": {
+    "title": "星海远航",
+    "theme": null,
+    "description": null,
+    "driving_question": null,
+    "story_line": null,
+    "grade_level": "junior",
+    "difficulty": "basic",
+    "total_hours": null,
+    "materials_needed": null,
+    "cover_image": null,
+    "presentation_theme": "voyage",
+    "map_mode": "plan"
+  },
+  "lessons": [
+    {
+      "key": "lesson-1",
+      "title": "参观 VR 实验室",
+      "description": null,
+      "sort_order": 1,
+      "duration": null,
+      "teaching_tip": null,
+      "start_at": null,
+      "end_at": null,
+      "location": null,
+      "presentation_type": "visit",
+      "content_state": "preparing",
+      "article_url": null,
+      "article_title": "第一次课",
+      "moments_note": null,
+      "review_content": null,
+      "report_guidance": null,
+      "experiment_guidance": null,
+      "article_blocks": [
+        {
+          "id": "source-209db3615aef-0",
+          "type": "paragraph",
+          "text": "天朗气清，金风送爽，很高兴踏进北航附中的校园和大家相遇，一起来回顾一下这节课上发生了什么吧！"
+        },
+        {
+          "id": "source-209db3615aef-1",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-01"
+        },
+        {
+          "id": "source-209db3615aef-2",
+          "type": "paragraph",
+          "text": "首先是在教室里和大家明确了课程安排和纪律要求，希望大家好好遵守，能够在学习结束的时候收获高端的知识、难忘的体验还有一个漂亮的分数！"
+        },
+        {
+          "id": "source-209db3615aef-3",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-02"
+        },
+        {
+          "id": "source-209db3615aef-4",
+          "type": "paragraph",
+          "text": "然后我们一起前往位于北航内部的虚拟现实全国重点实验室，一起参观和体验里面的“精密”仪器"
+        },
+        {
+          "id": "source-209db3615aef-5",
+          "type": "paragraph",
+          "text": "开飞机"
+        },
+        {
+          "id": "source-209db3615aef-6",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-03"
+        },
+        {
+          "id": "source-209db3615aef-7",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-04"
+        },
+        {
+          "id": "source-209db3615aef-8",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-05"
+        },
+        {
+          "id": "source-209db3615aef-9",
+          "type": "paragraph",
+          "text": "做手术"
+        },
+        {
+          "id": "source-209db3615aef-10",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-06"
+        },
+        {
+          "id": "source-209db3615aef-11",
+          "type": "paragraph",
+          "text": "当牙医"
+        },
+        {
+          "id": "source-209db3615aef-12",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-07"
+        },
+        {
+          "id": "source-209db3615aef-13",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-08"
+        },
+        {
+          "id": "source-209db3615aef-14",
+          "type": "paragraph",
+          "text": "VR不仅是一个眼镜那么简单，一切把现实世界移到屏幕里面的技术都可以是VR技术。大家也会在之后的课程中看到更多和VR相关的技术，借助这些技术，我们可以在教室里就实现上九天揽月！"
+        },
+        {
+          "id": "source-209db3615aef-15",
+          "type": "image",
+          "title": "",
+          "caption": "",
+          "resourceKey": "image-09"
+        },
+        {
+          "id": "source-209db3615aef-16",
+          "type": "paragraph",
+          "text": "希望大家在今后的课程中继续积极参与，聆听星海的声音，看见更美的风景！"
+        }
+      ]
+    },
+    {
+      "key": "lesson-2",
+      "title": "滑翔机试飞理论课",
+      "description": null,
+      "sort_order": 2,
+      "duration": null,
+      "teaching_tip": null,
+      "start_at": null,
+      "end_at": null,
+      "location": null,
+      "presentation_type": "theory",
+      "content_state": "preparing",
+      "article_url": null,
+      "article_title": null,
+      "moments_note": null,
+      "review_content": null,
+      "report_guidance": null,
+      "experiment_guidance": null,
+      "article_blocks": []
+    },
+    {
+      "key": "lesson-3",
+      "title": "滑翔机试飞实验课",
+      "description": null,
+      "sort_order": 3,
+      "duration": null,
+      "teaching_tip": null,
+      "start_at": null,
+      "end_at": null,
+      "location": null,
+      "presentation_type": "experiment",
+      "content_state": "preparing",
+      "article_url": null,
+      "article_title": null,
+      "moments_note": null,
+      "review_content": null,
+      "report_guidance": null,
+      "experiment_guidance": null,
+      "article_blocks": []
+    }
+  ],
+  "resources": [
+    {
+      "key": "image-01",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图1",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-01.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-01.jpg",
+      "bytes": 138313,
+      "sha256": "ce1e8b4c6d2fae2a83c51f2be7489ecbadfce33faa00b56c3c3615a04ee0cf6f"
+    },
+    {
+      "key": "image-02",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图2",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-02.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-02.jpg",
+      "bytes": 92065,
+      "sha256": "a332f398eac56677485f282f0583e5fca8115f713711af568f50b7453d7bf78b"
+    },
+    {
+      "key": "image-03",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图3",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-03.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-03.jpg",
+      "bytes": 85185,
+      "sha256": "64f3b482bdabbf2722637d7f70975747430526914d3a990bac652ef835c455e5"
+    },
+    {
+      "key": "image-04",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图4",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-04.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-04.jpg",
+      "bytes": 83059,
+      "sha256": "c110ae97a002ca40a5fc1cf75393d46c7c5d8d2e887403b8553af4c20109e33b"
+    },
+    {
+      "key": "image-05",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图5",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-05.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-05.jpg",
+      "bytes": 95743,
+      "sha256": "d850496feb9320983840f384af06a033d2e7dc75de22c9b1b951379af8e01e32"
+    },
+    {
+      "key": "image-06",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图6",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-06.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-06.jpg",
+      "bytes": 84377,
+      "sha256": "9b1e6594744c62e070ca57d834e260a669f8c720986dccd029ed9ec2971c67a2"
+    },
+    {
+      "key": "image-07",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图7",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-07.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-07.jpg",
+      "bytes": 84377,
+      "sha256": "9b1e6594744c62e070ca57d834e260a669f8c720986dccd029ed9ec2971c67a2"
+    },
+    {
+      "key": "image-08",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图8",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-08.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-08.jpg",
+      "bytes": 84108,
+      "sha256": "4f1b21f0ac49592c5fa638f21f4ac5e1bf63175ad5e0248d5e79281ef87d8dc9"
+    },
+    {
+      "key": "image-09",
+      "lessonKey": "lesson-1",
+      "title": "第一次课 · 原图9",
+      "description": null,
+      "resource_type": "other",
+      "file_name": "image-09.jpg",
+      "file_type": "jpg",
+      "display_order": 0,
+      "file": "image-09.jpg",
+      "bytes": 103077,
+      "sha256": "a3e460cf781cff1a948945f576653269eea4b5f875dc147db860e2afb374f165"
+    }
+  ],
+  "plan": [
+    {
+      "position": 1,
+      "lessonKey": "lesson-1",
+      "state": "linked"
+    },
+    {
+      "position": 2,
+      "lessonKey": "lesson-2",
+      "state": "linked"
+    },
+    {
+      "position": 3,
+      "lessonKey": "lesson-3",
+      "state": "linked"
+    },
+    {
+      "position": 4,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 5,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 6,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 7,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 8,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 9,
+      "lessonKey": null,
+      "state": "preparing"
+    },
+    {
+      "position": 10,
+      "lessonKey": null,
+      "state": "preparing"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "glider",
+      "stage": null,
+      "label": "滑翔机试飞",
+      "enabled": 1,
+      "lessonKey": "lesson-3"
+    }
+  ],
+  "badges": [
+    {
+      "lessonKey": "lesson-1",
+      "name": "VR参观",
+      "art_id": "vr",
+      "description": "完成本课时的真实学习要求后获得"
+    },
+    {
+      "lessonKey": "lesson-2",
+      "name": "理论探索",
+      "art_id": "theory",
+      "description": "完成本课时的真实学习要求后获得"
+    },
+    {
+      "lessonKey": "lesson-3",
+      "name": "滑翔机实践",
+      "art_id": "glider",
+      "description": "完成本课时的真实学习要求后获得"
+    }
+  ]
+}

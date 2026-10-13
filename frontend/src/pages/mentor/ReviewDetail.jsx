@@ -82,8 +82,8 @@ export default function ReviewDetail() {
 
   return <PageContainer
     title={`${data.student.real_name} · ${data.lesson.title}`}
-    description={`${data.course.title} · 学习报告第 ${report.version} 版 · ${report.status === 'submitted' ? '待评审' : report.status === 'approved' ? '已通过' : '需修改'}`}
-    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(queueReturn)}>返回评审队列</Button>}
+    description={siteTemplate('site.ac8695af6e2d7b15',{slot0:data.course.title,slot1:report.version,slot2:report.status==='submitted'?siteText('site.a5a91074d1bb591e'):report.status==='approved'?siteText('site.1af4c53e88331339'):siteText('site.b8c8104cfbdb0482')})}
+    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(queueReturn)}>{siteText("site.bfca5f9af0a24b29")}</Button>}
   >
     {data.replacement&&<Alert type="warning" title="此旧报告仅保留历史，不再评审" description="学生完成补学并提交新版报告后，请评审新版。"/>}<div className="mentor-review-layout">
       <div>
@@ -95,17 +95,17 @@ export default function ReviewDetail() {
           <Descriptions.Item label={siteText("site.824021374595d011")}>{report.next_plan || '-'}</Descriptions.Item>
         </Descriptions></Card>
         <ReportHistory history={data.history} reportId={report.id} onView={(id) => navigate(`/mentor/reviews/${id}`, {state: {returnTo:queueReturn}})} />
-        <Card className="content-card" title="反思记录" style={{ marginBottom: 16 }}>{reflection?.reflection_version===2?<ReflectionFields reflection={reflection}/>:<Descriptions column={1} size="small">
+        <Card className="content-card" title={siteText("site.f9d6f2eb705c4462")} style={{ marginBottom: 16 }}>{reflection?.reflection_version===2?<ReflectionFields reflection={reflection}/>:<Descriptions column={1} size="small">
           <Descriptions.Item label="遇到的困难">{reflection?.difficulty || '-'}</Descriptions.Item>
           <Descriptions.Item label="解决方式">{reflection?.solution || '-'}</Descriptions.Item>
           <Descriptions.Item label="可以改进之处">{reflection?.improvement || '-'}</Descriptions.Item>
           <Descriptions.Item label="新的问题">{reflection?.new_question || '-'}</Descriptions.Item>
         </Descriptions>}</Card>
-        <Card className="content-card" title="知识学习证据"><Table size="small" pagination={false} rowKey="id" dataSource={cards} expandable={{ expandedRowRender: (c) => <Space direction="vertical" style={{ width: '100%' }}>{c.exercises.map((e) => <Card key={e.id} size="small"><AnswerFeedback exercise={e} reportId={report.id} readOnly={data.read_only || data.history[0]?.id !== report.id} /></Card>)}</Space> }} columns={[
-          { title: '知识卡片', dataIndex: 'title' },
-          { title: '状态', render: (_, row) => <Tag color={row.completed_at ? 'green' : 'default'}>{row.completed_at ? '已完成' : '未完成'}</Tag> },
+        <Card className="content-card" title={siteText("site.f47ee9caf57ebc61")}><Table size="small" pagination={false} rowKey="id" dataSource={cards} expandable={{ expandedRowRender: (c) => <Space direction="vertical" style={{ width: '100%' }}>{c.exercises.map((e) => <Card key={e.id} size="small"><AnswerFeedback exercise={e} reportId={report.id} readOnly={data.read_only || data.history[0]?.id !== report.id} /></Card>)}</Space> }} columns={[
+          { title: siteText("site.a94b55e7f1b462f1"), dataIndex: 'title' },
+          { title: siteText("site.7d6ea8b232d105cf"), render: (_, row) => <Tag color={row.completed_at ? 'green' : 'default'}>{row.completed_at ? siteText("site.666161a30dc4771f") : siteText("site.021f66465514f04e")}</Tag> },
           { title: '客观题得分', dataIndex: 'best_score', render: (value) => value === null ? '无自动评分题' : `${value} 分` },
-          { title: '作答次数', dataIndex: 'attempt_count' },
+          { title: siteText("site.b81d62e05b052dcf"), dataIndex: 'attempt_count' },
         ]} /></Card>
       </div>
 

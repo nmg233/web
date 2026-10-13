@@ -34,13 +34,13 @@ export default function CourseList() {
   useEffect(() => { const cursor=sequence; loadCourses(); return () => { cursor.current++; }; }, []);
 
   const columns = [
-    { title: '课程名称', dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
-    { title: '主题', dataIndex: 'theme', key: 'theme' },
-    { title: '适用学段', dataIndex: 'grade_level', key: 'grade_level', render: (v) => ({primary:'小学',junior:'初中',senior:'高中'})[v] || v },
-    { title: '难度', dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{({basic:'基础',advanced:'进阶',challenge:'挑战'})[v] || v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: '已发布', draft: '草稿', archived: '已归档' })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
+    { title: siteText("site.a7b37507989cb9bc"), dataIndex: 'title', key: 'title', render: (text, r) => user?.role === 'media' ? text : <Link to={`/courses/${r.id}`}>{text}</Link> },
+    { title: siteText("site.8ef2646bdcc1bff5"), dataIndex: 'theme', key: 'theme' },
+    { title: siteText("site.8a0217e77cf8e02d"), dataIndex: 'grade_level', key: 'grade_level', render: (v) => ({primary:'小学',junior:'初中',senior:'高中'})[v] || v },
+    { title: siteText("site.e8b2df03b912eb21"), dataIndex: 'difficulty', key: 'difficulty', render: (v) => <Tag>{({basic:'基础',advanced:'进阶',challenge:'挑战'})[v] || v}</Tag> },
+    { title: siteText("site.6cd8d54f39a08720"), dataIndex: 'status', key: 'status', render: (v) => <StatusTag value={v} label={({ published: siteText("site.3835281eb0da37c4"), draft: siteText("site.c4822a69d1c33223"), archived: siteText("site.e1adc1105dc777ad") })[v] || v} type={v === 'published' ? 'success' : v === 'archived' ? 'default' : 'warning'} /> },
     ...(canViewOperationalStats(user?.role) ? [{ title: '平均进度', dataIndex: 'progress', key: 'progress', render: (v) => `${v || 0}%` }] : []),
-    ...(canViewOperationalStats(user?.role) ? [{ title: '学生数', dataIndex: 'student_count', key: 'student_count' }, { title: '创建者', dataIndex: 'creator_name', key: 'creator_name' }] : []),
+    ...(canViewOperationalStats(user?.role) ? [{ title: siteText("site.15683f1b8f1ab133"), dataIndex: 'student_count', key: 'student_count' }, { title: siteText("site.dd4db7aacf0120c5"), dataIndex: 'creator_name', key: 'creator_name' }] : []),
     ...(canManage(user?.role) ? [{
       title: siteText("site.802e4d31466b05d9"), key: 'actions', render: (_, r) => r.can_manage ? (
         <Space>
@@ -73,7 +73,7 @@ export default function CourseList() {
       </div>
       <Card>
         <Space wrap style={{ marginBottom: 16 }}>
-          <Input prefix={<SearchOutlined />} placeholder="搜索课程" value={search} onChange={(e) => setSearch(e.target.value)}
+          <Input prefix={<SearchOutlined />} placeholder={siteText("site.740f701c82b364d5")} value={search} onChange={(e) => setSearch(e.target.value)}
             onPressEnter={() => loadCourses({ search })} style={{ width: 250 }} />
           <Button onClick={() => { setSearch(''); loadCourses(); }}>{siteText("site.baf22062b7aecb92")}</Button>
         </Space>

@@ -1,0 +1,206 @@
+[
+  {
+    "file": "frontend/src/pages/courses/List.jsx",
+    "rebound": [
+      {
+        "id": "site.a7b37507989cb9bc",
+        "text": "课程名称"
+      },
+      {
+        "id": "site.8ef2646bdcc1bff5",
+        "text": "主题"
+      },
+      {
+        "id": "site.8a0217e77cf8e02d",
+        "text": "适用学段"
+      },
+      {
+        "id": "site.e8b2df03b912eb21",
+        "text": "难度"
+      },
+      {
+        "id": "site.6cd8d54f39a08720",
+        "text": "状态"
+      },
+      {
+        "id": "site.3835281eb0da37c4",
+        "text": "已发布"
+      },
+      {
+        "id": "site.c4822a69d1c33223",
+        "text": "草稿"
+      },
+      {
+        "id": "site.e1adc1105dc777ad",
+        "text": "已归档"
+      },
+      {
+        "id": "site.15683f1b8f1ab133",
+        "text": "学生数"
+      },
+      {
+        "id": "site.dd4db7aacf0120c5",
+        "text": "创建者"
+      },
+      {
+        "id": "site.740f701c82b364d5",
+        "text": "搜索课程"
+      }
+    ]
+  },
+  {
+    "file": "frontend/src/pages/mentor/ReviewDetail.jsx",
+    "rebound": [
+      {
+        "id": "site.a5a91074d1bb591e",
+        "text": "待评审"
+      },
+      {
+        "id": "site.1af4c53e88331339",
+        "text": "已通过"
+      },
+      {
+        "id": "site.b8c8104cfbdb0482",
+        "text": "需修改"
+      },
+      {
+        "id": "site.bfca5f9af0a24b29",
+        "text": "返回评审队列"
+      },
+      {
+        "id": "site.f9d6f2eb705c4462",
+        "text": "反思记录"
+      },
+      {
+        "id": "site.f47ee9caf57ebc61",
+        "text": "知识学习证据"
+      },
+      {
+        "id": "site.a94b55e7f1b462f1",
+        "text": "知识卡片"
+      },
+      {
+        "id": "site.7d6ea8b232d105cf",
+        "text": "状态"
+      },
+      {
+        "id": "site.666161a30dc4771f",
+        "text": "已完成"
+      },
+      {
+        "id": "site.021f66465514f04e",
+        "text": "未完成"
+      },
+      {
+        "id": "site.b81d62e05b052dcf",
+        "text": "作答次数"
+      }
+    ]
+  },
+  {
+    "file": "frontend/src/pages/observer/StudentDetail.jsx",
+    "rebound": [
+      {
+        "id": "site.a5c341df10bc6c32",
+        "text": "返回学生列表"
+      },
+      {
+        "id": "site.b75d63159e320b4e",
+        "text": "登录账号"
+      },
+      {
+        "id": "site.40e9c4d3de0d365c",
+        "text": "年级"
+      },
+      {
+        "id": "site.b9c78a60219ad681",
+        "text": "班级"
+      },
+      {
+        "id": "site.8dec1f309cfd81f1",
+        "text": "课程进展"
+      },
+      {
+        "id": "site.1371f5ea9b012380",
+        "text": "暂无课程"
+      },
+      {
+        "id": "site.aeca63b7c92fc139",
+        "text": "课时与学习报告"
+      },
+      {
+        "id": "site.313949c7af90da1d",
+        "text": "暂无课时学习记录"
+      },
+      {
+        "id": "site.0410ea15f5b3366d",
+        "text": "尚未提交学习报告"
+      },
+      {
+        "id": "site.838ab021b151fafb",
+        "text": "未提交"
+      },
+      {
+        "id": "site.22b114eec6b8485d",
+        "text": "未评分"
+      },
+      {
+        "id": "site.64f9e5ba843ae390",
+        "text": "导师意见："
+      },
+      {
+        "id": "site.838ab021b151fafb",
+        "text": "未提交"
+      },
+      {
+        "id": "site.49f5f7580884415c",
+        "text": "近期成长轨迹"
+      },
+      {
+        "id": "site.d240054388e844fa",
+        "text": "已通过成果"
+      },
+      {
+        "id": "site.0a98a2d113c16162",
+        "text": "暂无已通过成果"
+      },
+      {
+        "id": "site.45c7a0fa7a8bf639",
+        "text": "已通过"
+      }
+    ]
+  },
+  {
+    "file": "frontend/src/pages/observer/StudentList.jsx",
+    "rebound": [
+      {
+        "id": "site.9fc868217f0590d3",
+        "text": "学生"
+      },
+      {
+        "id": "site.8ce095f64901863f",
+        "text": "学校 / 班级"
+      },
+      {
+        "id": "site.79de0b21260f7ce5",
+        "text": "近30天完成"
+      },
+      {
+        "id": "site.59daa04bd1aa9ce3",
+        "text": "学习中课时"
+      },
+      {
+        "id": "site.9ee46bbe64d5d1a7",
+        "text": "关注项"
+      },
+      {
+        "id": "site.232c4f4f56a776c3",
+        "text": "操作"
+      },
+      {
+        "id": "site.be8df684b70e2a2c",
+        "text": "查看学情"
+      }
+    ]
+  }
+]
