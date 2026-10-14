@@ -6486,19 +6486,6 @@ export const systemCopy = {
     "sourceLine": 24,
     "futureTeacher": false
   },
-  "site.0d76797ecd8be9c3": {
-    "text": "两翼尖向上翘起的角度。上反角越大，横滚方向越稳定，飞机越不容易侧翻。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 24,
-    "futureTeacher": false
-  },
   "site.314a07f0a3576716": {
     "text": "重心前移量",
     "enabled": true,
@@ -6518,19 +6505,6 @@ export const systemCopy = {
     "optional": false,
     "page": "pages/glider/gliderModel",
     "position": "页面/公共状态 / label",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 25,
-    "futureTeacher": false
-  },
-  "site.499ded0dcf84a86e": {
-    "text": "重心越靠前，飞机越“头重”、越稳定，但滑翔性能下降；重心太靠后则容易失速翻滚。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
     "purpose": "系统界面文字",
     "scope": "system",
     "type": "system",
@@ -6564,19 +6538,6 @@ export const systemCopy = {
     "sourceLine": 26,
     "futureTeacher": false
   },
-  "site.8d6a0307e7d5beb3": {
-    "text": "从 150 米高空投放时的初始空速。速度太低可能失速，太高则阻力增加。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 26,
-    "futureTeacher": false
-  },
   "site.6b89973dae6b89d8": {
     "text": "机翼面积",
     "enabled": true,
@@ -6596,19 +6557,6 @@ export const systemCopy = {
     "optional": false,
     "page": "pages/glider/gliderModel",
     "position": "页面/公共状态 / label",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 27,
-    "futureTeacher": false
-  },
-  "site.514cedd9e4eb4e34": {
-    "text": "越大升力越大、飞得越慢越久。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
     "purpose": "系统界面文字",
     "scope": "system",
     "type": "system",
@@ -6642,19 +6590,6 @@ export const systemCopy = {
     "sourceLine": 28,
     "futureTeacher": false
   },
-  "site.f3fab274b48c61d5": {
-    "text": "越重飞得越快、下沉越快。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 28,
-    "futureTeacher": false
-  },
   "site.b6caa2c89a472a9d": {
     "text": "水平尾翼偏角",
     "enabled": true,
@@ -6681,19 +6616,6 @@ export const systemCopy = {
     "sourceLine": 29,
     "futureTeacher": false
   },
-  "site.a90badf45b7bef4d": {
-    "text": "正值上抬（抬头）· 负值下压（俯冲）；角度太大会失速。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 29,
-    "futureTeacher": false
-  },
   "site.ef6ee0ed57525fd6": {
     "text": "垂直尾翼偏角",
     "enabled": true,
@@ -6713,19 +6635,6 @@ export const systemCopy = {
     "optional": false,
     "page": "pages/glider/gliderModel",
     "position": "页面/公共状态 / label",
-    "purpose": "系统界面文字",
-    "scope": "system",
-    "type": "system",
-    "sourceFile": "frontend/src/pages/glider/gliderModel.js",
-    "sourceLine": 30,
-    "futureTeacher": false
-  },
-  "site.4a1c8db7799c4e10": {
-    "text": "正值机头右偏 · 负值左偏，飞机会转弯。",
-    "enabled": true,
-    "optional": false,
-    "page": "pages/glider/gliderModel",
-    "position": "页面/公共状态 / extra",
     "purpose": "系统界面文字",
     "scope": "system",
     "type": "system",

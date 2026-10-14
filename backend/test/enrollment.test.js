@@ -115,7 +115,7 @@ function enrollmentRows() {
 
 test('新库迁移标记到最新版本', () => {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map((r) => r.version);
-  assert.deepEqual(versions, [...Array.from({length:21},(_,i)=>i+1),...Array.from({length:10},(_,i)=>1016+i)]);
+  assert.deepEqual(versions, [...Array.from({length:21},(_,i)=>i+1),...Array.from({length:11},(_,i)=>1016+i)]);
   const cols = db.prepare('PRAGMA table_info(enrollments)').all().map((c) => c.name);
   for (const col of ['status', 'enrolled_by', 'removed_at', 'removed_by', 'remove_reason']) {
     assert.ok(cols.includes(col), `缺少列 ${col}`);

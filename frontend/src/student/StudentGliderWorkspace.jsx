@@ -65,12 +65,12 @@ export default function StudentGliderWorkspace({ form, records, startSim, submit
   const openRecord = (id) => { records.openRecord(id); resultRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); };
   const finishFailed = ({ errorFields }) => {
     const field = errorFields?.[0];
-    if (flightParameters.slice(3).some((parameter) => parameter.name === field?.name?.[0])) setAdvanced(['advanced']);
+    if (flightParameters.slice(4).some((parameter) => parameter.name === field?.name?.[0])) setAdvanced(['advanced']);
     message.error(siteTemplate("site.ebad53955e500a57", {slot0: (field?.errors?.[0] || copyText('system.flight.035'))}));
     if (field) setTimeout(() => form.scrollToField(field.name, { focus: true, block: 'center' }), 0);
   };
   const parameterInput = (parameter) => <Form.Item key={parameter.name} name={parameter.name} label={parameter.label}
-    extra={<>{parameter.extra}<span className="flight-range">{copyText('system.flight.036')}{parameter.min}–{parameter.max} {parameter.unit}{copyText('system.flight.037')}{parameter.step}</span></>}
+    extra={<span className="flight-range">{copyText('system.flight.036')}{parameter.min}–{parameter.max} {parameter.unit}{copyText('system.flight.037')}{parameter.step}</span>}
     rules={[{ required: !!parameter.required, type: 'number', min: parameter.min, max: parameter.max, message: siteTemplate("site.99b8017af6c4b84a", {slot0: (parameter.title), slot1: (parameter.min), slot2: (parameter.max), slot3: (parameter.unit)}) }]}>
     <InputNumber min={parameter.min} max={parameter.max} step={parameter.step} style={{ width: '100%' }} suffix={parameter.unit} />
   </Form.Item>;
@@ -85,8 +85,8 @@ export default function StudentGliderWorkspace({ form, records, startSim, submit
       <StudySection number="01" title={copyText('system.flight.049')} description={copyText('system.flight.050')} className="flight-parameters">
         <div className={`flight-engine ${engineReady && !blockedReason ? 'flight-engine--ready' : ''}`} role="status"><span>{engineChecking ? <Spin size="small" /> : <PixelIcon name={engineReady && !blockedReason ? 'check' : 'clock'} size={20} />}{blockedReason || copyText('system.flight.051')}</span>{!engineChecking && !engineReady && <PixelButton size="small" onClick={retryEngine}>{copyText('system.flight.052')}</PixelButton>}</div>
         <Form form={form} layout="vertical" initialValues={initialFlightParameters} onFinish={startSim} onFinishFailed={finishFailed}>
-          {flightParameters.slice(0, 3).map(parameterInput)}
-          <Collapse activeKey={advanced} onChange={setAdvanced} items={[{ key: 'advanced', label: copyText('system.flight.053'), forceRender: true, children: flightParameters.slice(3).map(parameterInput) }]} />
+          {flightParameters.slice(0, 4).map(parameterInput)}
+          <Collapse activeKey={advanced} onChange={setAdvanced} items={[{ key: 'advanced', label: copyText('system.flight.053'), forceRender: true, children: flightParameters.slice(4).map(parameterInput) }]} />
           <Collapse className="flight-association" items={[{ key: 'association', label: sourceCourse ? copyText('system.flight.054') : copyText('system.flight.055'), forceRender: true, children: <>
             <Form.Item name="course_id" label={copyText('system.flight.056')} extra={sourceCourse ? copyText('system.flight.057') : copyText('system.flight.058')}><Select placeholder={copyText('system.flight.059')} allowClear disabled={!!sourceCourse} value={courseId} onChange={handleCourseChange} options={courses.map((item) => ({ value: item.id, label: item.title }))} /></Form.Item>
             <Form.Item name="lesson_id" label={copyText('system.flight.060')}><Select placeholder={copyText('system.flight.061')} allowClear value={lessonId} onChange={setLessonId} disabled={!courseId || !!sourceCourse} options={lessons.map((item) => ({ value: item.id, label: item.title }))} /></Form.Item>
@@ -103,7 +103,7 @@ export default function StudentGliderWorkspace({ form, records, startSim, submit
           : !records.history.length ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={copyText('system.flight.075')} />
             : <ul>{records.history.map((item) => <li key={item.id}><button type="button" className="flight-history-entry" aria-pressed={records.viewingId === item.id} onClick={() => openRecord(item.id)}>
               <span className="flight-history-id">#{item.id}<Tag color={item.status === 'running' ? 'processing' : item.status === 'error' ? 'error' : stateMeta(item.state).color}>{item.status === 'running' ? copyText('system.flight.076') : item.status === 'error' ? copyText('system.flight.077') : stateMeta(item.state).label}</Tag></span>
-              <span className="flight-history-params">{copyText('system.flight.078')}{item.dihedral_deg ?? '—'}{copyText('system.flight.079')}{item.cg_x > 0 ? '+' : ''}{item.cg_x ?? '—'}{copyText('system.flight.080')}{item.speed ?? '—'} m/s</span>
+              <span className="flight-history-params">{copyText('system.flight.078')}{item.dihedral_deg ?? '—'}{copyText('system.flight.079')}{item.cg_x > 0 ? '+' : ''}{item.cg_x ?? '—'}{copyText('system.flight.080')}{item.speed ?? '—'} m/s{` · ${copyText('site.c2778d97f9e62972')} ${item.wing_area ?? '—'} m²`}{` · ${copyText('site.a73be7f47a0fda2d')} ${item.mass ?? '—'} kg`}{` · ${copyText('site.48ea978c84421f9e')} ${item.elevator_deg ?? '—'}°`}{` · ${copyText('site.845d34e8645f8dbf')} ${item.rudder_deg ?? '—'}°`}</span>
               <time>{formatBeijingTime(item.created_at)}</time><span className="flight-history-open">{records.viewingId === item.id ? copyText('system.flight.081') : copyText('system.flight.082')} <PixelIcon name="continue" size={16} /></span>
             </button></li>)}</ul>}
     </PixelPanel>

@@ -1,0 +1,28 @@
+/* 学生使用指南：登录弹窗与 /guide 页面共用同一套文档样式。 */
+.guide-document { display: flex; flex-direction: column; gap: 26px; }
+.guide-document-intro { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; color: #526974; font-size: 15px; }
+.guide-document-intro strong { color: #102d40; }
+.guide-section { min-width: 0; }
+.guide-section h2 { display: flex; gap: 10px; align-items: baseline; margin: 0 0 10px; font-size: 20px; color: #102d40; }
+.guide-section-number { font-size: 13px; letter-spacing: 1px; color: #087f78; }
+.guide-section p, .guide-section li { line-height: 1.85; overflow-wrap: anywhere; }
+.guide-summary { margin: 0 0 10px; color: #526974; }
+.guide-steps, .guide-points { margin: 0; padding-left: 24px; display: grid; gap: 6px; }
+.guide-steps > li::marker { color: #087f78; font-weight: 700; }
+.guide-notice { margin: 10px 0 0; padding: 10px 14px; border-left: 4px solid #f3c76b; background: #fdf1d8; color: #102d40; }
+.guide-page { display: flex; flex-direction: column; gap: 20px; }
+.guide-page-panel { padding: 28px; }
+.guide-page-footnote { margin: 0; color: #526974; font-size: 14px; }
+
+.guide-modal .ant-modal-body { max-height: calc(100dvh - 250px); overflow-y: auto; overscroll-behavior: contain; }
+.guide-modal-lead { margin: 0 0 6px; }
+.guide-modal-link { margin: 0 0 18px; }
+.guide-modal-footer { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.guide-modal-footer .guide-modal-note { margin-right: auto; align-self: center; color: #526974; font-size: 14px; }
+
+@media (max-width: 767px) {
+  .guide-page-panel { padding: 18px; }
+  .guide-modal .ant-modal-body { max-height: calc(100dvh - 220px); }
+  .guide-modal-footer > * { flex: 1 1 auto; justify-content: center; }
+  .guide-modal-footer .guide-modal-note { flex-basis: 100%; margin: 0 0 4px; }
+}

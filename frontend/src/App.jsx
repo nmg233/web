@@ -18,6 +18,7 @@ import { ExploreHome, CourseMap } from './student/Explore';
 import Lab from './student/Lab';
 const Personal = lazy(() => import('./student/space/Personal'));
 const BadgeRoom = lazy(() => import('./student/space/BadgeRoom'));
+const StudentGuide = lazy(() => import('./student/guide/StudentGuide'));
 const LegacyEntry = lazy(() => import('./student/space/LegacyEntry'));
 const PixelPreview = import.meta.env.DEV ? lazy(() => import('./student/visual/PixelPreview')) : null;
 
@@ -103,6 +104,7 @@ function App() {
                 <Route path="lab" element={guard(<LegacyEntry free={<Lab/>}/>, ['student'])} />
                 <Route path="archives/rewards" element={guard(<Navigate to="/me" replace/>, ['student'])} />
                 <Route path="me" element={guard(<Personal/>, ['student'])} />
+                <Route path="guide" element={guard(<StudentGuide/>, ['student'])} />
                 <Route path="me/badges" element={guard(<BadgeRoom/>, ['student'])} />
                 <Route path="dashboard" element={guard(<StudentView student={<ExploreHome />} legacy={<Dashboard />} />, ['admin', 'academic_mentor', 'student', 'media'])} />
                 <Route path="dashboard/schools/:id" element={guard(<SchoolDetail />, ['admin'])} />
