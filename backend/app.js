@@ -82,6 +82,7 @@ app.use((req, res, next) => {
 app.use(`${API_PREFIX}/auth`, require('./routes/auth'));
 app.use(`${API_PREFIX}/account`, require('./routes/account'));
 app.use(`${API_PREFIX}/rewards`, require('./routes/rewards'));
+app.use(`${API_PREFIX}/student-guide`, require('./routes/studentGuide'));
 app.use(`${API_PREFIX}/reward-shop`, require('./routes/rewardShop'));
 // Durable real-redemption outbox resumes after restart; no dependency on a
 // student repeating their order. Timer does not keep a stopped server alive.

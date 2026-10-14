@@ -1,4 +1,4 @@
-const MIN_SCHEMA_VERSION=1025;
+const MIN_SCHEMA_VERSION=1026;
 const checks={
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
   schools:'id,is_active', classes:'id,school_id',courses:'id,status',lessons:'id,course_id,status',
@@ -17,6 +17,7 @@ const checks={
   student_coin_ledger:'id,student_id,amount',student_coin_checkins:'student_id,checkin_date,streak',
   reward_gifts:'id,stock,price,revision',reward_orders:'id,student_id,request_key,cost,fulfilled_by,fulfilled_at',
   reward_images:'id,uploaded_by,upload_key,file_path',reward_badge_grants:'student_id,gift_id,order_id',coin_activity:'sequence,income_id,order_id',
+  student_guide_dismissals:'student_id,dismissed_at',
   tasks:'id,lesson_id,status',work_reviews:'work_id,comment',feedbacks:'id,user_id,status',feedback_messages:'feedback_id,content',
   feedback_attachments:'id,feedback_id,file_path',refresh_tokens:'user_id,token_hash',account_import_batches:'id,actor_id,status',
 };

@@ -94,7 +94,7 @@ test('main已应用滑翔机014/015的旧库补充摘要，保留已有视频且
       { version:20,name:'020_release_closure.sql' },
       { version:21,name:'021_short_answer_rubric.sql' },
     ]);
-    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1025').get().n,10);
+    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1026').get().n,11);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
 });
@@ -127,7 +127,7 @@ test('已应用旧014摘要迁移的库保留摘要并补齐main滑翔机结构�
       { version:20,name:'020_release_closure.sql' },
       { version:21,name:'021_short_answer_rubric.sql' },
     ]);
-    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1025').get().n,10);
+    assert.equal(old.prepare('SELECT COUNT(*) n FROM schema_migrations WHERE version BETWEEN 1016 AND 1026').get().n,11);
     assert.equal(old.pragma('integrity_check', { simple:true }), 'ok');
   } finally { old.close(); }
 });
@@ -323,7 +323,7 @@ test('导师视频上传精确绑定课时，跨课程、取消课时、归档�
 
 test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
   const healthy=await api('/health','GET',undefined,null);
-  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,1025);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,1026);
   const prepare=db.prepare;
   try {
     db.prepare=function(sql){if(sql.includes('FROM schema_migrations'))throw Error('模拟数据库不可用');return prepare.call(this,sql);};
