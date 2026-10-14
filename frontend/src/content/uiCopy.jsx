@@ -6817,7 +6817,7 @@ export const uiCopy = {
     "sourceLine": 82
   },
   "system.flight.053": {
-    "text": "机身与尾翼（进阶 · 4 项）",
+    "text": "机身与尾翼（进阶 · 3 项）",
     "enabled": true,
     "optional": false,
     "page": "flight",
