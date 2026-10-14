@@ -204,7 +204,12 @@ const observerAPI = {
   student: (studentId) => client.get(`/observer/students/${studentId}`),
 };
 
-return {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI};
+const studentGuideAPI = {
+  status: () => client.get('/student-guide', { silent: true }),
+  dismiss: () => client.post('/student-guide/dismiss', {}, { silent: true }),
+};
+
+return {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI,studentGuideAPI};
 }
-export const {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI} = createAPIs(defaultClient);
+export const {authAPI,dashboardAPI,courseAPI,taskAPI,studentAPI,workAPI,archiveAPI,aiAPI,feedbackAPI,notificationAPI,learningAPI,learningManageAPI,mentorReviewAPI,observerAPI,studentGuideAPI} = createAPIs(defaultClient);
 export { gliderAPI } from './glider';

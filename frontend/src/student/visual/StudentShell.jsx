@@ -19,6 +19,7 @@ import AccountAvatarImage from '../space/AccountAvatarImage';
 import '../space/course-pages.css';
 import SceneArt from '../space/SceneArt';
 import {useCoursePresentation} from '../space/CoursePresentation';
+import StudentGuideModal from '../guide/StudentGuideModal';
 
 function Points({to}){const {data,error,loading}=useRealCoins();return <Link to={to} className="student-points" data-testid="header-real-coins" aria-label={copyText('coins.title')+' '+(data?data.balance:copyText(error?'coins.readFailed':'coins.loading'))}><PixelIcon name="coin"/><strong>{data?data.balance:'—'}</strong><span>{copyText(loading?'coins.shortLoading':error?'coins.shortError':'coins.unit')}</span></Link>;}
 function CourseNavigation({id,course,close}){
@@ -48,7 +49,7 @@ function Shell({children}){
    <div className="space-shell-main">
     <header className="space-header">
       {id?<div className="space-header-context">{!screens.lg&&<button className="space-menu-button" onClick={()=>setOpen(true)} aria-label={copyText('system.shell.008')} aria-expanded={open}><PixelIcon name="menu"/></button>}<span>{data?.course.title||copyText('system.shell.009')}</span></div>:<Link className="space-platform-brand" to="/explore"><PixelIcon name="book" size={28}/>{PLATFORM_NAME}</Link>}
-      {!id&&<nav className="space-platform-nav" aria-label={copyText('system.shell.010')}><Link to="/explore" aria-current={location.pathname==='/explore'?'page':undefined}>{copyText('platform.nav.courses')}</Link><Link to="/me" aria-current={location.pathname==='/me'?'page':undefined}>{copyText('platform.nav.me')}</Link></nav>}
+      {!id&&<nav className="space-platform-nav" aria-label={copyText('system.shell.010')}><Link to="/explore" aria-current={location.pathname==='/explore'?'page':undefined}>{copyText('platform.nav.courses')}</Link><Link to="/guide" aria-current={location.pathname==='/guide'?'page':undefined}>{copyText('guide.nav')}</Link><Link to="/me" aria-current={location.pathname==='/me'?'page':undefined}>{copyText('platform.nav.me')}</Link></nav>}
       <div className="space-header-actions"><AvatarPreference/><Points to={me}/><NotificationBell icon={<PixelIcon name="notification"/>} buttonClassName="student-notification-button"/><Link to={me} className="space-account" aria-label={copyText('system.shell.013')}><AccountAvatarImage preset={user.avatar_preset} legacyUrl={user.avatar_url}/><span>{user.real_name||user.username}</span></Link></div>
     </header>
     {deep&&<nav className="space-sticky-return" aria-label={copyText('system.shell.014')}><Link to={'/courses/'+id}><PixelIcon name="back"/>{copyText('course.nav.return')}</Link><Link to="/explore">{copyText('system.shell.016')}</Link></nav>}
@@ -56,6 +57,7 @@ function Shell({children}){
    </div>
    {id&&<Drawer zIndex={1250} open={!screens.lg&&open} onClose={()=>setOpen(false)} placement="left" width={272} title={copyText('system.shell.017')} rootClassName="student-pixel student-interactions space-navigation-drawer" styles={{body:{padding:0}}}><CourseNavigation id={id} course={data?.course} close={()=>setOpen(false)}/></Drawer>}
    {id&&<FloatingAssistant/>}
+  <StudentGuideModal/>
  </div>;
 }
 export default function StudentShell({children}){
