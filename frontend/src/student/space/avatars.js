@@ -1,8 +1,9 @@
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy.js';
 export const avatars = [
-  { id:'navigator', name:'程以宁', role:'航向者', features:'长黑发、蓝领、蓝金徽记' },
-  { id:'pathfinder', name:'许行舟', role:'探路者', features:'短乱发、绿色领口、明朗表情' },
-  { id:'maker', name:'江予川', role:'造物者', features:'棕短发、橙色护目镜与领口' },
-  { id:'decoder', name:'夏长庚', role:'解码者', features:'蓝黑短发、深蓝领口' },
-  { id:'collaborator', name:'晏子仪', role:'协同者', features:'高马尾、三角发夹、青色领口' },
-  { id:'guardian', name:'南容', role:'守正者', features:'短黑发、金色领口' },
+  { id:'navigator', get name(){return runtimeCopyText("student26.74d8fad40f676c49")}, get role(){return runtimeCopyText("student26.56182925814b2f28")}, get features(){return runtimeCopyText("student26.5d5d72071d3a4b32")} ,__copyIds:{"name":"student26.74d8fad40f676c49"}},
+  { id:'pathfinder', get name(){return runtimeCopyText("student26.b4674775da6d3e68")}, get role(){return runtimeCopyText("student26.c1c95b93a6c106e0")}, get features(){return runtimeCopyText("student26.f8f33bee0c7a7f1d")} ,__copyIds:{"name":"student26.b4674775da6d3e68"}},
+  { id:'maker', get name(){return runtimeCopyText("student26.5ff89857f752f2f0")}, get role(){return runtimeCopyText("student26.1f7074077e39a3b7")}, get features(){return runtimeCopyText("student26.f09b1eeabea1c492")} ,__copyIds:{"name":"student26.5ff89857f752f2f0"}},
+  { id:'decoder', get name(){return runtimeCopyText("student26.f0b101c82a2d2dba")}, get role(){return runtimeCopyText("student26.f39507bf768af997")}, get features(){return runtimeCopyText("student26.ed79f251ea7f096e")} ,__copyIds:{"name":"student26.f0b101c82a2d2dba"}},
+  { id:'collaborator', get name(){return runtimeCopyText("student26.d516051e8185ad9e")}, get role(){return runtimeCopyText("student26.cf82a61b0f727d45")}, get features(){return runtimeCopyText("student26.07602f0be13483be")} ,__copyIds:{"name":"student26.d516051e8185ad9e"}},
+  { id:'guardian', get name(){return runtimeCopyText("student26.b665b45f75b4b02d")}, get role(){return runtimeCopyText("student26.5dac89edf44c91e8")}, get features(){return runtimeCopyText("student26.8a4856b5fbd934a0")} ,__copyIds:{"name":"student26.b665b45f75b4b02d"}},
 ];

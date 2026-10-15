@@ -1,3 +1,4 @@
+import {isCopyPreview} from '../copy-review/previewMode.js';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import client from '../api/client';
@@ -5,7 +6,7 @@ import { createAPIs } from '../api';
 import { createGliderAPI } from '../api/glider';
 import { useAuth } from '../store/AuthContext';
 import { courseIdFromPath, coursePath } from './spaceRoutes';
-export function useCourseId(){const {pathname}=useLocation();const {user}=useAuth();return user?.role==='student'?courseIdFromPath(pathname):null;}
+export function useCourseId(){const {pathname}=useLocation();const {user}=useAuth();return user?.role==='student'||isCopyPreview()?courseIdFromPath(pathname):null;}
 export function useCourseApis(){
  const id=useCourseId();
  return useMemo(()=>{

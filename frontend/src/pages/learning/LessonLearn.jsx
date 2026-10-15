@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {initialExerciseAnswer,hasExerciseAnswer,resourceDownloadName,versionedReportDraftKey} from '../../student/learningIntegration';
 import ExerciseView from '../../student/space/ExerciseView';
 import LessonLearningView from '../../student/space/LessonLearningView';
@@ -20,6 +21,7 @@ import AssociatedExperiments from '../../student/AssociatedExperiments';
 import { availableCardIndex, learningStage } from '../../student/experimentContext';
 import { PixelButton as Button } from '../../student/visual/PixelUI';
 import LessonTemplate from '../../student/space/LessonTemplate';
+import {isCopyPreview} from '../../copy-review/previewMode';
 
 
 function Exercise({ exercise, index, onDone,readOnly=false }) {
@@ -42,10 +44,10 @@ function Exercise({ exercise, index, onDone,readOnly=false }) {
   const options = (exercise.options || []).map((item, index) => typeof item === 'object'
     ? { label: item.label ?? item.text, value: item.value ?? item.key ?? String(index) }
     : { label: item, value: item });
-  let input = <Input.TextArea value={answer} onChange={(event) => setAnswer(event.target.value)} rows={2} placeholder={copyText('system.learning.004')} />;
+  let input = <Input.TextArea value={answer} onChange={(event) => setAnswer(event.target.value)} rows={2} placeholder={copyText('system.learning.004')}  data-copy-bindings={JSON.stringify(['system.learning.004'])}/>;
   if (exercise.question_type === 'single_choice') input = <Radio.Group options={options} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
   if (exercise.question_type === 'multiple_choice') input = <Checkbox.Group options={options} value={answer} onChange={setAnswer} />;
-  if (exercise.question_type === 'true_false') input = <Radio.Group options={[{ label: copyText('system.learning.005'), value: true }, { label: copyText('system.learning.006'), value: false }]} value={answer} onChange={(event) => setAnswer(event.target.value)} />;
+  if (exercise.question_type === 'true_false') input = <Radio.Group options={[{ label: copyText('system.learning.005'), value: true }, { label: copyText('system.learning.006'), value: false }]} value={answer} onChange={(event) => setAnswer(event.target.value)}  data-copy-bindings={JSON.stringify(['system.learning.005','system.learning.006'])}/>;
   if(exercise.question_type==='fill_blank'&&exercise.blank_count)input=<Space orientation="vertical">{Array.from({length:exercise.blank_count},(_,i)=><Input key={i} placeholder={`第 ${i+1} 空`} value={Array.isArray(answer)?answer[i]:answer} onChange={event=>{const values=Array.isArray(answer)?[...answer]:Array(exercise.blank_count).fill('');values[i]=event.target.value;setAnswer(values);}}/>)}</Space>;
   return <ExerciseView {...{exercise,index,input,submitting,result,error,hasAnswer:hasAnswer&&!readOnly,submit}} readonly={readOnly}/>;
 }
@@ -76,14 +78,17 @@ function LessonLearnEditor() {
   const [reflectionOpen, setReflectionOpen] = useState([]);
   const [form] = Form.useForm();
   const location=useLocation(),page=location.pathname+location.search;
+  const previewPage=useRef(page);
+  useEffect(()=>{previewPage.current=page;},[page]);
   const alive=useRef(false),requests=useRef({load:0,play:0}),reportDialog=useRef(null),mutating=useRef(false),video=useRef(null),resume=useRef({position:0,playing:false});
-  const onPage=()=>alive.current&&page===window.location.pathname+window.location.search;
+  const onPage=()=>alive.current&&page===(isCopyPreview()?previewPage.current:window.location.pathname+window.location.search);
   const reportIdentity=useRef(null);
   useEffect(()=>{alive.current=true;const state=requests.current;return()=>{alive.current=false;state.load++;state.play++;reportDialog.current?.destroy();};},[]);
   const legacyBackupBlocked=useRef(false);
   const originalDraftKey=draftKey(user.id,courseId,lessonId);
   const reportDraftKey=()=>versionedReportDraftKey(originalDraftKey,reportIdentity.current);
   const saveDraft = (_, values) => {
+    if(isCopyPreview())return;
     try {
       if(legacyBackupBlocked.current)throw new Error('Legacy backup unavailable');
       localStorage.setItem(reportDraftKey(), JSON.stringify(values));
@@ -108,7 +113,7 @@ function LessonLearnEditor() {
       if(!current())return;reportIdentity.current=payload.report?.id??null;
       if (String(payload.course.id) !== String(courseId)) throw new Error(copyText('system.learning.031'));
       setData(payload);
-      window.dispatchEvent(new Event(COIN_LEARNING_CHANGED));
+      if(!payload.preview)window.dispatchEvent(new Event(COIN_LEARNING_CHANGED));
       const requestedStage = Number(searchParams.get('stage'));
       // 已有报告可从原评审页回看；资料调整后的学习阶段不能吞掉档案的只读跳转。
       // 报告表单仍按 progress.report_unlocked 禁用，提交规则没有改变。
@@ -126,7 +131,7 @@ function LessonLearnEditor() {
       setActiveStage(stage);
       if (!activeReplayId && payload.replays?.length) await playReplay(payload.replays[0].id);
       if(!current())return;
-      if (!payload.report || payload.report.status === 'rejected') {
+      if (!payload.preview && (!payload.report || payload.report.status === 'rejected')) {
         let savedDraft = null;
         try {
           savedDraft = JSON.parse(localStorage.getItem(reportDraftKey())??localStorage.getItem(originalDraftKey));
@@ -214,7 +219,7 @@ function LessonLearnEditor() {
     });
   };
 
-  if (!data || data.lesson.id!==Number(lessonId)) return <PageContainer title={copyText('system.learning.050')} extra={<Button onClick={() => navigate('/tasks')}>{copyText('system.learning.051')}</Button>}><AsyncPageState loading={loading} error={error} onRetry={load}><Empty /></AsyncPageState></PageContainer>;
+  if (!data || data.lesson.id!==Number(lessonId)) return <PageContainer title={copyText('system.learning.050')} extra={<Button onClick={() => navigate('/tasks')}>{<StudentCopyText id={'system.learning.051'}/>}</Button>} data-copy-bindings={JSON.stringify(['system.learning.050'])}><AsyncPageState loading={loading} error={error} onRetry={load}><Empty /></AsyncPageState></PageContainer>;
 
   const { lesson, cards = [], progress = {}, report } = data;
   const currentStep = learningStage(data);
@@ -231,5 +236,5 @@ function LessonLearnEditor() {
   };
   const reportTone = report?.status === 'approved' ? 'success' : report?.status === 'rejected' ? 'warning' : 'info';
 
-  return <LessonLearningView {...{data,lesson,cards,progress,report,activeStage,courseId,lessonId,reportFields,stageDone,currentStep,stageReasons,navigate,setActiveStage,actionError,replayError,activeReplayId,playReplay,replayUrl,replayAttempt,video,onReplayLoaded,setReplayError,resourceError,downloadResource,submitting,finishReview,cardIndex,setCardIndex,activeCard,cardExercisesDone,finishCard,reportTone,form,submitReport,validationFailed,saveDraft,draftFailed,draftState,reflectionOpen,setReflectionOpen,reportError}} maintenance={Boolean(data.read_only)} renderExercise={(exercise,index)=><Exercise key={exercise.id} index={index} exercise={exercise} readOnly={Boolean(data.read_only)} onDone={load}/>} experiment={(stage,cardId)=><AssociatedExperiments variant="study" courseId={courseId} lessonId={lessonId} stage={stage} cardId={cardId}/>} works={<LessonWorks courseId={courseId} lessonId={lessonId}/>}/>;
+  return <LessonLearningView region={data.preview?(field,children)=><span data-teaching-field={field} data-lesson-id={lesson.id} data-course-id={courseId}>{children}</span>:undefined} {...{data,lesson,cards,progress,report,activeStage,courseId,lessonId,reportFields,stageDone,currentStep,stageReasons,navigate,setActiveStage,actionError,replayError,activeReplayId,playReplay,replayUrl,replayAttempt,video,onReplayLoaded,setReplayError,resourceError,downloadResource,submitting,finishReview,cardIndex,setCardIndex,activeCard,cardExercisesDone,finishCard,reportTone,form,submitReport,validationFailed,saveDraft,draftFailed,draftState,reflectionOpen,setReflectionOpen,reportError}} maintenance={Boolean(data.read_only)} renderExercise={(exercise,index)=><Exercise key={exercise.id} index={index} exercise={exercise} readOnly={Boolean(data.read_only)} onDone={load}/>} experiment={(stage,cardId)=><AssociatedExperiments variant="study" courseId={courseId} lessonId={lessonId} stage={stage} cardId={cardId}/>} works={<LessonWorks courseId={courseId} lessonId={lessonId}/>}/>;
 }

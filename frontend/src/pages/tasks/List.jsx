@@ -1,3 +1,4 @@
+import {isCopyPreview} from '../../copy-review/previewMode.js';
 import {copyText as siteText} from "../../content/copy";
 import {useCourseApis} from '../../student/useCourseApis';
 import StudentTasks from '../../student/StudentTasks';
@@ -21,7 +22,7 @@ function studentState(task) {
 
 export default function TaskList() {
   const { user } = useAuth();
-  return user?.role === 'student' ? <StudentTasks key={user.id} /> : <LegacyTaskList />;
+  return (user?.role === 'student'||isCopyPreview()) ? <StudentTasks key={user.id} /> : <LegacyTaskList />;
 }
 
 function LegacyTaskList() {
@@ -29,7 +30,7 @@ function LegacyTaskList() {
   const [status, setStatus] = useState();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isStudent = user?.role === 'student';
+  const isStudent = (user?.role === 'student'||isCopyPreview());
   const fetcher = useCallback(() => taskAPI.list(status ? { status } : {}), [status,taskAPI]);
   const { data, loading, error, retry } = useRemote(fetcher, { courseSensitive: true });
   const tasks = useMemo(() => data?.tasks || [], [data]);

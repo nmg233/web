@@ -1,4 +1,6 @@
 import ReplaySummary from '../../components/common/ReplaySummary';
+import LessonMapImageField from './LessonMapImageField';
+import useTeachingLeaveGuard from './useTeachingLeaveGuard';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
@@ -44,6 +46,10 @@ function CourseDetailPage() {
   const [teachers, setTeachers] = useState([]);
   const creationLock=useRef(false),[creating,setCreating]=useState(false);
   const [lessonModal, setLessonModal] = useState(false);
+  const [mapBusy,setMapBusy]=useState(false),[mapSession,setMapSession]=useState(0),creationDraft=useRef(new Set()),creationUploads=useRef(new Set());
+  useTeachingLeaveGuard(creationDraft,'新增课时尚未保存，离开将丢失当前填写与图片选择，确定离开？',creationUploads);
+  const markCreation=()=>creationDraft.current.add('lesson');
+  const closeCreation=()=>{if(creating||mapBusy)return;if(creationDraft.current.size&&!window.confirm('放弃尚未保存的新增课时和图片选择？'))return;creationDraft.current.clear();lessonForm.resetFields();setMapSession(n=>n+1);setLessonModal(false);};
   const [taskModal, setTaskModal] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [replayModal, setReplayModal] = useState(false);
@@ -101,13 +107,14 @@ function CourseDetailPage() {
 
   const handleAddLesson = async (values) => {
     if(creationLock.current)return;creationLock.current=true;setCreating(true);
+    creationUploads.current.add('save');
     try {
       await courseAPI.addLesson(id, values);
       message.success(siteText("site.aedcc7ad1fa4519e"));
       setLessonModal(false);
-      lessonForm.resetFields();
+      lessonForm.resetFields();creationDraft.current.clear();setMapSession(n=>n+1);
       loadData();
-    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
+    } catch { /* handled */ } finally {creationUploads.current.delete('save');creationLock.current=false;setCreating(false);}
   };
 
   const handleAddTask = async (values) => {
@@ -517,8 +524,9 @@ function CourseDetailPage() {
       <Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>
 
       {/* 添加课时 Modal */}
-      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setLessonModal(false)} onOk={() => lessonForm.submit()}>
-        <Form name="course-add-lesson" form={lessonForm} layout="vertical" onFinish={handleAddLesson}>
+      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating||mapBusy} closable={!creating&&!mapBusy} maskClosable={!creating&&!mapBusy} onCancel={closeCreation} okButtonProps={{'aria-label':'确定'}} onOk={() => lessonForm.submit()}>
+        <Form name="course-add-lesson" form={lessonForm} layout="vertical" onValuesChange={markCreation} onFinish={handleAddLesson}>
+          <LessonMapImageField key={mapSession} courseId={id} form={lessonForm} disabled={creating} onDirty={markCreation} onBusyChange={value=>{setMapBusy(value);value?creationUploads.current.add('image'):creationUploads.current.delete('image');}}/>
           <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="duration" label={siteText("site.8e7a7f1c84586481")}><Input type="number" /></Form.Item>

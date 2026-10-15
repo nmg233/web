@@ -62,6 +62,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.urlencoded({ extended: true }));
+app.use(`${API_PREFIX}/student-copy`, express.json({limit:'2mb'}));
 app.use(express.json());
 
 // 响应日志：打印所有 4xx/5xx 响应的状态码和响应体，便于排查 400 等前端报错
@@ -81,6 +82,7 @@ app.use((req, res, next) => {
 // ============================================
 app.use(`${API_PREFIX}/auth`, require('./routes/auth'));
 app.use(`${API_PREFIX}/account`, require('./routes/account'));
+app.use(`${API_PREFIX}/student-copy`, require('./routes/studentCopy'));
 app.use(`${API_PREFIX}/rewards`, require('./routes/rewards'));
 app.use(`${API_PREFIX}/student-guide`, require('./routes/studentGuide'));
 app.use(`${API_PREFIX}/reward-shop`, require('./routes/rewardShop'));

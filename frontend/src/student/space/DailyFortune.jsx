@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import Alert from '../../student/visual/StudentAlert';
 import Sentence from '../../content/Sentence';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -22,11 +23,11 @@ function Fortune(){
   useEffect(()=>{clearTimeout(timer.current);if(state.data?.nextUpdateAt){const wait=Math.max(1000,Date.parse(state.data.nextUpdateAt)-Date.now()+100);timer.current=setTimeout(()=>void read(),Math.min(wait,2147483647));}return()=>clearTimeout(timer.current);},[state.data,read]);
   const data=state.data;
   return <section className="daily-fortune" aria-labelledby="fortune-title" data-testid="daily-fortune">
-    <div className="fortune-heading"><h2 id="fortune-title">{copyText('fortune.title')}</h2><span>{state.error&&data?copyText('fortune.lastDate')+' '+data.date:data?.date||copyText('fortune.date')}</span></div>
-    {state.loading?<div role="status"><Spin/>{copyText('fortune.loading')}</div>:state.error?<Alert role="alert" type="warning" title={copyText('fortune.failed')} description={requestError(state.error)} action={<PixelButton onClick={read}>{copyText('fortune.retry')}</PixelButton>}/>:data&&<div className="fortune-result">
+    <div className="fortune-heading"><h2 id="fortune-title">{<StudentCopyText id={'fortune.title'}/>}</h2><span data-copy-bindings={JSON.stringify(['fortune.lastDate'])}>{state.error&&data?copyText('fortune.lastDate')+' '+data.date:data?.date||<StudentCopyText id={'fortune.date'}/>}</span></div>
+    {state.loading?<div role="status"><Spin/>{<StudentCopyText id={'fortune.loading'}/>}</div>:state.error?<Alert role="alert" type="warning" title={copyText('fortune.failed')} description={requestError(state.error)} action={<PixelButton onClick={read}>{<StudentCopyText id={'fortune.retry'}/>}</PixelButton>} data-copy-bindings={JSON.stringify(['fortune.failed'])}/>:data&&<div className="fortune-result">
       <PixelImage src={patchAsset(data.art,96)} width={96} height={96} alt=""/>
-      <strong className="fortune-level">{copyText('fortune.level.'+data.level)}</strong>
-      <div className="fortune-hints"><Sentence><span>{copyFragment('fortune.good')}</span>{data.good.map(id=>copyFragment('fortune.good.'+id)).join(' · ')}</Sentence><Sentence><span>{copyFragment('fortune.avoid')}</span>{data.avoid.map(id=>copyFragment('fortune.avoid.'+id)).join(' · ')}</Sentence></div>
+      <strong className="fortune-level">{<StudentCopyText id={'fortune.level.'+data.level}/>}</strong>
+      <div className="fortune-hints"><Sentence><span>{<StudentCopyText id={'fortune.good'} fragment/>}</span>{data.good.map(id=>copyFragment('fortune.good.'+id)).join(' · ')}</Sentence><Sentence><span>{<StudentCopyText id={'fortune.avoid'} fragment/>}</span>{data.avoid.map(id=>copyFragment('fortune.avoid.'+id)).join(' · ')}</Sentence></div>
     </div>}
   </section>;
 }

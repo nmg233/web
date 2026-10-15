@@ -1,3 +1,4 @@
+import StudentCopyText from '../content/ManagedText';
 import {copyText as siteText} from "../content/copy";
 import Sentence from '../content/Sentence';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -36,19 +37,19 @@ export default function StudyPartner() {
   }, []);
   const close = () => { setCollapsed(true); toggle.current?.focus(); };
   return <aside ref={dock} className={`student-partner${collapsed ? ' student-partner--collapsed' : ''}`} aria-label={siteText("site.06b77d3d99ae4f63")} data-testid="study-partner"
-    onKeyDown={(event) => { if (event.key === 'Escape' && !collapsed) { event.preventDefault(); close(); } }}>
+    onKeyDown={(event) => { if (event.key === 'Escape' && !collapsed) { event.preventDefault(); close(); } }} data-copy-bindings={JSON.stringify(["site.06b77d3d99ae4f63"])}>
     <div className="student-partner-bar">
       <button ref={toggle} type="button" className="student-partner-toggle" aria-label={collapsed ? siteText("site.dd73858ab12cc099") : siteText("site.646e8619b4edc66e")}
-        aria-expanded={!collapsed} aria-controls={collapsed ? undefined : 'student-partner-actions'} onClick={() => setCollapsed((value) => !value)}>
+        aria-expanded={!collapsed} aria-controls={collapsed ? undefined : 'student-partner-actions'} onClick={() => setCollapsed((value) => !value)} data-copy-bindings={JSON.stringify(["site.dd73858ab12cc099","site.646e8619b4edc66e"])}>
         {collapsed ? <PixelImage className="student-partner-image student-partner-image--compact" {...pixelImageProps('companion-cat', '32px')} alt="" fallback={<PixelIcon name="cat" size={32} />} /> : <PixelIcon name="close" size={16} />}
-        <span>{collapsed ? siteText("site.dd73858ab12cc099") : siteText("site.646e8619b4edc66e")}</span>
+        <span>{collapsed ? <StudentCopyText id={"site.dd73858ab12cc099"}/> : <StudentCopyText id={"site.646e8619b4edc66e"}/>}</span>
       </button>
       {!collapsed && <div className="student-partner-expanded" id="student-partner-actions">
         <div className="student-partner-intro">
           <PixelImage className="student-partner-image" {...pixelImageProps('companion-cat', '48px')} alt="" fallback={<PixelIcon name="cat" size={48} />} />
-          <div><strong>{siteText("site.5d62c0bd614a81c5")}</strong><Sentence>{siteText("site.83c57a01a5cee346")}</Sentence></div>
+          <div><strong>{<StudentCopyText id={"site.5d62c0bd614a81c5"}/>}</strong><Sentence>{<StudentCopyText id={"site.83c57a01a5cee346"}/>}</Sentence></div>
         </div>
-        <PixelButton aria-label={siteText("site.bfc47dd43decdb91")} onClick={() => navigate(`/dashboard/ai${courseId ? `?course_id=${courseId}` : ''}`)}>{siteText("site.84b1cf9b0efc27d6")}</PixelButton>
+        <PixelButton aria-label={siteText("site.bfc47dd43decdb91")} onClick={() => navigate(`/dashboard/ai${courseId ? `?course_id=${courseId}` : ''}`)} data-copy-bindings={JSON.stringify(["site.bfc47dd43decdb91"])}>{<StudentCopyText id={"site.84b1cf9b0efc27d6"}/>}</PixelButton>
       </div>}
     </div>
   </aside>;

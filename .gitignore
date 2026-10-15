@@ -123,3 +123,6 @@ docs/next-version/step-02/browser-first/
 !docs/upstream-integration/*.md
 !docs/upstream-integration/*.html
 /docs/upstream-integration/evidence/
+!docs/lesson-maintenance/*.md
+!docs/lesson-maintenance/*.html
+/docs/lesson-maintenance/evidence/

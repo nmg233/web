@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import Alert from '../../student/visual/StudentAlert';
 import {copyText} from '../../content/copy';
 import CopyBlock from '../../content/CopyBlock';
@@ -65,20 +66,20 @@ function SubmissionForm({ data, parentId }) {
     } catch (err) { setError(err.response?.data?.error || copyText('system.workUpload.007')); }
     finally { pending.current=false;if(current())setLoading(false); }
   };
-  return <div className="study-submit-layout"><StudySection number="W" title={parentId ? copyText('system.workUpload.008') : copyText('system.workUpload.009')} description={copyText('system.workUpload.010')}>
-    {!allowed ? <Alert type="warning" title={copyText('system.workUpload.011')} description={copyText('system.workUpload.012')} /> : <Form form={form} layout="vertical" onFinish={submit} onValuesChange={save} disabled={loading} scrollToFirstError={{ block: 'center', focus: true }}>
-      {latest?.reject_reason && <Alert type="warning" title={copyText('system.workUpload.013')} description={latest.reject_reason} />}
+  return <div className="study-submit-layout"><StudySection number="W" title={parentId ? copyText('system.workUpload.008') : copyText('system.workUpload.009')} description={copyText('system.workUpload.010')} data-copy-bindings={JSON.stringify(['system.workUpload.008','system.workUpload.009','system.workUpload.010'])}>
+    {!allowed ? <Alert type="warning" title={copyText('system.workUpload.011')} description={copyText('system.workUpload.012')}  data-copy-bindings={JSON.stringify(['system.workUpload.011','system.workUpload.012'])}/> : <Form form={form} layout="vertical" onFinish={submit} onValuesChange={save} disabled={loading} scrollToFirstError={{ block: 'center', focus: true }}>
+      {latest?.reject_reason && <Alert type="warning" title={copyText('system.workUpload.013')} description={latest.reject_reason}  data-copy-bindings={JSON.stringify(['system.workUpload.013'])}/>}
       <Alert type={draftFailed ? 'error' : 'info'} title={saved} style={{ marginBottom: 16 }} />
-      <Form.Item name="title" label={copyText('system.workUpload.015')} rules={[{ required: true, whitespace: true, message: copyText('system.workUpload.016') }]}><Input /></Form.Item>
-      <Form.Item name="description" label={copyText('system.workUpload.017')} extra={copyText('system.workUpload.018')}><Input.TextArea rows={6} /></Form.Item>
-      <section className="study-subsection"><h4>{copyText('system.workUpload.019')}</h4>
-        <Form.Item label={copyText('system.workUpload.020')} extra={copyText('system.workUpload.021')}><Upload beforeUpload={(value) => { setFile(value); return false; }} maxCount={1} onRemove={() => setFile(null)}><Button icon={<UploadOutlined />}>{copyText('system.workUpload.022')}</Button></Upload></Form.Item>
+      <Form.Item name="title" label={copyText('system.workUpload.015')} rules={[{ required: true, whitespace: true, message: copyText('system.workUpload.016') }]} data-copy-bindings={JSON.stringify(['system.workUpload.015','system.workUpload.016'])}><Input /></Form.Item>
+      <Form.Item name="description" label={copyText('system.workUpload.017')} extra={copyText('system.workUpload.018')} data-copy-bindings={JSON.stringify(['system.workUpload.017','system.workUpload.018'])}><Input.TextArea rows={6} /></Form.Item>
+      <section className="study-subsection"><h4>{<StudentCopyText id={'system.workUpload.019'}/>}</h4>
+        <Form.Item label={copyText('system.workUpload.020')} extra={copyText('system.workUpload.021')} data-copy-bindings={JSON.stringify(['system.workUpload.020','system.workUpload.021'])}><Upload beforeUpload={(value) => { setFile(value); return false; }} maxCount={1} onRemove={() => setFile(null)}><Button icon={<UploadOutlined />}>{<StudentCopyText id={'system.workUpload.022'}/>}</Button></Upload></Form.Item>
         <CopyBlock id="system.workUpload.023" as="p" className="study-help"/>
       </section>
-      <div className="study-submit-result" aria-live="polite">{error && <Alert type="error" showIcon title={copyText('system.workUpload.024')} description={error} />}</div>
-      <div className="study-actions"><Button type="primary" htmlType="submit" loading={loading}>{copyText('system.workUpload.025')}</Button><CopyBlock id="system.workUpload.026" as="p" /></div>
+      <div className="study-submit-result" aria-live="polite">{error && <Alert type="error" showIcon title={copyText('system.workUpload.024')} description={error}  data-copy-bindings={JSON.stringify(['system.workUpload.024'])}/>}</div>
+      <div className="study-actions"><Button type="primary" htmlType="submit" loading={loading}>{<StudentCopyText id={'system.workUpload.025'}/>}</Button><CopyBlock id="system.workUpload.026" as="p" /></div>
     </Form>}
-  </StudySection><aside className="study-context" aria-label={copyText('system.workUpload.027')}><h3>{copyText('system.workUpload.028')}</h3><PixelTag tone={parentId ? 'warning' : 'current'}>{parentId ? copyText('system.workUpload.029') : copyText('system.workUpload.030')}</PixelTag><dl><dt>{copyText('system.workUpload.031')}</dt><dd>{data.task.course_title}</dd><dt>{copyText('system.workUpload.032')}</dt><dd>{data.task.title}</dd>{data.task.description&&<><dt>{copyText('system.workUpload.033')}</dt><dd className="study-prose">{data.task.description}</dd></>}<dt>{copyText('system.workUpload.035')}</dt><dd>{data.task.deadline ? formatBeijingTime(data.task.deadline) : copyText('system.workUpload.036')}</dd>{latest && <><dt>{copyText('system.workUpload.037')}</dt><dd>{copyText('system.workUpload.038')}{latest.version}{copyText('system.workUpload.039')}</dd></>}</dl><CopyBlock id="system.workUpload.040" as="p" /></aside></div>;
+  </StudySection><aside className="study-context" aria-label={copyText('system.workUpload.027')} data-copy-bindings={JSON.stringify(['system.workUpload.027'])}><h3>{<StudentCopyText id={'system.workUpload.028'}/>}</h3><PixelTag tone={parentId ? 'warning' : 'current'}>{parentId ? <StudentCopyText id={'system.workUpload.029'}/> : <StudentCopyText id={'system.workUpload.030'}/>}</PixelTag><dl><dt>{<StudentCopyText id={'system.workUpload.031'}/>}</dt><dd>{data.task.course_title}</dd><dt>{<StudentCopyText id={'system.workUpload.032'}/>}</dt><dd>{data.task.title}</dd>{data.task.description&&<><dt>{<StudentCopyText id={'system.workUpload.033'}/>}</dt><dd className="study-prose">{data.task.description}</dd></>}<dt>{<StudentCopyText id={'system.workUpload.035'}/>}</dt><dd>{data.task.deadline ? formatBeijingTime(data.task.deadline) : <StudentCopyText id={'system.workUpload.036'}/>}</dd>{latest && <><dt>{<StudentCopyText id={'system.workUpload.037'}/>}</dt><dd>{<StudentCopyText id={'system.workUpload.038'}/>}{latest.version}{<StudentCopyText id={'system.workUpload.039'}/>}</dd></>}</dl><CopyBlock id="system.workUpload.040" as="p" /></aside></div>;
 }
 
 export default function WorkUpload() {
@@ -90,7 +91,7 @@ export default function WorkUpload() {
   const fetcher = useCallback(() => taskId ? taskAPI.detail(taskId) : Promise.reject(new Error(copyText('system.workUpload.041'))), [taskId,taskAPI]);
   const { data, loading, error, retry } = useRemote(fetcher);
   return <PageContainer><div className="study-workspace">
-    <StudyHeader eyebrow={<><PixelIcon name="archive" />{copyText('system.workUpload.042')}</>} title={copyText('system.workUpload.043')} description={parentId ? copyText('system.workUpload.044') : copyText('system.workUpload.045')}><Button icon={<PixelIcon name="back" />} onClick={() => navigate(data ? `/courses/${data.task.course_id}/lessons/${data.task.lesson_id}/learn` : '/tasks')}>{copyText('system.workUpload.046')}</Button></StudyHeader>
-    <AsyncPageState loading={loading} error={error === 'Network Error' ? copyText('system.workUpload.047') : error} onRetry={retry}>{data && <SubmissionForm key={`${taskId}:${parentId}`} data={data} parentId={parentId} />}</AsyncPageState>
+    <StudyHeader eyebrow={<><PixelIcon name="archive" />{<StudentCopyText id={'system.workUpload.042'}/>}</>} title={copyText('system.workUpload.043')} description={parentId ? copyText('system.workUpload.044') : copyText('system.workUpload.045')} data-copy-bindings={JSON.stringify(['system.workUpload.043','system.workUpload.044','system.workUpload.045'])}><Button icon={<PixelIcon name="back" />} onClick={() => navigate(data ? `/courses/${data.task.course_id}/lessons/${data.task.lesson_id}/learn` : '/tasks')}>{<StudentCopyText id={'system.workUpload.046'}/>}</Button></StudyHeader>
+    <AsyncPageState loading={loading} error={error === 'Network Error' ? copyText('system.workUpload.047') : error} onRetry={retry} data-copy-bindings={JSON.stringify(['system.workUpload.047'])}>{data && <SubmissionForm key={`${taskId}:${parentId}`} data={data} parentId={parentId} />}</AsyncPageState>
   </div></PageContainer>;
 }

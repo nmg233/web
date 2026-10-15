@@ -1,5 +1,6 @@
 import {copyText as siteText} from "../content/systemText.js";
 import axios from 'axios';
+import {previewRequest} from '../copy-review/previewAdapter';
 import { message } from 'antd';
 import { accessCheckForError, STUDENT_ACCESS_CHECK } from '../student/accessPolicy';
 import { readAuthSession, saveAuthSession, sessionRevision, isSessionStopped, stopAuthSession, authStoppedError, publishSessionEvent, AUTH_SESSION_STATE, AUTH_PENDING, AUTH_SESSION_ENDED } from '../utils/authSession';
@@ -102,6 +103,7 @@ function handleRefreshFailure(error, revision) {
   }
 }
 client.interceptors.request.use(async (config) => {
+  previewRequest(config);
   if (publicAuth(config.url)) return config;
   if (isSessionStopped() || (config._authRevision !== undefined && config._authRevision !== sessionRevision())) throw authStoppedError();
   config._authRevision = sessionRevision();
@@ -125,7 +127,7 @@ client.interceptors.response.use(
   },
   async (error) => {
     const { config, response } = error;
-    if (error.code === 'AUTH_STORAGE' || error.code === 'AUTH_STOPPED') return Promise.reject(error);
+    if (error.code === 'AUTH_STORAGE' || error.code === 'AUTH_STOPPED' || error.code==='PREVIEW_READ_ONLY') return Promise.reject(error);
     if (!publicAuth(config?.url) && config?._authRevision !== sessionRevision()) return Promise.reject(authStoppedError());
     if (typeof Blob !== 'undefined' && response?.data instanceof Blob && response.data.size < 65536) {
       try { response.data = JSON.parse(await response.data.text()); } catch { /* Not a JSON error. */ }

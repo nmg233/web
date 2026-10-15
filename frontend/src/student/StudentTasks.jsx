@@ -1,3 +1,5 @@
+import ConfigCopyText from '../content/ConfigText';
+import StudentCopyText from '../content/ManagedText';
 import {lessonAccessReason} from './learningIntegration';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../content/copy";
 import Sentence from '../content/Sentence';
@@ -19,9 +21,9 @@ import './visual/pixel-compatibility.css';
 export default function StudentTasks() {
   const { user } = useAuth();
   const [status, setStatus] = useState('');
-  return <ServicePage title={copyText('system.tasks.001')} eyebrow={siteText("site.41d9a6e3ced39a9d")} description={copyText('system.tasks.002')} actions={<Link to="/explore">{copyText('system.tasks.003')}</Link>}>
-    <PixelPanel className="compat-task-toolbar"><div><label htmlFor="task-status">{copyText('system.tasks.004')}</label><CopyBlock id="system.tasks.005" as="p" /></div>
-      <Select id="task-status" aria-label={copyText('system.tasks.006')} value={status} onChange={setStatus} options={[{ value: '', label: copyText('system.tasks.007') }, ...Object.entries(taskLabels).map(([value, label]) => ({ value, label }))]} />
+  return <ServicePage title={copyText('system.tasks.001')} eyebrow={siteText("site.41d9a6e3ced39a9d")} description={copyText('system.tasks.002')} actions={<Link to="/explore">{<StudentCopyText id={'system.tasks.003'}/>}</Link>} data-copy-bindings={JSON.stringify(['system.tasks.001',"site.41d9a6e3ced39a9d",'system.tasks.002'])}>
+    <PixelPanel className="compat-task-toolbar"><div><label htmlFor="task-status">{<StudentCopyText id={'system.tasks.004'}/>}</label><CopyBlock id="system.tasks.005" as="p" /></div>
+      <Select id="task-status" aria-label={copyText('system.tasks.006')} value={status} onChange={setStatus} options={[{ value: '', label: copyText('system.tasks.007') ,__copyIds:{"label":"system.tasks.007"}}, ...Object.entries(taskLabels).map(([value, label]) => ({ value, label }))]}  data-copy-bindings={JSON.stringify(['system.tasks.006','system.tasks.007'])}/>
     </PixelPanel>
     <TaskResults key={`${user.id}:${status}`} status={status} />
   </ServicePage>;
@@ -36,24 +38,24 @@ function TaskResults({ status }) {
   }, [status,taskAPI,courseAPI]);
   const state = useCourseResource(read);
   const groups = taskGroups(state.data?.lessons || []),works=state.data?.works||[];
-  return <ReadState {...state} empty={!groups.length&&!works.length} object={siteText("site.59f68be3ae43a068")} emptyText={status ? copyText('system.tasks.008') : copyText('system.tasks.009')}>
+  return <ReadState {...state} empty={!groups.length&&!works.length} object={siteText("site.59f68be3ae43a068")} emptyText={status ? copyText('system.tasks.008') : copyText('system.tasks.009')} data-copy-bindings={JSON.stringify(["site.59f68be3ae43a068",'system.tasks.008','system.tasks.009'])}>
     <div className="compat-task-groups">{groups.map(group => <PixelPanel key={group.id} className="compat-task-group" data-course-id={group.id}>
-      <header><div><span className="compat-muted">{copyText('system.tasks.010')}{group.id} · {group.tasks.length}{copyText('system.tasks.011')}</span><h3>{group.title || copyText('system.tasks.012')}</h3></div><Link to={`/courses/${group.id}`}>{copyText('system.tasks.013')}</Link></header>
+      <header><div><span className="compat-muted">{<StudentCopyText id={'system.tasks.010'}/>}{group.id} · {group.tasks.length}{<StudentCopyText id={'system.tasks.011'}/>}</span><h3>{group.title || <StudentCopyText id={'system.tasks.012'}/>}</h3></div><Link to={`/courses/${group.id}`}>{<StudentCopyText id={'system.tasks.013'}/>}</Link></header>
       <ul>{group.tasks.map(task => {
         const locked=lessonAccessReason(task);
         const progress = learningPercent(task.learning_progress), work = workStatus({ review_status: task.review_status });
         const action = task.report_status === 'rejected' ? copyText('system.tasks.014') : task.status === 'completed' ? copyText('system.tasks.015') : task.status === 'submitted' ? copyText('system.tasks.016') : copyText('system.tasks.017');
         const target = `/courses/${task.course_id}/lessons/${task.lesson_id}/learn${task.report_status === 'rejected' ? '?stage=2' : ''}`;
-        return <li className="compat-task-row" key={task.id}><div className="compat-task-heading"><h4>{task.title}</h4><PixelTag tone={task.status === 'completed' ? 'success' : 'current'}>{taskLabels[task.status] || copyText('system.tasks.018')}</PixelTag></div>
-          <Sentence className="compat-muted">{copyText('system.tasks.019')}{task.lesson_title || copyText('system.tasks.020')}<span className="compat-meta-divider"> / </span>{copyText('system.tasks.021')}{task.deadline ? formatBeijingTime(task.deadline) : copyText('system.tasks.022')}</Sentence>
-          <div className="compat-task-bottom"><div className="compat-task-status"><div className="compat-task-progress"><span>{copyText('system.tasks.023')}</span>{progress == null ? <span className="compat-muted">{copyText('system.tasks.024')}</span> : <PixelProgress value={progress} label={siteTemplate("site.72c2f903a4dbc4cd", {slot0: (task.title)})} />}</div>
-            <div className="compat-tags"><span>{copyText('system.tasks.025')}{reportLabels[task.report_status] || copyText('system.tasks.026')}</span>{task.work_id && <PixelTag tone={work.tone}>{copyText('system.tasks.027')}{work.label}</PixelTag>}</div></div>
-            <div className="compat-row-actions">{locked?<Sentence>{locked}</Sentence>:<Link className="compat-primary-link" to={target}>{action}</Link>}{task.work_id && <Link to={`/works/${task.work_id}`}>{task.review_status === 'rejected' ? copyText('system.tasks.028') : copyText('system.tasks.029')}</Link>}</div>
+        return <li className="compat-task-row" key={task.id}><div className="compat-task-heading"><h4><ConfigCopyText object={task} field="title" value={task.title}/></h4><PixelTag tone={task.status === 'completed' ? 'success' : 'current'}>{taskLabels[task.status] || <StudentCopyText id={'system.tasks.018'}/>}</PixelTag></div>
+          <Sentence className="compat-muted">{<StudentCopyText id={'system.tasks.019'}/>}{task.lesson_title || <StudentCopyText id={'system.tasks.020'}/>}<span className="compat-meta-divider"> / </span>{<StudentCopyText id={'system.tasks.021'}/>}{task.deadline ? formatBeijingTime(task.deadline) : <StudentCopyText id={'system.tasks.022'}/>}</Sentence>
+          <div className="compat-task-bottom"><div className="compat-task-status"><div className="compat-task-progress"><span>{<StudentCopyText id={'system.tasks.023'}/>}</span>{progress == null ? <span className="compat-muted">{<StudentCopyText id={'system.tasks.024'}/>}</span> : <PixelProgress value={progress} label={siteTemplate("site.72c2f903a4dbc4cd", {slot0: (task.title)})} />}</div>
+            <div className="compat-tags"><span>{<StudentCopyText id={'system.tasks.025'}/>}{reportLabels[task.report_status] || <StudentCopyText id={'system.tasks.026'}/>}</span>{task.work_id && <PixelTag tone={work.tone}>{<StudentCopyText id={'system.tasks.027'}/>}<ConfigCopyText object={work} field="label" value={work.label}/></PixelTag>}</div></div>
+            <div className="compat-row-actions">{locked?<Sentence>{locked}</Sentence>:<Link className="compat-primary-link" to={target}>{action}</Link>}{task.work_id && <Link to={`/works/${task.work_id}`}>{task.review_status === 'rejected' ? <StudentCopyText id={'system.tasks.028'}/> : <StudentCopyText id={'system.tasks.029'}/>}</Link>}</div>
           </div>
         </li>;
       })}</ul>
       <CopyBlock id="system.tasks.030" as="p" className="compat-footnote"/>
     </PixelPanel>)}</div>
-    {works.length>0&&<PixelPanel><h3>独立成果任务</h3><p>作品提交和评审独立保留，不自动完成课时。</p><ul className="compat-records">{works.map(task=><li key={task.id}><strong>{task.course_title} · {task.title}</strong><PixelTag>{taskLabels[task.status]}</PixelTag>{task.work_id?<Link to={`/works/${task.work_id}`}>{task.review_status==='rejected'?copyText('system.tasks.028'):copyText('system.tasks.029')}</Link>:<Link to={`/works/upload?task_id=${task.id}`}>提交作品</Link>}</li>)}</ul></PixelPanel>}
+    {works.length>0&&<PixelPanel><h3><StudentCopyText id="student26.332f65eccc335ff5"/></h3><p><StudentCopyText id="student26.ed3ff70ae4614c28"/></p><ul className="compat-records">{works.map(task=><li key={task.id}><strong>{task.course_title} · <ConfigCopyText object={task} field="title" value={task.title}/></strong><PixelTag>{taskLabels[task.status]}</PixelTag>{task.work_id?<Link to={`/works/${task.work_id}`}>{task.review_status==='rejected'?<StudentCopyText id={'system.tasks.028'}/>:<StudentCopyText id={'system.tasks.029'}/>}</Link>:<Link to={`/works/upload?task_id=${task.id}`}><StudentCopyText id="student26.7609a5a59b97c565"/></Link>}</li>)}</ul></PixelPanel>}
   </ReadState>;
 }

@@ -1,3 +1,5 @@
+import {isCopyPreview} from '../../copy-review/previewMode.js';
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -17,7 +19,7 @@ const getStatus = (work) => work.review_status === 'rejected' && work.has_newer_
 
 export default function WorkList() {
   const { user } = useAuth();
-  return user?.role === 'student' ? <StudentWorks /> : <StaffWorkList />;
+  return (user?.role === 'student'||isCopyPreview()) ? <StudentWorks /> : <StaffWorkList />;
 }
 
 function StaffWorkList() {
@@ -26,7 +28,7 @@ function StaffWorkList() {
   const [search, setSearch] = useState('');
   const [courseId, setCourseId] = useState();
   const fetcher = useCallback(async () => {
-    const [works, tasks] = await Promise.all([workAPI.list({ search, course_id: courseId }), user?.role === 'student' ? workAPI.pendingTasks() : Promise.resolve({ tasks: [] })]);
+    const [works, tasks] = await Promise.all([workAPI.list({ search, course_id: courseId }), (user?.role === 'student'||isCopyPreview()) ? workAPI.pendingTasks() : Promise.resolve({ tasks: [] })]);
     return { ...works, tasks: tasks.tasks || [] };
   }, [search, courseId, user?.role]);
   const { data, loading, error, retry } = useRemote(fetcher, { courseSensitive: true });
@@ -37,12 +39,12 @@ function StaffWorkList() {
     { title: siteText("site.d86a7934af9f54cb"), dataIndex: 'student_name' }, { title: siteText("site.9d6f620e92380c5c"), dataIndex: 'course_title' }, { title: siteText("site.27700a48b753e9ba"), dataIndex: 'task_title' },
     { title: siteText("site.357377033f9ab415"), dataIndex: 'review_status', render: (_, row) => <Tag color={getStatus(row)[0]}>{getStatus(row)[1]}</Tag> },
     { title: siteText("site.da1f1189cef33c54"), dataIndex: 'created_at', render: formatBeijingTime },
-    { title: siteText("site.e0d4ef9a6e9892f6"), render: (_, row) => <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/works/${row.id}`)}>{siteText("site.773db9128220465f")}</Button> },
+    { title: siteText("site.e0d4ef9a6e9892f6"), render: (_, row) => <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/works/${row.id}`)}>{<StudentCopyText id={"site.773db9128220465f"}/>}</Button> },
   ];
 
   if (error) return <AsyncPageState error={error} onRetry={retry} />;
-  return <div className="page-container"><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}><Title level={4} style={{ margin: 0 }}>{user?.role === 'student' ? siteText("site.1dd3513dea197726") : siteText("site.6ce325b15833bba4")}</Title></div>
-    {data?.filterInvalid && <Alert type="warning" showIcon title={siteText("site.d1761839cf656af1")} action={<Button onClick={() => setCourseId(undefined)}>{siteText("site.57f9833a8592e3ae")}</Button>} style={{ marginBottom: 16 }} />}
-    {user?.role === 'student' && <Card size="small" title={siteTemplate("site.9c0b9d4fc0f8afcb", {slot0: (tasks.length)})} style={{ marginBottom: 16 }}><List dataSource={tasks} locale={{ emptyText: siteText("site.ba29dd750cfb06d5") }} renderItem={(task) => <List.Item actions={[<Button type="link" onClick={() => navigate(`/works/upload?task_id=${task.id}&enrollment_id=${task.enrollment_id}`)}>{siteText("site.ce668bf6da143dfd")}</Button>]}><List.Item.Meta title={task.title} description={`${task.course_title} · ${task.description || siteText("site.9ab727d12a10b24d")}`} /></List.Item>} /></Card>}
-    <Card><Space style={{ marginBottom: 16 }}><Input.Search placeholder={siteText("site.c8c216bda986b643")} value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300 }} /><Select allowClear placeholder={siteText("site.d1284c497b508f85")} value={data?.filterInvalid ? undefined : courseId} onChange={setCourseId} style={{ width: 200 }} options={courses.map((c) => ({ label: c.title, value: c.id }))} /></Space><Table dataSource={works} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} /></Card></div>;
+  return <div className="page-container"><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}><Title level={4} style={{ margin: 0 }}>{(user?.role === 'student'||isCopyPreview()) ? <StudentCopyText id={"site.1dd3513dea197726"}/> : <StudentCopyText id={"site.6ce325b15833bba4"}/>}</Title></div>
+    {data?.filterInvalid && <Alert type="warning" showIcon title={siteText("site.d1761839cf656af1")} action={<Button onClick={() => setCourseId(undefined)}>{<StudentCopyText id={"site.57f9833a8592e3ae"}/>}</Button>} style={{ marginBottom: 16 }}  data-copy-bindings={JSON.stringify(["site.d1761839cf656af1"])}/>}
+    {(user?.role === 'student'||isCopyPreview()) && <Card size="small" title={siteTemplate("site.9c0b9d4fc0f8afcb", {slot0: (tasks.length)})} style={{ marginBottom: 16 }} data-copy-bindings={JSON.stringify(["site.9c0b9d4fc0f8afcb"])}><List dataSource={tasks} locale={{ emptyText: siteText("site.ba29dd750cfb06d5") }} renderItem={(task) => <List.Item actions={[<Button type="link" onClick={() => navigate(`/works/upload?task_id=${task.id}&enrollment_id=${task.enrollment_id}`)}>{<StudentCopyText id={"site.ce668bf6da143dfd"}/>}</Button>]}><List.Item.Meta title={task.title} description={`${task.course_title} · ${task.description || siteText("site.9ab727d12a10b24d")}`} /></List.Item>}  data-copy-bindings={JSON.stringify(["site.ba29dd750cfb06d5"])}/></Card>}
+    <Card><Space style={{ marginBottom: 16 }}><Input.Search placeholder={siteText("site.c8c216bda986b643")} value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 300 }}  data-copy-bindings={JSON.stringify(["site.c8c216bda986b643"])}/><Select allowClear placeholder={siteText("site.d1284c497b508f85")} value={data?.filterInvalid ? undefined : courseId} onChange={setCourseId} style={{ width: 200 }} options={courses.map((c) => ({ label: c.title, value: c.id }))}  data-copy-bindings={JSON.stringify(["site.d1284c497b508f85"])}/></Space><Table dataSource={works} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} scroll={{ x: 800 }} /></Card></div>;
 }

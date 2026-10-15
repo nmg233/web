@@ -2,7 +2,7 @@ import {copyText as siteText, copyTemplate as siteTemplate} from "../content/sys
 import { rewardDemoConfig as config } from './rewardConfig.js';
 export const rewardFailure = (code, message) => Object.assign(new Error(message), { code });
 export const initialRewardState = () => ({ balance: config.initialPoints, records: [], ledger: [
-  { id: 'initial', title: siteText("site.59a1183105b69521"), amount: config.initialPoints, time: '' },
+  { id: 'initial', title: siteText("site.59a1183105b69521"), amount: config.initialPoints, time: ''},
 ] });
 export function validateRewardState(value) {
   if (!value || !Number.isFinite(value.balance) || value.balance < 0 || !Array.isArray(value.records) || !Array.isArray(value.ledger)

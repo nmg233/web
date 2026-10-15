@@ -1,3 +1,5 @@
+import ConfigCopyText from '../../content/ConfigText';
+import StudentCopyText from '../../content/ManagedText';
 import Alert from '../../student/visual/StudentAlert';
 import Sentence from '../../content/Sentence';
 import {copyText} from '../../content/copy';
@@ -14,17 +16,17 @@ export default function AvatarPreference(){
   const s=useCourseExperience(),look=useCoursePresentation();if(!s||look.theme!=='voyage')return null;
   const selected=avatars.find(a=>a.id===s.avatar.id),busy=['loading','saving','reading'].includes(s.avatar.state);
   return <>
-    <button className="course-avatar-button" aria-label={copyText('avatar.open')} onClick={()=>s.openOverlay('avatar')}>
+    <button className="course-avatar-button" aria-label={copyText('avatar.open')} onClick={()=>s.openOverlay('avatar')} data-copy-bindings={JSON.stringify(['avatar.open'])}>
       {selected?<PixelImage src={asset('avatar-'+selected.id,96)} alt={selected.role+' '+selected.name} width={40} height={40}/>:<PixelIcon name="user" size={28}/>}
-      <span className="course-avatar-label">{selected?selected.name:copyText('avatar.open')}</span>
+      <span className="course-avatar-label">{selected?selected.name:<StudentCopyText id={'avatar.open'}/>}</span>
     </button>
-    <Modal open={s.overlay==='avatar'} onCancel={()=>s.openOverlay(null)} footer={null} title={copyText('avatar.open')} width={680} zIndex={1250} rootClassName="student-pixel student-interactions course-avatar-modal" destroyOnHidden={false}>
+    <Modal open={s.overlay==='avatar'} onCancel={()=>s.openOverlay(null)} footer={null} title={copyText('avatar.open')} width={680} zIndex={1250} rootClassName="student-pixel student-interactions course-avatar-modal" destroyOnHidden={false} data-copy-bindings={JSON.stringify(['avatar.open'])}>
       <CopyBlock id="avatar.hint" as="p"/>
-      {busy&&<Sentence role="status"><Spin size="small"/> {s.avatar.state==='loading'?copyText('system.avatar.001'):s.avatar.state==='saving'?copyText('system.avatar.002'):copyText('system.avatar.003')}</Sentence>}
+      {busy&&<Sentence role="status"><Spin size="small"/> {s.avatar.state==='loading'?<StudentCopyText id={'system.avatar.001'}/>:s.avatar.state==='saving'?<StudentCopyText id={'system.avatar.002'}/>:<StudentCopyText id={'system.avatar.003'}/>}</Sentence>}
       {s.avatar.notice&&<Alert role="status" type={s.avatar.state==='ready'?'success':'warning'} title={s.avatar.notice}/>}
-      {['error','uncertain'].includes(s.avatar.state)&&<PixelButton onClick={s.readAvatar}>{copyText('avatar.reload')}</PixelButton>}
+      {['error','uncertain'].includes(s.avatar.state)&&<PixelButton onClick={s.readAvatar}>{<StudentCopyText id={'avatar.reload'}/>}</PixelButton>}
       <div className="course-avatar-grid">{avatars.map(a=><button key={a.id} type="button" aria-pressed={s.avatar.id===a.id} disabled={busy} onClick={()=>s.saveAvatar(a.id)}>
-        <PixelImage src={asset('avatar-'+a.id,192)} alt="" width={96} height={96}/><strong>{a.role}</strong><span>{a.name}</span>{s.avatar.id===a.id&&<CopyBlock id="system.avatar.004" as="small" />}
+        <PixelImage src={asset('avatar-'+a.id,192)} alt="" width={96} height={96}/><strong>{a.role}</strong><span><ConfigCopyText object={a} field="name" value={a.name}/></span>{s.avatar.id===a.id&&<CopyBlock id="system.avatar.004" as="small" />}
       </button>)}</div>
     </Modal>
   </>;

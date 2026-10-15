@@ -21,6 +21,7 @@ const { Sider } = Layout;
 
 const menuItems = {
   admin: [
+    {key:'/student-copy',label:'学生端文案管理'},
     {key:'/reward-management',icon:<CheckSquareOutlined/>,label:'奖励管理'},
     { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
     { key: '/courses', icon: <BookOutlined />, label: siteText("site.68d0d9a0dd22dfc5") },

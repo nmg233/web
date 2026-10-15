@@ -1,3 +1,6 @@
+import {isCopyPreview} from '../../copy-review/previewMode.js';
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy';
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message, Row, Col, Statistic, Timeline } from 'antd';
@@ -13,7 +16,7 @@ const { Title, Text } = Typography;
 
 export default function ArchiveIndex() {
   const { user } = useAuth();
-  return user?.role === 'student' ? <StudentArchive /> : <StaffArchive key={user?.id} />;
+  return (user?.role === 'student'||isCopyPreview()) ? <StudentArchive /> : <StaffArchive key={user?.id} />;
 }
 
 function StaffArchive() {
@@ -30,7 +33,7 @@ function StaffArchive() {
   useEffect(()=>()=>{requestSequence.current++;},[]);
 
   useEffect(() => {
-    if (user?.role === 'student') {
+    if ((user?.role === 'student'||isCopyPreview())) {
       return;
     }
     archiveAPI.getTree().then((res) => {
@@ -50,7 +53,7 @@ function StaffArchive() {
             ],
           })),
         }));
-        const unassigned=tree.unassigned?.student||[];setTreeData([...schools,...(unassigned.length?[{title:'未分配学校',key:'unassigned',children:unassigned.map(student=>({title:student.real_name,key:'user-'+student.id,icon:<UserOutlined/>,isLeaf:true}))}]:[])]);
+        const unassigned=tree.unassigned?.student||[];setTreeData([...schools,...(unassigned.length?[{title:runtimeCopyText("student26.ada00fab22cb5e85"),key:'unassigned',children:unassigned.map(student=>({title:student.real_name,key:'user-'+student.id,icon:<UserOutlined/>,isLeaf:true}))}]:[])]);
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user?.role]);
@@ -74,17 +77,17 @@ function StaffArchive() {
 
   return (
     <div>
-      <Title level={4}>{siteText("site.5330d00929bd9bd3")}</Title>{detailError&&<p role="alert">{detailError}<Button onClick={()=>handleSelect(['user-'+selectedStudentId])}>{siteText("site.c1fda00380fb315b")}</Button></p>}
-      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{siteText("site.4e0d8d6dd08d4d48")}</Text>}
+      <Title level={4}>{<StudentCopyText id={"site.5330d00929bd9bd3"}/>}</Title>{detailError&&<p role="alert">{detailError}<Button onClick={()=>handleSelect(['user-'+selectedStudentId])}>{<StudentCopyText id={"site.c1fda00380fb315b"}/>}</Button></p>}
+      {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{<StudentCopyText id={"site.4e0d8d6dd08d4d48"}/>}</Text>}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <Card title={siteText("site.eaeca9de1adec4d2")} style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }}>
-          {treeData.length ? <Tree treeData={treeData} onSelect={handleSelect} showIcon defaultExpandAll={false} /> : <Text type="secondary">{siteText("site.4184c59ba4eb038a")}</Text>}
+        <Card title={siteText("site.eaeca9de1adec4d2")} style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }} data-copy-bindings={JSON.stringify(["site.eaeca9de1adec4d2"])}>
+          {treeData.length ? <Tree treeData={treeData} onSelect={handleSelect} showIcon defaultExpandAll={false} /> : <Text type="secondary">{<StudentCopyText id={"site.4184c59ba4eb038a"}/>}</Text>}
         </Card>
-        <Card title={siteText("site.1775f3b4867300f1")} style={{ flex: 1, minWidth: 320 }}>
-          {detailLoading ? <Spin /> : archive ? <><Space style={{ marginBottom: 16 }}><Button onClick={() => window.print()}>{siteText("site.000aeaa34ca2d479")}</Button>{['admin', 'academic_mentor'].includes(user?.role) && <Button type="primary" onClick={() => setRecordOpen(true)}>{siteText("site.a7663d2129e84ba0")}</Button>}</Space><ArchiveDetail archive={archive} /></> : <Text type="secondary">{siteText("site.603d5764cc2d68c1")}</Text>}
+        <Card title={siteText("site.1775f3b4867300f1")} style={{ flex: 1, minWidth: 320 }} data-copy-bindings={JSON.stringify(["site.1775f3b4867300f1"])}>
+          {detailLoading ? <Spin /> : archive ? <><Space style={{ marginBottom: 16 }}><Button onClick={() => window.print()}>{<StudentCopyText id={"site.000aeaa34ca2d479"}/>}</Button>{['admin', 'academic_mentor'].includes(user?.role) && <Button type="primary" onClick={() => setRecordOpen(true)}>{<StudentCopyText id={"site.a7663d2129e84ba0"}/>}</Button>}</Space><ArchiveDetail archive={archive} /></> : <Text type="secondary">{<StudentCopyText id={"site.603d5764cc2d68c1"}/>}</Text>}
         </Card>
       </div>
-      <Modal title={siteText("site.60652218f102109a")} open={recordOpen} onCancel={() => setRecordOpen(false)} onOk={async () => { if (!record.trim()) return; await archiveAPI.addGrowthRecord({ student_id: selectedStudentId, description: record }); message.success(siteText("site.6cdae16cb5483a96")); setRecord(''); setRecordOpen(false); handleSelect([`user-${selectedStudentId}`]); }}><Input.TextArea rows={4} value={record} onChange={(e) => setRecord(e.target.value)} /></Modal>
+      <Modal title={siteText("site.60652218f102109a")} open={recordOpen} onCancel={() => setRecordOpen(false)} onOk={async () => { if (!record.trim()) return; await archiveAPI.addGrowthRecord({ student_id: selectedStudentId, description: record }); message.success(siteText("site.6cdae16cb5483a96")); setRecord(''); setRecordOpen(false); handleSelect([`user-${selectedStudentId}`]); }} data-copy-bindings={JSON.stringify(["site.60652218f102109a"])}><Input.TextArea rows={4} value={record} onChange={(e) => setRecord(e.target.value)} /></Modal>
     </div>
   );
 }
@@ -112,25 +115,25 @@ function ArchiveDetail({ archive }) {
   return (
     <div>
       <Descriptions column={2} size="small" bordered style={{ marginBottom: 16 }}>
-        <Descriptions.Item label={siteText("site.da1a8366bd7004fd")}>{archive.student?.real_name}</Descriptions.Item>
-        <Descriptions.Item label={siteText("site.fb6dc8df5c3062a9")}>{archive.student?.school_name}</Descriptions.Item>
-        <Descriptions.Item label={siteText("site.942c771c6aa04b96")}>{archive.student?.class_name}</Descriptions.Item>
-        <Descriptions.Item label={siteText("site.0ec6d2832e01ab07")}>{archive.generatedAt}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.da1a8366bd7004fd")} data-copy-bindings={JSON.stringify(["site.da1a8366bd7004fd"])}>{archive.student?.real_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.fb6dc8df5c3062a9")} data-copy-bindings={JSON.stringify(["site.fb6dc8df5c3062a9"])}>{archive.student?.school_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.942c771c6aa04b96")} data-copy-bindings={JSON.stringify(["site.942c771c6aa04b96"])}>{archive.student?.class_name}</Descriptions.Item>
+        <Descriptions.Item label={siteText("site.0ec6d2832e01ab07")} data-copy-bindings={JSON.stringify(["site.0ec6d2832e01ab07"])}>{archive.generatedAt}</Descriptions.Item>
       </Descriptions>
 
       {/* 概览统计 */}
-      <Title level={5}>{siteText("site.4b67dde2fcced3e5")}</Title>
+      <Title level={5}>{<StudentCopyText id={"site.4b67dde2fcced3e5"}/>}</Title>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {overview.map((o) => (
           <Col xs={12} sm={6} key={o.label}><Card size="small"><Statistic title={o.label} value={o.value} /></Card></Col>
         ))}
       </Row>
 
-      <Title level={5}>{siteText("site.5af9f5975fc10d8f")}</Title>
+      <Title level={5}>{<StudentCopyText id={"site.5af9f5975fc10d8f"}/>}</Title>
       <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>{[['problem_discovery','问题发现'],['solution_design','方案设计'],['hands_on','动手操作'],['data_analysis','数据分析'],['presentation','表达展示']].map(([key,label]) => <div key={key}><Text>{label}：{archive.ability?.[key] || 0} / 5</Text><Progress percent={(archive.ability?.[key] || 0) * 20} showInfo={false} /></div>)}</Space>
 
       {/* 成长时间轴 */}
-      <Title level={5}>{siteText("site.73a28b4ada50cad4")}</Title>
+      <Title level={5}>{<StudentCopyText id={"site.73a28b4ada50cad4"}/>}</Title>
       {timeline.length > 0 ? (
         <Timeline style={{ marginBottom: 16 }}
           items={timeline.map((t) => ({
@@ -145,20 +148,20 @@ function ArchiveDetail({ archive }) {
           }))}
         />
       ) : (
-        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>{siteText("site.66186b9b0ca8de79")}</Text>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>{<StudentCopyText id={"site.66186b9b0ca8de79"}/>}</Text>
       )}
 
-      <Title level={5}>{siteText("site.4a4584ef52775150")}</Title>
+      <Title level={5}>{<StudentCopyText id={"site.4a4584ef52775150"}/>}</Title>
       <List dataSource={archive.courses || []} renderItem={(c) => (
         <List.Item><Tag>{c.difficulty}</Tag> {c.title}</List.Item>
       )} />
 
-      <Title level={5}>{siteText("site.b05b178d73339e7e")}</Title>
+      <Title level={5}>{<StudentCopyText id={"site.b05b178d73339e7e"}/>}</Title>
       <List dataSource={archive.works || []} renderItem={(w) => (
         <List.Item><FileTextOutlined style={{ marginRight: 8 }} />{w.title}</List.Item>
       )} />
 
-      <Title level={5}>学习报告与导师评分</Title><List dataSource={archive.learningReports||[]} locale={{emptyText:'暂无学习报告'}} renderItem={r=><List.Item><List.Item.Meta title={`${r.course_title} · ${r.lesson_title} · 第 ${r.version} 版`} description={<Space direction="vertical"><Text>{r.summary}</Text><Text>{r.review_comment||'尚无导师意见'}</Text></Space>}/><Tag>{r.status==='approved'?`已通过 · ${r.score} 分`:r.status==='rejected'?'需修改':'待评审'}</Tag></List.Item>}/><Title level={5}>{siteText("site.87a6be2a4246bd37")}</Title>
+      <Title level={5}><StudentCopyText id="student26.6c2a5cce406d5ae6"/></Title><List dataSource={archive.learningReports||[]} locale={{emptyText:runtimeCopyText("student26.bc365698fe297eeb")}} renderItem={r=><List.Item><List.Item.Meta title={`${r.course_title} · ${r.lesson_title} · 第 ${r.version} 版`} description={<Space direction="vertical"><Text>{r.summary}</Text><Text>{r.review_comment||<StudentCopyText id="student26.cd414bc99b80b4ef"/>}</Text></Space>}/><Tag>{r.status==='approved'?`已通过 · ${r.score} 分`:r.status==='rejected'?<StudentCopyText id="student26.5ec5e335d4eab0d1"/>:<StudentCopyText id="student26.d073dd1a892462c8"/>}</Tag></List.Item>}/><Title level={5}>{<StudentCopyText id={"site.87a6be2a4246bd37"}/>}</Title>
       <List dataSource={archive.reflections || []} renderItem={(r) => (
         <List.Item>
           <List.Item.Meta
@@ -172,7 +175,7 @@ function ArchiveDetail({ archive }) {
 
       {archive.evaluations?.length > 0 && (
         <>
-          <Title level={5}>{siteText("site.192e66010be3ebf5")}</Title>
+          <Title level={5}>{<StudentCopyText id={"site.192e66010be3ebf5"}/>}</Title>
           <List dataSource={archive.evaluations} renderItem={(ev) => (
             <List.Item>
               <List.Item.Meta

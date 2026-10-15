@@ -1,3 +1,4 @@
+import StudentCopyText from '../content/ManagedText';
 import {copyText as siteText} from "../content/copy";
 import Alert from '../student/visual/StudentAlert';
 import { useEffect, useRef, useState } from 'react';
@@ -94,22 +95,22 @@ export default function StudentScope({ children }) {
     };
   }, [user.id]);
 
-  if (state.userId !== user.id) return <PageLoading>{siteText("site.74068fd8305fe78e")}</PageLoading>;
+  if (state.userId !== user.id) return <PageLoading>{<StudentCopyText id={"site.74068fd8305fe78e"}/>}</PageLoading>;
   const target = currentAccessTarget(location.pathname, location.search);
   const missingCourse = target.courseId && state.courses && !state.courses.some((course) => String(course.id) === target.courseId);
   const blocked = state.blocked?.key === target.key ? state.blocked : null;
-  const retry = <Button onClick={() => checkRef.current?.(true)}>{siteText("site.fc5aff20bb11078a")}</Button>;
+  const retry = <Button onClick={() => checkRef.current?.(true)}>{<StudentCopyText id={"site.fc5aff20bb11078a"}/>}</Button>;
   if (missingCourse || blocked) return <StudentPageStatus title={siteText("site.8854b62a379e0474")}
-    description={<>{missingCourse ? siteText("site.cd57694981c3d228") : blocked.reason}
-      {state.warning && <><br /><span role="status">{state.warning}</span></>}</>}>
-    <Link to="/explore" className="student-status-return">{siteText("site.f8c8b469fb2c223d")}</Link>
+    description={<>{missingCourse ? <StudentCopyText id={"site.cd57694981c3d228"}/> : blocked.reason}
+      {state.warning && <><br /><span role="status">{state.warning}</span></>}</>} data-copy-bindings={JSON.stringify(["site.8854b62a379e0474"])}>
+    <Link to="/explore" className="student-status-return">{<StudentCopyText id={"site.f8c8b469fb2c223d"}/>}</Link>
     {retry}
   </StudentPageStatus>;
   if (!state.ready) return state.warning
-    ? <StudentPageStatus title={siteText("site.2fa825f21dd7d02a")} description={siteText("site.c5b063b2ada193b5")}>{retry}</StudentPageStatus>
-    : <PageLoading>{siteText("site.74068fd8305fe78e")}</PageLoading>;
+    ? <StudentPageStatus title={siteText("site.2fa825f21dd7d02a")} description={siteText("site.c5b063b2ada193b5")} data-copy-bindings={JSON.stringify(["site.2fa825f21dd7d02a","site.c5b063b2ada193b5"])}>{retry}</StudentPageStatus>
+    : <PageLoading>{<StudentCopyText id={"site.74068fd8305fe78e"}/>}</PageLoading>;
   return <CoursePresentationProvider><CourseExperience>
-    {state.warning && <Alert type="warning" showIcon title={siteText("site.56a5ad14c3c707a9")} description={state.warning} action={retry} style={{ margin: 16 }} />}
+    {state.warning && <Alert type="warning" showIcon title={siteText("site.56a5ad14c3c707a9")} description={state.warning} action={retry} style={{ margin: 16 }}  data-copy-bindings={JSON.stringify(["site.56a5ad14c3c707a9"])}/>}
     <div key={`${user.id}:${location.pathname}:${/\/archives$/.test(location.pathname) ? state.archiveRevision : 0}`}>{children}</div>
   </CourseExperience></CoursePresentationProvider>;
 }

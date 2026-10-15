@@ -40,8 +40,8 @@ export function createRewardStore({ accountId, adapter, target, createChannel = 
         channel = createChannel();
         if (!channel) throw Error();
         channel.onmessage = event => { if (String(event.data?.accountId) === String(accountId)) refresh(); };
-        channel.onmessageerror = () => publish({ ...state, syncWarning: rewardSyncWarning });
-      } catch { publish({ ...state, syncWarning: rewardSyncWarning }); }
+        channel.onmessageerror = () => publish({ ...state, syncWarning: rewardSyncWarning() });
+      } catch { publish({ ...state, syncWarning: rewardSyncWarning() }); }
       refresh();
     }
     return () => {

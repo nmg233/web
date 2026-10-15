@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {Modal,Button,Alert} from 'antd';
 import client from '../../api/client';
@@ -20,7 +21,7 @@ export default function AccountAvatar(){
   finally{writing.current=false;if(live.current&&ticket===seq.current)setBusy(false);}
  };
  const preset=data?.presetId??user.avatar_preset;
- return <span className="account-avatar account-avatar--inline"><button ref={trigger} className="account-avatar-trigger" aria-label={copyText('next.avatar.open')} title={copyText('next.avatar.change')} onClick={()=>setOpen(true)}><AccountAvatarImage preset={preset} legacyUrl={data?.legacyUrl||user.avatar_url} size={40}/></button>
- <Modal open={open} centered title={copyText('next.avatar.open')} footer={null} onCancel={()=>setOpen(false)} rootClassName="student-pixel student-interactions" modalRender={n=><div onKeyDownCapture={trapFocus}>{n}</div>} afterClose={()=>trigger.current?.focus()}>
- <p>{copyText('next.avatar.independent')}</p>{notice&&<Alert type="info" title={notice}/>}<div className="account-avatar-grid">{accountPresets.map(id=><button key={id} disabled={busy||!data} aria-label={copyText('next.avatar.'+id)} aria-pressed={preset===id} onClick={()=>void save(id)}><img src={nextAsset('account-'+id)} alt="" width={80} height={80}/><span>{copyText('next.avatar.'+id)}</span></button>)}</div><p role="status">{busy?copyText('next.avatar.saving'):notice}</p><Button onClick={()=>void read().then(()=>refreshUser()).catch(()=>setNotice(copyText('next.avatar.uncertain')))} disabled={busy}>{copyText('next.retry')}</Button></Modal></span>;
+ return <span className="account-avatar account-avatar--inline"><button ref={trigger} className="account-avatar-trigger" aria-label={copyText('next.avatar.open')} title={copyText('next.avatar.change')} onClick={()=>setOpen(true)} data-copy-bindings={JSON.stringify(['next.avatar.open','next.avatar.change'])}><AccountAvatarImage preset={preset} legacyUrl={data?.legacyUrl||user.avatar_url} size={40}/></button>
+ <Modal open={open} centered title={copyText('next.avatar.open')} footer={null} onCancel={()=>setOpen(false)} rootClassName="student-pixel student-interactions" modalRender={n=><div onKeyDownCapture={trapFocus}>{n}</div>} afterClose={()=>trigger.current?.focus()} data-copy-bindings={JSON.stringify(['next.avatar.open'])}>
+ <p>{<StudentCopyText id={'next.avatar.independent'}/>}</p>{notice&&<Alert type="info" title={notice}/>}<div className="account-avatar-grid">{accountPresets.map(id=><button key={id} disabled={busy||!data} aria-label={copyText('next.avatar.'+id)} aria-pressed={preset===id} onClick={()=>void save(id)}><img src={nextAsset('account-'+id)} alt="" width={80} height={80}/><span>{<StudentCopyText id={'next.avatar.'+id}/>}</span></button>)}</div><p role="status">{busy?<StudentCopyText id={'next.avatar.saving'}/>:notice}</p><Button onClick={()=>void read().then(()=>refreshUser()).catch(()=>setNotice(copyText('next.avatar.uncertain')))} disabled={busy}>{<StudentCopyText id={'next.retry'}/>}</Button></Modal></span>;
 }

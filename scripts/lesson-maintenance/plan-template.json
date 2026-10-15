@@ -1,0 +1,14 @@
+{
+  "format": "lesson-maintenance-plan-v1",
+  "course": {"id": null, "title": "请填写预检中精确的真实课程标题"},
+  "lesson": {"id": null, "title": "请填写确认制作飞机模型并教室试飞的真实课时标题"},
+  "expectedIdentityHash": "",
+  "diagnosis": "请先完成真实对象分类、版本与归属核对，再填写人工诊断；未确认不得执行",
+  "mapImage": {
+    "file": "assets/lesson-making-384.webp",
+    "bytes": 125152,
+    "sha256": "b6dff75e370d9f57f7f57ef757515306e1e5cf230d3fd962e19ad09ea96b171d",
+    "anchor": {"x": 0.5, "y": 0.65}
+  },
+  "repairs": []
+}

@@ -1,3 +1,4 @@
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy.js';
 // 学生使用指南正文。这里改动的文字会同时出现在「使用指南」页面和登录后的自动弹窗里。
 //
 // 与《作业完成要求》合并时，只需把那份文档的内容按同样的结构追加到本文件的
@@ -11,135 +12,157 @@ export const studentGuideUpdatedAt = '2026-10-14';
 export const guideSections = [
   {
     id: 'account',
-    title: '登录与账号',
-    summary: '账号由老师统一创建，网站没有自助注册入口。',
-    points: [
-      '用老师发给你的用户名和密码登录。第一次登录必须先修改初始密码，改密成功后才能进入学习页面。',
-      '网站没有自助找回密码入口。忘记密码请联系老师重置，重置后再次登录需要重新改密。',
-      '账号、报名和角色都由老师维护。请只自己使用账号，不要互相借用，否则学习记录会算错人。',
-    ],
-    notice: '如果账号被停用或报名被移除，相关课程会从你的课程列表里消失，需要联系老师确认。',
-  },
+    get title(){return runtimeCopyText("student26.3a0cafd2d2348ad5")},
+    get summary(){return runtimeCopyText("student26.aa4d092a2ebd22f7")},
+    get points(){return [
+      runtimeCopyText("student26.fc7fe0d6a7bc0261"),
+      runtimeCopyText("student26.161856a2f61282eb"),
+      runtimeCopyText("student26.a6dc5f20612c2f3c"),
+    ]},
+    get notice(){return runtimeCopyText("student26.419b263b66d9ad49")},
+
+titleCopyId:"student26.3a0cafd2d2348ad5",summaryCopyId:"student26.aa4d092a2ebd22f7",pointsCopyIds:["student26.fc7fe0d6a7bc0261","student26.161856a2f61282eb","student26.a6dc5f20612c2f3c"],noticeCopyId:"student26.419b263b66d9ad49",
+__copyIds:{"title":"student26.3a0cafd2d2348ad5","summary":"student26.aa4d092a2ebd22f7"}},
   {
     id: 'platform',
-    title: '页面上有什么',
-    summary: '平台顶部是导航，进入课程后左侧（或手机上的「菜单」）是课程内的导航。',
-    points: [
-      '「课程」：你已报名并且老师已发布的课程都在这里，点课程卡片进入。',
-      '「使用指南」：就是本页，随时可以回来重读。',
-      '「我的」：每日运势、我的金币、奖励兑换、徽章墙、修改密码、通知、帮助与反馈和退出登录。',
-      '顶部右侧还有金币余额、通知铃铛（有新通知会提示）和你的头像。',
-      '进入课程后可以在「关卡地图 / 实验室 / 成长档案」之间切换，左上角「退出课程」回到课程列表。',
-    ],
-  },
+    get title(){return runtimeCopyText("student26.209779059b4bb3f5")},
+    get summary(){return runtimeCopyText("student26.04f03022294e6483")},
+    get points(){return [
+      runtimeCopyText("student26.db7e3bcd61abac3f"),
+      runtimeCopyText("student26.18a7975258ed221e"),
+      runtimeCopyText("student26.00838d190cd421f7"),
+      runtimeCopyText("student26.5c9310163ce2973d"),
+      runtimeCopyText("student26.ddc2e0006a396755"),
+    ]},
+
+titleCopyId:"student26.209779059b4bb3f5",summaryCopyId:"student26.04f03022294e6483",pointsCopyIds:["student26.db7e3bcd61abac3f","student26.18a7975258ed221e","student26.00838d190cd421f7","student26.5c9310163ce2973d","student26.ddc2e0006a396755"],
+__copyIds:{"title":"student26.209779059b4bb3f5","summary":"student26.04f03022294e6483"}},
   {
     id: 'courses',
-    title: '选择课程与课时',
-    summary: '一门课程由若干课时（关卡）组成，按顺序推进即可。',
-    points: [
-      '地图上的每一关就是一节课，卡片上会显示你的学习进度；「继续当前课时」会带你回到最近一次的学习位置。',
-      '课时上会显示上课时间、地点、授课老师和课后任务，方便你对着线下课堂使用。',
-      '已取消或老师尚未开放的课时不能进入，地图上会写明原因，你可以先学其他课时。',
-      '学生不能自己选课，也不能退课：报名由老师导入，一经选课不再变动。',
-    ],
-    notice: '看不到某门课程时，先确认老师是否已把你加入这门课，以及课程是否已经发布。',
-  },
+    get title(){return runtimeCopyText("student26.c97962f46c4ddefe")},
+    get summary(){return runtimeCopyText("student26.734d2a353934434a")},
+    get points(){return [
+      runtimeCopyText("student26.07f921ce0c6ddfd6"),
+      runtimeCopyText("student26.b99f02023f8ef880"),
+      runtimeCopyText("student26.6c26d3104245e42f"),
+      runtimeCopyText("student26.57431590abd56551"),
+    ]},
+    get notice(){return runtimeCopyText("student26.8f302bb2cca81c5e")},
+
+titleCopyId:"student26.c97962f46c4ddefe",summaryCopyId:"student26.734d2a353934434a",pointsCopyIds:["student26.07f921ce0c6ddfd6","student26.b99f02023f8ef880","student26.6c26d3104245e42f","student26.57431590abd56551"],noticeCopyId:"student26.8f302bb2cca81c5e",
+__copyIds:{"title":"student26.c97962f46c4ddefe","summary":"student26.734d2a353934434a"}},
   {
     id: 'lesson-loop',
-    title: '一节课怎么学完',
-    summary: '每节课固定四个阶段，进度按「回顾 25% · 卡片 35% · 报告反思 25% · 导师评审 15%」累计。',
-    steps: [
-      '课堂回顾：回看课堂回顾与回放，整理自己的观察。看完后由你自己点击确认，不要求看够时长。',
-      '知识卡片与练习：逐张阅读知识卡片，并完成配套练习。每题只有一次作答机会，提交后以第一次的结果为准。',
-      '学习报告与反思：完成课堂回顾和全部知识卡片练习后，才能提交学习报告。报告按提示填写学习总结、关键收获、应用设想、困难与疑问和下一步计划。',
-      '导师评审：老师评审后可以查看评分与评语。报告被退回时，按评语修改后提交新版本，之前的内容和进度都会保留。',
-    ],
-    notice: '四个阶段必须按顺序完成：前一个阶段没有完成时，后面的阶段是锁定的，页面会提示还差什么。',
-  },
+    get title(){return runtimeCopyText("student26.801eb872a710de92")},
+    get summary(){return runtimeCopyText("student26.0b6699cef3827b23")},
+    get steps(){return [
+      runtimeCopyText("student26.71e94e20b7893c6a"),
+      runtimeCopyText("student26.2fc439bc5b2796de"),
+      runtimeCopyText("student26.a8160252249046a3"),
+      runtimeCopyText("student26.35125dfc82a3dbc9"),
+    ]},
+    get notice(){return runtimeCopyText("student26.4ce33da01f821406")},
+
+titleCopyId:"student26.801eb872a710de92",summaryCopyId:"student26.0b6699cef3827b23",stepsCopyIds:["student26.71e94e20b7893c6a","student26.2fc439bc5b2796de","student26.a8160252249046a3","student26.35125dfc82a3dbc9"],noticeCopyId:"student26.4ce33da01f821406",
+__copyIds:{"title":"student26.801eb872a710de92","summary":"student26.0b6699cef3827b23"}},
   {
     id: 'tasks-works',
-    title: '课后任务与作品',
-    summary: '「课后任务」看整体待办，「我的作品」管理自己的成果。',
-    points: [
-      '「课后任务」按课程列出每一节课的状态：学习进度、报告状态和作品状态，从这里可以直接跳到没做完的部分。',
-      '提交作品时，作品名称必填；成果文字和附件至少提供一项即可。',
-      '附件单个最大 100 MB，支持图片、视频、PDF、Office 文档、ZIP 和指定的 3D 模型格式。',
-      '作品提交后由老师评审；被退回时按意见修改并重新提交，历史版本和评审意见都会保留。只有待评审或被退回的最新版本可以删除。',
-      '你只能提交和查看自己的作品，不能替别人提交；同学之间也互相看不到对方的作品。',
-    ],
-    notice: '学习记录和作品评审是两套状态：课时学完不等于作品通过，作品通过也不会自动完成课时。',
-  },
+    get title(){return runtimeCopyText("student26.5c6b4e6c1c3f2a02")},
+    get summary(){return runtimeCopyText("student26.22c88aec4169e936")},
+    get points(){return [
+      runtimeCopyText("student26.abfea880f47af0d2"),
+      runtimeCopyText("student26.cfb8ff8f31e9cbc2"),
+      runtimeCopyText("student26.11747e455810eb5d"),
+      runtimeCopyText("student26.c2de57f4e4fe73b3"),
+      runtimeCopyText("student26.af3fe1b72004c24d"),
+    ]},
+    get notice(){return runtimeCopyText("student26.622f88aac7dfd2dc")},
+
+titleCopyId:"student26.5c6b4e6c1c3f2a02",summaryCopyId:"student26.22c88aec4169e936",pointsCopyIds:["student26.abfea880f47af0d2","student26.cfb8ff8f31e9cbc2","student26.11747e455810eb5d","student26.c2de57f4e4fe73b3","student26.af3fe1b72004c24d"],noticeCopyId:"student26.622f88aac7dfd2dc",
+__copyIds:{"title":"student26.5c6b4e6c1c3f2a02","summary":"student26.22c88aec4169e936"}},
   {
     id: 'archive',
-    title: '成长档案与反思日志',
-    summary: '档案记录你参与过什么、完成到什么程度。',
-    points: [
-      '「成长档案」按「课程 → 课时」查看学习进度、最新报告与导师评语，以及作品和它的历次迭代。',
-      '参与记录不等于完成记录：完成日期只在老师或系统已有记录时显示。',
-      '反思日志可以写在课时的报告阶段，也可以从成长档案页单独提交。独立反思日志每天一篇，按北京时间零点计算。',
-      '独立反思有三个输入框：今天想记下什么、和别人一起时的感受、还想说些什么，任选一项填写即可，每个框最多 2000 字。填写内容由负责课程的老师查看，其他同学看不到。',
-      '反思的草稿保存在当前浏览器里，按账号和课程分开存放；提交成功后才保存到服务器。',
-    ],
-    notice: '离开或刷新页面会丢失没有提交的文字，写完后记得点击提交。',
-  },
+    get title(){return runtimeCopyText("student26.33fbc45b9f1acbf2")},
+    get summary(){return runtimeCopyText("student26.fa6a9d139ce25c69")},
+    get points(){return [
+      runtimeCopyText("student26.0b10f82c82517bd7"),
+      runtimeCopyText("student26.a72ccd9057873cb9"),
+      runtimeCopyText("student26.9f28c9677415fe75"),
+      runtimeCopyText("student26.4eb34bbd9336cc1d"),
+      runtimeCopyText("student26.59065976a3898c29"),
+    ]},
+    get notice(){return runtimeCopyText("student26.823047bba8999399")},
+
+titleCopyId:"student26.33fbc45b9f1acbf2",summaryCopyId:"student26.fa6a9d139ce25c69",pointsCopyIds:["student26.0b10f82c82517bd7","student26.a72ccd9057873cb9","student26.9f28c9677415fe75","student26.4eb34bbd9336cc1d","student26.59065976a3898c29"],noticeCopyId:"student26.823047bba8999399",
+__copyIds:{"title":"student26.33fbc45b9f1acbf2","summary":"student26.fa6a9d139ce25c69"}},
   {
     id: 'lab',
-    title: '实验工具：滑翔机模拟实验室',
-    summary: '「实验工具」里的滑翔机模拟实验室，用来验证你的设计想法。',
-    points: [
-      '从课程里的「实验室」进入时会自动带上课程和课时；从「实验工具」进入则是一个自由实验室，可以不选课程单独试飞。',
-      '调整机翼、重心、速度、质量与尾翼等共 7 项参数后点击「开始试飞」，等待计算完成，就能看到 6 项数值指标、三维航迹和飞行遥测图。',
-      '每次试飞都会单独保存一条记录，可以随时回看当时的结果；正在编辑的参数不会被历史记录改动。',
-      '计算需要一点时间，可以稍后回到试飞记录里查看结果。',
-    ],
-    notice: '试飞结果不会自动提交为作品，也不会自动完成课时；需要交作品时请到作品入口单独填写。',
-  },
+    get title(){return runtimeCopyText("student26.744e37ecddf8895a")},
+    get summary(){return runtimeCopyText("student26.f305549738cd86c9")},
+    get points(){return [
+      runtimeCopyText("student26.f6512e96bfc8b2c9"),
+      runtimeCopyText("student26.cc250c6cb2e2aa0f"),
+      runtimeCopyText("student26.e9a6f4441385b7ed"),
+      runtimeCopyText("student26.b493df2076dc81cb"),
+    ]},
+    get notice(){return runtimeCopyText("student26.9677243246b48469")},
+
+titleCopyId:"student26.744e37ecddf8895a",summaryCopyId:"student26.f305549738cd86c9",pointsCopyIds:["student26.f6512e96bfc8b2c9","student26.cc250c6cb2e2aa0f","student26.e9a6f4441385b7ed","student26.b493df2076dc81cb"],noticeCopyId:"student26.9677243246b48469",
+__copyIds:{"title":"student26.744e37ecddf8895a","summary":"student26.f305549738cd86c9"}},
   {
     id: 'assistant',
-    title: '灵境小智（课程 AI 助手）',
-    summary: '遇到看不懂的内容时，可以就当前课程提问。',
-    points: [
-      '入口在课程里：进入任意一门课程后，点击页面上的小机器人按钮，就能打开「灵境小智」对话（机器人可以拖动位置）。',
-      '回答基于这门课程的资料，并会列出引用来源，可以点开查看原文或下载资料，方便你核对。',
-      '只能在你已报名的课程范围内提问；课程不可用或老师尚未开启时，页面会给出提示。',
-      '单个问题最多 1000 字，Shift + Enter 换行。AI 的回答仅供参考，请结合课堂和老师讲的内容判断。',
-    ],
-  },
+    get title(){return runtimeCopyText("student26.aaaa193ca90efb51")},
+    get summary(){return runtimeCopyText("student26.df6b2081426fc85b")},
+    get points(){return [
+      runtimeCopyText("student26.8fb14c5914e931fc"),
+      runtimeCopyText("student26.f30f83d716a5b461"),
+      runtimeCopyText("student26.f23eff9a82aa2ef6"),
+      runtimeCopyText("student26.3669ef7991d49cc2"),
+    ]},
+
+titleCopyId:"student26.aaaa193ca90efb51",summaryCopyId:"student26.df6b2081426fc85b",pointsCopyIds:["student26.8fb14c5914e931fc","student26.f30f83d716a5b461","student26.f23eff9a82aa2ef6","student26.3669ef7991d49cc2"],
+__copyIds:{"title":"student26.aaaa193ca90efb51","summary":"student26.df6b2081426fc85b"}},
   {
     id: 'rewards',
-    title: '金币、徽章与奖励兑换',
-    summary: '金币按账号保存，课程里显示的是同一个余额。',
-    points: [
-      '每日签到：连续第 1 天 5 枚，之后每天增加 1 枚，第 6 天起每天 10 枚；中断后从 5 枚重新开始。',
-      '课时奖励：一节课的全部任务完成后，按你首次结算时已通过报告的分数发放一次；之后老师改分不会自动增减已到账的金币。',
-      '明细：在「我的金币」里可以看到签到、课时奖励和兑换的每一笔记录。',
-      '徽章墙：完成某一课时的全部学习任务后点亮对应徽章，「我的」页有入口。',
-      '奖励兑换：用金币兑换老师上架的礼品或徽章，兑换记录保存在服务器上，实物奖励由老师发放。金币不足、超出限兑次数或尚未上架时无法兑换。',
-    ],
-    notice: '兑换请求发出后如果结果没有立即确认，请点「重新核对这次兑换」恢复结果，不要重复发起。',
-  },
+    get title(){return runtimeCopyText("student26.9f614182a46c6b8b")},
+    get summary(){return runtimeCopyText("student26.42c9346c3959a0e3")},
+    get points(){return [
+      runtimeCopyText("student26.9eb2d0bc5a46fe55"),
+      runtimeCopyText("student26.d7eb009ac0dc147b"),
+      runtimeCopyText("student26.bc5beff25e6691ea"),
+      runtimeCopyText("student26.60cb057d0b1e7956"),
+      runtimeCopyText("student26.3852685430d6dbd2"),
+    ]},
+    get notice(){return runtimeCopyText("student26.57dde29b77df13b2")},
+
+titleCopyId:"student26.9f614182a46c6b8b",summaryCopyId:"student26.42c9346c3959a0e3",pointsCopyIds:["student26.9eb2d0bc5a46fe55","student26.d7eb009ac0dc147b","student26.bc5beff25e6691ea","student26.60cb057d0b1e7956","student26.3852685430d6dbd2"],noticeCopyId:"student26.57dde29b77df13b2",
+__copyIds:{"title":"student26.9f614182a46c6b8b","summary":"student26.42c9346c3959a0e3"}},
   {
     id: 'support',
-    title: '通知与帮助反馈',
-    summary: '进度变化和被退回的报告都会通过通知告诉你。',
-    points: [
-      '通知中心：顶部铃铛出现新通知时，可以按状态、类别和级别筛选，也可以一键全部标记已读或清除已读记录，点开查看详情。',
-      '帮助与反馈：在「我的」页进入，可以提交遇到的问题、建议或内容缺失，也可以上传截图附件；处理进度和沟通记录都在反馈详情里。',
-      '页面提示「请先登录」时重新登录即可；提示「请先修改初始密码」说明要先完成改密。',
-    ],
-  },
+    get title(){return runtimeCopyText("student26.47874a5a38b1dc85")},
+    get summary(){return runtimeCopyText("student26.4f1aca89efb02468")},
+    get points(){return [
+      runtimeCopyText("student26.7f4da86d999780ce"),
+      runtimeCopyText("student26.e3a992c3bf0e2325"),
+      runtimeCopyText("student26.1c9b7721822e740d"),
+    ]},
+
+titleCopyId:"student26.47874a5a38b1dc85",summaryCopyId:"student26.4f1aca89efb02468",pointsCopyIds:["student26.7f4da86d999780ce","student26.e3a992c3bf0e2325","student26.1c9b7721822e740d"],
+__copyIds:{"title":"student26.47874a5a38b1dc85","summary":"student26.4f1aca89efb02468"}},
   {
     id: 'faq',
-    title: '常见问题',
-    points: [
-      '看不到某门课程：请老师确认是否已把你加入课程，以及课程是否已发布。',
-      '课时进不去：地图上会写明原因（如未开放、已取消），按顺序完成上一节课的四个阶段即可解锁。',
-      '作品上传失败：检查文件格式和大小，附件单个不超过 100 MB。',
-      '今天写不了反思：每日一篇，按北京时间零点计算，次日可以再写。',
-      '卡片练习答错了：每题只有一次作答机会，可以查看解析并记录疑惑，在报告里说明。',
-      '按钮点了没有反应：先看页面提示是否还有前一个阶段没完成；刷新后仍未解决，请通过「帮助与反馈」告诉我们。',
-    ],
-  },
+    get title(){return runtimeCopyText("student26.6323dc41d23e65ef")},
+    get points(){return [
+      runtimeCopyText("student26.f92dd4840cc498d4"),
+      runtimeCopyText("student26.1d692327d06c8a35"),
+      runtimeCopyText("student26.df79d440391398fb"),
+      runtimeCopyText("student26.2a308d2feac5ec1f"),
+      runtimeCopyText("student26.2786beca0a8e8243"),
+      runtimeCopyText("student26.6d04a4cd8ec45a1f"),
+    ]},
+
+titleCopyId:"student26.6323dc41d23e65ef",pointsCopyIds:["student26.f92dd4840cc498d4","student26.1d692327d06c8a35","student26.df79d440391398fb","student26.2a308d2feac5ec1f","student26.2786beca0a8e8243","student26.6d04a4cd8ec45a1f"],
+__copyIds:{"title":"student26.6323dc41d23e65ef"}},
 ];
 
 // 待补：《作业完成要求》尚未定稿。定稿后把内容按上面的结构写进本数组即可，
@@ -152,5 +175,7 @@ export const homeworkRequirementSections = [];
 export const studentGuideDocument = {
   updatedAt: studentGuideUpdatedAt,
   sections: [...guideSections, ...homeworkRequirementSections],
-  footnote: '遇到指南没有覆盖的问题，可以在「我的」页提交帮助与反馈，或直接问任课老师。',
+  get footnote(){return runtimeCopyText("student26.9745963f45309ea6")},
+
+footnoteCopyId:"student26.9745963f45309ea6",
 };

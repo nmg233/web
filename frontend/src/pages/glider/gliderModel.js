@@ -1,35 +1,35 @@
 import {copyText as siteText} from "../../content/systemText.js";
 const STATE_META = {
-  ok: { color: 'green', label: siteText("site.dba91f0527625a95") },
-  landed: { color: 'blue', label: siteText("site.ad67c837db159790") },
-  hard_landing: { color: 'orange', label: siteText("site.14b3b523144b7619") },
-  'crashed(roll)': { color: 'red', label: siteText("site.8943530a08771937") },
-  'stalled/slow': { color: 'orange', label: siteText("site.612840ec62b28691") },
-  timedout: { color: 'default', label: siteText("site.8da676dfbfd767ce") },
+  get ok(){return { color: 'green', get label(){return siteText("site.dba91f0527625a95")} }},
+  get landed(){return { color: 'blue', get label(){return siteText("site.ad67c837db159790")} }},
+  get hard_landing(){return { color: 'orange', get label(){return siteText("site.14b3b523144b7619")} }},
+  get 'crashed(roll)'(){return { color: 'red', get label(){return siteText("site.8943530a08771937")} }},
+  get 'stalled/slow'(){return { color: 'orange', get label(){return siteText("site.612840ec62b28691")} }},
+  get timedout(){return { color: 'default', get label(){return siteText("site.8da676dfbfd767ce")} }},
 };
 
 export const STATE_TIPS = {
-  ok: siteText("site.09aaa2ea79fc4be3"),
-  landed: siteText("site.7cb2b95fd9c16af0"),
-  hard_landing: siteText("site.075eeed51b9a25aa"),
-  'crashed(roll)': siteText("site.446efa702ecc3f53"),
-  'stalled/slow': siteText("site.43feb7d63bd09975"),
-  timedout: siteText("site.e8262705b1a610ab"),
+  get ok(){return siteText("site.09aaa2ea79fc4be3")},
+  get landed(){return siteText("site.7cb2b95fd9c16af0")},
+  get hard_landing(){return siteText("site.075eeed51b9a25aa")},
+  get 'crashed(roll)'(){return siteText("site.446efa702ecc3f53")},
+  get 'stalled/slow'(){return siteText("site.43feb7d63bd09975")},
+  get timedout(){return siteText("site.e8262705b1a610ab")},
 };
 
 export function stateMeta(state) {
   return STATE_META[state] || { color: 'default', label: state || '—' };
 }
 
-export const flightParameters = [
-  { name: 'dihedral', field: 'dihedral_deg', title: siteText("site.6fc72c1ad447b09f"), label: siteText("site.bad404f95956e3bf"), unit: '°', initial: 5, min: 0, max: 15, step: 0.5, required: true },
-  { name: 'cg', field: 'cg_x', title: siteText("site.314a07f0a3576716"), label: siteText("site.7ebb1792970c7722"), unit: 'm', initial: 0, min: -1.5, max: 1.5, step: 0.1, required: true },
-  { name: 'speed', field: 'speed', title: siteText("site.477eb71ac396a1cf"), label: siteText("site.07736446459ac5f8"), unit: 'm/s', initial: 36, min: 15, max: 60, step: 1, required: true },
-  { name: 'wing_area', field: 'wing_area', title: siteText("site.6b89973dae6b89d8"), label: siteText("site.b6e2c2d81e558d25"), unit: 'm²', initial: 17.5, min: 10, max: 30, step: 0.5 },
-  { name: 'mass', field: 'mass', title: siteText("site.95b9479e1d59d024"), label: siteText("site.8e2a5457395e14fd"), unit: 'kg', initial: 420, min: 250, max: 700, step: 10 },
-  { name: 'elevator', field: 'elevator_deg', title: siteText("site.b6caa2c89a472a9d"), label: siteText("site.53ba6e9f82b5acce"), unit: '°', initial: 0, min: -15, max: 15, step: 0.5 },
-  { name: 'rudder', field: 'rudder_deg', title: siteText("site.ef6ee0ed57525fd6"), label: siteText("site.c9d5875c7240f7f1"), unit: '°', initial: 0, min: -15, max: 15, step: 0.5 },
-];
+export const flightParameters = new Proxy([],{get(_target,property){const current=[
+  { name: 'dihedral', field: 'dihedral_deg', get title(){return siteText("site.6fc72c1ad447b09f")}, get label(){return siteText("site.bad404f95956e3bf")}, unit: '°', initial: 5, min: 0, max: 15, step: 0.5, required: true },
+  { name: 'cg', field: 'cg_x', get title(){return siteText("site.314a07f0a3576716")}, get label(){return siteText("site.7ebb1792970c7722")}, unit: 'm', initial: 0, min: -1.5, max: 1.5, step: 0.1, required: true },
+  { name: 'speed', field: 'speed', get title(){return siteText("site.477eb71ac396a1cf")}, get label(){return siteText("site.07736446459ac5f8")}, unit: 'm/s', initial: 36, min: 15, max: 60, step: 1, required: true },
+  { name: 'wing_area', field: 'wing_area', get title(){return siteText("site.6b89973dae6b89d8")}, get label(){return siteText("site.b6e2c2d81e558d25")}, unit: 'm²', initial: 17.5, min: 10, max: 30, step: 0.5 },
+  { name: 'mass', field: 'mass', get title(){return siteText("site.95b9479e1d59d024")}, get label(){return siteText("site.8e2a5457395e14fd")}, unit: 'kg', initial: 420, min: 250, max: 700, step: 10 },
+  { name: 'elevator', field: 'elevator_deg', get title(){return siteText("site.b6caa2c89a472a9d")}, get label(){return siteText("site.53ba6e9f82b5acce")}, unit: '°', initial: 0, min: -15, max: 15, step: 0.5 },
+  { name: 'rudder', field: 'rudder_deg', get title(){return siteText("site.ef6ee0ed57525fd6")}, get label(){return siteText("site.c9d5875c7240f7f1")}, unit: '°', initial: 0, min: -15, max: 15, step: 0.5 },
+];const item=Reflect.get(current,property);return typeof item==='function'?item.bind(current):item;}});
 export const initialFlightParameters = Object.fromEntries(flightParameters.map((parameter) => [parameter.name, parameter.initial]));
 export function flightMetrics(record) {
   return [

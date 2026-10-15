@@ -1,3 +1,4 @@
+import {runtimeText as runtimeCopyText} from '../content/runtimeCopy.js';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../content/systemText.js";
 // 仅建立学生展示范围。服务端仍须补齐课程授权，不能以此替代接口权限。
 const key = (value) => String(value);
@@ -6,10 +7,10 @@ const list = (value, name) => {
   return value;
 };
 export const scoreText = (value) => value == null || value === '' ? siteText("site.3188a17414ed8a7e") : String(value);
-export const workDimensions = [['problem_discovery', '问题发现'], ['solution_design', '方案设计'], ['hands_on', '动手操作'], ['data_analysis', '数据分析'], ['presentation', '表达展示']];
+export const workDimensions = new Proxy([],{get(_target,property){const current=[['problem_discovery', runtimeCopyText("student26.d91bb052cbcb63f5")], ['solution_design', runtimeCopyText("student26.a4718306cfb8d317")], ['hands_on', runtimeCopyText("student26.e0d4fc743615b8d0")], ['data_analysis', runtimeCopyText("student26.b8f429871b23deb7")], ['presentation', runtimeCopyText("student26.7fa9d0689ab306ee")]];const item=Reflect.get(current,property);return typeof item==='function'?item.bind(current):item;}});
 export function workStatus(work) {
-  if (work.review_status === 'rejected' && work.has_newer_version) return { label: siteText("site.9b9a2408e4780d10"), tone: 'neutral', revisable: false };
-  return ({ approved: { label: siteText("site.2b12b3bd7cb9df2a"), tone: 'success' }, pending: { label: siteText("site.524b30587b5c504e"), tone: 'current' }, rejected: { label: siteText("site.a5b10e8f9852365f"), tone: 'warning', revisable: true } })[work.review_status] || { label: siteText("site.0b79b091e3605014"), tone: 'neutral' };
+  if (work.review_status === 'rejected' && work.has_newer_version) return { label: siteText("site.9b9a2408e4780d10"), tone: 'neutral', revisable: false};
+  return ({ approved: { label: siteText("site.2b12b3bd7cb9df2a"), tone: 'success'}, pending: { label: siteText("site.524b30587b5c504e"), tone: 'current'}, rejected: { label: siteText("site.a5b10e8f9852365f"), tone: 'warning', revisable: true} })[work.review_status] || { label: siteText("site.0b79b091e3605014"), tone: 'neutral'};
 }
 export function workCounts(works) {
   return { projects: new Set(works.map((work) => key(work.parent_work_id || work.id))).size, iterations: works.filter((work) => work.parent_work_id).length };

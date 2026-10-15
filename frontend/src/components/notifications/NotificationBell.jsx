@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Popover } from 'antd';
@@ -33,13 +34,13 @@ function Recent({ close }) {
     } catch (err) { if (resource.isCurrent()) setError(requestError(err, { action: siteText("site.ecc77aa768aa6f3a"), write: true })); }
     finally { if (resource.isCurrent()) { pending.current = false; setBusy(false); } }
   };
-  return <div className="notification-popover" role="region" aria-label={siteText("site.2ef554fb6b27874b")}>
-    <header><strong>{siteText("site.ee45818595dc6fe2")}</strong><Button type="link" onClick={() => { close(); navigate('/notifications'); }}>{siteText("site.09ba1412b4de814e")}</Button><Button type="text" onClick={close} aria-label={siteText("site.300ec2ebfb8b03d3")}>×</Button></header>
-    {countError && <Alert type="warning" title={siteText("site.f9ebb056d8ee1643")} action={<Button aria-label={siteText("site.dcaec150da9f1658")} onClick={() => refreshUnread().catch(() => {})}>{siteText("site.59aa273395083ca9")}</Button>} />}
+  return <div className="notification-popover" role="region" aria-label={siteText("site.2ef554fb6b27874b")} data-copy-bindings={JSON.stringify(["site.2ef554fb6b27874b"])}>
+    <header><strong>{<StudentCopyText id={"site.ee45818595dc6fe2"}/>}</strong><Button type="link" onClick={() => { close(); navigate('/notifications'); }}>{<StudentCopyText id={"site.09ba1412b4de814e"}/>}</Button><Button type="text" onClick={close} aria-label={siteText("site.300ec2ebfb8b03d3")} data-copy-bindings={JSON.stringify(["site.300ec2ebfb8b03d3"])}>×</Button></header>
+    {countError && <Alert type="warning" title={siteText("site.f9ebb056d8ee1643")} action={<Button aria-label={siteText("site.dcaec150da9f1658")} onClick={() => refreshUnread().catch(() => {})} data-copy-bindings={JSON.stringify(["site.dcaec150da9f1658"])}>{<StudentCopyText id={"site.59aa273395083ca9"}/>}</Button>}  data-copy-bindings={JSON.stringify(["site.f9ebb056d8ee1643"])}/>}
     {error && <Alert type="error" role="alert" title={error} />}
-    <div className="notification-popover-list"><ReadState {...resource} object={siteText("site.3328b96d26841f3b")} empty={!resource.data?.length} emptyText={siteText("site.cf9a095b8189d247")}>
+    <div className="notification-popover-list"><ReadState {...resource} object={siteText("site.3328b96d26841f3b")} empty={!resource.data?.length} emptyText={siteText("site.cf9a095b8189d247")} data-copy-bindings={JSON.stringify(["site.3328b96d26841f3b","site.cf9a095b8189d247"])}>
       {resource.data?.map((item) => <NotificationItem key={item.id} notification={item} compact disabled={busy} onClick={handleClick} />)}
-    </ReadState></div><footer>{siteText("site.6d082232dfb6a987")}</footer>
+    </ReadState></div><footer>{<StudentCopyText id={"site.6d082232dfb6a987"}/>}</footer>
   </div>;
 }
 export default function NotificationBell({ icon, buttonClassName }) {
@@ -59,7 +60,7 @@ export default function NotificationBell({ icon, buttonClassName }) {
     content={<div>{open && <Recent key={user.id} close={close} />}</div>} styles={{ body: { padding: 0 } }}>
     <Badge count={countError ? '!' : unreadCount ?? '—'} overflowCount={99} size="small">
       <Button ref={trigger} type="text" shape="circle" className={buttonClassName} aria-label={siteText("site.39fb2788c08dbbd2")} aria-expanded={open}
-        title={countError ? siteText("site.4f7b1541c989a4f5") : unreadCount === null ? siteText("site.42960e8fd4036930") : siteTemplate("site.b48ef5ea93b72806", {slot0: (unreadCount)})} icon={icon || <BellOutlined />} />
+        title={countError ? siteText("site.4f7b1541c989a4f5") : unreadCount === null ? siteText("site.42960e8fd4036930") : siteTemplate("site.b48ef5ea93b72806", {slot0: (unreadCount)})} icon={icon || <BellOutlined />}  data-copy-bindings={JSON.stringify(["site.39fb2788c08dbbd2","site.4f7b1541c989a4f5","site.42960e8fd4036930","site.b48ef5ea93b72806"])}/>
     </Badge>
   </Popover>;
 }

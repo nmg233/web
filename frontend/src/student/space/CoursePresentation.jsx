@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 /* eslint-disable react-refresh/only-export-components */
 import {createContext,useContext,useCallback,useEffect} from 'react';
 import {useAuth} from '../../store/AuthContext';
@@ -15,7 +16,7 @@ function Metadata({id,children}){
  const {data,error,retry}=useRemote(fetcher,{courseSensitive:true,courseId:id,retainDataOnRetry:true});
  useEffect(()=>{if(!id)return;const read=()=>{if(!document.hidden)retry();};window.addEventListener('focus',read);return()=>window.removeEventListener('focus',read);},[id,retry]);
  const value={...coursePresentation(data?.course),id,data,error,retry,experiments:data?.experiments||[],groups:(data?.chapters||[]).map(c=>({id:c.id,title:c.title,lessonIds:(data.lessons||[]).filter(l=>l.chapter_id===c.id).map(l=>l.id)}))};
- if(id&&!data){const back=<Link to="/explore" className="student-status-return">{copyText('course.nav.exit')}</Link>;return error?<StudentPageStatus title={copyText('maintenance.metadata.error')} description={error}>{back}<Button onClick={retry}>{copyText('maintenance.retryRead')}</Button></StudentPageStatus>:<PageLoading>{copyText('maintenance.metadata.loading')}<br/>{back}</PageLoading>;}
+ if(id&&!data){const back=<Link to="/explore" className="student-status-return">{<StudentCopyText id={'course.nav.exit'}/>}</Link>;return error?<StudentPageStatus title={copyText('maintenance.metadata.error')} description={error} data-copy-bindings={JSON.stringify(['maintenance.metadata.error'])}>{back}<Button onClick={retry}>{<StudentCopyText id={'maintenance.retryRead'}/>}</Button></StudentPageStatus>:<PageLoading>{<StudentCopyText id={'maintenance.metadata.loading'}/>}<br/>{back}</PageLoading>;}
  return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export function useCoursePresentation(){return useContext(Context)||{...coursePresentation(null),experiments:[],groups:[],data:null};}

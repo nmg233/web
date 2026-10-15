@@ -1,3 +1,5 @@
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy';
+import StudentCopyText from '../../content/ManagedText';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert, Button, Card, Segmented, Select, Space, Spin, Typography,
@@ -11,9 +13,9 @@ import { GliderRenderer3D } from '../../../../simulation/glider/web_renderer/ren
 const { Text } = Typography;
 
 const CAMERA_OPTIONS = [
-  { label: '全景', value: 'fixed' },
-  { label: '追逐', value: 'chase' },
-  { label: '跟随取景', value: 'follow' },
+  { get label(){return runtimeCopyText("student26.ed5e56ae64231fae")}, value: 'fixed' },
+  { get label(){return runtimeCopyText("student26.78a064358ece97e0")}, value: 'chase' },
+  { get label(){return runtimeCopyText("student26.666d34aa395cfbd7")}, value: 'follow' },
 ];
 const SPEED_OPTIONS = [
   { label: '0.5×', value: 0.5 },
@@ -134,7 +136,7 @@ export default function FlightReplay3D({ simId }) {
   const pct = duration > 0 ? Math.min(100, Math.max(0, (time / duration) * 100)) : 0;
 
   return (
-    <Card size="small" title="✈️ 飞行过程回放（3D 实时渲染）" style={{ marginBottom: 16 }}>
+    <Card size="small" title={runtimeCopyText("student26.eb01617967596930")} style={{ marginBottom: 16 }} data-copy-bindings={JSON.stringify(["student26.eb01617967596930"])}>
       <div style={{ position: 'relative', background: '#000', borderRadius: 6, overflow: 'hidden' }}>
         <canvas
           ref={canvasRef}
@@ -143,7 +145,7 @@ export default function FlightReplay3D({ simId }) {
         {loading && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             <Spin size="large" />
-            <Text type="secondary">正在加载逐帧轨迹数据…</Text>
+            <Text type="secondary"><StudentCopyText id="student26.0f0eb4709585ef87"/></Text>
           </div>
         )}
       </div>
@@ -164,7 +166,7 @@ export default function FlightReplay3D({ simId }) {
             </Space>
             <Space wrap>
               <Segmented size="small" value={speed} options={SPEED_OPTIONS} onChange={changeSpeed} />
-              <Segmented size="small" value={camera} options={CAMERA_OPTIONS} onChange={changeCamera} />
+              <Segmented size="small" value={camera} options={CAMERA_OPTIONS.map(option=>({...option}))} onChange={changeCamera} />
               <Select
                 size="small"
                 value={light}
@@ -177,7 +179,7 @@ export default function FlightReplay3D({ simId }) {
           {/* 点击定位进度条（无拖动）：单击任意位置跳转到对应时刻 */}
           <div
             role="slider"
-            aria-label="回放进度"
+            aria-label={runtimeCopyText("student26.e6dae33c5812c4ad")}
             aria-valuemin={0}
             aria-valuemax={Math.round(duration)}
             aria-valuenow={Math.round(time)}
@@ -186,7 +188,7 @@ export default function FlightReplay3D({ simId }) {
               position: 'relative', height: 8, margin: '12px 0',
               borderRadius: 4, background: 'rgba(0,0,0,0.06)', cursor: 'pointer',
             }}
-          >
+           data-copy-bindings={JSON.stringify(["student26.e6dae33c5812c4ad"])}>
             <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${pct}%`, background: '#1677ff', borderRadius: 4 }} />
             <div style={{
               position: 'absolute', top: '50%', left: `${pct}%`, width: 14, height: 14,
@@ -195,9 +197,7 @@ export default function FlightReplay3D({ simId }) {
             }}
             />
           </div>
-          <Text type="secondary">
-            前端基于逐帧轨迹数据实时渲染（three.js）：点击进度条回看任意时刻，可切换机位与光照效果。
-          </Text>
+          <Text type="secondary"><StudentCopyText id="student26.78f102ece1d4c770"/></Text>
         </>
       )}
     </Card>

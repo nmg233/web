@@ -15,26 +15,26 @@ export default function NotificationFilters({ value, onChange }) {
         allowClear
         placeholder={siteText("site.7c191691d853b210")} aria-label={siteText("site.7c191691d853b210")}
         value={value.read}
-        options={notificationReadOptions}
+        options={notificationReadOptions.map(option=>({...option}))}
         onChange={(read) => update('read', read)}
         style={{ width: 130 }}
-      />
+       data-copy-bindings={JSON.stringify(["site.7c191691d853b210"])}/>
       <Select
         allowClear
         placeholder={siteText("site.3b8d1245d0ec36bd")} aria-label={siteText("site.3b8d1245d0ec36bd")}
         value={value.category}
-        options={notificationCategoryOptions}
+        options={notificationCategoryOptions.map(option=>({...option}))}
         onChange={(category) => update('category', category)}
         style={{ width: 140 }}
-      />
+       data-copy-bindings={JSON.stringify(["site.3b8d1245d0ec36bd"])}/>
       <Select
         allowClear
         placeholder={siteText("site.2a077b850aea3fa3")} aria-label={siteText("site.2a077b850aea3fa3")}
         value={value.level}
-        options={notificationLevelOptions}
+        options={notificationLevelOptions.map(option=>({...option}))}
         onChange={(level) => update('level', level)}
         style={{ width: 130 }}
-      />
+       data-copy-bindings={JSON.stringify(["site.2a077b850aea3fa3"])}/>
     </Space>
   );
 }

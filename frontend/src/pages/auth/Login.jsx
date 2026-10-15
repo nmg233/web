@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText} from "../../content/copy";
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -11,13 +12,13 @@ import StudentTheme from '../../student/visual/StudentTheme';
 import PixelIcon from '../../student/visual/PixelIcon';
 import { PixelPanel, PixelButton } from '../../student/visual/PixelUI';
 import SceneArt from '../../student/space/SceneArt';
-import {PLATFORM_NAME} from '../../student/space/identity';
+
 import '../../student/visual/pixel-service.css';
 import {copyText} from '../../content/copy';
 import CopyBlock from '../../content/CopyBlock';
 import {displayText} from '../../content/displayText';
 
-export default function Login() {
+export default function Login({preview=false}={}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const pending = useRef(false);
@@ -31,6 +32,7 @@ export default function Login() {
   const navigate = useNavigate();
   const notice = error || authError || getSessionNotice();
   const onFinish = async (values) => {
+    if(preview){setError('管理员预览不会执行登录或修改当前身份');return;}
     if (pending.current) return;
     pending.current = true; setBusy(true); setError('');
     try {
@@ -41,23 +43,23 @@ export default function Login() {
   };
   return <StudentTheme><main className="voyage-login space-login patch-login" style={{'--login-height':viewport.height+'px','--login-top':viewport.top+'px'}}>
     <SceneArt key="patch-login" name="login-desktop" mobileName="login-mobile" patch priority className="patch-login-scene"/>
-    <header className="login-brand"><PixelIcon name="map" size={40} /><div><strong>{PLATFORM_NAME}</strong><span>{copyText('patch.login.account')}</span></div></header>
+    <header className="login-brand"><PixelIcon name="map" size={40} /><div><strong><StudentCopyText id="platform.name"/></strong><span>{<StudentCopyText id={'patch.login.account'}/>}</span></div></header>
     <div className="login-layout">
       <PixelPanel className="login-panel">
-        <span className="service-eyebrow">{copyText('patch.login.welcome')}</span><h1>{copyText('patch.login.title')}</h1><CopyBlock id="patch.login.hint" as="p" className="service-muted"/>
+        <span className="service-eyebrow">{<StudentCopyText id={'patch.login.welcome'}/>}</span><h1>{<StudentCopyText id={'patch.login.title'}/>}</h1><CopyBlock id="patch.login.hint" as="p" className="service-muted"/>
         {notice && <Alert role="alert" type="warning" showIcon title={displayText(notice)} />}
-        {authError && <Button onClick={retryRestore} loading={loading}>{copyText('patch.login.reload')}</Button>}
+        {authError && <Button onClick={retryRestore} loading={loading}>{<StudentCopyText id={'patch.login.reload'}/>}</Button>}
         <Form layout="vertical" onFinish={onFinish} size="large" requiredMark="optional">
-          <Form.Item name="username" label={copyText('patch.login.username')} rules={[{ required: true, whitespace: true, message: copyText('patch.login.needUsername') }]}>
-            <Input autoComplete="username" placeholder={copyText('patch.login.username')} />
+          <Form.Item name="username" label={copyText('patch.login.username')} rules={[{ required: true, whitespace: true, message: copyText('patch.login.needUsername') }]} data-copy-bindings={JSON.stringify(['patch.login.username','patch.login.needUsername'])}>
+            <Input autoComplete="username" placeholder={copyText('patch.login.username')}  data-copy-bindings={JSON.stringify(['patch.login.username'])}/>
           </Form.Item>
-          <Form.Item name="password" label={copyText('patch.login.password')} rules={[{ required: true, message: copyText('patch.login.needPassword') }]}>
-            <PasswordInput autoComplete="current-password" placeholder={copyText('patch.login.password')} />
+          <Form.Item name="password" label={copyText('patch.login.password')} rules={[{ required: true, message: copyText('patch.login.needPassword') }]} data-copy-bindings={JSON.stringify(['patch.login.password','patch.login.needPassword'])}>
+            <PasswordInput autoComplete="current-password" placeholder={copyText('patch.login.password')}  data-copy-bindings={JSON.stringify(['patch.login.password'])}/>
           </Form.Item>
-          <PixelButton type="primary" htmlType="submit" loading={busy} block>{copyText('patch.login.submit')}</PixelButton>
+          <PixelButton type="primary" htmlType="submit" loading={busy} block>{<StudentCopyText id={'patch.login.submit'}/>}</PixelButton>
         </Form>
         <CopyBlock id="patch.login.note" as="p" className="login-account-note"/>
       </PixelPanel>
-    </div><footer className="login-footer">{PLATFORM_NAME}<CopyBlock id="patch.login.footer" as="span"/></footer>
+    </div><footer className="login-footer"><StudentCopyText id="platform.name"/><CopyBlock id="patch.login.footer" as="span"/></footer>
   </main></StudentTheme>;
 }

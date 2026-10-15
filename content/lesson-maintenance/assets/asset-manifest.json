@@ -1,0 +1,71 @@
+{
+  "styleVersion": "1.0.0",
+  "courseId": null,
+  "note": "Confirmed teaching subject; nearest-neighbour lossless variants from supplied master. No production lesson identity supplied, not automatically bound.",
+  "assets": [
+    {
+      "id": "lesson-04-model-making",
+      "kind": "level-sprite",
+      "scope": "course",
+      "referenceIds": [
+        "level-vr",
+        "level-theory",
+        "level-glider"
+      ],
+      "generation": {
+        "tool": "built-in image_gen",
+        "model": null,
+        "prompt": "Create ONE NEW original transparent LEVEL PLATFORM SPRITE for lesson four in the existing 星海远航 PBL learning website.\nUSER-CONFIRMED LESSON SUBJECT: pupils use SIMPLE EVERYDAY MATERIALS to BUILD REAL LIGHTWEIGHT AIRPLANE MODELS, then FLY THEM INSIDE THEIR CLASSROOM. This is a hands-on maker lesson, not computer operation, VR, simulator software, a full-size airplane or a professional factory.\nUse the attached approved level-vr, level-theory and level-glider images as SAME-GROUP STYLE / PLATFORM references only. Create a DISTINCT new \"模型制作与教室试飞\" level. Do not duplicate the glider-experiment reference with its large completed airplane on launch rails.\nMAIN TEACHING OBJECT on the rear half of the platform: one compact WOODEN MODEL-MAKING WORKBENCH with ivory/navy legs. On the tabletop, show a clearly recognizable SMALL LIGHTWEIGHT FOAM-BOARD / PAPER AND BALSA AIRPLANE being assembled: a slim simple wooden/cardboard fuselage, broad white foam/paper wings with sparse teal edge markings, simple small tail and amber tape joints. It should look classroom-made and lightweight, not a detailed RC aircraft or spacecraft. One wing panel can be beside the fuselage rather than fully attached, clearly communicating making and assembling. A small finished folded paper airplane rests beside it, showing a flyable outcome without making a second dominant aircraft.\nSUPPORTING MATERIALS: one stack of cream paper/cardboard/foam sheets, one flat wing-shaped offcut, and a few LARGE readable craft tools such as a short ruler and rounded-tip scissors / amber tape roll. Keep only enough supporting objects to make the lesson recognizable; no tiny clutter. The model, separated wing and tools must be easily readable at 192-220 CSS pixels.\nCOMPOSITION: workbench and model are on the REAR HALF. Leave a CLEAR EMPTY FRONT-CENTER landing zone for the website's separate astronaut sprite, approximately x=50%,y=70% of the full image. Do not bake characters into the image. Maintain the same single floating octagonal engineering base, isometric 3/4 camera, upper-left light, ivory top tiles, dark navy mechanical underside, cyan edge lights, small amber rail posts, and short centered front steps as the references. Wood and paper provide warm classroom-maker character, while the base keeps the course's existing visual family. Entire silhouette inside square frame with genuinely transparent margins. No classroom scenery outside the platform.\nART DIRECTION: original coarse retro 16-bit pixel clusters, clean staircase contours, navy outlines, ivory structures, cyan highlights, warm wood and restrained gold. 2-3 flat shading bands per material, bold 64-96 logical-pixel feel; consistent visible pixel scale and clear object silhouette, not a smooth illustration with grain. No 3D render, continuous gradients, soft glow, antialiasing, photorealism, paint texture, dithering, blur, noise or microscopic detail.\nOUTPUT: ONE square 1024x1024 asset with true transparent alpha outside platform. No words, letters, numbers, watermark, school crest, route, labels, question mark, lock, badge, avatar, astronaut, person, UI or background/checkerboard. No computer monitors, control consoles, VR headsets or launch rails. The scene must clearly communicate children MAKING simple model airplanes for indoor trial flights, while keeping the same art family as the three references.",
+        "approvedBy": null
+      },
+      "landingAnchor": {
+        "x": 0.5,
+        "y": 0.65,
+        "note": "已在真实地图和浅深底220 CSS px预览独立宇航员；最终美术由用户复核"
+      },
+      "files": [
+        {
+          "role": "master",
+          "path": "lesson-04-making-master.png",
+          "width": 1254,
+          "height": 1254,
+          "alphaRequired": true,
+          "sha256": "d618cd577dfd48096e3f0f63ac1f06d74cb1e304f43487516ac0317bcd5a42a4",
+          "bytes": 1220680
+        },
+        {
+          "role": "web",
+          "path": "lesson-making-192.webp",
+          "width": 192,
+          "height": 192,
+          "alphaRequired": true,
+          "sha256": "8de6974a09e7c9a57143c25d35d0e5bb3be71bbc044867dd1d3bd052bf4e785b",
+          "bytes": 39828
+        },
+        {
+          "role": "web",
+          "path": "lesson-making-384.webp",
+          "width": 384,
+          "height": 384,
+          "alphaRequired": true,
+          "sha256": "b6dff75e370d9f57f7f57ef757515306e1e5cf230d3fd962e19ad09ea96b171d",
+          "bytes": 125152
+        }
+      ],
+      "manualChecks": {
+        "apparentPixelSize": "192/384最近邻无损WebP；已实际查看同组参照和220 CSS px浏览器叠加",
+        "silhouette": "整体轮廓完整，平台未裁切；角色前方落点可见",
+        "angleAndLighting": "已查看同组3/4俯视和左上光源参照",
+        "readableAtDisplaySize": "本地1440/768/390真实地图与浅深底预览通过；不是正式站验收",
+        "realTransparency": "RGBA alpha0..255；浏览器浅深底无底板；skill审计3图通过",
+        "userVisualAcceptance": "pending"
+      }
+    }
+  ],
+  "superseded": [
+    {
+      "path": "lesson-04-operation-master.png",
+      "reason": "用户确认题材前的通用终端草稿；不能作为第四课时最终图片"
+    }
+  ]
+}

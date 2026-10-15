@@ -1,3 +1,5 @@
+import {isCopyPreview} from '../../copy-review/previewMode.js';
+import StudentCopyText from '../../content/ManagedText';
 import OutboxPanel from '../../components/notifications/OutboxPanel';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -27,7 +29,7 @@ function Results({ filters, setFilters, currentReadRef }) {
     if (filters.page > last) setFilters(value => ({ ...value, page: last }));
   }, [resource.data, filters, setFilters]);
   const items = resource.data?.items || [], pagination = resource.data?.pagination;
-  return <ReadState {...resource} object={siteText("site.405493918b74e7d2")} empty={!items.length} emptyText={filters.read || filters.category || filters.level ? siteText("site.71da1f4b3006d37d") : siteText("site.49ccba0c67a677b4")}>
+  return <ReadState {...resource} object={siteText("site.405493918b74e7d2")} empty={!items.length} emptyText={filters.read || filters.category || filters.level ? siteText("site.71da1f4b3006d37d") : siteText("site.49ccba0c67a677b4")} data-copy-bindings={JSON.stringify(["site.405493918b74e7d2","site.71da1f4b3006d37d","site.49ccba0c67a677b4"])}>
     <div className="notification-list">{items.map(item => <NotificationItem key={item.id} notification={item} onClick={() => navigate(`/notifications/${item.id}`)} />)}</div>
     {pagination && <Pagination className="service-pagination" current={pagination.page} pageSize={pagination.pageSize} total={pagination.total} showSizeChanger showTotal={total => `共 ${total} 条`}
       onChange={(page, pageSize) => setFilters(value => ({ ...value, page, pageSize }))} />}
@@ -69,22 +71,22 @@ function AccountList() {
       if (alive.current) setNotice({ type: 'error', text: requestError(error, { action: siteText("site.c82af180cfd2ae07"), write: true }) });
     } finally { if (alive.current) { pending.current = false; setBusy(false); } }
   };
-  return <ServicePage title={siteText("site.79416a8ce702704f")} eyebrow={siteText("site.f3a5908f35d5a8aa")} description={siteText("site.d3e87f5e79033aaa")}>
+  return <ServicePage title={siteText("site.79416a8ce702704f")} eyebrow={siteText("site.f3a5908f35d5a8aa")} description={siteText("site.d3e87f5e79033aaa")} data-copy-bindings={JSON.stringify(["site.79416a8ce702704f","site.f3a5908f35d5a8aa","site.d3e87f5e79033aaa"])}>
     <ServicePanel>
       <div className="service-toolbar"><NotificationFilters value={filters} onChange={setFilters} /><Space wrap>
-        <Button disabled={busy || notice?.retry} onClick={() => run(notificationAPI.markAllRead, siteText("site.3a6ffa684c57a9b6"))}>{siteText("site.76c5c80ccc07591e")}</Button>
-        <Button disabled={busy || notice?.retry} onClick={() => setConfirm(true)}>{siteText("site.12dd0a248334665f")}</Button>
+        <Button disabled={busy || notice?.retry} onClick={() => run(notificationAPI.markAllRead, siteText("site.3a6ffa684c57a9b6"))}>{<StudentCopyText id={"site.76c5c80ccc07591e"}/>}</Button>
+        <Button disabled={busy || notice?.retry} onClick={() => setConfirm(true)}>{<StudentCopyText id={"site.12dd0a248334665f"}/>}</Button>
       </Space></div>
-      <p className="service-muted">{siteText("site.f086bf89a6f1a314")}</p>
+      <p className="service-muted">{<StudentCopyText id={"site.f086bf89a6f1a314"}/>}</p>
       <OperationNotice value={notice} onRetry={reread} />
       <Results key={JSON.stringify(filters)} filters={filters} setFilters={setFilters} currentReadRef={currentReadRef} />
       <ServiceModal title={siteText("site.d9e95b15b0c22838")} open={confirm} onCancel={() => !busy && setConfirm(false)} okText={siteText("site.498398e07f0cba40")} cancelText={siteText("site.a7740a240aee5108")} confirmLoading={busy}
-        onOk={() => run(notificationAPI.hideRead, siteText("site.83df7e0be066d32f"))}>
-        <p>{siteText("site.94b33fc322781440")}</p>
+        onOk={() => run(notificationAPI.hideRead, siteText("site.83df7e0be066d32f"))} data-copy-bindings={JSON.stringify(["site.d9e95b15b0c22838","site.498398e07f0cba40","site.a7740a240aee5108"])}>
+        <p>{<StudentCopyText id={"site.94b33fc322781440"}/>}</p>
         {confirm && <OperationNotice value={notice} />}
       </ServiceModal>
     </ServicePanel>
-  {user?.role==='admin'&&<OutboxPanel />}</ServicePage>;
+  {(user?.role==='admin'&&!isCopyPreview())&&<OutboxPanel />}</ServicePage>;
 }
 export default function NotificationList() {
   const { user } = useAuth();
