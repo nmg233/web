@@ -15,7 +15,7 @@ import { PixelTag } from './visual/PixelUI';
 import { StudySection } from './visual/StudyUI';
 import { formatBeijingTime } from '../utils/date';
 
-function WorkTask({ task, enrollmentId }) {
+function WorkTask({ task, enrollmentId,courseId,lessonId }) {
  const { taskAPI }=useCourseApis();
   const [paramsFromLocation] = useSearchParams();
   const targetRef = useRef(null);
@@ -27,7 +27,7 @@ function WorkTask({ task, enrollmentId }) {
   const latest = data?.works?.[0];
   const params = new URLSearchParams({ task_id: task.id, enrollment_id: enrollmentId });
   if (latest) params.set('parent_work_id', latest.id);
-  return <article ref={targetRef} id={`task-${task.id}`} className="study-task" aria-labelledby={`task-title-${task.id}`}><h4 id={`task-title-${task.id}`}><ConfigCopyText object={task} field="title" value={task.title}/></h4>{task.description&&<Sentence className="study-prose"><ConfigCopyText sentence object={task} field="description" value={task.description}/></Sentence>}<Sentence className="study-help">{<StudentCopyText id={"site.3d6c1f9e2b4df99f"}/>}{task.deadline ? formatBeijingTime(task.deadline) : <StudentCopyText id={"site.2ea50caa0c351eb4"}/>}</Sentence>
+  return <article ref={targetRef} id={`task-${task.id}`} className="study-task" aria-labelledby={`task-title-${task.id}`}><h4 id={`task-title-${task.id}`} data-teaching-field="tasks" data-object-id={task.id} data-course-id={courseId} data-lesson-id={lessonId}><ConfigCopyText object={task} field="title" value={task.title}/></h4>{task.description&&<Sentence className="study-prose" data-teaching-field="tasks" data-object-id={task.id} data-course-id={courseId} data-lesson-id={lessonId}><ConfigCopyText sentence object={task} field="description" value={task.description}/></Sentence>}<Sentence className="study-help">{<StudentCopyText id={"site.3d6c1f9e2b4df99f"}/>}{task.deadline ? formatBeijingTime(task.deadline) : <StudentCopyText id={"site.2ea50caa0c351eb4"}/>}</Sentence>
     <AsyncPageState loading={loading} error={error} onRetry={retry}>
       <ul className="study-work-versions">{data?.works.map((work) => <li key={work.id}><Link to={`/works/${work.id}`}><span>{<StudentCopyText id={"site.732faa1b624adfa1"}/>}{work.version}{<StudentCopyText id={"site.c2e886a8b47f1396"}/>}<ConfigCopyText object={work} field="title" value={work.title}/></span><PixelTag tone={work.review_status === 'approved' ? 'success' : work.review_status === 'rejected' && work.id === latest.id ? 'warning' : 'neutral'}>{work.review_status === 'rejected' ? work.id === latest.id ? <StudentCopyText id={"site.6ed0cd1cdd89df67"}/> : <StudentCopyText id={"site.a9367e7f44abf059"}/> : work.review_status === 'approved' ? <StudentCopyText id={"site.ef08c63283bf35ed"}/> : <StudentCopyText id={"site.332086cefacb4063"}/>}</PixelTag></Link></li>)}</ul>
       {latest?.reject_reason && <Alert type="warning" title={siteText("site.b25384afea7692bc")} description={latest.reject_reason}  data-copy-bindings={JSON.stringify(["site.b25384afea7692bc"])}/>}
@@ -50,6 +50,6 @@ export default function LessonWorks({ courseId, lessonId }) {
   const tasks = data?.tasks.filter((task) => String(task.lesson_id) === String(lessonId)) || [];
   return <StudySection ref={sectionRef} id="lesson-works" className="lesson-works" number="W" title={siteText("site.422217ee612b1ccc")} description={siteText("site.3de0e858a9327c2c")} data-copy-bindings={JSON.stringify(["site.422217ee612b1ccc","site.3de0e858a9327c2c"])}>
     <Alert type="info" title={siteText("site.e8f9371af35069d9")}  data-copy-bindings={JSON.stringify(["site.e8f9371af35069d9"])}/>
-    <AsyncPageState loading={loading} error={error} onRetry={retry}>{!tasks.length ? <Empty description={siteText("site.b72d32730ce31ed8")}  data-copy-bindings={JSON.stringify(["site.b72d32730ce31ed8"])}/> : tasks.map((task) => <WorkTask key={task.id} task={task} enrollmentId={data.enrollments[0]?.id} />)}</AsyncPageState>
+    <AsyncPageState loading={loading} error={error} onRetry={retry}>{!tasks.length ? <Empty description={siteText("site.b72d32730ce31ed8")}  data-copy-bindings={JSON.stringify(["site.b72d32730ce31ed8"])}/> : tasks.map((task) => <WorkTask key={task.id} task={task} courseId={courseId} lessonId={lessonId} enrollmentId={data.enrollments[0]?.id} />)}</AsyncPageState>
   </StudySection>;
 }

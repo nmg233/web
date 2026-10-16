@@ -126,3 +126,7 @@ docs/next-version/step-02/browser-first/
 !docs/lesson-maintenance/*.md
 !docs/lesson-maintenance/*.html
 /docs/lesson-maintenance/evidence/
+
+!docs/student-copy-inline/*.md
+!docs/student-copy-inline/*.html
+/docs/student-copy-inline/evidence/

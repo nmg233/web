@@ -10724,20 +10724,27 @@
     "file": "frontend/src/student/space/ArticleContent.jsx",
     "ids": [
       "authoring.retry",
+      "inline.article.fileUnavailable",
       "next.visit.photoUnavailable"
     ],
-    "runtimeReferences": [],
+    "runtimeReferences": [
+      {
+        "line": 20,
+        "id": "inline.article.fileUnavailable",
+        "kind": "runtime"
+      }
+    ],
     "inlineMarkers": [
       {
-        "line": 15,
+        "line": 16,
         "id": "dynamic"
       },
       {
-        "line": 15,
+        "line": 16,
         "id": "authoring.retry"
       },
       {
-        "line": 18,
+        "line": 24,
         "id": "next.visit.photoUnavailable"
       }
     ],

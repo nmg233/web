@@ -39975,5 +39975,15 @@
     "scope": "system",
     "type": "system",
     "sourceFile": "frontend/src/student/space/LessonLearningView.jsx"
+  },
+  "inline.article.fileUnavailable": {
+    "text": "附件暂时无法读取，请稍后重试",
+    "enabled": true,
+    "optional": false,
+    "scope": "system",
+    "type": "system",
+    "sourceFile": "frontend/src/student/space/ArticleContent.jsx",
+    "page": "课时学习",
+    "position": "附件下载错误"
   }
 }

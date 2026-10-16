@@ -25,16 +25,21 @@ function write(db,user,name,body,action='save'){
  return db.transaction(()=>{
   admin(db,user);const old=current(db,name);if(old.revision!==body.expectedRevision)fail('文案已由其他管理员修改，请核对新版本，当前输入保留',409);
   let draft=parse(old.draft_json),published=parse(old.published_json);
-  if(action==='save'){
+  if(action==='save'||action==='sync'){
    if(!Array.isArray(body.changes)||!body.changes.length||body.changes.length>2000)fail('每次保存1至2000条修改');const seen=new Set();
-   for(const change of body.changes){if(seen.has(change.id))fail('重复文案ID');seen.add(change.id);const value=validate(change);if(value)draft[change.id]=value;else delete draft[change.id];}
+   for(const change of body.changes){if(seen.has(change.id))fail('重复文案ID');seen.add(change.id);const value=validate(change);
+    if(action==='sync'&&JSON.stringify(draft[change.id])!==JSON.stringify(published[change.id])&&!(Array.isArray(body.confirmedDraftIds)&&body.confirmedDraftIds.includes(change.id)))fail('所选文字存在未发布历史草稿，请核对差异后明确确认',409);
+    if(value){draft[change.id]=value;if(action==='sync')published[change.id]=value;}else{delete draft[change.id];if(action==='sync')delete published[change.id];}
+   }
   }else if(action==='restore'){
    if(body.defaults===true)draft={};else{const h=db.prepare('SELECT * FROM student_copy_history WHERE id=? AND scope=? AND action=\'publish\'').get(body.historyId,name);if(!h)fail('发布历史不存在',404);draft=parse(h.entries_json);}
   }else if(action==='publish')published=structuredClone(draft);else fail('操作无效');
-  const revision=old.revision+1,publishedRevision=action==='publish'?revision:old.published_revision;
+  // Sync publishes exactly the confirmed selection. Unrelated draft entries remain unpublished.
+  const publication=action==='publish'||action==='sync',historyAction=publication?'publish':action;
+  const revision=old.revision+1,publishedRevision=publication?revision:old.published_revision;
   db.prepare(`INSERT INTO student_copy_scopes(scope,draft_json,published_json,revision,published_revision,updated_by,published_by,published_at) VALUES(?,?,?,?,?,?,?,CASE WHEN ?='publish' THEN CURRENT_TIMESTAMP ELSE NULL END)
-   ON CONFLICT(scope) DO UPDATE SET draft_json=excluded.draft_json,published_json=excluded.published_json,revision=excluded.revision,published_revision=excluded.published_revision,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP,published_by=CASE WHEN ?='publish' THEN excluded.published_by ELSE student_copy_scopes.published_by END,published_at=CASE WHEN ?='publish' THEN CURRENT_TIMESTAMP ELSE student_copy_scopes.published_at END`).run(name,JSON.stringify(draft),JSON.stringify(published),revision,publishedRevision,user.id,action==='publish'?user.id:null,action,action,action);
-  db.prepare('INSERT INTO student_copy_history(scope,revision,entries_json,action,actor_id) VALUES(?,?,?,?,?)').run(name,revision,JSON.stringify(action==='publish'?published:draft),action,user.id);
+    ON CONFLICT(scope) DO UPDATE SET draft_json=excluded.draft_json,published_json=excluded.published_json,revision=excluded.revision,published_revision=excluded.published_revision,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP,published_by=CASE WHEN ?='publish' THEN excluded.published_by ELSE student_copy_scopes.published_by END,published_at=CASE WHEN ?='publish' THEN CURRENT_TIMESTAMP ELSE student_copy_scopes.published_at END`).run(name,JSON.stringify(draft),JSON.stringify(published),revision,publishedRevision,user.id,publication?user.id:null,historyAction,historyAction,historyAction);
+  db.prepare('INSERT INTO student_copy_history(scope,revision,entries_json,action,actor_id) VALUES(?,?,?,?,?)').run(name,revision,JSON.stringify(publication?published:draft),historyAction,user.id);
   return managed(db,user,name);
  }).immediate();
 }

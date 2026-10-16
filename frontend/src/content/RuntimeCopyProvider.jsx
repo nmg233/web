@@ -11,7 +11,7 @@ export default function RuntimeCopyProvider({children,previewScope}){
  useEffect(()=>{document.title=runtimeText('platform.name');},[version]);
  useEffect(()=>{
   let live=true,ticket=0;setCopyScope(scope,enabled);if(!enabled)return;
-  const refresh=async()=>{const current=++ticket;try{const params={...(courseId?{courseId}:{}),...(lessonId?{lessonId}:{}),...(previewScope?{scope:previewScope}:{})};let result;
+  const refresh=async()=>{const current=++ticket;try{const params={...(courseId?{courseId}:{}),...(lessonId?{lessonId}:{}),...(previewScope?{scope:previewScope,publishedOnly:'true'}:{})};let result;
    if(!user){const r=await fetch('/api/student-copy/published',{cache:'no-store'});if(!r.ok)throw Error('文案读取失败');result=await r.json();}
    else result=await client.get('/student-copy/'+(previewScope?'preview':'published'),{params,silent:true,studentAccessProbe:true});
    if(live&&current===ticket)receiveCopy(scope,result.entries);

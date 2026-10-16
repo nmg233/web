@@ -64,7 +64,7 @@ function CourseResources({ resources, courseId }) {
   return <div className="pixel-map-resources">
     <Typography.Title level={3}>{<StudentCopyText id={'system.map.014'}/>}</Typography.Title>
     <Link to={'/courses/' + courseId + '/learn'} className="pixel-map-text-link"><PixelIcon name="book" />{<StudentCopyText id={'system.map.015'}/>}</Link>
-    {!resources.length ? <Empty description={copyText('system.map.016')}  data-copy-bindings={JSON.stringify(['system.map.016'])}/> : resources.map((resource) => <div key={resource.id} className="pixel-map-resource">
+    {!resources.length ? <Empty description={copyText('system.map.016')}  data-copy-bindings={JSON.stringify(['system.map.016'])}/> : resources.map((resource) => <div key={resource.id} className="pixel-map-resource" data-teaching-field="resources" data-object-id={resource.id} data-course-id={courseId} data-lesson-id={resource.lesson_id||undefined}>
       <Space wrap><Typography.Text strong><ConfigCopyText object={resource} field="title" value={resource.title}/></Typography.Text>{resource.has_file
         ? <PixelButton loading={pending[resource.id]} onClick={() => download(resource)}>{<StudentCopyText id={'system.map.017'}/>}<ConfigCopyText object={resource} field="title" value={resource.title}/></PixelButton>
         : <Typography.Text type="secondary">{<StudentCopyText id={'system.map.018'}/>}</Typography.Text>}</Space>
@@ -204,7 +204,7 @@ export function CourseMap() {
       <header className="pixel-map-header">
         <div>
           <Link to="/explore" className="pixel-map-back"><PixelIcon name="back" />{<StudentCopyText id={'system.map.045'}/>}</Link>
-          <Typography.Title level={2}>{course?.title || <StudentCopyText id={'system.map.046'}/>}</Typography.Title>
+          <Typography.Title level={2} data-teaching-field="course.title" data-course-id={id}>{course?.title || <StudentCopyText id={'system.map.046'}/>}</Typography.Title>
         </div>
         {data && <div className="pixel-map-header-actions">
           <PixelButton onClick={() => toggleSection('info')} aria-expanded={openSection === 'info'} aria-controls="course-information" icon={<PixelIcon name="book" />}>{<StudentCopyText id={'system.map.047'}/>}</PixelButton>
@@ -217,7 +217,7 @@ export function CourseMap() {
           {(studentTestConfigEnabled || look.sample) && <CopyBlock id="system.map.049" as="p" className="space-map-test-note"/>}
           <PixelPanel className="pixel-map-course-info" id="course-information" hidden={openSection !== 'info'}>
             <Typography.Title level={3}>{<StudentCopyText id={'system.map.050'}/>}</Typography.Title>
-            {course.description&&<Sentence as={Typography.Paragraph}><ConfigCopyText sentence object={course} field="description" value={course.description}/></Sentence>}
+            {course.description&&<Sentence as={Typography.Paragraph} data-teaching-field="course.description" data-course-id={id}><ConfigCopyText sentence object={course} field="description" value={course.description}/></Sentence>}
             <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }} items={[
               ...(course.theme?[{ key: 'theme', label: copyText('system.map.052'), children: course.theme ,__copyIds:{"label":"system.map.052"}}]:[]),
               { key: 'grade', label: copyText('system.map.054'), children: grades[course.grade_level] || course.grade_level || copyText('system.map.055') ,__copyIds:{"label":"system.map.054"}},
@@ -226,9 +226,9 @@ export function CourseMap() {
               { key: 'tasks', label: copyText('system.map.060'), children: data.tasks.length + copyText('system.map.061') ,__copyIds:{"label":"system.map.060"}},
             ]}  data-copy-bindings={JSON.stringify(['system.map.052','system.map.054','system.map.055','system.map.056','system.map.057','system.map.058','system.map.059','system.map.060','system.map.061'])}/>
             {(course.driving_question||course.story_line||course.materials_needed)&&<Collapse size="small" items={[{ key: 'intro', label: copyText('system.map.062'), children: <Descriptions column={1} items={[
-              { key: 'question', label: copyText('system.map.063'), children: course.driving_question ,__copyIds:{"label":"system.map.063"}},
-              { key: 'story', label: copyText('system.map.065'), children: course.story_line ,__copyIds:{"label":"system.map.065"}},
-              { key: 'materials', label: copyText('system.map.067'), children: course.materials_needed ,__copyIds:{"label":"system.map.067"}},
+              { key: 'question', label: copyText('system.map.063'), children: <span data-teaching-field="course.driving_question" data-course-id={id}>{course.driving_question}</span> ,__copyIds:{"label":"system.map.063"}},
+              { key: 'story', label: copyText('system.map.065'), children: <span data-teaching-field="course.story_line" data-course-id={id}>{course.story_line}</span> ,__copyIds:{"label":"system.map.065"}},
+              { key: 'materials', label: copyText('system.map.067'), children: <span data-teaching-field="course.materials_needed" data-course-id={id}>{course.materials_needed}</span> ,__copyIds:{"label":"system.map.067"}},
             ].filter(item=>item.children)}  data-copy-bindings={JSON.stringify(['system.map.063','system.map.065','system.map.067'])}/> ,__copyIds:{"label":"system.map.062"}}]}  data-copy-bindings={JSON.stringify(['system.map.062'])}/>}
             <div className="pixel-map-info-links"><Link to={'/courses/' + id + '/learn'}>{<StudentCopyText id={'system.map.069'}/>}</Link>
               {current && <Link to={'/courses/' + id + '/lessons/' + current.id + '/learn'}>{<StudentCopyText id={'system.map.070'}/>}<ConfigCopyText object={current} field="title" value={current.title}/></Link>}

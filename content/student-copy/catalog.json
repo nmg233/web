@@ -161,6 +161,7 @@
   "guide.openFull",
   "guide.title",
   "guide.updatedAt",
+  "inline.article.fileUnavailable",
   "lesson.article.open",
   "maintenance.field.lesson_id",
   "maintenance.metadata.error",

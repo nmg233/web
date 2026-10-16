@@ -4,9 +4,9 @@ const action=fn=>(req,res,next)=>{try{res.set('Cache-Control','no-store');res.js
 router.get('/published',optionalAuth,(req,res,next)=>req.user?requirePasswordChanged(req,res,next):next(),action(req=>s.published(db,req.user,req.query)));
 router.use(requireAuth,requirePasswordChanged,requireRole('admin'));
 router.get('/preview-data',action(req=>require('../services/studentCopyPreview').previewData(db,req.user,req.query)));
-router.get('/preview',action(req=>{const base=s.published(db,req.user,req.query);s.scope(db,req.query.scope);return{...base,entries:{...base.entries,...s.managed(db,req.user,req.query.scope).draft},draftPreview:true};}));
+router.get('/preview',action(req=>{const base=s.published(db,req.user,req.query);s.scope(db,req.query.scope);return{...base,entries:req.query.publishedOnly==='true'?base.entries:{...base.entries,...s.managed(db,req.user,req.query.scope).draft},draftPreview:true};}));
 router.get('/registry',action(()=>({registry:s.registry})));
 router.get('/manage/:scope',action(req=>s.managed(db,req.user,req.params.scope)));
 router.post('/manage/:scope/import-preview',action(req=>s.importPreview(db,req.user,req.params.scope,req.body)));
-for(const actionName of ['save','publish','restore'])router.post('/manage/:scope/'+actionName,action(req=>s.write(db,req.user,req.params.scope,req.body,actionName)));
+for(const actionName of ['save','publish','restore','sync'])router.post('/manage/:scope/'+actionName,action(req=>s.write(db,req.user,req.params.scope,req.body,actionName)));
 module.exports=router;

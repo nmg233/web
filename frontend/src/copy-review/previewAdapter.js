@@ -14,6 +14,7 @@ export function previewRequest(config){
  else if(/^\/learning\/lessons\/\d+$/.test(p))data=c.package;
  else if(/\/preferences\/avatar$/.test(raw))data={avatarId:null};
  else if(p==='/dashboard/ai/courses'||p==='/ai/courses')data={enabled:false,courses:c.courses||[]};
+ else if(p==='/account/avatar')data={presetId:null,legacyUrl:null,preview:true};
  else if(p==='/student-guide')data={dismissed:true,version:'preview'};
  else if(p==='/account/daily-fortune')data={date:c.serverDate,level:'medium',art:'fortune-star',good:[],avoid:[],preview:true};
  else if(p==='/coins')data={balance:0,totalEarned:0,totalSpent:0,totalCheckins:0,history:[],today:{date:c.serverDate,checked:false,streak:0,todayStreak:1,amount:0,validForMs:3600000},preview:true};

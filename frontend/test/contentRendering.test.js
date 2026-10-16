@@ -18,6 +18,13 @@ before(async () => {
 });
 after(async () => { await server?.close(); });
 const markdown = (source) => renderToStaticMarkup(createElement(MarkdownContent, null, source));
+
+test('真实文章正文保留末尾句号、内部标点、网址与代码文字，不套系统标签去句号规则',async()=>{
+ const Article=(await server.ssrLoadModule('/src/student/space/ArticleContent.jsx')).default;
+ const text='真实正文。保留内部；网址 https://example.org/a；代码 x.y()。';
+ const html=renderToStaticMarkup(createElement(Article,{blocks:[{id:'real-body',type:'paragraph',text}],resources:[]}));
+ assert.ok(html.includes(text));assert.ok(html.includes('study-prose'));
+});
 test('共用页面容器保留显式文案绑定，教学及个人值不会通过 DOM 文本匹配定位',()=>{
  const html=renderToStaticMarkup(createElement(PageContainer,{title:'页面标签','data-copy-bindings':JSON.stringify(['stable.label'])},'真实业务值'));
  assert.ok(html.includes('data-copy-bindings="[&quot;stable.label&quot;]"'));assert.ok(html.includes('真实业务值'));

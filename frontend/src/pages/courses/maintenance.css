@@ -16,3 +16,6 @@
 
 /* Keep course controls below the staff header; authoring toolbar stays in normal flow. */
 .course-maintenance-page .course-detail-header{top:64px}
+
+/* Keep inline article previews compact enough to edit surrounding blocks. */
+.authoring-inline-panel .teaching-photo img{max-height:260px;object-fit:contain}

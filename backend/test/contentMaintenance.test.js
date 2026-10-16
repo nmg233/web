@@ -185,3 +185,13 @@ test('文章安全白名单、课时图片归属及维护授权由服务端强�
  assert.equal((await request(4,route('/lessons/1'),'PUT',{review_content:'管理员合法更新'})).status,200);
  db.prepare("UPDATE courses SET status='archived' WHERE id=1").run();assert.equal((await request(1,route('/lessons/1'),'PUT',{review_content:'归档拒绝'})).status,409);db.prepare("UPDATE courses SET status='published' WHERE id=1").run();
 });
+
+test('文章文件块复用当前课时真实附件，禁止外部嵌入与跨课程或文件伪装图片',async()=>{
+ const doc=(await file(1,1,'原位教材.txt',Buffer.from('隔离验收附件，不是正式教材'),'text/plain',{title:'原位附件',lesson_id:1})).body.id;
+ const blocks=[{id:'file-inline',type:'file',resourceId:doc,title:'真实附件说明',caption:'保留原文件'}];
+ assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks:blocks})).status,200);
+ assert.equal(JSON.parse(db.prepare('SELECT article_blocks FROM lessons WHERE id=1').get().article_blocks)[0].resourceId,doc);
+ assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks:[{...blocks[0],type:'image'}]})).status,400);
+ assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks:[{...blocks[0],url:'https://evil.invalid'}]})).status,400);
+ assert.ok([400,403,404].includes((await request(4,'/courses/2/maintenance/lessons/2','PUT',{article_blocks:blocks})).status));
+});
