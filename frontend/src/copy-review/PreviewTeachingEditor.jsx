@@ -1,0 +1,36 @@
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {Alert,Button,Drawer,Form,Input,Select,Space,Spin,Modal,Checkbox} from 'antd';
+import {maintenanceAPI as api} from '../pages/courses/maintenanceApi';
+import {learningManageAPI} from '../api';
+import InlineTeachingEditor from '../pages/courses/InlineTeachingEditor';
+import {requestError} from '../utils/requestError';
+import '../pages/courses/maintenance.css';
+
+const labels={title:'课时名称',description:'课时介绍',review_content:'课堂回顾正文',report_guidance:'报告与反思引导',experiment_guidance:'实验引导',teaching_tip:'教学提示',moments_note:'参观说明',article:'课堂文章',cards:'知识卡片',resources:'资料说明',tasks:'作品任务','course.title':'课程名称','course.description':'课程介绍','course.driving_question':'课程驱动问题','course.story_line':'课程故事说明','course.materials_needed':'课程材料说明'};
+export default function PreviewTeachingEditor({selection,onClose,onRefresh,onDirty,onBusy}){
+ const [data,setData]=useState(null),[policy,setPolicy]=useState(null),[cards,setCards]=useState([]),[objectId,setObjectId]=useState(selection.objectId?Number(selection.objectId):null),[error,setError]=useState(''),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false),[publishCard,setPublishCard]=useState(false),[form]=Form.useForm();
+ const live=useRef(true),changed=useRef(false),pending=useRef(false),known=useRef(null),identity=useRef(null);
+ const courseId=Number(selection.courseId),lessonId=Number(selection.lessonId),field=selection.field==='schedule'?'title':selection.field;
+ const read=useCallback(async()=>{const [next,formats,cardData]=await Promise.all([api.read(courseId),api.formats(),field==='cards'?learningManageAPI.cards(lessonId):Promise.resolve({cards:[]})]);if(live.current){setData(next);setPolicy(formats);setCards(cardData.cards||[]);}return next;},[courseId,field,lessonId]);
+ useEffect(()=>{live.current=true;void read().catch(e=>setError(requestError(e)));return()=>{live.current=false;onDirty(false);onBusy(false);};},[read,onDirty,onBusy]);
+ const lesson=data?.lessons.find(l=>l.id===lessonId),list=field==='cards'?cards:field==='resources'?(data?.resources||[]).filter(r=>r.lesson_id===lessonId||!r.lesson_id):field==='tasks'?(data?.tasks||[]).filter(t=>t.lesson_id===lessonId):[];
+ const row=field.startsWith('course.')?data?.course:['cards','resources','tasks'].includes(field)?(objectId?list.find(r=>r.id===objectId):list[0]):lesson;
+ const maxFor=name=>name==='title'?(field==='cards'?200:120):name==='content'?20000:name==='summary'?1000:10000;
+ const fields=field.startsWith('course.')?[field.split('.')[1]]:field==='cards'?['title','summary','content','key_points','common_mistakes','example_content']:['resources','tasks'].includes(field)?['title','description']:[];
+ useEffect(()=>{const key=row&&field+':'+row.id;if(key&&identity.current!==key){identity.current=key;known.current=row.content_revision;form.setFieldsValue(row);}},[row,field,form]);
+ const mark=useCallback(value=>{changed.current=value;onDirty(value);},[onDirty]);
+ const processing=useCallback(value=>{pending.current=value;onBusy(value);},[onBusy]);
+ const refresh=async()=>{const next=await read();await onRefresh();return next;};
+ const inspectLatest=async()=>{try{const next=await read(),latest=field.startsWith('course.')?next.course:field==='cards'?(await learningManageAPI.cards(lessonId)).cards.find(r=>r.id===row?.id):(next[field]||[]).find(r=>r.id===row?.id);if(!latest)throw Error('保存对象已不可访问');Modal.confirm({title:'核对最新教学内容，保留输入',content:<><p>服务器：{latest.title}</p>{fields.map(name=><p key={name}>{name}：{String(latest[name]??'')}</p>)}<p>只接收新修订号，当前输入不替换；核对后再次保存</p></>,onOk:()=>{known.current=latest.content_revision;setError('已采用新修订号，当前输入保留。请核对后保存');}});}catch(e){setError(requestError(e));}};
+ const close=()=>{if(pending.current)return;if(changed.current&&!window.confirm('修改尚未保存，是否放弃当前输入？'))return;onClose();};
+ const save=async values=>{if(pending.current||!row)return;processing(true);setBusy(true);setError('');setSaved(false);let result;try{const payload={...values,expected_revision:known.current,...(field==='cards'&&row.status==='draft'&&publishCard?{status:'published'}:{})};result=field==='cards'?await learningManageAPI.updateCard(row.id,payload):await api.save(courseId,field.startsWith('course.')?'/course':'/'+field+'/'+row.id,payload);known.current=result.content_revision;mark(false);setSaved(true);await refresh();}catch(e){setError(result?'已保存，但效果回读失败。输入仍保留，请只重试读取，不重复保存':requestError(e));}finally{processing(false);setBusy(false);}};
+ const unavailable=data&&(!row||data.course.status==='archived'||lesson?.status==='cancelled');
+ return <Drawer open title={<h2 style={{margin:0,fontSize:18}}>{'编辑教学内容 · '+(labels[field]||field)}</h2>} width={900} onClose={close} maskClosable={!busy} closable={!busy} destroyOnHidden><p>保存对象：课程 #{courseId}{lessonId?' / 课时 #'+lessonId:''} · {data?.course.title} · {lesson?.title}</p><Alert type="info" title="直接保存真实教学字段，不会存成全局系统文字" description={field.startsWith('course.')?'保存后课程页面重新读取即生效；未发布课程仍不可供学生访问':'保存到当前教材。未绑定教材的新学生进入时使用新内容；已绑定学生仍使用原教材快照，历史答案与评分不变。准备中的课时只读展示最新发布内容；本操作不发布卡片或设置课时就绪'}/>
+ {error&&<Alert type={saved?'warning':'error'} title={error} action={saved?<Button onClick={()=>void refresh().then(()=>setError('')).catch(e=>setError(requestError(e)))}>重试读取已保存内容</Button>:<Button onClick={()=>void inspectLatest()}>读取最新版本（保留输入）</Button>}/>}
+ {!data?<Spin/>:unavailable?<Alert type="error" title="当前课程、课时或对象不可编辑；输入不会提交"/>:field==='article'||(!fields.length&&lesson)?<InlineTeachingEditor key={field+':'+lesson.id} field={field} lesson={lesson} courseId={courseId} resources={data.resources} policy={policy} refresh={refresh} dirty={mark} onBusyChange={processing} onClose={close} saveLabel="保存并同步学生端" allowFileBlocks/>:<Form form={form} layout="vertical" onValuesChange={()=>{mark(true);setSaved(false);}} onFinish={save} disabled={busy}>
+ {list.length>1&&<label>选择当前课时中的对象<Select aria-label="选择教学对象" value={row?.id} options={list.map(r=>({value:r.id,label:r.title}))} onChange={value=>{if(changed.current&&!window.confirm('放弃当前未保存输入并切换对象？'))return;mark(false);setSaved(false);setPublishCard(false);identity.current=null;setObjectId(value);}} style={{width:'100%'}}/></label>}
+ {field==='cards'&&row?.status==='draft'&&<Alert type="warning" title="这张卡片尚未发布，学生不会看到草稿" description={<Checkbox checked={publishCard} onChange={e=>{setPublishCard(e.target.checked);mark(true);setSaved(false);}}>我已核对正文与习题，保存时仅发布这一张卡片</Checkbox>}/>}
+ {fields.map(name=><Form.Item key={name} name={name} label={{title:'名称',description:'介绍与说明',content:'卡片正文',summary:'卡片摘要',key_points:'知识要点',common_mistakes:'常见误区',example_content:'示例'}[name]||name} rules={name==='title'?[{required:true,whitespace:true,max:maxFor(name)}]:[{max:maxFor(name)}]}>{name==='title'?<Input maxLength={maxFor(name)}/>:<Input.TextArea rows={name==='content'?10:5} maxLength={maxFor(name)}/>}</Form.Item>)}
+ {saved&&!error&&<Alert type="success" title={field.startsWith('course.')?'已保存，学生重新读取课程页面即可看到':field==='cards'&&row.status!=='published'?'已保存卡片草稿，学生尚不可见；需明确核对并发布':'已保存当前教材；新进入学生适用，已有绑定版本保持不变'}/>}
+ <Space><Button type="primary" htmlType="submit" loading={busy} disabled={saved||!row} aria-label="保存并同步学生端">保存并同步学生端</Button><Button onClick={close}>关闭编辑</Button></Space></Form>}</Drawer>;
+}

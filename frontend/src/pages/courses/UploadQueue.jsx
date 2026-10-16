@@ -49,7 +49,7 @@ export default function UploadQueue({courseId,lessons,policy,kind,refresh,dirty,
    }
    const abort=new AbortController();controller.current=abort;patch(row.key,{status:'uploading',error:''});
    let result;
-   try{result=await api.upload(row.courseId,kind,form,abort.signal,event=>{if(live.current)patch(row.key,{percent:event.total?Math.round(event.loaded/event.total*100):null});});if(kind==='replay'){clearReplayRecovery(replayStorage(),recoveryKey,row.token);if(live.current)setPending(readReplayRecovery(replayStorage(),recoveryKey));}if(!live.current)break;patch(row.key,{status:'success',id:result.id,error:''});uploadedRef.current?.({...result,title:row.title,description:row.description});try{await refresh();}catch{if(live.current)patch(row.key,{readError:c('uploadReadFailed')});}}
+   try{result=await api.upload(row.courseId,kind,form,abort.signal,event=>{if(live.current)patch(row.key,{percent:event.total?Math.round(event.loaded/event.total*100):null});});if(kind==='replay'){clearReplayRecovery(replayStorage(),recoveryKey,row.token);if(live.current)setPending(readReplayRecovery(replayStorage(),recoveryKey));}if(!live.current)break;patch(row.key,{status:'success',id:result.id,error:''});uploadedRef.current?.({...result,title:row.title,description:row.description,file_type:row.file.name.split('.').pop().toLowerCase()});try{await refresh();}catch{if(live.current)patch(row.key,{readError:c('uploadReadFailed')});}}
    catch(error){if(!live.current)break;patch(row.key,{status:error.response?'failed':'uncertain',error:requestError(error)});}
    finally{controller.current=null;}
   }

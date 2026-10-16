@@ -1,0 +1,4 @@
+// May run with old application code. Creates a private backup, never edits the source DB.
+const path=require('node:path'),{backup}=require('./backup.cjs');
+async function cli(args=process.argv.slice(2)){const get=k=>args[args.indexOf(k)+1],need=k=>{if(!args.includes(k)||!get(k)||get(k).startsWith('--'))throw Error('缺少 '+k);return get(k);};if(!args.includes('--maintenance-confirmed'))throw Error('请先停止业务写入并确认维护窗口');const Database=require('./runtime.cjs').databaseConstructor(),db=new Database(path.resolve(need('--db')),{readonly:true,fileMustExist:true});try{return await backup(db,{destination:need('--to'),uploads:need('--uploads'),feedback:args.includes('--feedback')?get('--feedback'):null});}finally{db.close();}}
+if(require.main===module)cli().then(r=>console.log(JSON.stringify(r,null,2))).catch(e=>{console.error(e.message);process.exitCode=1;});module.exports={cli};

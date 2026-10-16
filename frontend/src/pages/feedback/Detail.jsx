@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import Alert from '../../content/RoleAlert';
 import RoleSentence from '../../content/RoleSentence';
@@ -36,7 +37,7 @@ function Attachment({ file }) {
     finally { if (isCurrent()) { pending.current = false; setBusy(false); } }
   };
   return <li><div><strong>{file.original_name}</strong><small>{Math.ceil(file.file_size / 1024)} KiB</small>
-    {error && <Alert role="alert" type="error" title={error} />}</div><Button loading={busy} onClick={download}>{error ? siteText("site.d04d65ff401c8d6a") : siteText("site.419c0a6d6b6d261b")}</Button></li>;
+    {error && <Alert role="alert" type="error" title={error} />}</div><Button loading={busy} onClick={download}>{error ? <StudentCopyText id={"site.d04d65ff401c8d6a"}/> : <StudentCopyText id={"site.419c0a6d6b6d261b"}/>}</Button></li>;
 }
 function Detail({ id }) {
   const { user } = useAuth(), navigate = useNavigate(), location = useLocation();
@@ -68,9 +69,9 @@ function Detail({ id }) {
   const canReply = admin || (owner && !['closed', 'rejected'].includes(feedback?.status));
   const canReopen = owner && ['resolved', 'closed', 'rejected'].includes(feedback?.status);
   const modules = user.role === 'student' ? studentFeedbackModules : feedbackModules;
-  return <ServicePage title={siteText("site.f4b37628974f5ee3")} eyebrow={siteText("site.397f6b370f2c1a56")} actions={<Button onClick={() => navigate(admin ? '/feedback/manage' : '/feedback')}>{siteText("site.e5c9f830a629bb94")}</Button>}>
+  return <ServicePage title={siteText("site.f4b37628974f5ee3")} eyebrow={siteText("site.397f6b370f2c1a56")} actions={<Button onClick={() => navigate(admin ? '/feedback/manage' : '/feedback')}>{<StudentCopyText id={"site.e5c9f830a629bb94"}/>}</Button>} data-copy-bindings={JSON.stringify(["site.f4b37628974f5ee3","site.397f6b370f2c1a56"])}>
     <OperationNotice value={notice?.type !== 'error' || !feedback ? notice : null} onRetry={reread} />
-    <ReadState {...resource} object={siteText("site.0ce7c559115c1036")}>
+    <ReadState {...resource} object={siteText("site.0ce7c559115c1036")} data-copy-bindings={JSON.stringify(["site.0ce7c559115c1036"])}>
       {feedback && <>
         <ServicePanel><article className="service-article">
           <div className="service-metadata"><span className="feedback-number">{feedback.feedback_no}</span><FeedbackStatusTag status={feedback.status} /><span>{feedbackTypes[feedback.type] || feedback.type}</span></div>
@@ -79,38 +80,38 @@ function Detail({ id }) {
             { key: 'module', label: siteText("site.552ef779d85fa13f"), children: modules[feedback.module] || siteText("site.d553d901efa76a57") },
             { key: 'time', label: siteText("site.981aab23eb841e4b"), children: formatBeijingTime(feedback.created_at) },
             ...(admin ? [{ key: 'priority', label: siteText("site.7ecdfaea2c6477e3"), children: <FeedbackPriorityTag priority={feedback.priority} /> }] : []),
-          ]} />
-          <h2>{siteText("site.3cfe0cc52e7888c7")}</h2><RoleSentence as="div" className="service-prose">{feedback.description}</RoleSentence>
-          {feedback.resolution && <div className="feedback-resolution"><h2>{siteText("site.6725f42f94bd3fd1")}</h2><RoleSentence as="div" className="service-prose">{feedback.resolution}</RoleSentence></div>}
+          ]}  data-copy-bindings={JSON.stringify(["site.552ef779d85fa13f","site.d553d901efa76a57","site.981aab23eb841e4b","site.7ecdfaea2c6477e3"])}/>
+          <h2>{<StudentCopyText id={"site.3cfe0cc52e7888c7"}/>}</h2><RoleSentence as="div" className="service-prose">{feedback.description}</RoleSentence>
+          {feedback.resolution && <div className="feedback-resolution"><h2>{<StudentCopyText id={"site.6725f42f94bd3fd1"}/>}</h2><RoleSentence as="div" className="service-prose">{feedback.resolution}</RoleSentence></div>}
         </article></ServicePanel>
-        {resource.data.attachments.length > 0 && <ServicePanel><h2>{siteText("site.2a3b462b35b52780")}</h2><ul className="feedback-attachments">{resource.data.attachments.map((file) => <Attachment key={file.id} file={file} />)}</ul></ServicePanel>}
-        <ServicePanel><h2>{siteText("site.5d58da2f3d52f87c")}</h2><div className="feedback-timeline"><FeedbackTimeline messages={resource.data.messages} /></div></ServicePanel>
-        <ServicePanel><h2>{siteText("site.66e93c94e5c1d6b8")}</h2><OperationNotice value={notice?.type === 'error' && !reopen && !resolve ? notice : null} />
-          {canReply ? <FeedbackMessageForm loading={busy} onSubmit={(content, ack) => run(() => feedbackAPI.reply(id, content), siteText("site.5701ff0ccb652d0c"), ack)} /> : <RoleSentence>{siteText("site.662df1d62ef82d28")}</RoleSentence>}
+        {resource.data.attachments.length > 0 && <ServicePanel><h2>{<StudentCopyText id={"site.2a3b462b35b52780"}/>}</h2><ul className="feedback-attachments">{resource.data.attachments.map((file) => <Attachment key={file.id} file={file} />)}</ul></ServicePanel>}
+        <ServicePanel><h2>{<StudentCopyText id={"site.5d58da2f3d52f87c"}/>}</h2><div className="feedback-timeline"><FeedbackTimeline messages={resource.data.messages} /></div></ServicePanel>
+        <ServicePanel><h2>{<StudentCopyText id={"site.66e93c94e5c1d6b8"}/>}</h2><OperationNotice value={notice?.type === 'error' && !reopen && !resolve ? notice : null} />
+          {canReply ? <FeedbackMessageForm loading={busy} onSubmit={(content, ack) => run(() => feedbackAPI.reply(id, content), siteText("site.5701ff0ccb652d0c"), ack)} /> : <RoleSentence>{<StudentCopyText id={"site.662df1d62ef82d28"}/>}</RoleSentence>}
           <Space wrap className="service-actions">
-            {owner && feedback.status === 'resolved' && <Button type="primary" disabled={busy} onClick={() => run(() => feedbackAPI.confirm(id), siteText("site.354962097eaa2a0f"))}>{siteText("site.23dbd25e535fa52b")}</Button>}
-            {canReopen && <Button disabled={busy} onClick={() => setReopen(true)}>{siteText("site.418fdfb865249e0b")}</Button>}
+            {owner && feedback.status === 'resolved' && <Button type="primary" disabled={busy} onClick={() => run(() => feedbackAPI.confirm(id), siteText("site.354962097eaa2a0f"))}>{<StudentCopyText id={"site.23dbd25e535fa52b"}/>}</Button>}
+            {canReopen && <Button disabled={busy} onClick={() => setReopen(true)}>{<StudentCopyText id={"site.418fdfb865249e0b"}/>}</Button>}
           </Space>
         </ServicePanel>
-        {admin && <ServicePanel><h2>{siteText("site.88fad7d0f3ae8d12")}</h2><Space wrap>
-          <span>{siteText("site.bbfa131be81032a3")}</span><Select aria-label={siteText("site.7ecdfaea2c6477e3")} disabled={busy} value={feedback.priority} options={feedbackPriorityOptions} style={{ width: 120 }}
-            onChange={(priority) => run(() => feedbackAPI.updatePriority(id, priority), siteText("site.3cb81d4b32d7099e"))} />
-          <span>{siteText("site.327274b88c90f684")}</span><Select aria-label={siteText("site.517bbdbc5cf0e695")} disabled={busy} placeholder={siteText("site.5f6a04f7d04af319")} style={{ width: 160 }}
+        {admin && <ServicePanel><h2>{<StudentCopyText id={"site.88fad7d0f3ae8d12"}/>}</h2><Space wrap>
+          <span>{<StudentCopyText id={"site.bbfa131be81032a3"}/>}</span><Select aria-label={siteText("site.7ecdfaea2c6477e3")} disabled={busy} value={feedback.priority} options={feedbackPriorityOptions.map(option=>({...option}))} style={{ width: 120 }}
+            onChange={(priority) => run(() => feedbackAPI.updatePriority(id, priority), siteText("site.3cb81d4b32d7099e"))}  data-copy-bindings={JSON.stringify(["site.7ecdfaea2c6477e3"])}/>
+          <span>{<StudentCopyText id={"site.327274b88c90f684"}/>}</span><Select aria-label={siteText("site.517bbdbc5cf0e695")} disabled={busy} placeholder={siteText("site.5f6a04f7d04af319")} style={{ width: 160 }}
             options={(feedbackStatusTransitions[feedback.status] || []).map((value) => ({ value, label: feedbackStatuses[value]?.label || value }))}
-            onChange={(status) => run(() => feedbackAPI.updateStatus(id, status), siteText("site.07f417bbf1f12f81"))} />
-          {!['closed', 'rejected'].includes(feedback.status) && <Button disabled={busy} onClick={() => setResolve(true)}>{siteText("site.3254c0e6529af687")}</Button>}
+            onChange={(status) => run(() => feedbackAPI.updateStatus(id, status), siteText("site.07f417bbf1f12f81"))}  data-copy-bindings={JSON.stringify(["site.517bbdbc5cf0e695","site.5f6a04f7d04af319"])}/>
+          {!['closed', 'rejected'].includes(feedback.status) && <Button disabled={busy} onClick={() => setResolve(true)}>{<StudentCopyText id={"site.3254c0e6529af687"}/>}</Button>}
         </Space><FeedbackMessageForm internal loading={busy} onSubmit={(content, ack) => run(() => feedbackAPI.addInternalNote(id, content), siteText("site.bf2bbecfa785b638"), ack)} /></ServicePanel>}
       </>}
     </ReadState>
-    <ServiceModal title={siteText("site.c9406412e7e93917")} open={reopen} onCancel={() => !busy && setReopen(false)} okText={siteText("site.09b8d47c5da82582")} cancelText={siteText("site.37699af0461e28d2")} confirmLoading={busy} onOk={() => reopenForm.submit()}>
-      <RoleSentence>{siteText("site.700d9978740c633b")}</RoleSentence><OperationNotice value={notice} />
+    <ServiceModal title={siteText("site.c9406412e7e93917")} open={reopen} onCancel={() => !busy && setReopen(false)} okText={siteText("site.09b8d47c5da82582")} cancelText={siteText("site.37699af0461e28d2")} confirmLoading={busy} onOk={() => reopenForm.submit()} data-copy-bindings={JSON.stringify(["site.c9406412e7e93917","site.09b8d47c5da82582","site.37699af0461e28d2"])}>
+      <RoleSentence>{<StudentCopyText id={"site.700d9978740c633b"}/>}</RoleSentence><OperationNotice value={notice} />
       <Form form={reopenForm} layout="vertical" onFinish={({ reason }) => run(() => feedbackAPI.reopen(id, reason.trim()), siteText("site.01836a87796760c6"), () => { setReopen(false); reopenForm.resetFields(); })}>
-        <Form.Item name="reason" label={siteText("site.864d0010b3bc7fba")} rules={[{ required: true, whitespace: true, message: siteText("site.1282382b367a9b17") }, { max: 2000, message: siteText("site.8eba157548bfa8da") }]}><Input.TextArea rows={5} maxLength={2000} showCount /></Form.Item>
+        <Form.Item name="reason" label={siteText("site.864d0010b3bc7fba")} rules={[{ required: true, whitespace: true, message: siteText("site.1282382b367a9b17") }, { max: 2000, message: siteText("site.8eba157548bfa8da") }]} data-copy-bindings={JSON.stringify(["site.864d0010b3bc7fba","site.1282382b367a9b17","site.8eba157548bfa8da"])}><Input.TextArea rows={5} maxLength={2000} showCount /></Form.Item>
       </Form>
     </ServiceModal>
-    {admin && <ServiceModal title={siteText("site.ad895b77fb98d2e3")} open={resolve} onCancel={() => !busy && setResolve(false)} okText={siteText("site.d19c38b3ac7851aa")} cancelText={siteText("site.37699af0461e28d2")} confirmLoading={busy} onOk={() => resolveForm.submit()}>
+    {admin && <ServiceModal title={siteText("site.ad895b77fb98d2e3")} open={resolve} onCancel={() => !busy && setResolve(false)} okText={siteText("site.d19c38b3ac7851aa")} cancelText={siteText("site.37699af0461e28d2")} confirmLoading={busy} onOk={() => resolveForm.submit()} data-copy-bindings={JSON.stringify(["site.ad895b77fb98d2e3","site.d19c38b3ac7851aa","site.37699af0461e28d2"])}>
       <OperationNotice value={notice} /><Form form={resolveForm} layout="vertical" onFinish={({ resolution }) => run(() => feedbackAPI.resolve(id, resolution.trim()), siteText("site.b27404a8f08c5ff7"), () => { setResolve(false); resolveForm.resetFields(); })}>
-        <Form.Item name="resolution" label={siteText("site.e4d83e963046faed")} rules={[{ required: true, whitespace: true, message: siteText("site.71ef272cf2c54e8f") }, { max: 5000 }]}><Input.TextArea rows={5} maxLength={5000} showCount /></Form.Item>
+        <Form.Item name="resolution" label={siteText("site.e4d83e963046faed")} rules={[{ required: true, whitespace: true, message: siteText("site.71ef272cf2c54e8f") }, { max: 5000 }]} data-copy-bindings={JSON.stringify(["site.e4d83e963046faed","site.71ef272cf2c54e8f"])}><Input.TextArea rows={5} maxLength={5000} showCount /></Form.Item>
       </Form>
     </ServiceModal>}
   </ServicePage>;

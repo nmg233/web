@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText} from "../../content/copy";
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
@@ -58,12 +59,12 @@ export default function FeedbackManage() {
 
   return (
     <div>
-      <Title level={4}>{siteText("site.690a575714d70da2")}</Title>
+      <Title level={4}>{<StudentCopyText id={"site.690a575714d70da2"}/>}</Title>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card><Statistic title={siteText("site.6d0ea54f674a045b")} value={stats.pending} prefix={<FileTextOutlined />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title={siteText("site.00977dc99662502b")} value={stats.processing} prefix={<SyncOutlined spin={stats.processing > 0} />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title={siteText("site.b70db3b1b1af7084")} value={stats.urgent} valueStyle={{ color: stats.urgent ? '#cf1322' : undefined }} prefix={<ExclamationCircleOutlined />} /></Card></Col>
-        <Col xs={12} md={6}><Card><Statistic title={siteText("site.9451bdd1ddde9d0f")} value={stats.total} /></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.6d0ea54f674a045b")} value={stats.pending} prefix={<FileTextOutlined />}  data-copy-bindings={JSON.stringify(["site.6d0ea54f674a045b"])}/></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.00977dc99662502b")} value={stats.processing} prefix={<SyncOutlined spin={stats.processing > 0} />}  data-copy-bindings={JSON.stringify(["site.00977dc99662502b"])}/></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.b70db3b1b1af7084")} value={stats.urgent} valueStyle={{ color: stats.urgent ? '#cf1322' : undefined }} prefix={<ExclamationCircleOutlined />}  data-copy-bindings={JSON.stringify(["site.b70db3b1b1af7084"])}/></Card></Col>
+        <Col xs={12} md={6}><Card><Statistic title={siteText("site.9451bdd1ddde9d0f")} value={stats.total}  data-copy-bindings={JSON.stringify(["site.9451bdd1ddde9d0f"])}/></Card></Col>
       </Row>
 
       <Card>

@@ -1,3 +1,5 @@
+import {isCopyPreview} from '../../copy-review/previewMode.js';
+import StudentCopyText from '../../content/ManagedText';
 import FlightReplay3D from './FlightReplay3D';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useCourseApis, useCourseId } from '../../student/useCourseApis';
@@ -47,11 +49,11 @@ export default function GliderSimulator() {
   const [returnTo, setReturnTo] = useState('/lab');
   const [returning, setReturning] = useState(false);
   const [checkedSource, setCheckedSource] = useState(null);
-  const contextPending = user?.role === 'student' && (contextLoading || checkedSource !== sourceKey);
+  const contextPending = (user?.role === 'student'||isCopyPreview()) && (contextLoading || checkedSource !== sourceKey);
 
   const verifySource = () => resolveExperimentReturn({ courseId: sourceCourse, lessonId: sourceLesson, returnTo: requestedReturn }, { course: courseAPI.detail, lesson: learningAPI.lesson });
   const returnToSource = async () => {
-    if (user?.role !== 'student') { navigate('/dashboard'); return; }
+    if ((user?.role !== 'student'&&!isCopyPreview())) { navigate('/dashboard'); return; }
     if (!sourceCourse) { navigate('/lab'); return; }
     setReturning(true);
     try {
@@ -78,7 +80,7 @@ export default function GliderSimulator() {
 
   // 不自动选中课程；独立进入不产生课程关联。
   useEffect(() => {
-    if (user?.role !== 'student') return undefined;
+    if ((user?.role !== 'student'&&!isCopyPreview())) return undefined;
     let alive = true;
     courseAPI.list()
       .then((res) => {
@@ -141,7 +143,7 @@ export default function GliderSimulator() {
 
   // 模拟成功后加载结果图与飞行回放视频
   useEffect(() => {
-    if (user?.role === 'student' || !viewing) return undefined;
+    if ((user?.role === 'student'||isCopyPreview()) || !viewing) return undefined;
     if (viewing.status !== 'success') {
       const t = setTimeout(() => { setImg({ trajectory: null, telemetry: null, video: null }); setResultFileError(''); }, 0);
       return () => clearTimeout(t);
@@ -225,7 +227,7 @@ export default function GliderSimulator() {
   };
 
   const meta = useMemo(() => stateMeta(viewing?.state), [viewing]);
-  const isStudent = user?.role === 'student';
+  const isStudent = (user?.role === 'student'||isCopyPreview());
   const engineChecking = !engineInfo && !engineError;
   const engineReady = engineInfo?.ready === true;
   const canSubmit = isStudent && engineReady && !contextError && !contextPending;
@@ -253,8 +255,8 @@ export default function GliderSimulator() {
   return (
     <div>
       <Space style={{ marginBottom: 16 }}>
-        <Button icon={<ArrowLeftOutlined />} loading={returning} disabled={contextPending} onClick={returnToSource}>{sourceCourse && (!contextError || returnTo !== '/lab') ? siteText("site.fcac88f55af035f0") : siteText("site.3ffbecb304fc7936")}</Button>
-        <Title level={4} style={{ margin: 0 }}>{siteText("site.2b453b69a79c8d29")}</Title>
+        <Button icon={<ArrowLeftOutlined />} loading={returning} disabled={contextPending} onClick={returnToSource}>{sourceCourse && (!contextError || returnTo !== '/lab') ? <StudentCopyText id={"site.fcac88f55af035f0"}/> : <StudentCopyText id={"site.3ffbecb304fc7936"}/>}</Button>
+        <Title level={4} style={{ margin: 0 }}>{<StudentCopyText id={"site.2b453b69a79c8d29"}/>}</Title>
       </Space>
 
       <Alert
@@ -269,7 +271,7 @@ export default function GliderSimulator() {
             : user?.role === 'academic_mentor'
               ? siteText("site.5098f78b1c4ee658")
               : siteText("site.e792a9191476c13a")}
-      />
+       data-copy-bindings={JSON.stringify(["site.114bf5fb739aa1fe","site.2a484ebfa0edf256","site.a512ca1ba76993f2","site.2390d0741a774ea8","site.5098f78b1c4ee658","site.e792a9191476c13a"])}/>
 
       {isStudent && !engineChecking && blockedReason && (
         <Alert
@@ -278,7 +280,7 @@ export default function GliderSimulator() {
           showIcon
           message={siteText("site.10674eb72d174ed1")}
           description={blockedReason}
-        />
+         data-copy-bindings={JSON.stringify(["site.10674eb72d174ed1"])}/>
       )}
 
       {isStudent && engineReady && engineInfo && !contextError && (
@@ -288,7 +290,7 @@ export default function GliderSimulator() {
           showIcon
           message={siteTemplate("site.79c0e290fcc179cf", {slot0: (engineInfo.detectedBackend === 'novaphy' ? siteText("site.6230c6b28be24fcc") : (engineInfo.detectedBackend || siteText("site.ce0c1538ff1b1b71")))})}
           description={siteText("site.adb54f7adb412db0")}
-        />
+         data-copy-bindings={JSON.stringify(["site.79c0e290fcc179cf","site.6230c6b28be24fcc","site.ce0c1538ff1b1b71","site.adb54f7adb412db0"])}/>
       )}
 
       <Row gutter={16}>
@@ -299,42 +301,42 @@ export default function GliderSimulator() {
             <Card
               title={siteTemplate("site.d6fa5ee13a185373", {slot0: (viewingId)})}
               style={{ marginBottom: 16 }}
-              extra={viewing?.status === 'running' ? <Tag color="processing">{siteText("site.fddc234f0f585556")}</Tag> : undefined}
-            >
+              extra={viewing?.status === 'running' ? <Tag color="processing">{<StudentCopyText id={"site.fddc234f0f585556"}/>}</Tag> : undefined}
+             data-copy-bindings={JSON.stringify(["site.d6fa5ee13a185373"])}>
               {pollTimedOut ? (
                 <Result status="warning" title={siteText("site.ef8234c60f8c6dd7")}
-                  subTitle={siteText("site.193b30965f95edcf")} />
+                  subTitle={siteText("site.193b30965f95edcf")}  data-copy-bindings={JSON.stringify(["site.ef8234c60f8c6dd7","site.193b30965f95edcf"])}/>
               ) : pollFailed ? (
                 <Result status="warning" title={siteText("site.24948bd6ddac08b9")}
-                  subTitle={siteText("site.8012163a44906ada")} />
+                  subTitle={siteText("site.8012163a44906ada")}  data-copy-bindings={JSON.stringify(["site.24948bd6ddac08b9","site.8012163a44906ada"])}/>
               ) : !viewing ? (
                 <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
                   <Spin size="large" />
-                  <Text type="secondary">{siteText("site.368dc276a9b3b0ff")}</Text>
+                  <Text type="secondary">{<StudentCopyText id={"site.368dc276a9b3b0ff"}/>}</Text>
                 </Space>
               ) : viewing.status === 'running' ? (
                   <Space direction="vertical" style={{ width: '100%', textAlign: 'center' }}>
                     <Spin size="large" />
-                    <Text type="secondary">{siteText("site.2f3b09cf115a33a0")}{waitSec}{siteText("site.569034913ac19505")}</Text>
+                    <Text type="secondary">{<StudentCopyText id={"site.2f3b09cf115a33a0"}/>}{waitSec}{<StudentCopyText id={"site.569034913ac19505"}/>}</Text>
                   </Space>
                 ) : viewing.status === 'error' ? (
-                  <Result status="error" title={siteText("site.b6b4c8caf5360fc1")} subTitle={viewing.error || siteText("site.cdfa4a19c71e89a0")} />
+                  <Result status="error" title={siteText("site.b6b4c8caf5360fc1")} subTitle={viewing.error || siteText("site.cdfa4a19c71e89a0")}  data-copy-bindings={JSON.stringify(["site.b6b4c8caf5360fc1","site.cdfa4a19c71e89a0"])}/>
                 ) : (
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Alert
                       type={meta.color === 'red' ? 'error' : meta.color === 'orange' ? 'warning' : 'success'}
                       showIcon
-                      message={<Text strong>{siteText("site.49ae69a7b982c498")}{meta.label}</Text>}
+                      message={<Text strong>{<StudentCopyText id={"site.49ae69a7b982c498"}/>}{meta.label}</Text>}
                       description={STATE_TIPS[viewing.state] || siteText("site.8dd0110275d12be6")}
-                    />
+                     data-copy-bindings={JSON.stringify(["site.8dd0110275d12be6"])}/>
                     {resultFileError && <Alert type="warning" showIcon message={resultFileError} />}
                     <Row gutter={[8, 8]}>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.65a134c3a6e631a5")} value={viewing.glide_time_s ?? '—'} suffix="s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.b293dd8c171d72b1")} value={viewing.result?.distance_m ?? '—'} suffix="m" /></Col>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.b55d5db2526856a9")} value={viewing.result?.glide_ratio ?? '—'} /></Col>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.ed63934db8904a95")} value={viewing.result?.mean_sink_mps ?? '—'} suffix="m/s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.2bfbba04b95b74a8")} value={viewing.result?.mean_speed_mps ?? '—'} suffix="m/s" /></Col>
-                      <Col xs={12} sm={8}><Statistic title={siteText("site.f45a6470b2e2b897")} value={viewing.result?.alt_end ?? '—'} suffix="m" /></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.65a134c3a6e631a5")} value={viewing.glide_time_s ?? '—'} suffix="s"  data-copy-bindings={JSON.stringify(["site.65a134c3a6e631a5"])}/></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.b293dd8c171d72b1")} value={viewing.result?.distance_m ?? '—'} suffix="m"  data-copy-bindings={JSON.stringify(["site.b293dd8c171d72b1"])}/></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.b55d5db2526856a9")} value={viewing.result?.glide_ratio ?? '—'}  data-copy-bindings={JSON.stringify(["site.b55d5db2526856a9"])}/></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.ed63934db8904a95")} value={viewing.result?.mean_sink_mps ?? '—'} suffix="m/s"  data-copy-bindings={JSON.stringify(["site.ed63934db8904a95"])}/></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.2bfbba04b95b74a8")} value={viewing.result?.mean_speed_mps ?? '—'} suffix="m/s"  data-copy-bindings={JSON.stringify(["site.2bfbba04b95b74a8"])}/></Col>
+                      <Col xs={12} sm={8}><Statistic title={siteText("site.f45a6470b2e2b897")} value={viewing.result?.alt_end ?? '—'} suffix="m"  data-copy-bindings={JSON.stringify(["site.f45a6470b2e2b897"])}/></Col>
                     </Row>
 
                     {/* 历史记录回放（旧版后端生成的 MP4，仅早期记录有）。新试飞不再生成视频：
@@ -342,7 +344,7 @@ export default function GliderSimulator() {
                         数据接口 GET /api/glider/simulations/:id/trace，指南见 simulation/glider/RENDER_API.md */}
                     <FlightReplay3D key={viewing.id} simId={viewing.id} />
                     {img.video && (
-                      <Card size="small" title={siteText("site.e7d8ea495f0e08ec")} style={{ marginBottom: 16 }}>
+                      <Card size="small" title={siteText("site.e7d8ea495f0e08ec")} style={{ marginBottom: 16 }} data-copy-bindings={JSON.stringify(["site.e7d8ea495f0e08ec"])}>
                         <video
                           src={img.video}
                           controls
@@ -353,19 +355,19 @@ export default function GliderSimulator() {
                           onError={() => message.warning(siteText("site.60c57f61186d911e"))}
                           style={{ width: '100%', borderRadius: 6, background: '#000' }}
                         />
-                        <Text type="secondary">{siteText("site.628c4df02a8369a5")}</Text>
+                        <Text type="secondary">{<StudentCopyText id={"site.628c4df02a8369a5"}/>}</Text>
                       </Card>
                     )}
 
                     {img.trajectory ? (
-                      <Card size="small" title={siteText("site.60bb4c6a80e4ece5")}>
-                        <img src={img.trajectory} alt={siteText("site.f79b9916b9561c3e")} style={{ width: '100%', borderRadius: 6 }} />
+                      <Card size="small" title={siteText("site.60bb4c6a80e4ece5")} data-copy-bindings={JSON.stringify(["site.60bb4c6a80e4ece5"])}>
+                        <img src={img.trajectory} alt={siteText("site.f79b9916b9561c3e")} style={{ width: '100%', borderRadius: 6 }}  data-copy-bindings={JSON.stringify(["site.f79b9916b9561c3e"])}/>
                       </Card>
-                    ) : <Alert type="info" message={siteText("site.d1d047b130ed152f")} />}
+                    ) : <Alert type="info" message={siteText("site.d1d047b130ed152f")}  data-copy-bindings={JSON.stringify(["site.d1d047b130ed152f"])}/>}
 
                     {img.telemetry && (
-                      <Card size="small" title={siteText("site.250ba1739133cf19")}>
-                        <img src={img.telemetry} alt={siteText("site.69e754877f2c9e6c")} style={{ width: '100%', borderRadius: 6 }} />
+                      <Card size="small" title={siteText("site.250ba1739133cf19")} data-copy-bindings={JSON.stringify(["site.250ba1739133cf19"])}>
+                        <img src={img.telemetry} alt={siteText("site.69e754877f2c9e6c")} style={{ width: '100%', borderRadius: 6 }}  data-copy-bindings={JSON.stringify(["site.69e754877f2c9e6c"])}/>
                       </Card>
                     )}
                   </Space>
@@ -378,12 +380,12 @@ export default function GliderSimulator() {
         {/* 右侧：试飞记录 */}
         <Col xs={24} lg={9}>
           <Card
-            title={<Space><RocketOutlined /> {isStudent ? siteText("site.b5dfc4ecdd5d613c") : siteText("site.c587b4773ecc638f")}</Space>}
-            extra={<Button size="small" onClick={loadHistory}>{siteText("site.c7bb63774c80fdc7")}</Button>}
+            title={<Space><RocketOutlined /> {isStudent ? <StudentCopyText id={"site.b5dfc4ecdd5d613c"}/> : <StudentCopyText id={"site.c587b4773ecc638f"}/>}</Space>}
+            extra={<Button size="small" onClick={loadHistory}>{<StudentCopyText id={"site.c7bb63774c80fdc7"}/>}</Button>}
           >
             {historyError && <Alert type="error" showIcon title={historyError} />}
             {loadingHistory ? <Spin /> : (
-              history.length === 0 ? <Empty description={isStudent ? siteText("site.12c609982556dac6") : siteText("site.0f78bf8fc5463412")} /> : (
+              history.length === 0 ? <Empty description={isStudent ? siteText("site.12c609982556dac6") : siteText("site.0f78bf8fc5463412")}  data-copy-bindings={JSON.stringify(["site.12c609982556dac6","site.0f78bf8fc5463412"])}/> : (
                 <List
                   size="small"
                   dataSource={history}
@@ -398,22 +400,22 @@ export default function GliderSimulator() {
                           title={<Space>
                             <span>#{item.id}</span>
                             <Tag color={item.status === 'running' ? 'processing' : item.status === 'error' ? 'error' : m.color}>
-                              {item.status === 'running' ? siteText("site.0fd29d1697388bae") : item.status === 'error' ? siteText("site.7ea4a9372bf8e2d9") : m.label}
+                              {item.status === 'running' ? <StudentCopyText id={"site.0fd29d1697388bae"}/> : item.status === 'error' ? <StudentCopyText id={"site.7ea4a9372bf8e2d9"}/> : m.label}
                             </Tag>
                           </Space>}
                           description={
                             <Space wrap size={[4, 0]}>
-                              <Text type="secondary">{siteText("site.9e50f808d0e56c5d")}{item.dihedral_deg}°</Text>
-                              <Text type="secondary">{siteText("site.267cfee298fda338")}{item.cg_x > 0 ? '+' : ''}{item.cg_x} m</Text>
-                              <Text type="secondary">{siteText("site.82c9050090b84186")}{item.speed} m/s</Text>
+                              <Text type="secondary">{<StudentCopyText id={"site.9e50f808d0e56c5d"}/>}{item.dihedral_deg}°</Text>
+                              <Text type="secondary">{<StudentCopyText id={"site.267cfee298fda338"}/>}{item.cg_x > 0 ? '+' : ''}{item.cg_x} m</Text>
+                              <Text type="secondary">{<StudentCopyText id={"site.82c9050090b84186"}/>}{item.speed} m/s</Text>
                               {item.wing_area != null && item.wing_area !== 17.5 && (
-                                <Text type="secondary">{siteText("site.c2778d97f9e62972")}{item.wing_area} m²</Text>
+                                <Text type="secondary">{<StudentCopyText id={"site.c2778d97f9e62972"}/>}{item.wing_area} m²</Text>
                               )}
                               {item.mass != null && item.mass !== 420 && (
-                                <Text type="secondary">{siteText("site.a73be7f47a0fda2d")}{item.mass} kg</Text>
+                                <Text type="secondary">{<StudentCopyText id={"site.a73be7f47a0fda2d"}/>}{item.mass} kg</Text>
                               )}
-                              {item.elevator_deg ? <Text type="secondary">{siteText("site.48ea978c84421f9e")}{item.elevator_deg}°</Text> : null}
-                              {item.rudder_deg ? <Text type="secondary">{siteText("site.845d34e8645f8dbf")}{item.rudder_deg}°</Text> : null}
+                              {item.elevator_deg ? <Text type="secondary">{<StudentCopyText id={"site.48ea978c84421f9e"}/>}{item.elevator_deg}°</Text> : null}
+                              {item.rudder_deg ? <Text type="secondary">{<StudentCopyText id={"site.845d34e8645f8dbf"}/>}{item.rudder_deg}°</Text> : null}
                               {item.glide_time_s != null && <Text type="secondary">· {item.glide_time_s}s</Text>}
                             </Space>
                           }

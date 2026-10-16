@@ -1,5 +1,6 @@
+import StudentCopyText from '../content/ManagedText';
 /* eslint-disable react-hooks/set-state-in-effect */
-import {copyText as siteText} from "../content/copy";
+
 import {useEffect,useRef,useState,useCallback} from 'react';
 import {Alert} from 'antd';
 import {useRewards} from './useRewards';
@@ -14,5 +15,5 @@ export default function DailyCheckin(){
  useEffect(()=>{if(!day)return;const timer=setTimeout(()=>void read().catch(()=>{}),Math.max(1,day.expires-performance.now()));return()=>clearTimeout(timer);},[day,read]);
  const execute=async()=>{if(lock.current)return;lock.current=true;setBusy(true);setNotice('');try{const current=await read();const result=await store.checkin({day:current,signal:live.current.signal});if(!live.current.signal.aborted)setNotice(copyText(result.changed?'next3.checkin.success':'next3.checkin.already'));}catch(e){if(!live.current.signal.aborted)setError(e.message);}finally{if(!live.current.signal.aborted){lock.current=false;setBusy(false);}}};
  const checked=day&&data?.checkins?.includes(day.date);
- return <PixelPanel className="next-checkin"><div><h2>{copyText('next3.checkin.title')}</h2><p>{day?day.date:copyText('next3.checkin.date')}{siteText("site.bb661e4194b55669")}{copyText('next3.checkin.amount')}</p><p>{copyText('next3.checkin.scope')}</p></div><PixelButton type="primary" onClick={execute} loading={busy} disabled={!day||status!=='ready'||checked}>{copyText(checked?'next3.checkin.done':'next3.checkin.button')}</PixelButton>{notice&&<Alert role="status" type="success" title={notice}/>} {error&&<Alert type="warning" title={error} action={<PixelButton onClick={()=>void read().catch(()=>{})}>{copyText('next3.retry')}</PixelButton>}/>}</PixelPanel>;
+ return <PixelPanel className="next-checkin"><div><h2>{<StudentCopyText id={'next3.checkin.title'}/>}</h2><p>{day?day.date:<StudentCopyText id={'next3.checkin.date'}/>}{<StudentCopyText id={"site.bb661e4194b55669"}/>}{<StudentCopyText id={'next3.checkin.amount'}/>}</p><p>{<StudentCopyText id={'next3.checkin.scope'}/>}</p></div><PixelButton type="primary" onClick={execute} loading={busy} disabled={!day||status!=='ready'||checked}>{<StudentCopyText id={checked?'next3.checkin.done':'next3.checkin.button'}/>}</PixelButton>{notice&&<Alert role="status" type="success" title={notice}/>} {error&&<Alert type="warning" title={error} action={<PixelButton onClick={()=>void read().catch(()=>{})}>{<StudentCopyText id={'next3.retry'}/>}</PixelButton>}/>}</PixelPanel>;
 }

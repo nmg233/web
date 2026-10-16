@@ -1,0 +1,20 @@
+// Reproducible source coverage; no DOM matching or source rewriting.
+const fs=require('node:fs'),path=require('node:path'),{pathToFileURL}=require('node:url'),espree=require('../../frontend/node_modules/espree');
+const root=path.resolve(__dirname,'../..'),registry=require('../../content/student-copy/registry.json');
+function walk(n,visit){if(!n?.type)return;visit(n);for(const[k,v]of Object.entries(n))if(!['range','loc'].includes(k)){if(Array.isArray(v))v.forEach(x=>x?.type&&walk(x,visit));else if(v?.type)walk(v,visit);}}
+function scan(file){const ids=new Set(),references=[],inline=[],properties=[],dynamic=[];let ast;try{ast=espree.parse(fs.readFileSync(path.join(root,file),'utf8'),{ecmaVersion:'latest',sourceType:'module',ecmaFeatures:{jsx:true},loc:true});}catch{return null;}
+ const resolve=n=>{if(n?.type==='Literal'&&typeof n.value==='string'&&Object.hasOwn(registry,n.value)){ids.add(n.value);return n.value;}return null;};
+ walk(ast,n=>{
+  if(n.type==='CallExpression'&&['copyText','siteText','copyTemplate','siteTemplate','copyFragment','runtimeCopyText'].includes(n.callee.name)){const id=resolve(n.arguments[0]);references.push({line:n.loc.start.line,id:id||'dynamic',kind:'runtime'});if(!id&&n.arguments[0]?.left?.type==='Literal'){const prefix=n.arguments[0].left.value;for(const key of Object.keys(registry))if(key.startsWith(prefix))ids.add(key);dynamic.push({line:n.loc.start.line,prefix});}}
+  if(n.type==='JSXOpeningElement'){const name=n.name?.name;for(const a of n.attributes||[]){if(['StudentCopyText','ManagedText','CopyBlock'].includes(name)&&a.name?.name==='id'){const value=a.value?.expression||a.value,id=resolve(value);inline.push({line:n.loc.start.line,id:id||'dynamic'});}if(['data-copy-bindings','data-copy-id'].includes(a.name?.name)){walk(a,x=>resolve(x));properties.push({line:n.loc.start.line,kind:a.name.name});}}}
+ });
+ return ids.size||inline.length||properties.length?{file,ids:[...ids].sort(),runtimeReferences:references,inlineMarkers:inline,propertyMarkers:properties,dynamicPrefixes:dynamic,scope:'系统 UI 配置；真实教材字段和个人业务值不做全局替换',persistence:'student_copy_scopes draft_json/published_json + student_copy_history',limits:'运行时引用不等于当前屏幕出现；需触发相应状态，不能据此宣称所有条目都可当场点选'}:null;
+}
+async function audit(){const{reviewPages}=await import(pathToFileURL(path.join(root,'frontend/src/copy-review/catalog.js')));const selected=reviewPages.filter(p=>p.roles.includes('student')),explicit=new Set(selected.flatMap(p=>p.sources));
+ const files=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(path.join(dir,e.name)):[path.join(dir,e.name)]);
+ const allowed=f=>explicit.has(f)||/^frontend\/src\/(student|constants|components|utils|store|api)\//.test(f)||/^frontend\/src\/pages\/(auth|learning|works|archives|tasks|notifications|feedback|glider)\//.test(f);
+ const records=files(path.join(root,'frontend/src')).map(f=>path.relative(root,f).replaceAll('\\','/')).filter(f=>/\.(js|jsx)$/.test(f)&&allowed(f)).map(scan).filter(Boolean),ids=[...new Set(records.flatMap(r=>r.ids))].sort();
+ const pages=selected.map(p=>({id:p.id,title:p.title,routes:p.routes,ownSources:p.sources.map(file=>({file,registeredIds:records.find(r=>r.file===file)?.ids||[]})),sharedSources:'参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示',preview:'同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单',teachingFields:'真实课程/课时/卡片/资料字段在原维护入口修改'}));
+ const dir=path.join(root,'content/student-copy');fs.writeFileSync(path.join(dir,'coverage.json'),JSON.stringify(records,null,2)+'\n');fs.writeFileSync(path.join(dir,'catalog.json'),JSON.stringify(ids,null,2)+'\n');fs.writeFileSync(path.join(dir,'pages.json'),JSON.stringify(pages,null,2)+'\n');return{pages:pages.length,files:records.length,registeredIds:ids.length,inlineMarkers:records.reduce((n,r)=>n+r.inlineMarkers.length,0),propertyMarkers:records.reduce((n,r)=>n+r.propertyMarkers.length,0)};
+}
+if(require.main===module)audit().then(r=>console.log(JSON.stringify(r,null,2))).catch(e=>{console.error(e.message);process.exitCode=1;});module.exports={audit};

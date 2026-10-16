@@ -11,11 +11,11 @@ export function PageLoading({ children = siteText("site.ccf62e20016289fa") }) {
   </div>;
 }
 
-export function StudentPageStatus({ title, description, code, children }) {
+export function StudentPageStatus({ title, description, code, children, ...props }) {
   const heading = useRef(null);
   // 只在阻断页面出现/切换时聚焦；后台警告仍由原 Alert 呈现，不抢表单焦点。
   useEffect(() => { heading.current?.focus(); }, [title]);
-  return <div className="student-page-status">
+  return <div className="student-page-status" {...props}>
     <PixelPanel aria-labelledby="student-status-title">
       {code && <span className="student-status-code" aria-hidden="true">{code}</span>}
       <h1 id="student-status-title" ref={heading} tabIndex={-1}>{title}</h1>

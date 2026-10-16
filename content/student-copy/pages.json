@@ -1,0 +1,1494 @@
+[
+  {
+    "id": "login",
+    "title": "登录",
+    "routes": [
+      "/login"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/auth/Login.jsx",
+        "registeredIds": [
+          "patch.login.account",
+          "patch.login.footer",
+          "patch.login.hint",
+          "patch.login.needPassword",
+          "patch.login.needUsername",
+          "patch.login.note",
+          "patch.login.password",
+          "patch.login.reload",
+          "patch.login.submit",
+          "patch.login.title",
+          "patch.login.username",
+          "patch.login.welcome",
+          "platform.name",
+          "site.bef9ac984635f9f9"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "password",
+    "title": "修改密码",
+    "routes": [
+      "/change-password"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/auth/ChangePassword.jsx",
+        "registeredIds": [
+          "site.3da3927dbfcde53c",
+          "site.415235d5e5858e30",
+          "site.5118582e4b5ce527",
+          "site.6c9b40e61e0de243",
+          "site.7cb0a1884ad56264",
+          "site.7db6a36f08beda4a",
+          "site.815bdef0d88e214f",
+          "site.826cccbbd27b4f4a",
+          "site.85937292483df5fe",
+          "site.87490434b0078a33",
+          "site.8df185604987f98b",
+          "site.9346ebcb46f169fd",
+          "site.9bf86ee91fbd01cc",
+          "site.9c6b2351aaf29f3e",
+          "site.aab5f0fb0e0893f0",
+          "site.b082fb9f023321c6",
+          "site.ba998d46f78ac46d",
+          "site.ca9124491631e504",
+          "site.cdcc70d7ccb21622",
+          "site.d53afa6d83aaa8dc",
+          "site.e39c768ddee4d6fd",
+          "site.fa9d43f28f2eb2b3"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "explore",
+    "title": "课程选择",
+    "routes": [
+      "/explore",
+      "/courses",
+      "/dashboard"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/Explore.jsx",
+        "registeredIds": [
+          "maintenance.field.lesson_id",
+          "maintenance.public",
+          "next.map.future",
+          "next.map.node",
+          "next.map.notOpen",
+          "next.map.preparing",
+          "next.map.route",
+          "next.map.unknown",
+          "next3.badges.unknown",
+          "patch.map.title",
+          "system.map.001",
+          "system.map.002",
+          "system.map.003",
+          "system.map.004",
+          "system.map.005",
+          "system.map.006",
+          "system.map.007",
+          "system.map.008",
+          "system.map.009",
+          "system.map.010",
+          "system.map.011",
+          "system.map.012",
+          "system.map.013",
+          "system.map.014",
+          "system.map.015",
+          "system.map.016",
+          "system.map.017",
+          "system.map.018",
+          "system.map.019",
+          "system.map.020",
+          "system.map.021",
+          "system.map.022",
+          "system.map.023",
+          "system.map.025",
+          "system.map.026",
+          "system.map.028",
+          "system.map.029",
+          "system.map.030",
+          "system.map.031",
+          "system.map.032",
+          "system.map.033",
+          "system.map.034",
+          "system.map.035",
+          "system.map.036",
+          "system.map.037",
+          "system.map.038",
+          "system.map.039",
+          "system.map.040",
+          "system.map.041",
+          "system.map.042",
+          "system.map.043",
+          "system.map.044",
+          "system.map.045",
+          "system.map.046",
+          "system.map.047",
+          "system.map.048",
+          "system.map.049",
+          "system.map.050",
+          "system.map.052",
+          "system.map.054",
+          "system.map.055",
+          "system.map.056",
+          "system.map.057",
+          "system.map.058",
+          "system.map.059",
+          "system.map.060",
+          "system.map.061",
+          "system.map.062",
+          "system.map.063",
+          "system.map.065",
+          "system.map.067",
+          "system.map.069",
+          "system.map.070",
+          "system.map.071",
+          "system.map.073",
+          "system.map.074",
+          "system.map.075",
+          "system.map.076",
+          "system.map.077",
+          "system.map.080",
+          "system.map.081",
+          "system.map.082",
+          "system.map.083"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "personal",
+    "title": "我的、签到与兑换",
+    "routes": [
+      "/me",
+      "/archives/rewards"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/space/Personal.jsx",
+        "registeredIds": [
+          "badgeRoom.entry",
+          "next.lab.free",
+          "system.me.001",
+          "system.me.002",
+          "system.me.003",
+          "system.me.004",
+          "system.me.005",
+          "system.me.006",
+          "system.me.007",
+          "system.me.008",
+          "system.me.009",
+          "system.me.010",
+          "system.me.011"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "badge-room",
+    "title": "徽章陈列室",
+    "routes": [
+      "/me/badges"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/space/BadgeRoom.jsx",
+        "registeredIds": [
+          "badgeRoom.account",
+          "badgeRoom.back",
+          "badgeRoom.close",
+          "badgeRoom.condition",
+          "badgeRoom.earnedCondition",
+          "badgeRoom.earnedTitle",
+          "badgeRoom.error",
+          "badgeRoom.loading",
+          "badgeRoom.lockedTitle",
+          "badgeRoom.missingHighlight",
+          "badgeRoom.noDescription",
+          "badgeRoom.noEarned",
+          "badgeRoom.satisfied",
+          "badgeRoom.source",
+          "badgeRoom.time",
+          "badgeRoom.title",
+          "next3.badges.history",
+          "next3.badges.lesson",
+          "next3.retry",
+          "student26.167db56f9729d2b0",
+          "student26.25784266f606b3c8",
+          "student26.567cfa509cae0754"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "student-guide",
+    "title": "学生使用指南与登录提示",
+    "routes": [
+      "/guide"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/guide/StudentGuide.jsx",
+        "registeredIds": [
+          "guide.eyebrow",
+          "guide.intro",
+          "guide.title",
+          "guide.updatedAt"
+        ]
+      },
+      {
+        "file": "frontend/src/student/guide/StudentGuideDocument.jsx",
+        "registeredIds": []
+      },
+      {
+        "file": "frontend/src/student/guide/StudentGuideModal.jsx",
+        "registeredIds": [
+          "guide.dismiss",
+          "guide.later",
+          "guide.modalLead",
+          "guide.modalNote",
+          "guide.modalTitle",
+          "guide.openFull"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "map",
+    "title": "课程地图与关卡详情",
+    "routes": [
+      "/courses/:id"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/Explore.jsx",
+        "registeredIds": [
+          "maintenance.field.lesson_id",
+          "maintenance.public",
+          "next.map.future",
+          "next.map.node",
+          "next.map.notOpen",
+          "next.map.preparing",
+          "next.map.route",
+          "next.map.unknown",
+          "next3.badges.unknown",
+          "patch.map.title",
+          "system.map.001",
+          "system.map.002",
+          "system.map.003",
+          "system.map.004",
+          "system.map.005",
+          "system.map.006",
+          "system.map.007",
+          "system.map.008",
+          "system.map.009",
+          "system.map.010",
+          "system.map.011",
+          "system.map.012",
+          "system.map.013",
+          "system.map.014",
+          "system.map.015",
+          "system.map.016",
+          "system.map.017",
+          "system.map.018",
+          "system.map.019",
+          "system.map.020",
+          "system.map.021",
+          "system.map.022",
+          "system.map.023",
+          "system.map.025",
+          "system.map.026",
+          "system.map.028",
+          "system.map.029",
+          "system.map.030",
+          "system.map.031",
+          "system.map.032",
+          "system.map.033",
+          "system.map.034",
+          "system.map.035",
+          "system.map.036",
+          "system.map.037",
+          "system.map.038",
+          "system.map.039",
+          "system.map.040",
+          "system.map.041",
+          "system.map.042",
+          "system.map.043",
+          "system.map.044",
+          "system.map.045",
+          "system.map.046",
+          "system.map.047",
+          "system.map.048",
+          "system.map.049",
+          "system.map.050",
+          "system.map.052",
+          "system.map.054",
+          "system.map.055",
+          "system.map.056",
+          "system.map.057",
+          "system.map.058",
+          "system.map.059",
+          "system.map.060",
+          "system.map.061",
+          "system.map.062",
+          "system.map.063",
+          "system.map.065",
+          "system.map.067",
+          "system.map.069",
+          "system.map.070",
+          "system.map.071",
+          "system.map.073",
+          "system.map.074",
+          "system.map.075",
+          "system.map.076",
+          "system.map.077",
+          "system.map.080",
+          "system.map.081",
+          "system.map.082",
+          "system.map.083"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "learn",
+    "title": "课时学习：回顾、卡片、练习、报告、反思",
+    "routes": [
+      "/courses/:courseId/lessons/:lessonId/learn"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/learning/LessonLearn.jsx",
+        "registeredIds": [
+          "next2.reflection.draftFailed",
+          "system.learning.003",
+          "system.learning.004",
+          "system.learning.005",
+          "system.learning.006",
+          "system.learning.027",
+          "system.learning.028",
+          "system.learning.029",
+          "system.learning.030",
+          "system.learning.031",
+          "system.learning.032",
+          "system.learning.033",
+          "system.learning.034",
+          "system.learning.035",
+          "system.learning.036",
+          "system.learning.037",
+          "system.learning.038",
+          "system.learning.039",
+          "system.learning.040",
+          "system.learning.041",
+          "system.learning.042",
+          "system.learning.043",
+          "system.learning.044",
+          "system.learning.045",
+          "system.learning.046",
+          "system.learning.047",
+          "system.learning.048",
+          "system.learning.049",
+          "system.learning.050",
+          "system.learning.051",
+          "system.learning.052",
+          "system.learning.053",
+          "system.learning.054"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "course-learning",
+    "title": "课程学习兼容页",
+    "routes": [
+      "/courses/:id/learn"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/courses/Learning.jsx",
+        "registeredIds": []
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "lab",
+    "title": "实验室",
+    "routes": [
+      "/courses/:courseId/lab"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/Lab.jsx",
+        "registeredIds": [
+          "system.lab.001",
+          "system.lab.002",
+          "system.lab.003",
+          "system.lab.004",
+          "system.lab.005",
+          "system.lab.006",
+          "system.lab.007",
+          "system.lab.008",
+          "system.lab.009",
+          "system.lab.010",
+          "system.lab.011",
+          "system.lab.012",
+          "system.lab.013",
+          "system.lab.014",
+          "system.lab.015",
+          "system.lab.016",
+          "system.lab.017",
+          "system.lab.018",
+          "system.lab.019",
+          "system.lab.020"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "flight",
+    "title": "滑翔机试飞与结果",
+    "routes": [
+      "/courses/:courseId/glider",
+      "/glider"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/glider/Simulator.jsx",
+        "registeredIds": [
+          "site.00c55a397c1790c7",
+          "site.0f78bf8fc5463412",
+          "site.0fd29d1697388bae",
+          "site.10674eb72d174ed1",
+          "site.1123cc8bb6d0596f",
+          "site.114bf5fb739aa1fe",
+          "site.12c609982556dac6",
+          "site.193b30965f95edcf",
+          "site.2390d0741a774ea8",
+          "site.24948bd6ddac08b9",
+          "site.250ba1739133cf19",
+          "site.267cfee298fda338",
+          "site.2a484ebfa0edf256",
+          "site.2b453b69a79c8d29",
+          "site.2bfbba04b95b74a8",
+          "site.2f3b09cf115a33a0",
+          "site.368dc276a9b3b0ff",
+          "site.3ffbecb304fc7936",
+          "site.428e31905bab5aee",
+          "site.48ea978c84421f9e",
+          "site.49ae69a7b982c498",
+          "site.5098f78b1c4ee658",
+          "site.569034913ac19505",
+          "site.60bb4c6a80e4ece5",
+          "site.60c57f61186d911e",
+          "site.6230c6b28be24fcc",
+          "site.628c4df02a8369a5",
+          "site.65a134c3a6e631a5",
+          "site.6791e4f7be701e0c",
+          "site.68a8803fb16c7298",
+          "site.69e754877f2c9e6c",
+          "site.79c0e290fcc179cf",
+          "site.7ea4a9372bf8e2d9",
+          "site.8012163a44906ada",
+          "site.82c9050090b84186",
+          "site.845d34e8645f8dbf",
+          "site.8bc535ac2db22e5c",
+          "site.8dd0110275d12be6",
+          "site.8fb65cc05e0d15c1",
+          "site.974fcba694075a4b",
+          "site.9e50f808d0e56c5d",
+          "site.a512ca1ba76993f2",
+          "site.a73be7f47a0fda2d",
+          "site.adb54f7adb412db0",
+          "site.b0276bfc62d1ef2a",
+          "site.b293dd8c171d72b1",
+          "site.b55d5db2526856a9",
+          "site.b5dfc4ecdd5d613c",
+          "site.b6b4c8caf5360fc1",
+          "site.c2778d97f9e62972",
+          "site.c587b4773ecc638f",
+          "site.c7bb63774c80fdc7",
+          "site.cdfa4a19c71e89a0",
+          "site.ce0c1538ff1b1b71",
+          "site.d0ffe75e194fb4b0",
+          "site.d1d047b130ed152f",
+          "site.d4e886021c1bfac5",
+          "site.d6fa5ee13a185373",
+          "site.e26a9445c9427394",
+          "site.e792a9191476c13a",
+          "site.e7d8ea495f0e08ec",
+          "site.ed63934db8904a95",
+          "site.ef8234c60f8c6dd7",
+          "site.f2fba4773aac84cb",
+          "site.f45a6470b2e2b897",
+          "site.f79b9916b9561c3e",
+          "site.fa04247e6adbbcaa",
+          "site.fcac88f55af035f0",
+          "site.fddc234f0f585556"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "tasks",
+    "title": "课后任务",
+    "routes": [
+      "/courses/:courseId/tasks",
+      "/tasks"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/tasks/List.jsx",
+        "registeredIds": [
+          "site.0c9756d838de3661",
+          "site.0cd9e446a793f524",
+          "site.267f58315499d755",
+          "site.29647e1fd71a616a",
+          "site.2e6d00e03fdff015",
+          "site.30dd330508cbdd43",
+          "site.34780049413edd06",
+          "site.3ee66776196b4651",
+          "site.4d493a1ef4338195",
+          "site.51c8b040a89a7aa4",
+          "site.60c9540b31fe0212",
+          "site.81690e915575e98a",
+          "site.84b5b65bb61fa70c",
+          "site.9151a558ad78a7f9",
+          "site.93359258003ca60c",
+          "site.96e2862e63e2ff6c",
+          "site.ac507991583426f4",
+          "site.b487f4a4aae4f0f6",
+          "site.decde6297593cf5e",
+          "site.f3e7f9a072c268f2"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "task-detail",
+    "title": "任务详情",
+    "routes": [
+      "/courses/:courseId/tasks/:id",
+      "/tasks/:id"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/tasks/Detail.jsx",
+        "registeredIds": [
+          "site.01dece7607f62205",
+          "site.2703539c75d20bc5",
+          "site.3404030dc9d3add4",
+          "site.34405bc6ddaf6762",
+          "site.3583ed28fd7a5e7a",
+          "site.4b68c6891c40a45f",
+          "site.505f5c83e82ca25e",
+          "site.66734f78a8c494f9",
+          "site.7cbb6c6c21808410",
+          "site.8306bf4e372ae934",
+          "site.8976208a831ef892",
+          "site.8c677c9d78f18798",
+          "site.900033a01a94c6ff",
+          "site.903e90ec52c5b925",
+          "site.937bfad0e6dde8d2",
+          "site.af8b9aa09100c534",
+          "site.b076077dafd61010",
+          "site.b4a8c5adf06dc577",
+          "site.d073faa86de0f6d9",
+          "site.dd6f6b3f0bbc9787",
+          "site.e1ac2460e522b965",
+          "site.e9cfd75f14af41c6",
+          "site.ed96f367f520caed",
+          "site.fa2eca51c2816d33"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "works",
+    "title": "作品列表",
+    "routes": [
+      "/courses/:courseId/works",
+      "/works"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/works/List.jsx",
+        "registeredIds": [
+          "site.1dd3513dea197726",
+          "site.27700a48b753e9ba",
+          "site.2d23c87fc3b355e5",
+          "site.357377033f9ab415",
+          "site.563c9a3f9af2e15b",
+          "site.57f9833a8592e3ae",
+          "site.6ce325b15833bba4",
+          "site.773db9128220465f",
+          "site.9ab727d12a10b24d",
+          "site.9c0b9d4fc0f8afcb",
+          "site.9d6f620e92380c5c",
+          "site.a02633cc2c1488d8",
+          "site.ba29dd750cfb06d5",
+          "site.c8c216bda986b643",
+          "site.ce668bf6da143dfd",
+          "site.d1284c497b508f85",
+          "site.d1761839cf656af1",
+          "site.d86a7934af9f54cb",
+          "site.da1f1189cef33c54",
+          "site.e0d4ef9a6e9892f6",
+          "site.fa8a73bedf5d6b6d",
+          "site.ffaa0c790e11ee57"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "work-upload",
+    "title": "作品提交与版本更新",
+    "routes": [
+      "/courses/:courseId/works/upload",
+      "/works/upload"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/works/Upload.jsx",
+        "registeredIds": [
+          "system.workUpload.001",
+          "system.workUpload.002",
+          "system.workUpload.003",
+          "system.workUpload.004",
+          "system.workUpload.005",
+          "system.workUpload.006",
+          "system.workUpload.007",
+          "system.workUpload.008",
+          "system.workUpload.009",
+          "system.workUpload.010",
+          "system.workUpload.011",
+          "system.workUpload.012",
+          "system.workUpload.013",
+          "system.workUpload.015",
+          "system.workUpload.016",
+          "system.workUpload.017",
+          "system.workUpload.018",
+          "system.workUpload.019",
+          "system.workUpload.020",
+          "system.workUpload.021",
+          "system.workUpload.022",
+          "system.workUpload.023",
+          "system.workUpload.024",
+          "system.workUpload.025",
+          "system.workUpload.026",
+          "system.workUpload.027",
+          "system.workUpload.028",
+          "system.workUpload.029",
+          "system.workUpload.030",
+          "system.workUpload.031",
+          "system.workUpload.032",
+          "system.workUpload.033",
+          "system.workUpload.035",
+          "system.workUpload.036",
+          "system.workUpload.037",
+          "system.workUpload.038",
+          "system.workUpload.039",
+          "system.workUpload.040",
+          "system.workUpload.041",
+          "system.workUpload.042",
+          "system.workUpload.043",
+          "system.workUpload.044",
+          "system.workUpload.045",
+          "system.workUpload.046",
+          "system.workUpload.047"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "work-detail",
+    "title": "作品详情、版本与评审",
+    "routes": [
+      "/courses/:courseId/works/:id",
+      "/works/:id"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/works/Detail.jsx",
+        "registeredIds": [
+          "site.01e4f050a5a9b849",
+          "site.0426d92748ff7ed0",
+          "site.057765eb9eea3856",
+          "site.0c829506b69d60cd",
+          "site.0fb39b9e1cfcd330",
+          "site.11996ba740913dbe",
+          "site.1749b70547a94071",
+          "site.1b2793e919aad93b",
+          "site.1f7136bfbea0562e",
+          "site.2714f819002376a9",
+          "site.2d8552c89a3c2c2b",
+          "site.2fdae812fda21eb8",
+          "site.3020165042e50087",
+          "site.347651bf49604b8b",
+          "site.34daa66e72549960",
+          "site.3908e816c746d0ae",
+          "site.3b587396cd3f4222",
+          "site.3ddbe861e4dae938",
+          "site.560fe442d6315b41",
+          "site.5dda1653288bd7ff",
+          "site.5fa3bde7e7416f41",
+          "site.61985239e354ea65",
+          "site.635c2c39c079e914",
+          "site.6838c20c96d73576",
+          "site.718d38eb99f9cdcb",
+          "site.7cce025e82a20cb3",
+          "site.7f8086bd36283d6d",
+          "site.8803ce62fed4c104",
+          "site.a92c71100db6a50d",
+          "site.b2d3e10a9e08121b",
+          "site.c2690da31a9d3aa5",
+          "site.c45c3ccc5d2087d1",
+          "site.e0229095c967f723",
+          "site.e072680f03f63a28",
+          "site.e82aef598238ed80",
+          "site.e8d21f248500af2d",
+          "site.eaf776f04b44c4e0",
+          "site.eee4970f985f6ddd",
+          "site.f3871c9c12b1278c",
+          "student26.04456145d91e5600",
+          "student26.7f8a4ff13afa0362",
+          "student26.8078656814a3a9ae",
+          "student26.b2650adc36b3afd6",
+          "student26.bb4bf632281c617d"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "archive",
+    "title": "成长档案、报告与实验记录",
+    "routes": [
+      "/courses/:courseId/archives",
+      "/archives"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/archives/Index.jsx",
+        "registeredIds": [
+          "site.000aeaa34ca2d479",
+          "site.0ec6d2832e01ab07",
+          "site.1775f3b4867300f1",
+          "site.192e66010be3ebf5",
+          "site.1a93d354c5ecf81f",
+          "site.2773c15ed88ef987",
+          "site.2a611bfb54c353e9",
+          "site.3295aa700d615d88",
+          "site.4184c59ba4eb038a",
+          "site.44c9c020c5bbd655",
+          "site.4a4584ef52775150",
+          "site.4b67dde2fcced3e5",
+          "site.4e0d8d6dd08d4d48",
+          "site.5330d00929bd9bd3",
+          "site.5af9f5975fc10d8f",
+          "site.603d5764cc2d68c1",
+          "site.60652218f102109a",
+          "site.66186b9b0ca8de79",
+          "site.6cdae16cb5483a96",
+          "site.73a28b4ada50cad4",
+          "site.87a6be2a4246bd37",
+          "site.8b6efdf05e5bb8c1",
+          "site.942c771c6aa04b96",
+          "site.a74e19dea1afc5ed",
+          "site.a7663d2129e84ba0",
+          "site.b05b178d73339e7e",
+          "site.b171dbd2f01adf98",
+          "site.b805e9ffcfd8bf7d",
+          "site.c1fda00380fb315b",
+          "site.da1a8366bd7004fd",
+          "site.eaeca9de1adec4d2",
+          "site.fb6dc8df5c3062a9",
+          "student26.5ec5e335d4eab0d1",
+          "student26.6c2a5cce406d5ae6",
+          "student26.ada00fab22cb5e85",
+          "student26.bc365698fe297eeb",
+          "student26.cd414bc99b80b4ef",
+          "student26.d073dd1a892462c8"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "reflection",
+    "title": "课程反思",
+    "routes": [
+      "/courses/:courseId/reflection",
+      "/archives/reflection"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/archives/Reflection.jsx",
+        "registeredIds": [
+          "next2.reflection.done",
+          "next2.reflection.draft",
+          "next2.reflection.draftFailed",
+          "next2.reflection.help",
+          "next2.reflection.scope",
+          "system.reflection.001",
+          "system.reflection.002",
+          "system.reflection.003",
+          "system.reflection.004",
+          "system.reflection.005",
+          "system.reflection.006",
+          "system.reflection.008",
+          "system.reflection.009",
+          "system.reflection.011",
+          "system.reflection.012",
+          "system.reflection.013",
+          "system.reflection.014",
+          "system.reflection.015",
+          "system.reflection.016",
+          "system.reflection.017",
+          "system.reflection.018",
+          "system.reflection.019",
+          "system.reflection.020",
+          "system.reflection.021",
+          "system.reflection.022",
+          "system.reflection.023",
+          "system.reflection.024",
+          "system.reflection.025",
+          "system.reflection.026",
+          "system.reflection.027",
+          "system.reflection.037",
+          "system.reflection.038",
+          "system.reflection.039",
+          "system.reflection.040",
+          "system.reflection.041",
+          "system.reflection.046"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "assistant",
+    "title": "灵境小智",
+    "routes": [
+      "/courses/:courseId/assistant",
+      "/dashboard/ai"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/dashboard/AI.jsx",
+        "registeredIds": [
+          "site.1f1561e8e4e1d368",
+          "site.23db76d231f9eaa9",
+          "site.24d015e5582997cb",
+          "site.27f87097ea80ede8",
+          "site.332b5503a30f6a07",
+          "site.3346f25aaf1b9fa7",
+          "site.340b38fec4a550c5",
+          "site.347887469bcb12d4",
+          "site.52a81ab8967cddfa",
+          "site.5410d8867dc1b996",
+          "site.756292d44aaf0f6c",
+          "site.8984e1f93c5786dd",
+          "site.8cc6f3705f6478dd",
+          "site.9423f5405308f993",
+          "site.a9e67309ae3963e9",
+          "site.dcf9c2f264048866",
+          "site.df1fb13decb087c4",
+          "site.e6840afd0d80acff",
+          "site.ec779afa35a9d932",
+          "site.f20296653af738ab",
+          "site.f4568c4aca2b65c5"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "compat",
+    "title": "旧入口与独立工具",
+    "routes": [
+      "/lab",
+      "/glider",
+      "/dashboard/ai",
+      "/works",
+      "/tasks",
+      "/archives"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/space/LegacyEntry.jsx",
+        "registeredIds": [
+          "site.204051e4e985678f",
+          "site.b83ae6b32dd26d21"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "feedback",
+    "title": "我的反馈与筛选",
+    "routes": [
+      "/feedback"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/feedback/List.jsx",
+        "registeredIds": [
+          "site.13d421ce44459ac3",
+          "site.1e58cfc31d36fd3d",
+          "site.4508ca2f6b09cb49",
+          "site.79a729d421ebb3a6",
+          "site.88a91eb059a19a7b",
+          "site.913582da835e185b",
+          "site.9c9f54790f8315ae",
+          "site.b6b646cba74cb640",
+          "site.bc5f22e52a89c7c2",
+          "site.cfd5c362774f7e7e",
+          "site.d532f6b4886336cd",
+          "site.d9a23a1768483e13",
+          "site.dcbb20b6e9158a18",
+          "site.ec2398340a414418"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "feedback-new",
+    "title": "提交反馈",
+    "routes": [
+      "/feedback/new"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/feedback/Form.jsx",
+        "registeredIds": [
+          "site.00821f6d1839fabb",
+          "site.02a445217c1cca73",
+          "site.0cb73015656498cf",
+          "site.1498807bd478d570",
+          "site.16b051955814d4a7",
+          "site.16e86ac6d6ff83b6",
+          "site.1c4c7e5713995156",
+          "site.1d88594808686b0d",
+          "site.212f218e102cf88d",
+          "site.26b66cdf08dc8c76",
+          "site.2ddcd6e4515a1c5f",
+          "site.480493da8adfbe64",
+          "site.4a0f1ab070af1a09",
+          "site.4cfce5b3f8f85408",
+          "site.643d9d346b25df61",
+          "site.677210fb94b7f4bd",
+          "site.746e14975561c9cd",
+          "site.7674c9fa5f174194",
+          "site.87323ff68bad1f5b",
+          "site.880688316a275399",
+          "site.8db704912e8e00b0",
+          "site.9188f27c9d09085f",
+          "site.9fbdf09ef5c171f0",
+          "site.b6a8246609a81715",
+          "site.b7cbbf9899572ee6",
+          "site.ca7234198120ba71",
+          "site.cbab05a9bfed0004",
+          "site.e1689b101da78577",
+          "site.e63403fea4e9cc13",
+          "site.edaf334db6f568df",
+          "site.f852fcc1636d6b23"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "feedback-detail",
+    "title": "反馈详情、附件、回复与关闭",
+    "routes": [
+      "/feedback/:id"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/feedback/Detail.jsx",
+        "registeredIds": [
+          "site.01836a87796760c6",
+          "site.07f417bbf1f12f81",
+          "site.09b8d47c5da82582",
+          "site.0ce7c559115c1036",
+          "site.1282382b367a9b17",
+          "site.23dbd25e535fa52b",
+          "site.2a3b462b35b52780",
+          "site.3254c0e6529af687",
+          "site.327274b88c90f684",
+          "site.354962097eaa2a0f",
+          "site.37699af0461e28d2",
+          "site.37ccb9aac02decf7",
+          "site.397f6b370f2c1a56",
+          "site.3cb81d4b32d7099e",
+          "site.3cfe0cc52e7888c7",
+          "site.418fdfb865249e0b",
+          "site.419c0a6d6b6d261b",
+          "site.517bbdbc5cf0e695",
+          "site.552ef779d85fa13f",
+          "site.5701ff0ccb652d0c",
+          "site.5d58da2f3d52f87c",
+          "site.5f6a04f7d04af319",
+          "site.662df1d62ef82d28",
+          "site.66e93c94e5c1d6b8",
+          "site.6725f42f94bd3fd1",
+          "site.700d9978740c633b",
+          "site.71ef272cf2c54e8f",
+          "site.7ecdfaea2c6477e3",
+          "site.864d0010b3bc7fba",
+          "site.88fad7d0f3ae8d12",
+          "site.8eba157548bfa8da",
+          "site.981aab23eb841e4b",
+          "site.ad895b77fb98d2e3",
+          "site.b27404a8f08c5ff7",
+          "site.b8c0dc2ee4f6a8cc",
+          "site.bbfa131be81032a3",
+          "site.bf2bbecfa785b638",
+          "site.c9406412e7e93917",
+          "site.d04d65ff401c8d6a",
+          "site.d19c38b3ac7851aa",
+          "site.d39de4b224f4a83a",
+          "site.d553d901efa76a57",
+          "site.e4d83e963046faed",
+          "site.e5c9f830a629bb94",
+          "site.f4b37628974f5ee3"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "notifications",
+    "title": "通知列表与筛选",
+    "routes": [
+      "/notifications"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/notifications/List.jsx",
+        "registeredIds": [
+          "site.12dd0a248334665f",
+          "site.3751e84dbff2566e",
+          "site.3a6ffa684c57a9b6",
+          "site.405493918b74e7d2",
+          "site.498398e07f0cba40",
+          "site.49ccba0c67a677b4",
+          "site.56d627e208da56a1",
+          "site.71da1f4b3006d37d",
+          "site.76c5c80ccc07591e",
+          "site.79416a8ce702704f",
+          "site.83df7e0be066d32f",
+          "site.94b33fc322781440",
+          "site.a7740a240aee5108",
+          "site.c82af180cfd2ae07",
+          "site.d3e87f5e79033aaa",
+          "site.d9e95b15b0c22838",
+          "site.f086bf89a6f1a314",
+          "site.f3a5908f35d5a8aa"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "notification-detail",
+    "title": "通知详情与跳转",
+    "routes": [
+      "/notifications/:id"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/pages/notifications/Detail.jsx",
+        "registeredIds": [
+          "site.00e92d5ffae3e594",
+          "site.0dac94af865d540e",
+          "site.106c52a5512cf0c6",
+          "site.38a5ca642992714b",
+          "site.479672e870dca090",
+          "site.776047e5c6f71e3d",
+          "site.86fb96bb8e7714ab",
+          "site.8dd5140f57a5b6e2",
+          "site.abe4a9e3baf7b941",
+          "site.cbac26b22887c555",
+          "site.d17e0d76994b4440",
+          "site.e2016e0517101728",
+          "site.eb8ad8fea97f0705"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "not-found",
+    "title": "地址不存在与角色拦截",
+    "routes": [
+      "/*"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/components/NotFound.jsx",
+        "registeredIds": [
+          "site.5228c122a4975647",
+          "site.99bba994e46ee706",
+          "site.b96998315eba668a",
+          "site.e73d0a99e5aba0c8",
+          "site.f68cf3bb67a54012"
+        ]
+      },
+      {
+        "file": "frontend/src/components/RoleGuard.jsx",
+        "registeredIds": [
+          "site.2d63502541824b3b",
+          "site.3a199280ae5973e3",
+          "site.3a33bf4545c682dc",
+          "site.44c11feaef6c0329",
+          "site.77cd167e526fc267"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "shared",
+    "title": "公共导航、加载、错误、空状态与伙伴",
+    "routes": [
+      "所有已登录页面"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/components/AppLayout.jsx",
+        "registeredIds": [
+          "site.9971c3f7b8e21373"
+        ]
+      },
+      {
+        "file": "frontend/src/components/Header.jsx",
+        "registeredIds": [
+          "next2.staff.back",
+          "site.09215898ed70a2e6",
+          "site.16b0922bf4440284",
+          "site.30675e8fab1b63f1",
+          "site.6fab694c40086820",
+          "site.85c6a7fd3b0ef803",
+          "site.910bf83ce11120f1",
+          "site.914c8641600fe1aa",
+          "site.d4be2a2085611f19",
+          "site.d84468ae4f97c91f"
+        ]
+      },
+      {
+        "file": "frontend/src/components/Sidebar.jsx",
+        "registeredIds": [
+          "site.26ff7feaa9236e16",
+          "site.279ee0470ef8cde7",
+          "site.438446d175a31f66",
+          "site.63a97c4c6372c0f6",
+          "site.68d0d9a0dd22dfc5",
+          "site.78bd9e7ce64c43a5",
+          "site.80927f02ede6e36d",
+          "site.82eec37d198a490e",
+          "site.911847df600e4ab6",
+          "site.97b14c37be582fde",
+          "site.a2f1a21199c19e4b",
+          "site.a5dcfd6bb2c993fa",
+          "site.ac39a88c5cd27d64",
+          "site.afebea6ca3efce49",
+          "site.b66623470636da51",
+          "site.bf73f1442dae6e1f",
+          "site.c61b5a1d704612ec",
+          "site.ce21387ea0791ec0",
+          "site.d9bb630c8f6f2c56",
+          "site.f8f376cfb06cb013"
+        ]
+      },
+      {
+        "file": "frontend/src/components/PageStatus.jsx",
+        "registeredIds": [
+          "site.ccf62e20016289fa"
+        ]
+      },
+      {
+        "file": "frontend/src/student/visual/StudentShell.jsx",
+        "registeredIds": [
+          "coins.loading",
+          "coins.readFailed",
+          "coins.title",
+          "course.nav.exit",
+          "course.nav.return",
+          "guide.nav",
+          "platform.name",
+          "platform.nav.courses",
+          "platform.nav.me",
+          "system.shell.005",
+          "system.shell.006",
+          "system.shell.007",
+          "system.shell.008",
+          "system.shell.009",
+          "system.shell.010",
+          "system.shell.013",
+          "system.shell.014",
+          "system.shell.016",
+          "system.shell.017",
+          "system.shell.018",
+          "system.shell.019",
+          "system.shell.020"
+        ]
+      },
+      {
+        "file": "frontend/src/student/visual/Partner.jsx",
+        "registeredIds": []
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "real-coins",
+    "title": "真实金币、连签与日历",
+    "routes": [
+      "/me"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/RealCoins.jsx",
+        "registeredIds": [
+          "coins.accountScope",
+          "coins.already",
+          "coins.calendarEmpty",
+          "coins.calendarFailed",
+          "coins.calendarLabel",
+          "coins.calendarLoading",
+          "coins.checkedState",
+          "coins.checkin",
+          "coins.checkinSource",
+          "coins.checkinTitle",
+          "coins.current",
+          "coins.demoBalance",
+          "coins.demoTitle",
+          "coins.done",
+          "coins.history",
+          "coins.ledgerEmpty",
+          "coins.ledgerFailed",
+          "coins.ledgerTitle",
+          "coins.lesson",
+          "coins.loading",
+          "coins.more",
+          "coins.next",
+          "coins.nextState",
+          "coins.pending",
+          "coins.previous",
+          "coins.readFailed",
+          "coins.refresh",
+          "coins.reportSource",
+          "coins.retry",
+          "coins.rule",
+          "coins.serverDate",
+          "coins.settlementFailed",
+          "coins.shortError",
+          "coins.shortLoading",
+          "coins.snapshot",
+          "coins.streakSource",
+          "coins.success",
+          "coins.title",
+          "coins.total",
+          "coins.uncertain",
+          "coins.unit",
+          "coins.weekdays",
+          "student26.ac3676950e550f45",
+          "student26.ff850b229eeb79b1"
+        ]
+      },
+      {
+        "file": "frontend/src/student/visual/StudentShell.jsx",
+        "registeredIds": [
+          "coins.loading",
+          "coins.readFailed",
+          "coins.title",
+          "course.nav.exit",
+          "course.nav.return",
+          "guide.nav",
+          "platform.name",
+          "platform.nav.courses",
+          "platform.nav.me",
+          "system.shell.005",
+          "system.shell.006",
+          "system.shell.007",
+          "system.shell.008",
+          "system.shell.009",
+          "system.shell.010",
+          "system.shell.013",
+          "system.shell.014",
+          "system.shell.016",
+          "system.shell.017",
+          "system.shell.018",
+          "system.shell.019",
+          "system.shell.020"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  },
+  {
+    "id": "fortune",
+    "title": "今日运势全部词库",
+    "routes": [
+      "/me"
+    ],
+    "ownSources": [
+      {
+        "file": "frontend/src/student/space/DailyFortune.jsx",
+        "registeredIds": [
+          "fortune.avoid",
+          "fortune.avoid.argument",
+          "fortune.avoid.compare",
+          "fortune.avoid.decide-for-others",
+          "fortune.avoid.deny-effort",
+          "fortune.avoid.deny-self",
+          "fortune.avoid.discard-data",
+          "fortune.avoid.fear-question",
+          "fortune.avoid.force-self",
+          "fortune.avoid.forget-thanks",
+          "fortune.avoid.give-up",
+          "fortune.avoid.guess",
+          "fortune.avoid.hide-mood",
+          "fortune.avoid.hurry",
+          "fortune.avoid.ignore",
+          "fortune.avoid.ignore-safety",
+          "fortune.avoid.interrupt",
+          "fortune.avoid.late-night",
+          "fortune.avoid.many-variables",
+          "fortune.avoid.mock",
+          "fortune.avoid.no-explanation",
+          "fortune.avoid.no-water",
+          "fortune.avoid.one-result",
+          "fortune.avoid.result-only",
+          "fortune.avoid.rush",
+          "fortune.avoid.screen",
+          "fortune.avoid.self-blame",
+          "fortune.avoid.skip-record",
+          "fortune.avoid.stop-thinking",
+          "fortune.avoid.too-full",
+          "fortune.avoid.unchecked-flight",
+          "fortune.date",
+          "fortune.failed",
+          "fortune.good",
+          "fortune.good.accept",
+          "fortune.good.ask",
+          "fortune.good.check",
+          "fortune.good.different-opinion",
+          "fortune.good.encourage",
+          "fortune.good.focus",
+          "fortune.good.help",
+          "fortune.good.listen",
+          "fortune.good.mood",
+          "fortune.good.needs",
+          "fortune.good.new-method",
+          "fortune.good.notice",
+          "fortune.good.organize",
+          "fortune.good.patience",
+          "fortune.good.perspective",
+          "fortune.good.praise",
+          "fortune.good.prepare",
+          "fortune.good.record",
+          "fortune.good.rest",
+          "fortune.good.share",
+          "fortune.good.sketch",
+          "fortune.good.small-step",
+          "fortune.good.space",
+          "fortune.good.split",
+          "fortune.good.stretch",
+          "fortune.good.talk",
+          "fortune.good.team",
+          "fortune.good.test",
+          "fortune.good.thanks",
+          "fortune.good.window",
+          "fortune.lastDate",
+          "fortune.loading",
+          "fortune.retry",
+          "fortune.title"
+        ]
+      }
+    ],
+    "sharedSources": "参考 coverage.json 中 components/student/constants；组件复用时绑定随同显示",
+    "preview": "同源管理员预览；个人记录为空，部分弹窗/错误需先触发或使用文字清单",
+    "teachingFields": "真实课程/课时/卡片/资料字段在原维护入口修改"
+  }
+]

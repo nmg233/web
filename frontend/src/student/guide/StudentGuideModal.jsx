@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {useEffect,useState} from 'react';
 import {copyText} from '../../content/copy';
 import Sentence from '../../content/Sentence';
@@ -44,12 +45,12 @@ export default function StudentGuideModal() {
   };
   return <ServiceModal className="guide-modal" title={copyText('guide.modalTitle')} open={visible}
     onCancel={closeForNow} width={780} footer={<div className="guide-modal-footer">
-      <span className="guide-modal-note">{copyText('guide.modalNote')}</span>
-      <Button onClick={closeForNow}>{copyText('guide.later')}</Button>
-      <Button type="primary" loading={saving} onClick={dismissForever}>{copyText('guide.dismiss')}</Button>
-    </div>}>
-    <Sentence className="guide-modal-lead">{copyText('guide.modalLead')}</Sentence>
-    <Sentence as="p" className="guide-modal-link"><Link to="/guide" onClick={closeForNow}>{copyText('guide.openFull')}</Link></Sentence>
+      <span className="guide-modal-note">{<StudentCopyText id={'guide.modalNote'}/>}</span>
+      <Button onClick={closeForNow}>{<StudentCopyText id={'guide.later'}/>}</Button>
+      <Button type="primary" loading={saving} onClick={dismissForever}>{<StudentCopyText id={'guide.dismiss'}/>}</Button>
+    </div>} data-copy-bindings={JSON.stringify(['guide.modalTitle'])}>
+    <Sentence className="guide-modal-lead">{<StudentCopyText id={'guide.modalLead'}/>}</Sentence>
+    <Sentence as="p" className="guide-modal-link"><Link to="/guide" onClick={closeForNow}>{<StudentCopyText id={'guide.openFull'}/>}</Link></Sentence>
     <StudentGuideDocument document={studentGuideDocument} />
   </ServiceModal>;
 }

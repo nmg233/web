@@ -7,10 +7,10 @@ import {useCoursePresentation} from '../space/CoursePresentation';
 import SceneArt from '../space/SceneArt';
 import Sentence from '../../content/Sentence';
 
-export function StudyHeader({ eyebrow, title, description, children }) {
+export function StudyHeader({ eyebrow, title, description, children, ...props }) {
   const look=useCoursePresentation(),routeId=useCourseId(),id=routeId||look.id,{pathname}=useLocation(),voyage=id&&look.theme==='voyage';
   const scene=/\/(lab|glider)$/.test(pathname)?'observatory':/\/(archives|reflection)(?:\/|$)/.test(pathname)?'planet-base':'bridge';
-  return <header className={'study-header'+(id?' course-page-header':'')}>
+  return <header className={'study-header'+(id?' course-page-header':'')} {...props}>
     {id&&<SceneArt name={voyage?scene:'campus'} className="course-page-scene" priority/>}
     <div className={id?'course-page-heading':undefined}>
     <div className="study-header-context">{eyebrow}</div>

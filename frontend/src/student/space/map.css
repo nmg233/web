@@ -95,3 +95,5 @@
   .space-course-todos .home-todo-action { align-self:stretch; }
   .space-course-todos .home-todo-action button { width:100%; }
 }
+
+.lesson-map-image-field .space-lesson-place{width:220px;height:220px}.map-image-fallback-note{position:absolute;bottom:0;font-size:12px;background:#fbf6e8;color:#132a49}.space-lesson-place[data-place="custom"]{aspect-ratio:1;height:auto}

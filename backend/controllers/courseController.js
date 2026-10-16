@@ -378,19 +378,22 @@ exports.addLesson = (req, res) => {
       }
     }
 
+    const mapFields=require('../services/lessonMapImages').fields(db,id,null,req.body);
     const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
     const sortOrder = (maxOrder.max_order || 0) + 1;
     // 全部输入验证通过后才冻结历史报名。
     for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id = ? AND status = 'active'").all(id)) versions.courseState(db, e.student_id, Number(id), true);
 
-    const result = db.prepare(
+    const result = db.transaction(()=>{const result=db.prepare(
       `INSERT INTO lessons (course_id, title, description, duration, sort_order, start_at, end_at, location, instructor_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(id, title.trim(), description || null, duration || null, sortOrder,
           start_at || null, end_at || null, location || null, instructor_id || null);
+    const fields=Object.entries(mapFields);if(fields.length)db.prepare(`UPDATE lessons SET ${fields.map(([k])=>k+'=?').join(',')} WHERE id=?`).run(...fields.map(([,v])=>v),result.lastInsertRowid);require('../services/lessonMapImages').bind(db,db.prepare('SELECT * FROM lessons WHERE id=?').get(result.lastInsertRowid));return result;}).immediate();
 
     res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('添加课时错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }

@@ -1,3 +1,5 @@
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy';
+import StudentCopyText from '../../content/ManagedText';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Spin } from 'antd';
 import { courseAPI } from '../../api';
@@ -37,11 +39,11 @@ export default function SignedReplayPlayer({ replayId, initialUrl, streamUrl = c
   }, [replayId]);
   return <div style={{width:'100%',marginTop:8}}>
     {loading && <Spin size="small" />}
-    {url && <video ref={video} key={`${url}:${revision}`} className={className} controls preload="metadata" src={url} aria-label="课堂回放播放器" style={{width:'100%',maxHeight:420,background:'#000'}}
+    {url && <video ref={video} key={`${url}:${revision}`} className={className} controls preload="metadata" src={url} aria-label={runtimeCopyText("student26.a63f98863fa6f3ff")} style={{width:'100%',maxHeight:420,background:'#000'}}
       onLoadedMetadata={() => {
         if(video.current && resume.current.position > 0) video.current.currentTime = Math.min(resume.current.position, Number.isFinite(video.current.duration) ? Math.max(0,video.current.duration - 0.1) : resume.current.position);
         if(resume.current.playing) video.current?.play().catch(() => {});
-      }} onError={() => { setError('视频加载失败或地址已过期，重新获取后会保留播放位置。'); onAccessError?.(); }} />}
-    {error && <Alert type="warning" showIcon message={error} action={<Button loading={loading} onClick={refresh}>重新获取播放地址</Button>} />}
+      }} onError={() => { setError('视频加载失败或地址已过期，重新获取后会保留播放位置。'); onAccessError?.(); }}  data-copy-bindings={JSON.stringify(["student26.a63f98863fa6f3ff"])}/>}
+    {error && <Alert type="warning" showIcon message={error} action={<Button loading={loading} onClick={refresh}><StudentCopyText id="student26.5f8b57f5086cee96"/></Button>} />}
   </div>;
 }

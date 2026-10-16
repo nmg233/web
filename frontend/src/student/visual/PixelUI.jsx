@@ -1,11 +1,22 @@
 import {copyText as siteText} from "../../content/copy";
-import { useState } from 'react';
+import { useState, isValidElement } from 'react';
+import ManagedText from '../../content/ManagedText';
+import ConfigText from '../../content/ConfigText';
+import {runtimeText} from '../../content/runtimeCopy';
 import { Button } from 'antd';
 import PixelIcon from './PixelIcon';
 
+function buttonText(node){
+  if(typeof node==='string'||typeof node==='number')return String(node);
+  if(Array.isArray(node))return node.map(buttonText).join('');
+  if(!isValidElement(node))return '';
+  if(node.type===ManagedText){let text=typeof node.props.rendered==='string'?node.props.rendered:runtimeText(node.props.id);if(node.props.values)text=text.replace(/\{(slot\d+)\}/g,(match,key)=>Object.hasOwn(node.props.values,key)?String(node.props.values[key]??''):match);return text;}
+  if(node.type===ConfigText)return typeof node.props.value==='string'?node.props.value:'';
+  return buttonText(node.props.children);
+}
 export function PixelButton({ className = '', children, 'aria-label': ariaLabel, ...props }) {
   // 加载图标属于装饰，不能让原按钮的可访问名称在请求前后变化。
-  return <Button className={`pixel-button ${className}`} aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)} {...props}>{children}</Button>;
+  return <Button className={`pixel-button ${className}`} aria-label={ariaLabel || buttonText(children) || undefined} {...props}>{children}</Button>;
 }
 
 export function PixelPanel({ children, className = '', as: Element = 'section', ...props }) {

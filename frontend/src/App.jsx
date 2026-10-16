@@ -1,3 +1,5 @@
+import {useCopyVersion} from './content/useCopyVersion';
+import RuntimeCopyProvider from './content/RuntimeCopyProvider';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import {installTeachingLeaveHistory} from './pages/courses/useTeachingLeaveGuard';
@@ -63,6 +65,7 @@ const ObserverDashboard = lazy(() => import('./pages/observer/Dashboard'));
 const ObserverStudents = lazy(() => import('./pages/observer/StudentList'));
 const ObserverStudentDetail = lazy(() => import('./pages/observer/StudentDetail'));
 const MentorContentHub = lazy(() => import('./pages/mentor/ContentHub'));
+const StudentCopyManagement = lazy(() => import('./copy-review/StudentCopyManagement'));
 const CopyReview = lazy(() => import('./copy-review/CopyReview'));
 const RewardManagement = lazy(() => import('./pages/rewards/Management'));
 
@@ -73,6 +76,7 @@ function PageFallback() {
 }
 
 function App() {
+  useCopyVersion();
   return (
     <ConfigProvider locale={zhCN} theme={{
       token: {
@@ -89,13 +93,14 @@ function App() {
     }}>
       <AntApp>
         <AuthProvider>
-          <BrowserRouter>
+          <BrowserRouter><RuntimeCopyProvider>
             <NotificationProvider>
               <Suspense fallback={<PageFallback />}>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
+                <Route path="student-copy" element={guard(<StudentCopyManagement/>, ['admin'])} />
                 <Route path="copy-review" element={guard(<CopyReview />, ['admin'])} />
                 <Route path="reward-management" element={guard(<RewardManagement />, ['admin'])} />
                 <Route index element={<RoleHomeRedirect />} />
@@ -156,7 +161,7 @@ function App() {
               </Routes>
               </Suspense>
             </NotificationProvider>
-          </BrowserRouter>
+          </RuntimeCopyProvider></BrowserRouter>
         </AuthProvider>
       </AntApp>
     </ConfigProvider>

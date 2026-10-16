@@ -9,4 +9,4 @@ export function feedbackFileError(file, count) {
   if (file.size > FEEDBACK_MAX_SIZE) return siteText("site.33b7e7b2e470176f");
   return '';
 }
-export const studentFeedbackModules = { auth: siteText("site.ad70adac5e57f6d0"), dashboard: siteText("site.af492bcd0b6000c7"), courses: siteText("site.dfabeec2c0e418ab"), students: siteText("site.a95621c951c59963"), works: siteText("site.fc7753233f5e561e"), archives: siteText("site.dcb6e8e2a13e3f90"), assistant: siteText("site.36227347df94de45"), other: siteText("site.b4b2cdc382911e4b") };
+export const studentFeedbackModules = { get auth(){return siteText("site.ad70adac5e57f6d0")}, get dashboard(){return siteText("site.af492bcd0b6000c7")}, get courses(){return siteText("site.dfabeec2c0e418ab")}, get students(){return siteText("site.a95621c951c59963")}, get works(){return siteText("site.fc7753233f5e561e")}, get archives(){return siteText("site.dcb6e8e2a13e3f90")}, get assistant(){return siteText("site.36227347df94de45")}, get other(){return siteText("site.b4b2cdc382911e4b")} };

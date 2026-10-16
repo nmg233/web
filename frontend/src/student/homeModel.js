@@ -32,7 +32,7 @@ export function buildHomeTodos({ courses = [], courseDetails = [], tasks = [] })
       if (learningAvailable&&reportStatus === 'rejected') {
         candidates.push({ ...base, id: `report:${key}`, kind: 'revise-report', action: siteText("site.300d3b6c9fc3baae"),
           title: lesson.title, href: `${href}?stage=2`, priority: 0,
-          description: siteText("site.f2a36f380e3f11c7") });
+          description: siteText("site.f2a36f380e3f11c7")});
       } else if (learningAvailable&&learningProgress < 100 && reportStatus !== 'submitted') {
         // 不能用 25/60/85 等百分比反推出卡片或报告状态；实际阶段由学习页的真实接口决定。
         candidates.push({ ...base, id: `learning:${key}`, kind: 'continue-learning', action: siteText("site.9c188ce5b4657073"),
@@ -48,11 +48,11 @@ export function buildHomeTodos({ courses = [], courseDetails = [], tasks = [] })
         if (task.review_status === 'rejected' && task.work_id) {
           candidates.push({ ...workBase, id: `work:${task.id}`, kind: 'revise-work', action: siteText("site.634734a90f952a91"),
             href: `/works/${task.work_id}`, priority: 0,
-            description: siteText("site.d08e4a74a183fe3a") });
+            description: siteText("site.d08e4a74a183fe3a")});
         } else if (!task.work_id) {
           candidates.push({ ...workBase, id: `work:${task.id}`, kind: 'submit-work', action: siteText("site.7c9fc54eb9d888ad"),
             href: `${href}?task_id=${task.id}#task-${task.id}`, priority: 2,
-            description: siteText("site.e0bc728d19f51fea") });
+            description: siteText("site.e0bc728d19f51fea")});
         }
       }
     }

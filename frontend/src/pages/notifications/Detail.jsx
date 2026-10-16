@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText as siteText} from "../../content/copy";
 import RoleSentence from '../../content/RoleSentence';
 import { useCallback, useRef, useState } from 'react';
@@ -53,15 +54,15 @@ function Detail({ id }) {
     } finally { if (resource.isCurrent()) { pending.current = false; setBusy(false); } }
   };
   const item = resource.data;
-  return <ServicePage title={siteText("site.00e92d5ffae3e594")} eyebrow={siteText("site.776047e5c6f71e3d")} actions={<Button onClick={() => navigate('/notifications')}>{siteText("site.38a5ca642992714b")}</Button>}>
-    <ServicePanel><OperationNotice value={notice} onRetry={refreshCount} /><ReadState {...resource} object={siteText("site.0dac94af865d540e")}>
+  return <ServicePage title={siteText("site.00e92d5ffae3e594")} eyebrow={siteText("site.776047e5c6f71e3d")} actions={<Button onClick={() => navigate('/notifications')}>{<StudentCopyText id={"site.38a5ca642992714b"}/>}</Button>} data-copy-bindings={JSON.stringify(["site.00e92d5ffae3e594","site.776047e5c6f71e3d"])}>
+    <ServicePanel><OperationNotice value={notice} onRetry={refreshCount} /><ReadState {...resource} object={siteText("site.0dac94af865d540e")} data-copy-bindings={JSON.stringify(["site.0dac94af865d540e"])}>
       {item && <article className="service-article">
-        <div className="service-metadata"><Tag>{notificationCategories[item.category]?.label || item.category}</Tag><NotificationLevelTag level={item.level} /><span>{item.is_read ? siteText("site.eb8ad8fea97f0705") : siteText("site.cbac26b22887c555")}</span><time>{formatBeijingTime(item.published_at || item.received_at)}</time></div>
+        <div className="service-metadata"><Tag>{notificationCategories[item.category]?.label || item.category}</Tag><NotificationLevelTag level={item.level} /><span>{item.is_read ? <StudentCopyText id={"site.eb8ad8fea97f0705"}/> : <StudentCopyText id={"site.cbac26b22887c555"}/>}</span><time>{formatBeijingTime(item.published_at || item.received_at)}</time></div>
         <h1>{item.title}</h1><RoleSentence as="div" className="service-prose">{item.content}</RoleSentence>
         <Space wrap className="service-actions">
-          {canRoleAccessPath(user.role, item.action_url) && <Button type="primary" onClick={() => navigate(item.action_url)}>{siteText("site.479672e870dca090")}</Button>}
-          <Button disabled={busy} onClick={() => run()}>{siteText("site.106c52a5512cf0c6")}{item.is_read ? siteText("site.cbac26b22887c555") : siteText("site.eb8ad8fea97f0705")}</Button>
-          <Button disabled={busy} onClick={() => run(true)}>{siteText("site.d17e0d76994b4440")}</Button>
+          {canRoleAccessPath(user.role, item.action_url) && <Button type="primary" onClick={() => navigate(item.action_url)}>{<StudentCopyText id={"site.479672e870dca090"}/>}</Button>}
+          <Button disabled={busy} onClick={() => run()}>{<StudentCopyText id={"site.106c52a5512cf0c6"}/>}{item.is_read ? <StudentCopyText id={"site.cbac26b22887c555"}/> : <StudentCopyText id={"site.eb8ad8fea97f0705"}/>}</Button>
+          <Button disabled={busy} onClick={() => run(true)}>{<StudentCopyText id={"site.d17e0d76994b4440"}/>}</Button>
         </Space>
       </article>}
     </ReadState></ServicePanel>

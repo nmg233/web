@@ -1,3 +1,5 @@
+import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy.js';
+import StudentCopyText from '../../content/ManagedText';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button } from 'antd';
@@ -27,8 +29,8 @@ export default function LessonPreview() {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [lessonId, reload]);
-  return <PageContainer title={data?.lesson?.title || '课时内容预览'} description={data?.course?.title}
-    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(returnContext(location.state?.returnTo, user?.role === 'teacher' ? '/observer/students' : courseId ? `/courses/${courseId}` : '/courses'), {state: location.state?.parentState})}>返回上一页</Button>}>
+  return <PageContainer title={data?.lesson?.title || runtimeCopyText("student26.a4c920a7ad7b41c0")} description={data?.course?.title}
+    extra={<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(returnContext(location.state?.returnTo, user?.role === 'teacher' ? '/observer/students' : courseId ? `/courses/${courseId}` : '/courses'), {state: location.state?.parentState})}><StudentCopyText id="student26.016ab259c4a56d95"/></Button>}>
     <AsyncPageState loading={loading} error={error} onRetry={() => setReload((value) => value + 1)}>
       <KnowledgePreview cards={data?.cards} />
     </AsyncPageState>

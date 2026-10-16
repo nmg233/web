@@ -9,6 +9,7 @@ export const reviewPages=[
  page('explore','课程选择',['/explore','/courses','/dashboard'],['student'],['student/Explore.jsx'],['平台','platform']),
  page('personal','我的、签到与兑换',['/me','/archives/rewards'],['student'],['student/space/Personal.jsx'],['me','avatar','角色头像','平台我的 / 运势','签到徽章兑换']),
  page('badge-room','徽章陈列室',['/me/badges'],['student'],['student/space/BadgeRoom.jsx'],['徽章陈列室']),
+ page('student-guide','学生使用指南与登录提示',['/guide'],['student'],['student/guide/StudentGuide.jsx','student/guide/StudentGuideDocument.jsx','student/guide/StudentGuideModal.jsx'],['使用指南']),
  page('map','课程地图与关卡详情',['/courses/:id'],['student'],['student/Explore.jsx'],['map','课程地图','课程','视觉补修']),
  page('learn','课时学习：回顾、卡片、练习、报告、反思',['/courses/:courseId/lessons/:lessonId/learn'],['student'],['pages/learning/LessonLearn.jsx'],['learning','学习报告','维护填写 / 报告 / 反思']),
  page('course-learning','课程学习兼容页',['/courses/:id/learn'],['student'],['pages/courses/Learning.jsx']),

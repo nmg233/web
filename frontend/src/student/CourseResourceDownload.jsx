@@ -1,3 +1,4 @@
+import StudentCopyText from '../content/ManagedText';
 import {copyText as siteText} from "../content/copy";
 import Alert from '../student/visual/StudentAlert';
 import {useCourseApis} from './useCourseApis';
@@ -42,6 +43,6 @@ export default function CourseResourceDownload({ resource, courseId }) {
       if (live.current && ticket === generation.current) { busy.current = false; setState(s => ({ ...s, loading: false })); }
     }
   };
-  return <div className="compat-download"><PixelButton size="small" loading={state.loading} onClick={download} aria-label={`${state.error ? siteText("site.75c74751c4b15e03") : siteText("site.6c87cdefe32538b6")}：${resource.title || siteText("site.785cfd66e3482f36")}`}>{state.error ? siteText("site.3e8c2bc118d18995") : siteText("site.b0e3d658df80071e")}</PixelButton>
-    {state.error && <Alert role="alert" type="warning" title={siteText("site.02249dfd912308ed")} description={requestError(state.error, { action: siteText("site.bba34fc827153819") })} />}</div>;
+  return <div className="compat-download"><PixelButton size="small" loading={state.loading} onClick={download} aria-label={`${state.error ? siteText("site.75c74751c4b15e03") : siteText("site.6c87cdefe32538b6")}：${resource.title || siteText("site.785cfd66e3482f36")}`} data-copy-bindings={JSON.stringify(["site.75c74751c4b15e03","site.6c87cdefe32538b6","site.785cfd66e3482f36"])}>{state.error ? <StudentCopyText id={"site.3e8c2bc118d18995"}/> : <StudentCopyText id={"site.b0e3d658df80071e"}/>}</PixelButton>
+    {state.error && <Alert role="alert" type="warning" title={siteText("site.02249dfd912308ed")} description={requestError(state.error, { action: siteText("site.bba34fc827153819") })}  data-copy-bindings={JSON.stringify(["site.02249dfd912308ed","site.bba34fc827153819"])}/>}</div>;
 }

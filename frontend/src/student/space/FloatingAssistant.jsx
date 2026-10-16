@@ -1,3 +1,4 @@
+import StudentCopyText from '../../content/ManagedText';
 import {copyText} from '../../content/copy';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -55,15 +56,15 @@ export default function FloatingAssistant() {
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   };
   return createPortal(<div className="student-pixel student-interactions course-assistant-host" data-space-theme="voyage" style={{fontFamily:PLATFORM_FONT}}>
-    <button ref={button} type="button" className="course-robot" disabled={!!s.overlay&&s.overlay!=='chat'} style={{left:robot.position.x,top:robot.position.y,translate:'none',scale:'none',transform:'none'}} onPointerDown={robot.pointerDown} onPointerMove={robot.pointerMove} onPointerUp={e=>{if(robot.pointerUp(e))s.openOverlay(open?null:"chat");}} onPointerCancel={robot.pointerCancel} onLostPointerCapture={robot.lostPointerCapture} onKeyDown={e=>{if(e.key==='Home'){e.preventDefault();robot.reset();}}} aria-label={copyText('assistant.open')} aria-expanded={open} aria-controls="course-chat" onClick={e=>{if(!robot.consumeClick(e))s.openOverlay(open?null:'chat');}}>
+    <button ref={button} type="button" className="course-robot" disabled={!!s.overlay&&s.overlay!=='chat'} style={{left:robot.position.x,top:robot.position.y,translate:'none',scale:'none',transform:'none'}} onPointerDown={robot.pointerDown} onPointerMove={robot.pointerMove} onPointerUp={e=>{if(robot.pointerUp(e))s.openOverlay(open?null:"chat");}} onPointerCancel={robot.pointerCancel} onLostPointerCapture={robot.lostPointerCapture} onKeyDown={e=>{if(e.key==='Home'){e.preventDefault();robot.reset();}}} aria-label={copyText('assistant.open')} aria-expanded={open} aria-controls="course-chat" onClick={e=>{if(!robot.consumeClick(e))s.openOverlay(open?null:'chat');}} data-copy-bindings={JSON.stringify(['assistant.open'])}>
       {imageFailed?<PixelIcon name="help" size={44}/>:<img src={patchAsset('robot-wink',96)} srcSet={`${patchAsset('robot-wink',96)} 96w, ${patchAsset('robot-wink',192)} 192w`} sizes="80px" width={80} height={80} alt="" onError={()=>setImageFailed(true)}/>}
-      {s.unseen&&<span className="course-chat-unread" aria-label={copyText('system.robot.001')}/>}
+      {s.unseen&&<span className="course-chat-unread" aria-label={copyText('system.robot.001')} data-copy-bindings={JSON.stringify(['system.robot.001'])}/>}
     </button>
-    <button className="robot-reset" onClick={()=>{robot.reset();button.current?.focus();}}>{copyText('next.robot.reset')}</button>
-    {open&&mobile&&<button type="button" className="course-chat-mask" tabIndex={-1} aria-label={copyText('system.robot.002')} onClick={close}/>}
+    <button className="robot-reset" onClick={()=>{robot.reset();button.current?.focus();}}>{<StudentCopyText id={'next.robot.reset'}/>}</button>
+    {open&&mobile&&<button type="button" className="course-chat-mask" tabIndex={-1} aria-label={copyText('system.robot.002')} onClick={close} data-copy-bindings={JSON.stringify(['system.robot.002'])}/>}
     <section ref={dialog} id="course-chat" className="course-chat" hidden={!open} role="dialog" aria-modal={mobile?'true':undefined} aria-labelledby="course-chat-title" onKeyDown={keys}
       style={mobile?{top:viewport.top+8,height:Math.max(0,viewport.height-136),bottom:'auto'}:{top:viewport.top+Math.max(8,viewport.height-Math.min(640,viewport.height-160)-128),height:Math.min(640,viewport.height-160),bottom:'auto'}}>
-      <header><PixelImage src={asset('robot',96)} alt="" width={42} height={42}/><div><h2 id="course-chat-title">{copyText('assistant.name')}</h2><span>{copyText('system.robot.003')}</span></div><button aria-label={copyText('assistant.close')} onClick={close}>×</button></header>
+      <header><PixelImage src={asset('robot',96)} alt="" width={42} height={42}/><div><h2 id="course-chat-title">{<StudentCopyText id={'assistant.name'}/>}</h2><span>{<StudentCopyText id={'system.robot.003'}/>}</span></div><button aria-label={copyText('assistant.close')} onClick={close} data-copy-bindings={JSON.stringify(['assistant.close'])}>×</button></header>
       <AssistantContent open={open}/>
     </section>
   </div>,document.body);

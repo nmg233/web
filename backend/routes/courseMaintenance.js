@@ -45,6 +45,11 @@ router.get('/',action(req=>{
   replays:db.prepare('SELECT id,course_id,lesson_id,title,description,summary,duration_seconds,recording_date,sort_order FROM course_replays WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('course_replays',r))};
 }));
 router.get('/badges',action(req=>({definitions:db.prepare('SELECT b.* FROM lesson_badge_definitions b JOIN lessons l ON l.id=b.lesson_id WHERE l.course_id=? ORDER BY l.sort_order,l.id').all(req.params.id)})));
+router.get('/lessons/:lessonId/diagnostics',action(req=>{
+ object('lessons',req.params.lessonId,req.params.id);
+ const diagnostics=require('../../scripts/lesson-maintenance/inspect.cjs').inspect(db,{courseId:Number(req.params.id),lessonId:Number(req.params.lessonId)});
+ return {...diagnostics,readiness:require('../helpers/lessonVersions').readiness(db,req.params.lessonId),content_revision:hash(revisionRow('lessons',req.params.lessonId))};
+}));
 router.put('/badges/:lessonId',action(req=>{
  const row=object('lessons',req.params.lessonId,req.params.id);if(row.status==='cancelled')v.invalid('课时已取消',409);
  fields(req.body,['name','artId','description']);if(!['vr','theory','glider'].includes(req.body.artId))v.invalid('请选择受控徽章素材');
@@ -70,7 +75,7 @@ router.delete('/chapters/:chapterId',action(req=>{
 }));
 router.put('/lessons/:lessonId',action(req=>{
  const row=object('lessons',req.params.lessonId,req.params.id);if(row.status==='cancelled')v.invalid('课时已取消，不能修改教学内容',409);
- fields(req.body,['title','description','teaching_tip','chapter_id','presentation_type','content_state','article_url','article_title','moments_note','review_content','report_guidance','experiment_guidance','article_blocks','duration','sort_order','start_at','end_at','location','instructor_id']);const data={};
+ fields(req.body,['title','description','teaching_tip','chapter_id','presentation_type','content_state','article_url','article_title','moments_note','review_content','report_guidance','experiment_guidance','article_blocks','duration','sort_order','start_at','end_at','location','instructor_id','map_image_id','map_art_preset','landing_x','landing_y']);const data=require('../services/lessonMapImages').fields(db,req.params.id,row.id,req.body);
  for(const [key,max,required]of[['title',120,true],['description',10000,false],['teaching_tip',2000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);
  for(const [key,values]of [['presentation_type',['learning','visit','theory','experiment']],['content_state',['ready','preparing']]])if(v.own(req.body,key)){if(!values.includes(req.body[key]))v.invalid('课时模板状态无效');data[key]=req.body[key];}
  for(const [key,max]of [['article_title',120],['moments_note',10000],['review_content',10000],['report_guidance',10000],['experiment_guidance',10000]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max);
@@ -82,7 +87,7 @@ router.put('/lessons/:lessonId',action(req=>{
  const start=data.start_at===undefined?row.start_at:data.start_at,end=data.end_at===undefined?row.end_at:data.end_at;
  if(start&&end&&Date.parse(end)<Date.parse(start))v.invalid('结束时间不能早于开始时间');
  if(v.own(req.body,'instructor_id')){const teacher=v.integer(req.body.instructor_id,'授课人',{nullable:true,min:1});if(teacher&&!db.prepare("SELECT id FROM users WHERE id=? AND role='academic_mentor' AND is_active=1").get(teacher))v.invalid('授课人不存在或不可用');data.instructor_id=teacher;}
- if(v.own(req.body,'chapter_id'))data.chapter_id=v.chapterId(req.body.chapter_id,req.params.id);return update('lessons',row.id,data);
+ if(v.own(req.body,'chapter_id'))data.chapter_id=v.chapterId(req.body.chapter_id,req.params.id);return db.transaction(()=>{const result=update('lessons',row.id,data);require('../services/lessonMapImages').bind(db,revisionRow('lessons',row.id));return result;}).immediate();
 }));
 router.put('/plan',action(req=>{
  fields(req.body,['nodes']);const nodes=req.body.nodes;
