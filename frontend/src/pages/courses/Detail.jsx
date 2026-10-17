@@ -435,7 +435,7 @@ function CourseDetailPage() {
               { title: siteText("site.cc937981f7d3ce49"), dataIndex: 'school_name' },
               { title: siteText("site.9ef404bec164f565"), dataIndex: 'class_name' },
               { title: siteText("site.b7ad43ba120a0833"), dataIndex: 'enrolled_by_name', render: (v) => v || '—' },
-              ...(user?.role === 'admin' ? [{
+              ...(course.can_manage ? [{
                 title: siteText("site.9f6296c8ef30b865"), key: 'actions',
                 render: (_, r) => (
                   <Button size="small" type="link" danger onClick={() => openRemoveModal(r)}>{siteText("site.7af36450c6a484ec")}</Button>

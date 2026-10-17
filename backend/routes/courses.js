@@ -12,6 +12,7 @@ router.get('/replays/:replayId/stream', optionalAuth,
 
 router.use(requireAuth);
 router.use(requirePasswordChanged);
+router.use('/:id/managers',require('./courseManagers'));
 router.get('/upload-formats',requireRole('admin','academic_mentor'),(req,res)=>res.json({formats:require('../services/courseUploadPolicy').formats,resourceLimitMB:50,replayLimitMB:500,coverLimitMB:5,coverExtensions:['.jpg','.jpeg','.png','.webp'],replayExtensions:['.mp4','.webm']}));
 router.use('/:id/map-images',require('./lessonMapImages'));
 router.use('/:id/theme',require('./courseTheme'));
@@ -53,6 +54,6 @@ router.post('/:id/enroll', requireRole('admin', 'academic_mentor'), controller.e
 // 导入候选学生查询（同上权限）
 router.get('/:id/enroll/candidates', requireRole('admin', 'academic_mentor'), controller.enrollCandidates);
 // 管理员异常修正：移除报名（软删除 + 审计，日常不可退课）
-router.delete('/:courseId/enrollments/:enrollmentId', requireRole('admin'), controller.removeEnrollment);
+router.delete('/:courseId/enrollments/:enrollmentId', requireRole('admin','academic_mentor'), controller.removeEnrollment);
 
 module.exports = router;

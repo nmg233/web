@@ -15,7 +15,8 @@ router.get('/admin-pending',requireRole('admin'),(req,res,next)=>{try{
  const gifts=db.prepare("SELECT id,gift_name,student_name FROM reward_orders WHERE status='pending' ORDER BY created_at,id LIMIT 10").all().map(r=>({title:r.gift_name,context:r.student_name,url:'/reward-management?order='+encodeURIComponent(r.id)}));
  const feedback=db.prepare("SELECT id,title,status FROM feedbacks WHERE status IN ('pending','processing') ORDER BY id LIMIT 10").all().map(r=>({title:r.title,context:r.status,url:'/feedback/'+r.id}));
  const preparing=db.prepare("SELECT l.id,l.course_id,l.title,c.title course_title FROM lessons l JOIN courses c ON c.id=l.course_id WHERE l.content_state='preparing' AND l.status!='cancelled' AND c.status!='archived' ORDER BY c.id,l.sort_order,l.id LIMIT 10").all().map(r=>({title:r.title,context:r.course_title,url:`/courses/${r.course_id}?tab=maintenance&lesson=${r.id}`}));
- res.json({reports,gifts,feedback,preparing});
+ const applications=db.prepare("SELECT a.id,a.name,u.real_name FROM school_applications a JOIN users u ON u.id=a.applicant_id WHERE a.status='pending' ORDER BY a.id LIMIT 10").all().map(a=>({title:a.name,context:a.real_name,url:'/admin/organization?section=applications&application='+a.id}));
+ res.json({reports,gifts,feedback,preparing,applications});
 }catch(e){next(e);}});
 
 // 学校管理

@@ -44,6 +44,7 @@ export default function CourseList() {
     ...(canManage(user?.role) ? [{
       title: siteText("site.802e4d31466b05d9"), key: 'actions', render: (_, r) => r.can_manage ? (
         <Space>
+          {user?.role==='admin'&&<Button size="small" onClick={()=>navigate(`/courses/${r.id}?tab=students`)}>管理授权</Button>}
           <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>{siteText("site.d735782323a6623c")}</Button>
           {r.status === 'draft' && (
             <Popconfirm

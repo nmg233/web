@@ -2,7 +2,7 @@ import {useCallback,useEffect,useState} from 'react';
 import {Alert,Button,Card,Empty,List,Space} from 'antd';
 import {Link} from 'react-router-dom';
 import client from '../../api/client';
-const labels={reports:'待评报告',gifts:'待发礼品',feedback:'待处理反馈',preparing:'课时准备提醒'};
+const labels={applications:'待审学校申请',reports:'待评报告',gifts:'待发礼品',feedback:'待处理反馈',preparing:'课时准备提醒'};
 export default function ActionablePending(){
  const [state,setState]=useState({data:null,error:''});
  const read=useCallback(()=>client.get('/dashboard/admin-pending',{silent:true}).then(data=>setState({data,error:''})).catch(e=>setState({data:null,error:e.response?.data?.error||'待办读取失败'})),[]);

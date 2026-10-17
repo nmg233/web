@@ -137,3 +137,9 @@ docs/next-version/step-02/browser-first/
 
 !docs/admin-workspace/images/*.png
 !docs/admin-workspace/verified-scenes.json
+
+!docs/course-authorization/*.md
+!docs/course-authorization/*.html
+!docs/course-authorization/verified-scenes.json
+!docs/course-authorization/images/*.png
+/docs/course-authorization/evidence/

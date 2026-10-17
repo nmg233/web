@@ -54,6 +54,7 @@ before(async () => {
     VALUES (3, '归档课程', 'primary', 'basic', 'archived', 6)
   `).run();
 
+  db.prepare('UPDATE users SET mentor_id=6 WHERE id IN(4,5)').run();
   // 课时：公开课程由甲老师授课
   db.prepare(`
     INSERT INTO lessons (id, course_id, title, sort_order, instructor_id)
@@ -115,7 +116,7 @@ function enrollmentRows() {
 
 test('新库迁移标记到最新版本', () => {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map((r) => r.version);
-  assert.deepEqual(versions, [...Array.from({length:21},(_,i)=>i+1),...Array.from({length:14},(_,i)=>1016+i)]);
+  assert.deepEqual(versions, [...Array.from({length:21},(_,i)=>i+1),...Array.from({length:15},(_,i)=>1016+i)]);
   const cols = db.prepare('PRAGMA table_info(enrollments)').all().map((c) => c.name);
   for (const col of ['status', 'enrolled_by', 'removed_at', 'removed_by', 'remove_reason']) {
     assert.ok(cols.includes(col), `缺少列 ${col}`);
@@ -142,12 +143,13 @@ test('教师不能导入外校学生', async () => {
   assert.equal(enrollmentRows().length, before);
 });
 
-test('执行导师可导入任意学校学生', async () => {
+test('执行导师可导入负责学生，拒绝无关学生', async () => {
   const token = await tokenFor('执行导师');
   const res = await authed(token, 'POST', '/api/courses/1/enroll', { student_ids: [5] });
   assert.equal(res.status, 200);
   const row = db.prepare("SELECT * FROM enrollments WHERE student_id = 5 AND course_id = 1").get();
   assert.equal(row.enrolled_by, 6);
+  assert.equal((await authed(token,'POST','/api/courses/1/enroll',{student_ids:[7]})).status,403);
 });
 
 test('归档课程不能导入学生', async () => {
@@ -164,8 +166,8 @@ test('重复导入幂等且不产生重复行', async () => {
   assert.equal(count, 1);
 });
 
-test('日常不可退课：学生/教师/导师调用移除均被拒绝', async () => {
-  for (const name of ['学生A', '甲老师', '执行导师']) {
+test('学生教师不能移除报名；导师也必须填写原因', async () => {
+  for (const name of ['学生A', '甲老师']) {
     const token = await tokenFor(name);
     const enrollment = db.prepare('SELECT id FROM enrollments WHERE student_id = 4 AND course_id = 1').get();
     const res = await authed(token, 'DELETE', `/api/courses/1/enrollments/${enrollment.id}`, { reason: '测试' });

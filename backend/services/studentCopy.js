@@ -8,6 +8,12 @@ function scope(db,value){
 function current(db,name){return db.prepare('SELECT * FROM student_copy_scopes WHERE scope=?').get(name)||{scope:name,draft_json:'{}',published_json:'{}',revision:0,published_revision:0};}
 const parse=value=>JSON.parse(value||'{}');
 function admin(db,user){if(!user||!db.prepare("SELECT 1 FROM users WHERE id=? AND role='admin' AND is_active=1 AND archived_at IS NULL AND force_reset_password=0").get(user.id))fail('仅管理员可管理学生文案',403);}
+function authorize(db,user,name){
+ if(user?.role==='admin')return admin(db,user);
+ scope(db,name);if(name==='global')fail('导师不能管理全局文案',403);
+ const [kind,id]=name.split(':'),courseId=kind==='course'?Number(id):db.prepare('SELECT course_id FROM lessons WHERE id=?').get(id)?.course_id;
+ if(user?.role!=='academic_mentor'||!require('../helpers/courseScope').courseBelongsToMentor(user.id,courseId,db))fail('课程管理授权已失效',403);
+}
 function entries(db,name,draft=false){const row=current(db,name);return parse(draft?row.draft_json:row.published_json);}
 function placeholders(text){return (text.match(/\{slot\d+\}/g)||[]).sort();}
 function validate(change){
@@ -19,11 +25,11 @@ function validate(change){
  if(JSON.stringify(placeholders(base.text))!==JSON.stringify(placeholders(change.text)))fail('动态占位符必须完整保留');
  return{text:change.text,enabled:change.enabled};
 }
-function managed(db,user,name){admin(db,user);scope(db,name);const row=current(db,name),inherited={};if(name!=='global')Object.assign(inherited,entries(db,'global'));if(name.startsWith('lesson:')){const lesson=db.prepare('SELECT course_id FROM lessons WHERE id=?').get(Number(name.split(':')[1]));Object.assign(inherited,entries(db,'course:'+lesson.course_id));}return{...row,inherited,draft:parse(row.draft_json),published:parse(row.published_json),draft_json:undefined,published_json:undefined,history:db.prepare('SELECT id,scope,revision,action,actor_id,created_at FROM student_copy_history WHERE scope=? ORDER BY id DESC LIMIT 30').all(name)};}
+function managed(db,user,name){authorize(db,user,name);scope(db,name);const row=current(db,name),inherited={};if(name!=='global')Object.assign(inherited,entries(db,'global'));if(name.startsWith('lesson:')){const lesson=db.prepare('SELECT course_id FROM lessons WHERE id=?').get(Number(name.split(':')[1]));Object.assign(inherited,entries(db,'course:'+lesson.course_id));}return{...row,inherited,draft:parse(row.draft_json),published:parse(row.published_json),draft_json:undefined,published_json:undefined,history:db.prepare('SELECT id,scope,revision,action,actor_id,created_at FROM student_copy_history WHERE scope=? ORDER BY id DESC LIMIT 30').all(name)};}
 function write(db,user,name,body,action='save'){
- admin(db,user);scope(db,name);if(!Number.isSafeInteger(body.expectedRevision)||body.expectedRevision<0)fail('请先读取当前修订号',409);
+ authorize(db,user,name);scope(db,name);if(!Number.isSafeInteger(body.expectedRevision)||body.expectedRevision<0)fail('请先读取当前修订号',409);
  return db.transaction(()=>{
-  admin(db,user);const old=current(db,name);if(old.revision!==body.expectedRevision)fail('文案已由其他管理员修改，请核对新版本，当前输入保留',409);
+  authorize(db,user,name);const old=current(db,name);if(old.revision!==body.expectedRevision)fail('文案已由其他管理员修改，请核对新版本，当前输入保留',409);
   let draft=parse(old.draft_json),published=parse(old.published_json);
   if(action==='save'||action==='sync'){
    if(!Array.isArray(body.changes)||!body.changes.length||body.changes.length>2000)fail('每次保存1至2000条修改');const seen=new Set();
@@ -47,14 +53,14 @@ function published(db,user,query){
  const scopes=['global'];let courseId=query.courseId?Number(query.courseId):null;
  if(query.lessonId){const lesson=db.prepare("SELECT * FROM lessons WHERE id=? AND status!='cancelled'").get(query.lessonId);if(!lesson||courseId&&lesson.course_id!==courseId)fail('课时当前不可访问',404);courseId=lesson.course_id;}
  if(courseId){const course=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);if(!course)fail('课程不存在',404);
-  const allowed=user?.role==='admin'||user?.role==='student'&&course.status==='published'&&db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(user.id,courseId);
+  const allowed=user?.role==='admin'||user?.role==='academic_mentor'&&require('../helpers/courseScope').courseBelongsToMentor(user.id,courseId,db)||user?.role==='student'&&course.status==='published'&&db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(user.id,courseId);
   if(!allowed)fail('课程当前不可访问',404);scopes.push('course:'+courseId);if(query.lessonId)scopes.push('lesson:'+Number(query.lessonId));
  }
  const result={},versions=[];for(const name of scopes){const row=current(db,name);Object.assign(result,parse(row.published_json));versions.push(name+'@'+row.published_revision);}
  return{entries:result,version:versions.join('|'),effective:'发布后已打开页面在25秒内或重新聚焦时刷新'};
 }
 function importPreview(db,user,name,body){
- admin(db,user);scope(db,name);if(body.format!=='page-copy-review-v1'||!Array.isArray(body.edits)||body.edits.length>2000)fail('请选择兼容的文案审阅JSON');
+ authorize(db,user,name);scope(db,name);if(body.format!=='page-copy-review-v1'||!Array.isArray(body.edits)||body.edits.length>2000)fail('请选择兼容的文案审阅JSON');
  const state=managed(db,user,name),effective={...registry,...state.inherited,...state.draft},changes=[],conflicts=[];
  for(const edit of body.edits){try{validate(edit);const base=effective[edit.id];if(edit.baseText===undefined&&Object.hasOwn(state.draft,edit.id)&&(edit.text!==base.text||edit.enabled!==base.enabled)){conflicts.push({...edit,reason:'缺少基线且当前已有人工草稿',current:base});continue;}if(edit.baseText!==undefined&&(edit.baseText!==base.text||edit.baseEnabled!==base.enabled)){conflicts.push({...edit,reason:'当前文案已变化',current:base});continue;}changes.push(edit);}catch(e){conflicts.push({...edit,reason:e.message});}}
  return{changes,conflicts,revision:current(db,name).revision};

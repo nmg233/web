@@ -475,7 +475,7 @@ function submitReport(studentId, lessonId, data) {
     actionUrl: `/mentor/reviews/${id}`,
     businessType: 'lesson_report', businessId: id,
     createdBy: studentId,
-  }, [...new Set([context.course_created_by, context.instructor_id].filter(Boolean))]);
+  }, require('../helpers/courseScope').managerRecipients(db,context.course_id));
     return id;
   }).immediate();
 
@@ -506,7 +506,7 @@ function listManagedCards(user, lessonId) {
 function listManagedLessons(user) {
   const where = user.role === 'admin'
     ? '1 = 1'
-    : '(c.created_by = ? OR EXISTS (SELECT 1 FROM lessons scope_l WHERE scope_l.course_id = c.id AND scope_l.instructor_id = ?))';
+    : `(${require('../helpers/courseScope').mentorCourseScope('c.id')})`;
   const params = user.role === 'admin' ? [] : [user.id, user.id];
   return db.prepare(`
     SELECT l.id, l.course_id, l.title, l.status, l.sort_order, l.start_at,
@@ -683,7 +683,6 @@ module.exports = {
       read_only:!['admin', 'academic_mentor'].includes(user.role) || lesson.course_status === 'archived' || lesson.status === 'cancelled' };
   },
   repairLegacy(user, lessonId, studentId, reason) {
-    if (user.role !== 'admin') throw new LearningError('仅管理员可以修复兼容快照',403);
     assertWritableLesson(user,lessonId);
     const explanation = text(reason,500,true);
     try {

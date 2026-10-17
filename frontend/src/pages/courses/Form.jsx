@@ -55,7 +55,7 @@ export default function CourseForm() {
         await maintenance.save(id,'/course',{...values,expected_revision:known.current});
         message.success(siteText("site.a2c4aa5c6824a935"));
       } else {
-        const result=await courseAPI.create({...values,request_key:request.current});dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+result.id);return;
+        const result=await courseAPI.create({...values,request_key:request.current});dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+result.id+'?tab=students');return;
       }
       dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+id);
     } catch(error) {setReadError(error.response?.data?.error||'保存未确认，当前输入已保留，请核对服务器版本');}

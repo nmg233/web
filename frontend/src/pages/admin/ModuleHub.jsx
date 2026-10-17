@@ -1,5 +1,6 @@
-import {Alert,Button,Card,Space,Tabs} from 'antd';
+import {Button,Card,Space,Tabs} from 'antd';
 import {Link,useParams,useSearchParams} from 'react-router-dom';
+import SchoolApplications from '../organization/SchoolApplications';
 import StudentList from '../students/List';
 import Dashboard from '../dashboard/Index';
 const links={
@@ -8,7 +9,7 @@ const links={
 };
 export default function ModuleHub(){
  const {module}=useParams(),[search,setSearch]=useSearchParams();
- if(module==='organization')return <section><h1>账号与组织</h1><Tabs activeKey={search.get('section')||'accounts'} onChange={section=>setSearch({section})} items={[{key:'accounts',label:'账号管理',children:<StudentList/>},{key:'schools',label:'学校与班级',children:<Dashboard organization/>},{key:'applications',label:'学校申请（第 2 步）',children:<Alert type="info" title="学校申请与课程管理授权将在第 2 步接入；当前学校、班级和账号管理保持原权限。"/>}]}/></section>;
+ if(module==='organization')return <section><h1>账号与组织</h1><Tabs activeKey={search.get('section')||'accounts'} onChange={section=>setSearch({section})} items={[{key:'accounts',label:'账号管理',children:<StudentList/>},{key:'schools',label:'学校与班级',children:<Dashboard organization/>},{key:'applications',label:'学校申请审核',children:<SchoolApplications/>}]}/></section>;
  const title=module==='teaching'?'教学与成长':'平台设置';
  return <section><h1>{title}</h1><div className="maintenance-list">{(links[module]||[]).map(([name,url,note])=><Card key={url} title={name}><p>{note}</p><Link className="ant-btn ant-btn-default" to={url}>进入{name}</Link></Card>)}</div>{module==='teaching'&&<Space><Button href="/mentor/reviews">查看待评报告</Button><Link to="/courses">进入课程管理维护教材</Link></Space>}</section>;
 }

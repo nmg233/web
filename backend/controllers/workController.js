@@ -97,9 +97,7 @@ exports.list = (req, res) => {
     } else if (req.user.role === 'academic_mentor') {
       // 导师仅可见自己课程的作品（创建者或授课人，决策 D-1）；
       // 遗留无报名关联的作品（c.id 为 NULL）按决策 D-2 不进入导师列表
-      sql += ` AND (c.created_by = ? OR EXISTS (
-        SELECT 1 FROM lessons l2 WHERE l2.course_id = c.id AND l2.instructor_id = ?
-      ))`;
+      sql += ` AND (${require('../helpers/courseScope').mentorCourseScope('c.id')})`;
       params.push(req.user.id, req.user.id);
     }
 
@@ -112,9 +110,7 @@ exports.list = (req, res) => {
     } else if (req.user.role === 'academic_mentor') {
       courses = db.prepare(`
         SELECT c.id, c.title FROM courses c
-        WHERE c.created_by = ? OR EXISTS (
-          SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-        ) ORDER BY c.title
+        WHERE ${require('../helpers/courseScope').mentorCourseScope('c.id')} ORDER BY c.title
       `).all(req.user.id, req.user.id);
     } else if (req.user.role === 'student') {
       courses = db.prepare(`
@@ -284,7 +280,7 @@ exports.upload = (req, res) => {
       if (submittedTask) learningGate.recalculateLessonProgress(actualStudentId, submittedTask.lesson_id);
       const workId = id;
     const courseOwner = resolvedEnrollmentId ? db.prepare(`
-      SELECT c.created_by, l.instructor_id
+      SELECT c.id course_id, c.created_by, l.instructor_id
       FROM enrollments e
       JOIN courses c ON c.id = e.course_id
       LEFT JOIN tasks t ON t.id = ?
@@ -302,7 +298,7 @@ exports.upload = (req, res) => {
         : `作品《${title}》已提交，等待评审。`,
       level: resubmitted ? 'important' : 'normal',
       createdBy: user.id,
-    }, [...new Set([actualStudentId, courseOwner?.created_by, courseOwner?.instructor_id].filter(Boolean))]);
+    }, [...new Set([actualStudentId,...(courseOwner?require('../helpers/courseScope').managerRecipients(db,courseOwner.course_id):[])])]);
       }).immediate();
       committed = true;
     } catch (err) {

@@ -1,0 +1,12 @@
+const router=require('express').Router(),s=require('../services/schoolApplications'),{requireAuth,requirePasswordChanged,requireRole}=require('../middleware/auth');
+router.use(requireAuth,requirePasswordChanged,requireRole('admin','academic_mentor'));
+const handle=fn=>async(req,res,next)=>{try{res.set('Cache-Control','no-store').json(await fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}};
+router.get('/',handle(req=>s.list(req.user,req.query)));
+router.post('/',requireRole('academic_mentor'),handle(req=>s.apply(req.user,req.body)));
+router.post('/:id/review',requireRole('admin'),handle(req=>s.review(req.user,req.params.id,req.body)));
+router.post('/schools/:schoolId/managers/:mentorId/revoke',requireRole('admin'),handle(req=>s.revoke(req.user,req.params.schoolId,req.params.mentorId,req.body)));
+router.get('/schools/:schoolId/classes',requireRole('academic_mentor'),handle(req=>s.classes(req.user,req.params.schoolId)));
+router.post('/schools/:schoolId/classes',requireRole('academic_mentor'),handle(req=>s.createClass(req.user,req.params.schoolId,req.body)));
+router.post('/schools/:schoolId/students',requireRole('academic_mentor'),handle(req=>s.createStudent(req.user,req.params.schoolId,req.body)));
+router.get('/schools/:schoolId/students/:id/credentials',requireRole('academic_mentor'),handle(req=>s.credentials(req.user,req.params.schoolId,req.params.id)));
+module.exports=router;

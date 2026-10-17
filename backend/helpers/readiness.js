@@ -1,5 +1,6 @@
-const MIN_SCHEMA_VERSION=1029;
+const MIN_SCHEMA_VERSION=1030;
 const checks={
+ course_managers:'course_id,mentor_id,active,revision',course_manager_events:'course_id,mentor_id,actor_id,action',school_applications:'applicant_id,status,revision',school_managers:'school_id,mentor_id,active,revision',school_created_accounts:'student_id,actor_id,fingerprint',school_management_events:'school_id,actor_id,action',
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
   schools:'id,is_active', classes:'id,school_id',courses:'id,status,learning_objectives,automatic_map,background_opacity,theme_revision',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
   enrollments:'id,student_id,course_id,status,completed_at',course_replays:'id,lesson_id,video_path',resources:'id,lesson_id,file_path',

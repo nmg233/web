@@ -81,9 +81,7 @@ exports.list = (req, res) => {
       // 教师退出课程执行链路，只通过 observer 模块查看负责学生的学习结果。
       sql += ' AND 1 = 0';
     } else if (req.user.role === 'academic_mentor') {
-      sql += ` AND (c.created_by = ? OR EXISTS (
-        SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-      ))`;
+      sql += ` AND (${require('../helpers/courseScope').mentorCourseScope('c.id')})`;
       params.push(req.user.id, req.user.id);
     } else if (!COURSE_MANAGER_ROLES.includes(req.user.role)) {
       sql += " AND c.status = 'published'";
@@ -883,9 +881,10 @@ exports.enroll = (req, res) => {
     // 预取全部学生：无效/禁用 ID 逐条跳过；教师跨校学生整体拒绝（保证原子性）
     const placeholders = ids.map(() => '?').join(',');
     const students = db.prepare(
-      `SELECT id, real_name, school_id FROM users
-       WHERE id IN (${placeholders}) AND role = 'student' AND is_active = 1`
-    ).all(...ids);
+      `SELECT u.id, u.real_name, u.school_id FROM users u
+       WHERE u.id IN (${placeholders}) AND u.role = 'student' AND u.is_active = 1 AND u.archived_at IS NULL ${req.user.role==='academic_mentor'?`AND (u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`:''}`
+    ).all(...ids,...(req.user.role==='academic_mentor'?[req.user.id,req.user.id,req.user.id]:[]));
+    if(req.user.role==='academic_mentor'&&students.length!==new Set(ids.map(Number)).size)return res.status(403).json({error:'只能导入负责或已授权课程范围内的学生'});
     const studentMap = new Map(students.map((s) => [s.id, s]));
 
     const added = [];
@@ -904,6 +903,7 @@ exports.enroll = (req, res) => {
     `);
 
     db.transaction(() => {
+      if(!canManageCourse(req.user,id))throw Object.assign(new Error('课程管理授权已失效'),{status:403});
       for (const raw of ids) {
         const num = Number(raw);
         if (!Number.isInteger(num) || num <= 0) {
@@ -955,6 +955,7 @@ exports.enrollCandidates = (req, res) => {
       `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
     ];
     const params = [];
+    if(req.user.role==='academic_mentor'){conditions.push(`(u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`);params.push(req.user.id,req.user.id,req.user.id);}
     if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
     if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
     if (req.query.search) {
@@ -986,6 +987,7 @@ exports.enrollCandidates = (req, res) => {
 exports.removeEnrollment = (req, res) => {
   try {
     const { courseId, enrollmentId } = req.params;
+    if(!canManageCourse(req.user,courseId))return res.status(403).json({error:'课程管理授权已失效'});
     const enrollment = db.prepare(`
       SELECT e.*, c.title AS course_title, u.real_name AS student_name
       FROM enrollments e
@@ -1026,6 +1028,7 @@ exports.removeEnrollment = (req, res) => {
     }
 
     db.transaction(() => {
+      if(!canManageCourse(req.user,courseId))throw Object.assign(new Error('课程管理授权已失效'),{status:403});
       db.prepare(`
         UPDATE enrollments
         SET status = 'removed', removed_at = CURRENT_TIMESTAMP, removed_by = ?, remove_reason = ?

@@ -1,4 +1,6 @@
 import {useCopyVersion} from './content/useCopyVersion';
+import CourseAccessBoundary from './pages/courses/CourseAccessBoundary';
+import SchoolApplications from './pages/organization/SchoolApplications';
 import RuntimeCopyProvider from './content/RuntimeCopyProvider';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -101,8 +103,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
+                <Route path="mentor/organization" element={guard(<SchoolApplications/>, ['academic_mentor'])} />
                 <Route path="admin/:module" element={guard(<ModuleHub/>, ['admin'])} />
-                <Route path="student-copy" element={guard(<StudentCopyManagement/>, ['admin'])} />
+                <Route path="student-copy" element={guard(<CourseAccessBoundary><StudentCopyManagement/></CourseAccessBoundary>, ['admin','academic_mentor'])} />
                 <Route path="copy-review" element={guard(<CopyReview />, ['admin'])} />
                 <Route path="reward-management" element={guard(<RewardManagement />, ['admin'])} />
                 <Route index element={<RoleHomeRedirect />} />
@@ -119,8 +122,8 @@ function App() {
                 <Route path="dashboard/ai/settings" element={guard(<AISettings />, ['admin'])} />
                 <Route path="glider" element={guard(<StudentView student={<LegacyEntry free={<GliderSimulator/>}/>} legacy={<GliderSimulator/>}/>, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses" element={guard(<StudentView student={<ExploreHome />} legacy={<CourseList />} />, ['admin', 'academic_mentor', 'student', 'media'])} />
-                <Route path="courses/create" element={guard(<CourseForm />, ['admin', 'academic_mentor'])} />
-                <Route path="courses/:id" element={guard(<StudentView student={<CourseMap />} legacy={<CourseDetail />} />, ['admin', 'academic_mentor', 'student'])} />
+                <Route path="courses/create" element={guard(<CourseAccessBoundary><CourseForm /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
+                <Route path="courses/:id" element={guard(<StudentView student={<CourseMap />} legacy={<CourseAccessBoundary><CourseDetail /></CourseAccessBoundary>} />, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses/:courseId/lab" element={guard(<Lab/>, ['student'])} />
                 <Route path="courses/:courseId/glider" element={guard(<GliderSimulator/>, ['student'])} />
                 <Route path="courses/:courseId/archives" element={guard(<ArchiveIndex/>, ['student'])} />
@@ -131,12 +134,12 @@ function App() {
                 <Route path="courses/:courseId/works" element={guard(<WorkList/>, ['student'])} />
                 <Route path="courses/:courseId/works/upload" element={guard(<WorkUpload/>, ['student'])} />
                 <Route path="courses/:courseId/works/:id" element={guard(<WorkDetail/>, ['student'])} />
-                <Route path="courses/:courseId/ai-knowledge" element={guard(<AIKnowledge />, ['admin', 'academic_mentor'])} />
+                <Route path="courses/:courseId/ai-knowledge" element={guard(<CourseAccessBoundary><AIKnowledge /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id/learn" element={guard(<Learning />, ['student'])} />
                 <Route path="courses/:courseId/lessons/:lessonId/learn" element={guard(<LessonLearn />, ['student'])} />
-                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<LessonContentEditor />, ['admin', 'academic_mentor'])} />
-                <Route path="courses/:courseId/lessons/:lessonId/preview" element={guard(<LessonPreview />, ['admin', 'academic_mentor', 'teacher'])} />
-                <Route path="courses/:id/edit" element={guard(<CourseForm />, ['admin', 'academic_mentor'])} />
+                <Route path="courses/:courseId/lessons/:lessonId/content" element={guard(<CourseAccessBoundary><LessonContentEditor /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
+                <Route path="courses/:courseId/lessons/:lessonId/preview" element={guard(<CourseAccessBoundary><LessonPreview /></CourseAccessBoundary>, ['admin', 'academic_mentor', 'teacher'])} />
+                <Route path="courses/:id/edit" element={guard(<CourseAccessBoundary><CourseForm /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
                 <Route path="students" element={guard(<StudentList />, ['admin', 'academic_mentor'])} />
                 <Route path="students/:id" element={guard(<StudentDetail />, ['admin', 'academic_mentor'])} />
                 <Route path="works" element={guard(<StudentView student={<LegacyEntry/>} legacy={<WorkList/>}/>, ['admin', 'academic_mentor', 'student'])} />

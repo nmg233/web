@@ -31,9 +31,7 @@ function loadStudentArchive(studentId, user, courseSpace = null) {
         SELECT e.id FROM enrollments e
         JOIN courses c ON c.id = e.course_id
         WHERE e.student_id = ?
-          AND (c.created_by = ? OR EXISTS (
-            SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-          ))
+          AND (${require('../helpers/courseScope').mentorCourseScope('c.id')})
       `).all(studentId, user.id, user.id).map((r) => r.id)
     : null;
 
@@ -117,9 +115,7 @@ exports.showExport = (req, res) => {
     });
 
     const courses = user.role === 'academic_mentor'
-      ? db.prepare(`SELECT id, title FROM courses c WHERE c.created_by = ? OR EXISTS (
-          SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-        ) ORDER BY title`).all(user.id, user.id)
+      ? db.prepare(`SELECT id, title FROM courses c WHERE ${require('../helpers/courseScope').mentorCourseScope('c.id')} ORDER BY title`).all(user.id, user.id)
       : isTeacher(user.role)
         ? db.prepare(`SELECT DISTINCT c.id, c.title FROM courses c
             JOIN enrollments e ON e.course_id = c.id
