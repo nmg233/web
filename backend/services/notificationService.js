@@ -43,7 +43,7 @@ function activeUserIds(ids) {
   const placeholders = normalized.map(() => '?').join(',');
   return db.prepare(`
     SELECT id FROM users
-    WHERE id IN (${placeholders}) AND is_active = 1
+    WHERE id IN (${placeholders}) AND is_active = 1 AND archived_at IS NULL
   `).all(...normalized).map((row) => row.id);
 }
 
@@ -54,7 +54,7 @@ function userIdsByRoles(roles = []) {
   const placeholders = normalized.map(() => '?').join(',');
   return db.prepare(`
     SELECT id FROM users
-    WHERE role IN (${placeholders}) AND is_active = 1
+    WHERE role IN (${placeholders}) AND is_active = 1 AND archived_at IS NULL
   `).all(...normalized).map((row) => row.id);
 }
 
@@ -154,7 +154,9 @@ function deliverOutbox(row) {
     if(!current || current.delivered_at)return null;
     const payload=JSON.parse(current.payload_json),stored=JSON.parse(current.recipients_json);
     // Older real-redemption events resolve current administrators at delivery time.
-    const recipients=stored==='course-managers'?require('../helpers/courseScope').managerRecipients(db,current.reward_course_id):stored==='admins'?userIdsByRoles(['admin']):stored;
+    let recipients=stored==='course-managers'?require('../helpers/courseScope').managerRecipients(db,current.reward_course_id):stored==='admins'?userIdsByRoles(['admin']):stored;
+    if(payload.feedbackContext){const f=db.prepare('SELECT * FROM feedbacks WHERE id=?').get(payload.feedbackContext.id);if(!f)throw new NotificationError('反馈对象已不可用',409);recipients=require('./feedbackRouting').recipients(require('./feedbackRouting').refresh(f),payload.feedbackContext.mode);}
+    if(payload.applicationContext)recipients=require('./applicationConversations').recipients(payload.applicationContext.kind,payload.applicationContext.id,payload.applicationContext.mode);
     const result=createForUsers({...payload,dedupeKey:current.event_key},recipients);
     if(!result)throw new NotificationError('接收账号暂不可用，通知已保留待恢复',409);
     db.prepare('UPDATE notification_outbox SET delivered_at=CURRENT_TIMESTAMP,last_error=NULL,next_retry_at=NULL,quarantined_at=NULL WHERE event_key=?').run(current.event_key);
@@ -187,8 +189,14 @@ function replayOutbox(user,key) {
   try {deliverOutbox(row);return {message:'事件已重放'};} catch(err) {failOutbox(key,err);throw new NotificationError('事件仍无法投递，已保留错误与重试记录',409);}
 }
 
+function domainSql(userId){
+ const user=db.prepare('SELECT id,role FROM users WHERE id=?').get(userId);if(!user)return '0=1';
+ const feedback=`(n.business_type IS NULL OR n.business_type!='feedback' OR EXISTS(SELECT 1 FROM feedbacks f WHERE f.id=n.business_id AND ${require('./feedbackRouting').readSql(user)}))`;
+ const apps=['school','course','development'].map(kind=>{const table={school:'school_applications',course:'course_access_applications',development:'development_applications'}[kind];return `(n.business_type IS NULL OR n.business_type!='application:${kind}' OR EXISTS(SELECT 1 FROM ${table} a WHERE a.id=n.business_id AND (${user.role==='admin'?'1=1':user.role==='academic_mentor'?`a.applicant_id=${Number(user.id)}`:'0=1'})))`;});
+ return [feedback,...apps].join(' AND ');
+}
 function buildListWhere(userId, query = {}) {
-  const where = ['un.user_id = ?', 'un.is_hidden = 0'];
+  const where = ['un.user_id = ?', 'un.is_hidden = 0',domainSql(userId)];
   const params = [userId];
   if (query.read === 'unread') where.push('un.is_read = 0');
   if (query.read === 'read') where.push('un.is_read = 1');
@@ -236,7 +244,7 @@ function recent(user, rawLimit = 10) {
            n.action_url, n.published_at
     FROM user_notifications un
     JOIN notifications n ON n.id = un.notification_id
-    WHERE un.user_id = ? AND un.is_hidden = 0
+    WHERE un.user_id = ? AND un.is_hidden = 0 AND ${domainSql(user.id)}
     ORDER BY un.received_at DESC, un.id DESC
     LIMIT ?
   `).all(user.id, limit);
@@ -248,7 +256,7 @@ function unreadCount(user) {
     FROM user_notifications un
     JOIN notifications n ON n.id = un.notification_id
     WHERE un.user_id = ? AND un.is_read = 0 AND un.is_hidden = 0
-      AND n.status = 'published'
+      AND n.status = 'published' AND ${domainSql(user.id)}
   `).get(user.id).count;
 }
 
@@ -263,7 +271,7 @@ function getRecipient(user, notificationId) {
     JOIN notifications n ON n.id = un.notification_id
     WHERE un.user_id = ? AND n.id = ?
   `).get(user.id, notificationId);
-  if (!row) throw new NotificationError('通知不存在', 404, 'NOTIFICATION_NOT_FOUND');
+  if (!row||!db.prepare('SELECT 1 FROM notifications n WHERE n.id=? AND '+domainSql(user.id)).get(notificationId)) throw new NotificationError('通知对象已不可访问', 404, 'NOTIFICATION_NOT_FOUND');
   return row;
 }
 

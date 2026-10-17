@@ -22,7 +22,7 @@
       "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
     },
     "mentor.WorkspaceDashboard.5efa802d6c9f": {
-      "text": "学校申请状态",
+      "text": "待审申请",
       "page": "mentor/WorkspaceDashboard",
       "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
     },
@@ -715,6 +715,751 @@
       "text": "重新读取范围",
       "page": "courses/SchoolScope",
       "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "student.course.feedback": {
+      "text": "课程反馈",
+      "page": "学生课程导航",
+      "source": "frontend/src/student/visual/StudentShell.jsx"
+    },
+    "mentor.WorkspaceDashboard.55c71e2d003b": {
+      "text": "待处理反馈",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.7bc041b77cba": {
+      "text": "反馈补充说明",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.c5eac62c0f08": {
+      "text": "需要回复的申请",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.909cbceb66a8": {
+      "text": "真实办课待办",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.Organization.428b91afbbd6": {
+      "text": "申请与回复",
+      "page": "mentor/Organization",
+      "source": "frontend/src/pages/mentor/Organization.jsx"
+    },
+    "mentor.TeachingHub.725bf0b8fc4d": {
+      "text": "课程反馈",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.ApplicationInbox.18fe736d18c1": {
+      "text": "学校申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.30c27d28bb8a": {
+      "text": "既有课程管理申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.64e932a097e4": {
+      "text": "自主开发方案申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.de1ed7916107": {
+      "text": "申请说明尚未保存，是否放弃？",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.3aae7f1ac6af": {
+      "text": "申请列表读取失败",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.9b68f269159f": {
+      "text": "申请提交未确认，输入已保留；请使用原请求重试。",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.c8bf172a7743": {
+      "text": "申请导师目录读取失败",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.428b91afbbd6": {
+      "text": "申请与回复",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.de66204f3661": {
+      "text": "说明、往返回复和审核分别保存；普通回复不授予权限",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.10b2c17c8dbd": {
+      "text": "学校、既有课程管理和开发方案保留各自领域对象。开发方案即使通过审阅，也不表示已开放交互代码运行。",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.521f71fc495d": {
+      "text": "重新读取申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.5923d7f9f90a": {
+      "text": "提交新申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.746499882777": {
+      "text": "刷新申请列表",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.436a02934223": {
+      "text": "申请",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.0a2a5c33dd5c": {
+      "text": "申请人",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.e355214630d7": {
+      "text": "审核状态",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.7bf25421c6df": {
+      "text": "待审核",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.b42cb548c1d4": {
+      "text": "已批准",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.4dbcdec8693b": {
+      "text": "已驳回",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.f55505479345": {
+      "text": "往返状态",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.29fc3d27cae1": {
+      "text": "等待管理员回复",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.c180f8806b3f": {
+      "text": "等待申请人补充",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.4f515a6283cd": {
+      "text": "暂无待回复",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.4583b249c0af": {
+      "text": "放弃当前申请说明？",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.a5e1e7c4af4d": {
+      "text": "申请类型",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.a7bf051319a7": {
+      "text": "切换类型将放弃当前输入，是否继续？",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.fda5d7af6c3e": {
+      "text": "代办的真实导师",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.ceec0e21829d": {
+      "text": "学校名称",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.0b5daa927681": {
+      "text": "地区",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.0be8aa64e02a": {
+      "text": "联系人（选填）",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.52b14381cfc3": {
+      "text": "联系方式（选填）",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.06d4d184c40c": {
+      "text": "管理员提供的准确课程ID",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.814ee3c95c74": {
+      "text": "开发方案关联课程ID（选填，仅限有权管理课程）",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.203a833564e3": {
+      "text": "联系信息（选填）",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.ff9dcbad3a39": {
+      "text": "不提供全平台未发布课程目录，不接受脚本、账号或密钥。",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.428502ecaf8e": {
+      "text": "用途、背景与申请说明",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.879e34bfc9cc": {
+      "text": "保存到服务器后可在同一会话继续补充附件；申请本身不授予权限。",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.c11fe8fe5e4c": {
+      "text": "保存申请说明",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationThread.cfce6d6353a1": {
+      "text": "申请会话或审核说明尚未保存，是否放弃？",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.d511a22fd381": {
+      "text": "申请会话读取失败",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.d624351e46a1": {
+      "text": "已核对最新会话和修订，当前输入保留；请检查后再保存。",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.4266d0be6fa4": {
+      "text": "回复已真实保存，普通回复没有授予权限。",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.e6bc94af909e": {
+      "text": "审核决定已真实保存，请查看当前授权与审核状态。",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.da28f659ab91": {
+      "text": "保存尚未确认，文字与附件保留；请核对并用同一请求重试。",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.d38135726869": {
+      "text": "申请附件下载失败，可重试，不影响当前输入。",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.c773465c4559": {
+      "text": "核对最新会话（保留输入）",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.3cfbf640a0c4": {
+      "text": "申请人：",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.2a5277c6776d": {
+      "text": "；审核：",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.7bf25421c6df": {
+      "text": "待审核",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.b42cb548c1d4": {
+      "text": "已批准",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.4dbcdec8693b": {
+      "text": "已驳回",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.b287e9361629": {
+      "text": "；往返：",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.43566f99d047": {
+      "text": "待管理员回复",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.6be0148c31ae": {
+      "text": "待申请人补充",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.4f515a6283cd": {
+      "text": "暂无待回复",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.7b0e3fb0f822": {
+      "text": "开发方案审核不等于代码运行批准，本版本不开放交互代码运行",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.ff02dbb07f6d": {
+      "text": "审核说明：",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.4673a2306165": {
+      "text": "下载",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.89a1e4f557eb": {
+      "text": "管理员回复 / 要求补充",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.5d0fa3bf1ea3": {
+      "text": "补充说明与回复",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.ac17c435adbd": {
+      "text": "补充材料（PNG/JPG/WEBP/PDF，最多3个，每个10MB）",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.b1ef4fa66640": {
+      "text": "申请补充附件",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.6135d4159e89": {
+      "text": "移除",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.1fd742620352": {
+      "text": "保存会话回复",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.007420ca066e": {
+      "text": "独立审核决定",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.a1635a7845b3": {
+      "text": "审核决定",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.8cbe697b1573": {
+      "text": "批准",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.089e6ed3f55f": {
+      "text": "驳回",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.da80413a7f4e": {
+      "text": "发现同名学校，需明确核对后关联，不自动新建或授权",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.274c5e589436": {
+      "text": "核对已有学校",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.a0de3ed3d19a": {
+      "text": "请选择准确学校",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.f6ba50be2f30": {
+      "text": "已核对并明确授权该导师管理已有学校",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.a6e8e2b68c6b": {
+      "text": "审核说明",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.e1888ced5c30": {
+      "text": "保存审核决定",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.CourseFeedback.5e0be6a41695": {
+      "text": "课程反馈读取失败",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.725bf0b8fc4d": {
+      "text": "课程反馈",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.be3e03d99762": {
+      "text": "当前课程管理关系内的共同受理池；先明确领取，无法处理时填写说明提交管理员协助。平台问题仍可从帮助与反馈直接交管理员。",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.1133d6759e10": {
+      "text": "重试读取",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.8e6fe31816c2": {
+      "text": "刷新课程反馈",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.d5e74de3449e": {
+      "text": "处理状态",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.0a379c1e7398": {
+      "text": "全部状态",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.999a459c3f3f": {
+      "text": "待处理",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.694b71bc8013": {
+      "text": "处理中",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.a70f6b069a48": {
+      "text": "待学生补充",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.59f6c8369293": {
+      "text": "已处理",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.6744b4c6a9aa": {
+      "text": "已关闭",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.a7b97572dce6": {
+      "text": "无效或重复",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.fc14772145c2": {
+      "text": "编号",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.8b2106ca1371": {
+      "text": "反馈",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.13a58ec2074e": {
+      "text": "学生",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.7d1fbdaefc41": {
+      "text": "当前受理",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.56891d009efa": {
+      "text": "平台管理员",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.b184f96d895f": {
+      "text": "已由课程导师领取",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.b6398c716a98": {
+      "text": "课程共同待处理",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "mentor.CourseFeedback.6320b4a8722a": {
+      "text": "状态",
+      "page": "mentor/CourseFeedback",
+      "source": "frontend/src/pages/mentor/CourseFeedback.jsx"
+    },
+    "feedback.ReceptionControls.1fa584a8bca3": {
+      "text": "受理或转交说明尚未保存，是否放弃？",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.2328b6513c8d": {
+      "text": "放弃当前未保存的受理说明？",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.55a7a26d5f97": {
+      "text": "受理操作未确认，说明和附件保留，请核对后重试。",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.edb22e8c5242": {
+      "text": "受理与转交",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.7e64c1dc2e95": {
+      "text": "当前由：",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.531a7865ffa4": {
+      "text": "；受理层级与处理状态分别记录，转交不会自动解决问题。",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.e852cd857def": {
+      "text": "领取本课反馈",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.4d63a35128f4": {
+      "text": "提交管理员协助",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.103ee754416d": {
+      "text": "管理员接管",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.9dd908b0e346": {
+      "text": "转回课程导师",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.6870eb84f9a1": {
+      "text": "请导师补充内部说明",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.aa0c724c34bf": {
+      "text": "已重新读取；请核对最新受理状态后再保存。",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.199750521db8": {
+      "text": "刷新受理信息",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.3f329483003b": {
+      "text": "当前动作：",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.2e2f9245aeb1": {
+      "text": "要求导师补充",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.02db46ba40c2": {
+      "text": "当前有效课程导师",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.72e4ad02905a": {
+      "text": "内部处理或转交说明（学生不可见）",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.8b2ec32b1706": {
+      "text": "受理补充附件",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.6135d4159e89": {
+      "text": "移除",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.bdb09d177d3f": {
+      "text": "保存受理操作",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.26fd15b18759": {
+      "text": "取消当前操作",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.f6428c9d0e34": {
+      "text": "查看工作人员受理历史",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.7cb6ecb9d37d": {
+      "text": "系统权限复核",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.Form.6aa3be231b96": {
+      "text": "来源课程当前不可访问；可选择直接向平台管理员反馈。",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.c8352fb2efee": {
+      "text": "可用课程读取失败，可先选择平台反馈或稍后重试。",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.59781292b0ed": {
+      "text": "由谁先受理",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.6f613b1d6cc0": {
+      "text": "平台 / 账号 / 导师相关问题：直接交平台管理员",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.980c480bf4fc": {
+      "text": "课程学习或课程使用问题：由本课程导师先处理",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.51d1da6ce6d4": {
+      "text": "反馈所属课程",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.215e78b5086f": {
+      "text": "请选择本人可进入的课程",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.27fef980ab6d": {
+      "text": "本课程的问题由课程导师先处理，必要时会提交平台管理员协助",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Form.5ec786c98a27": {
+      "text": "平台、账号及涉及导师本人的问题可直接向平台管理员反映",
+      "page": "feedback/Form",
+      "source": "frontend/src/pages/feedback/Form.jsx"
+    },
+    "feedback.Detail.db680a36c119": {
+      "text": "当前受理：",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "feedback.Detail.7026083baf39": {
+      "text": "本课程反馈，必要时由平台协助",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "feedback.Detail.41fba1f1a1ab": {
+      "text": "直接由平台管理员受理",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "feedback.ReceptionControls.2b06979d163b": {
+      "text": "读取失败，草稿仍在当前页",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.Detail.34488b08ba6d": {
+      "text": "尚有未保存的反馈文字或附件，确定离开？",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "mentor.ApplicationThread.18fe736d18c1": {
+      "text": "学校申请",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.f286ad4d8c3d": {
+      "text": "课程管理申请",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.9c9bbc80f5bb": {
+      "text": "开发方案申请",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "mentor.ApplicationThread.436a02934223": {
+      "text": "申请",
+      "page": "mentor/ApplicationThread",
+      "source": "frontend/src/pages/mentor/ApplicationThread.jsx"
+    },
+    "feedback.ReceptionControls.844ab9477225": {
+      "text": "领取",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.bf1411d89f88": {
+      "text": "权限变化后重新受理",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "feedback.ReceptionControls.88e723a93f67": {
+      "text": "受理更新",
+      "page": "feedback/ReceptionControls",
+      "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
     }
   }
 }

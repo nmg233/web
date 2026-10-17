@@ -1,3 +1,4 @@
+import {mentorText} from '../../pages/mentor/workspaceCopy';
 import StudentCopyText from '../../content/ManagedText';
 import {copyText} from '../../content/copy';
 import {useCallback} from 'react';
@@ -32,7 +33,7 @@ function CourseNavigation({id,course,close}){
    <Link to="/explore" className="space-exit" onClick={close}><PixelIcon name="back"/>{<StudentCopyText id={'course.nav.exit'}/>}</Link>
    <Link to={'/courses/'+id} className="space-course-brand" onClick={close}>{look.data?.themeImages?.mark?<CourseThemeImage image={look.data.themeImages.mark}/>:theme==='voyage'?<img src={asset('ship',192)} alt=""/>:<PixelIcon name="book" size={48}/>}<strong>{course?.title||<StudentCopyText id={'system.shell.005'}/>}</strong><span>{<StudentCopyText id={'system.shell.006'}/>}{id}</span></Link>
    <nav aria-label={copyText('system.shell.007')} data-copy-bindings={JSON.stringify(['system.shell.007'])}>{entries.map(([suffix,icon,labelId])=>{const to='/courses/'+id+suffix;const selected=suffix==='/lab'?/\/(lab|glider)$/.test(pathname):suffix==='/archives'?/\/(archives|works|reflection)(?:\/|$)/.test(pathname):! /\/(lab|glider|archives|works|reflection)(?:\/|$)/.test(pathname);return <Link key={to} to={to} aria-current={selected?'page':undefined} onClick={close}><PixelIcon name={icon}/><span><StudentCopyText id={labelId}/></span><span aria-hidden="true">›</span></Link>;})}</nav>
-   <p className="space-reward-links"><Link to={'/me?courseId='+id+'&returnTo='+encodeURIComponent('/courses/'+id)} onClick={close}>本课程礼品兑换</Link><Link to={'/me/badges?courseId='+id+'&returnTo='+encodeURIComponent('/me?returnTo='+encodeURIComponent('/courses/'+id))} onClick={close}>本课程勋章墙</Link></p>
+   <p className="space-reward-links"><Link to="/feedback/new" state={{courseId:id,from:pathname}}>{mentorText('student.course.feedback')}</Link><Link to={'/me?courseId='+id+'&returnTo='+encodeURIComponent('/courses/'+id)} onClick={close}>本课程礼品兑换</Link><Link to={'/me/badges?courseId='+id+'&returnTo='+encodeURIComponent('/me?returnTo='+encodeURIComponent('/courses/'+id))} onClick={close}>本课程勋章墙</Link></p>
    <div className="space-sidebar-art" aria-hidden="true"/>
  </div>;
 }

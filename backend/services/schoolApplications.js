@@ -4,7 +4,7 @@ function fields(body,allowed){if(Object.keys(body).some(k=>!allowed.includes(k))
 function text(value,label,max=1000,required=true){if(value==null&&!required)return null;if(typeof value!=='string'||value.trim().length>max||(required&&!value.trim()))fail(label+'格式无效');return value.trim()||null;}
 function managed(user,schoolId){return require('./mentorSchoolScope').school(user,schoolId);}
 function keyed(user,scope,body,fn){return db.transaction(()=>{const key=requests.identity(user,scope,body);if(!key)fail('缺少请求编号');const old=requests.existing(db,key);if(old)return old;const result=fn();requests.save(db,key,result);return result;}).immediate();}
-function notify(user,key,title,content,recipients,url){require('./notificationService').safeCreateForUsers({eventKey:'school.application',dedupeKey:key,title,content,category:'account',actionUrl:url,createdBy:user.id},recipients);}
+function notify(user,key,title,content,recipients,url){const match=/^school\.(?:apply|review):(\d+)$/.exec(key),context=match?{businessType:'application:school',businessId:Number(match[1]),applicationContext:{kind:'school',id:Number(match[1]),mode:recipients==='admins'?'admin':'applicant'}}:{};require('./notificationService').safeCreateForUsers({eventKey:'school.application',dedupeKey:key,title,content,category:'account',actionUrl:url,createdBy:user.id,...context},recipients);}
 function list(user,query={}){
  active(user,user.role==='admin'?'admin':'academic_mentor');
  const rows=db.prepare(`SELECT a.*,u.real_name applicant_name,u.username applicant_username,r.real_name reviewer_name,(SELECT m.active FROM school_managers m WHERE m.school_id=a.school_id AND m.mentor_id=a.applicant_id) management_active FROM school_applications a JOIN users u ON u.id=a.applicant_id LEFT JOIN users r ON r.id=a.reviewed_by ${user.role==='admin'?'':'WHERE a.applicant_id=?'} ORDER BY a.id DESC`).all(...(user.role==='admin'?[]:[user.id]));
@@ -12,11 +12,11 @@ function list(user,query={}){
  return{applications:rows.filter(r=>!query.status||r.status===query.status).map(r=>({...r,duplicates:user.role==='admin'?schools.filter(s=>normalize(s.name)===r.normalized_name):[]})),
  schools:user.role==='admin'?db.prepare('SELECT m.*,s.name,u.real_name mentor_name FROM school_managers m JOIN schools s ON s.id=m.school_id JOIN users u ON u.id=m.mentor_id ORDER BY s.id,m.mentor_id').all():db.prepare('SELECT s.id,s.name,s.region FROM schools s JOIN school_managers m ON m.school_id=s.id WHERE m.mentor_id=? AND m.active=1 AND s.is_active=1').all(user.id)};
 }
-function apply(user,body){active(user,'academic_mentor');fields(body,['name','region','contact','contact_details','explanation','request_key']);return keyed(user,'school-application',body,()=>{
- active(user,'academic_mentor');const name=text(body.name,'学校名称',120),normalized=normalize(name);text(body.region,'地区',120);text(body.explanation,'申请说明',2000);
- if(db.prepare("SELECT 1 FROM school_applications WHERE applicant_id=? AND normalized_name=? AND status='pending'").get(user.id,normalized))fail('已有同名待审核申请，请查看已有记录',409);
- const id=Number(db.prepare('INSERT INTO school_applications(applicant_id,name,normalized_name,region,contact,contact_details,explanation) VALUES(?,?,?,?,?,?,?)').run(user.id,name,normalized,body.region.trim(),text(body.contact,'联系人',120,false),text(body.contact_details,'联系方式',200,false),body.explanation.trim()).lastInsertRowid);
- notify(user,'school.apply:'+id,'学校申请待审核','收到新的学校申请，请核对重名学校及申请说明。','admins','/admin/organization?section=applications&application='+id);return{id};
+function apply(user,body){active(user,user.role==='admin'?'admin':'academic_mentor');if(user.role!=='admin'&&body.applicantId!==undefined)fail('不能代他人申请',403);fields(body,['name','region','contact','contact_details','explanation','request_key',...(user.role==='admin'?['applicantId']:[])]);return keyed(user,'school-application',body,()=>{
+ active(user,user.role==='admin'?'admin':'academic_mentor');const applicantId=user.role==='admin'?Number(body.applicantId):user.id;const target=db.prepare("SELECT * FROM users WHERE id=? AND role='academic_mentor' AND is_active=1 AND archived_at IS NULL").get(applicantId);if(!target)fail('请选择有效申请导师');const name=text(body.name,'学校名称',120),normalized=normalize(name);text(body.region,'地区',120);text(body.explanation,'申请说明',2000);
+ if(db.prepare("SELECT 1 FROM school_applications WHERE applicant_id=? AND normalized_name=? AND status='pending'").get(applicantId,normalized))fail('已有同名待审核申请，请查看已有记录',409);
+ const id=Number(db.prepare('INSERT INTO school_applications(applicant_id,name,normalized_name,region,contact,contact_details,explanation,created_by) VALUES(?,?,?,?,?,?,?,?)').run(applicantId,name,normalized,body.region.trim(),text(body.contact,'联系人',120,false),text(body.contact_details,'联系方式',200,false),body.explanation.trim(),user.id).lastInsertRowid);
+ notify(user,'school.apply:'+id,'学校申请待审核','收到新的学校申请，请核对重名学校及申请说明。','admins','/mentor/requests?kind=school&application='+id);return{id};
  });}
 function review(user,id,body){active(user,'admin');fields(body,['decision','reason','existingSchoolId','confirmExisting','expectedRevision','request_key']);return keyed(user,'school-review:'+id,body,()=>{
  active(user,'admin');const app=db.prepare('SELECT * FROM school_applications WHERE id=?').get(id);if(!app)fail('申请不存在',404);if(app.status!=='pending'||app.revision!==body.expectedRevision)fail('申请已经处理或修订发生变化，请重新核对',409);
@@ -30,7 +30,8 @@ function review(user,id,body){active(user,'admin');fields(body,['decision','reas
  }
  db.prepare('UPDATE school_applications SET status=?,school_id=?,reason=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP,revision=revision+1 WHERE id=?').run(body.decision,schoolId,reason,user.id,id);
  db.prepare('INSERT INTO school_management_events(school_id,mentor_id,application_id,actor_id,action,detail) VALUES(?,?,?,?,?,?)').run(schoolId,app.applicant_id,id,user.id,body.decision,reason||'批准新学校');
- notify(user,'school.review:'+id,'学校申请'+(schoolId?'已批准':'已驳回'),schoolId?'可在账号与组织中建立该校班级和学生账号。':'驳回原因：'+reason,[app.applicant_id],'/mentor/organization?application='+id);return{id:Number(id),schoolId,status:body.decision};
+ db.prepare("UPDATE application_conversations SET needs_reply='none',revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE kind='school' AND application_id=?").run(id);
+ notify(user,'school.review:'+id,'学校申请'+(schoolId?'已批准':'已驳回'),schoolId?'可在账号与组织中建立该校班级和学生账号。':'驳回原因：'+reason,[app.applicant_id],'/mentor/requests?kind=school&application='+id);return{id:Number(id),schoolId,status:body.decision};
  });}
 function revoke(user,schoolId,mentorId,body){active(user,'admin');fields(body,['reason','expectedRevision','request_key']);return keyed(user,'school-revoke:'+schoolId+':'+mentorId,body,()=>{
  active(user,'admin');const reason=text(body.reason,'撤销原因'),m=db.prepare('SELECT * FROM school_managers WHERE school_id=? AND mentor_id=?').get(schoolId,mentorId);if(!m)fail('学校授权不存在',404);if(m.revision!==body.expectedRevision||!m.active)fail('学校授权已变化',409);

@@ -19,7 +19,7 @@ const COMMON_RULES = [
 const ROLE_PATH_RULES = {
   admin: [
     /^\/admin\/(?:organization|teaching|settings)$/,
-    /^\/mentor\/(?:organization|teaching|guide)$/,
+    /^\/mentor\/(?:organization|teaching|guide|requests|feedback)$/,
     /^\/reward-management$/,
     /^\/dashboard(?:\/schools\/\d+|\/ai)?$/,
     /^\/glider$/,
@@ -33,7 +33,7 @@ const ROLE_PATH_RULES = {
     /^\/observer(?:\/students(?:\/\d+)?)?$/,
   ],
   academic_mentor: [
-    /^\/mentor\/(?:organization|teaching|guide)$/,
+    /^\/mentor\/(?:organization|teaching|guide|requests|feedback)$/,
     /^\/dashboard(?:\/ai)?$/,
     /^\/glider$/,
     /^\/courses(?:\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,

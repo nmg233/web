@@ -1,3 +1,5 @@
+import ApplicationInbox from './pages/mentor/ApplicationInbox';
+import CourseFeedback from './pages/mentor/CourseFeedback';
 import {useCopyVersion} from './content/useCopyVersion';
 import CourseAccessBoundary from './pages/courses/CourseAccessBoundary';
 import MentorOrganization from './pages/mentor/Organization';
@@ -106,6 +108,8 @@ function App() {
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
                 <Route path="mentor/organization" element={guard(<MentorOrganization/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/requests" element={guard(<ApplicationInbox/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/feedback" element={guard(<CourseFeedback/>, ['admin','academic_mentor'])} />
                 <Route path="mentor/teaching" element={guard(<MentorTeaching/>, ['admin','academic_mentor'])} />
                 <Route path="mentor/guide" element={guard(<MentorGuide/>, ['admin','academic_mentor'])} />
                 <Route path="admin/:module" element={guard(<ModuleHub/>, ['admin'])} />

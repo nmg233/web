@@ -1,5 +1,6 @@
-const MIN_SCHEMA_VERSION=1032;
+const MIN_SCHEMA_VERSION=1033;
 const checks={
+ feedback_reception_events:'feedback_id,actor_id,action',application_conversations:'kind,application_id,revision,needs_reply',application_messages:'id,kind,application_id,sender_id',course_access_applications:'id,applicant_id,course_id,status',development_applications:'id,applicant_id,status',
  course_school_scopes:'course_id,school_id,created_by',teacher_observation_grants:'teacher_id,student_id,course_id,active,revision',enrollment_access_confirmations:'enrollment_id,school_id,source',school_created_teachers:'teacher_id,actor_id,fingerprint',
  lesson_badge_definitions:"lesson_id,enabled,image_id,revision",student_badge_grants:"id,image_id",
  course_managers:'course_id,mentor_id,active,revision',course_manager_events:'course_id,mentor_id,actor_id,action',school_applications:'applicant_id,status,revision',school_managers:'school_id,mentor_id,active,revision',school_created_accounts:'student_id,actor_id,fingerprint',school_management_events:'school_id,actor_id,action',
@@ -25,7 +26,7 @@ const checks={
   student_copy_scopes:'scope,draft_json,published_json,revision,published_revision',
   course_theme_images:'id,course_id,purpose,file_path,digest',course_theme_bindings:'course_id,purpose,image_id',
   student_copy_history:'scope,revision,entries_json,actor_id,action',
-  tasks:'id,lesson_id,status',work_reviews:'work_id,comment',feedbacks:'id,user_id,status',feedback_messages:'feedback_id,content',
+  tasks:'id,lesson_id,status',work_reviews:'work_id,comment',feedbacks:'id,user_id,status,course_id,reception_level,assignee_id,revision',feedback_messages:'feedback_id,content',
   feedback_attachments:'id,feedback_id,file_path',refresh_tokens:'user_id,token_hash',account_import_batches:'id,actor_id,status',
 };
 const uniques={

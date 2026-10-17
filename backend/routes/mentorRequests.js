@@ -1,0 +1,11 @@
+const router=require('express').Router(),s=require('../services/applicationConversations'),{requireAuth,requirePasswordChanged,requireRole}=require('../middleware/auth'),{uploadFeedbackAttachments,removeFiles,FEEDBACK_UPLOAD_ROOT}=require('../middleware/feedbackUpload'),fingerprint=require('../middleware/uploadFingerprint'),fs=require('node:fs'),path=require('node:path');
+router.use(requireAuth,requirePasswordChanged,requireRole('admin','academic_mentor'));
+const handle=fn=>async(req,res,next)=>{try{res.set('Cache-Control','no-store').json(await fn(req));}catch(e){removeFiles(req.files);if(e.status)return res.status(e.status).json({error:e.message});next(e);}};
+router.get('/',handle(req=>s.list(req.user,req.query)));
+router.get('/attachments/:id',(req,res,next)=>{try{const file=s.attachment(req.user,req.params.id),p=path.resolve(file.file_path),rel=path.relative(FEEDBACK_UPLOAD_ROOT,p);if(rel.startsWith('..')||path.isAbsolute(rel)||!fs.existsSync(p))return res.status(404).json({error:'申请附件文件不存在'});res.download(p,file.original_name);}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}});
+router.post('/:kind',handle(req=>s.create(req.user,req.params.kind,req.body)));
+router.get('/:kind/:id',handle(req=>s.detail(req.user,req.params.kind,req.params.id)));
+router.post('/:kind/:id/messages',uploadFeedbackAttachments.array('attachments',3),fingerprint,handle(req=>s.reply(req.user,req.params.kind,req.params.id,req.body,req.files||[])));
+router.post('/:kind/:id/review',requireRole('admin'),handle(req=>s.review(req.user,req.params.kind,req.params.id,req.body)));
+router.use((e,req,res,_next)=>{removeFiles(req.files);res.status(400).json({error:e.message||'申请附件上传失败'});});
+module.exports=router;

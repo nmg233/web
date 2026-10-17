@@ -13,9 +13,10 @@ export function installTeachingLeaveHistory(){
 
 // BrowserRouter has no public blocker API. Scope the adapter to this mounted
 // authoring workspace; restore the original navigator on cleanup.
-export default function useTeachingLeaveGuard(unsaved,message,processing){
+export default function useTeachingLeaveGuard(unsaved,message,processing,enabled=true){
  const {navigator}=useContext(UNSAFE_NavigationContext);
  useEffect(()=>{
+  if(!enabled)return;
   const originals={push:navigator.push,replace:navigator.replace};
   const allowed=to=>/^\/(login|change-password)(?:[/?#]|$)/.test(typeof to==='string'?to:to?.pathname||'')||(!processing?.current.size&&(!unsaved.current.size||window.confirm(message)));
   navigator.push=function(to,...args){if(allowed(to))return originals.push.call(this,to,...args);};
@@ -38,5 +39,5 @@ export default function useTeachingLeaveGuard(unsaved,message,processing){
   const unload=e=>{if(unsaved.current.size||processing?.current.size){e.preventDefault();e.returnValue='';}};
   activeHistoryGuard=pop;window.addEventListener('beforeunload',unload);
   return()=>{navigator.push=originals.push;navigator.replace=originals.replace;if(activeHistoryGuard===pop)activeHistoryGuard=null;window.removeEventListener('beforeunload',unload);};
- },[navigator,unsaved,message,processing]);
+ },[navigator,unsaved,message,processing,enabled]);
 }
