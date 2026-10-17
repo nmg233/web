@@ -149,3 +149,9 @@ docs/next-version/step-02/browser-first/
 !docs/course-rewards/verified-scenes.json
 !docs/course-rewards/images/*.png
 /docs/course-rewards/evidence/
+
+!docs/admin-ui-patch/*.md
+!docs/admin-ui-patch/*.html
+!docs/admin-ui-patch/verified-scenes.json
+!docs/admin-ui-patch/images/*.png
+/docs/admin-ui-patch/evidence/

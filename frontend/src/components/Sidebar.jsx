@@ -15,13 +15,27 @@ import {
   MessageOutlined,
   BellOutlined,
   ExperimentOutlined,
+  SettingOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../store/AuthContext';
 
 const { Sider } = Layout;
+const adminIcons = {
+  dashboard: <DashboardOutlined />,
+  book: <BookOutlined />,
+  learning: <ReadOutlined />,
+  team: <TeamOutlined />,
+  settings: <SettingOutlined />,
+};
 
 const menuItems = {
-  admin: adminModules,
+  admin: adminModules.map(({iconKey, ...item}) => ({
+    ...item,
+    icon: adminIcons[iconKey],
+    title: item.label,
+    'aria-label': item.label,
+  })),
   academic_mentor: [
     {key:'/mentor/organization',icon:<TeamOutlined/>,label:'账号与组织'},
     { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
@@ -59,7 +73,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  // 移动端基础适配：小屏自动折叠为图标栏
+  // 桌面折叠保留图标，小屏折叠为零宽并保留唤起按钮。
   const [collapsed, setCollapsed] = useState(false);
   const [broken,setBroken]=useState(false);
 
@@ -98,7 +112,10 @@ export default function Sidebar() {
         theme="dark"
         mode="inline"
         selectedKeys={[selectedKey]}
-        items={items}
+        items={user?.role === 'admin' ? items.map(item => ({
+          ...item,
+          'aria-current': item.key === selectedKey ? 'page' : undefined,
+        })) : items}
         onClick={({ key }) => {navigate(key);if(broken)setCollapsed(true);}}
       />
     </Sider>

@@ -1,0 +1,43 @@
+{
+  "records": [
+    {
+      "name": "展开侧栏有五个图标与文字，逐一点击进入并选中",
+      "status": "passed"
+    },
+    {
+      "name": "桌面收起宽64px，五个图标可点击且当前项可读",
+      "status": "passed"
+    },
+    {
+      "name": "收起后五项悬浮均显示对应名称",
+      "status": "passed"
+    },
+    {
+      "name": "收起后键盘方向键移动，Enter进入五项并报告当前页",
+      "status": "passed"
+    },
+    {
+      "name": "旧课程、学生、评审及设置深链接仍选中所属模块",
+      "status": "passed"
+    },
+    {
+      "name": "管理员申请说明解释直接建校、导师审批、同名核对和独立授权",
+      "status": "passed"
+    },
+    {
+      "name": "手机零宽收起，唤起后可选五项且点击自动收回，不遮挡正文",
+      "status": "passed"
+    },
+    {
+      "name": "导师仍显示自己的学校申请与获准学校，不出现管理员说明",
+      "status": "passed"
+    },
+    {
+      "name": "无业务写入请求、无浏览器异常，隔离库完整性通过",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "businessWrites": [],
+  "scope": "Disposable synthetic fixture only; no persistent teaching DB opened"
+}
