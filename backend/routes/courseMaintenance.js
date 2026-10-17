@@ -44,18 +44,14 @@ router.get('/',action(req=>{
   cards:db.prepare('SELECT k.id,k.lesson_id,k.title,k.status FROM knowledge_cards k JOIN lessons l ON l.id=k.lesson_id WHERE l.course_id=? ORDER BY k.sort_order,k.id').all(id),
   replays:db.prepare('SELECT id,course_id,lesson_id,title,description,summary,duration_seconds,recording_date,sort_order FROM course_replays WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('course_replays',r))};
 }));
-router.get('/badges',action(req=>({definitions:db.prepare('SELECT b.* FROM lesson_badge_definitions b JOIN lessons l ON l.id=b.lesson_id WHERE l.course_id=? ORDER BY l.sort_order,l.id').all(req.params.id)})));
+router.get('/badges',action(req=>require('../services/courseBadges').settings(req.user.id,req.params.id)));
+router.put('/badges/settings',action(req=>require('../services/courseBadges').toggle(req.user.id,req.params.id,req.body)));
 router.get('/lessons/:lessonId/diagnostics',action(req=>{
  object('lessons',req.params.lessonId,req.params.id);
  const diagnostics=require('../../scripts/lesson-maintenance/inspect.cjs').inspect(db,{courseId:Number(req.params.id),lessonId:Number(req.params.lessonId)});
  return {...diagnostics,readiness:require('../helpers/lessonVersions').readiness(db,req.params.lessonId),content_revision:hash(revisionRow('lessons',req.params.lessonId))};
 }));
-router.put('/badges/:lessonId',action(req=>{
- const row=object('lessons',req.params.lessonId,req.params.id);if(row.status==='cancelled')v.invalid('课时已取消',409);
- fields(req.body,['name','artId','description']);if(!['vr','theory','glider'].includes(req.body.artId))v.invalid('请选择受控徽章素材');
- const name=v.text(req.body.name,'徽章名称',60,true),description=v.text(req.body.description,'徽章说明',500)||'';
- db.prepare('INSERT INTO lesson_badge_definitions(lesson_id,name,art_id,description) VALUES(?,?,?,?) ON CONFLICT(lesson_id) DO UPDATE SET name=excluded.name,art_id=excluded.art_id,description=excluded.description,updated_at=CURRENT_TIMESTAMP').run(row.id,name,req.body.artId,description);return {saved:true,lessonId:row.id};
-}));
+router.put('/badges/:lessonId',action(req=>require('../services/courseBadges').save(req.user.id,req.params.id,req.params.lessonId,req.body)));
 router.put('/course',(req,res,next)=>{const json=res.json.bind(res);res.json=value=>json(res.statusCode<400?{...value,id:Number(req.params.id),content_revision:hash(revisionRow('courses',req.params.id))}:value);c.update(req,res,next);});
 router.post('/chapters',action(req=>{
  fields(req.body,['title']);const title=v.text(req.body.title,'章节名称',120,true);

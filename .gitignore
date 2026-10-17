@@ -143,3 +143,9 @@ docs/next-version/step-02/browser-first/
 !docs/course-authorization/verified-scenes.json
 !docs/course-authorization/images/*.png
 /docs/course-authorization/evidence/
+
+!docs/course-rewards/*.md
+!docs/course-rewards/*.html
+!docs/course-rewards/verified-scenes.json
+!docs/course-rewards/images/*.png
+/docs/course-rewards/evidence/

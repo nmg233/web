@@ -72,6 +72,7 @@ export default function CourseList() {
           <Button aria-label="新建课程" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>新建课程</Button>
         )}
       </div>
+      {user?.role==='admin'&&<p><Link to="/reward-management">核对待关联课程的存量礼品/历史订单</Link></p>}
       <Card>
         <Space wrap style={{ marginBottom: 16 }}>
           <Input prefix={<SearchOutlined />} placeholder="搜索课程" value={search} onChange={(e) => setSearch(e.target.value)}

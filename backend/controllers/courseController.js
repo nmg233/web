@@ -345,6 +345,8 @@ exports.delete = (req, res) => {
       return res.status(400).json({ error: '该课程存在历史作品记录，不可删除' });
     }
 
+    if (['reward_gifts','reward_images','reward_orders','reward_badge_grants'].some(table=>db.prepare(`SELECT 1 FROM ${table} WHERE course_id=? LIMIT 1`).get(id))) return res.status(409).json({error:'该课程已有奖励配置、图片或订单，不可删除；请归档保留奖励和履约记录'});
+
     const filePaths = [
       ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
       ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),

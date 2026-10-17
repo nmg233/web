@@ -70,7 +70,7 @@ const ObserverStudentDetail = lazy(() => import('./pages/observer/StudentDetail'
 const MentorContentHub = lazy(() => import('./pages/mentor/ContentHub'));
 const StudentCopyManagement = lazy(() => import('./copy-review/StudentCopyManagement'));
 const CopyReview = lazy(() => import('./copy-review/CopyReview'));
-const RewardManagement = lazy(() => import('./pages/rewards/Management'));
+const RewardManagement = lazy(() => import('./pages/rewards/Legacy'));
 
 const guard = (element, roles) => <RoleGuard roles={roles}>{element}</RoleGuard>;
 
