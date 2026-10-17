@@ -154,7 +154,7 @@ function deliverOutbox(row) {
     if(!current || current.delivered_at)return null;
     const payload=JSON.parse(current.payload_json),stored=JSON.parse(current.recipients_json);
     // Older real-redemption events resolve current administrators at delivery time.
-    const recipients=stored==='admins'?userIdsByRoles(['admin']):stored;
+    const recipients=stored==='course-managers'?require('../helpers/courseScope').managerRecipients(db,current.reward_course_id):stored==='admins'?userIdsByRoles(['admin']):stored;
     const result=createForUsers({...payload,dedupeKey:current.event_key},recipients);
     if(!result)throw new NotificationError('接收账号暂不可用，通知已保留待恢复',409);
     db.prepare('UPDATE notification_outbox SET delivered_at=CURRENT_TIMESTAMP,last_error=NULL,next_retry_at=NULL,quarantined_at=NULL WHERE event_key=?').run(current.event_key);

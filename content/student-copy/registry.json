@@ -39985,5 +39985,19 @@
     "sourceFile": "frontend/src/student/space/ArticleContent.jsx",
     "page": "课时学习",
     "position": "附件下载错误"
+  },
+  "workspace.map.objectives": {
+    "text": "学习目标",
+    "enabled": true,
+    "optional": false,
+    "page": "map",
+    "position": "组件状态/标签",
+    "purpose": "组件状态/标签",
+    "scope": "system",
+    "type": "system",
+    "sourceField": null,
+    "futureTeacher": false,
+    "sourceFile": "frontend/src/student/Explore.jsx",
+    "sourceLine": 232
   }
 }

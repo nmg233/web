@@ -97,6 +97,7 @@ app.use(`${API_PREFIX}/glider`, require('./routes/gliders'));
 app.use(`${API_PREFIX}/courses`, require('./routes/courses'));
 app.use(`${API_PREFIX}/tasks`, require('./routes/tasks'));
 app.use(`${API_PREFIX}/students`, require('./routes/students'));
+app.use(`${API_PREFIX}/school-applications`, require('./routes/schoolApplications'));
 app.use(`${API_PREFIX}/works`, require('./routes/works'));
 app.use(`${API_PREFIX}/archives`, require('./routes/archives'));
 app.use(`${API_PREFIX}/feedback`, require('./routes/feedback'));

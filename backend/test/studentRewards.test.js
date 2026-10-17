@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cryp
 const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'pbl-next-rewards-'));
 Object.assign(process.env,{NODE_ENV:'test',DB_PATH:path.join(scratch,'test.db'),UPLOAD_PATH:path.join(scratch,'uploads'),JWT_SECRET:crypto.randomBytes(32).toString('hex'),LOGIN_RATE_LIMIT_IP:'1000',LOGIN_RATE_LIMIT_USER:'1000'});
 const app=require('../app'),db=require('../config/database');let server,url;const tokens={};
-async function req(id,p,method='GET',body){const r=await fetch(url+'/api'+p,{method,headers:{Authorization:'Bearer '+tokens[id],'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});return {status:r.status,data:await r.json()};}
+async function req(id,p,method='GET',body){if(method==='PUT'&&/maintenance\/badges\/\d+$/.test(p)){const lesson=Number(p.split('/').at(-1));body={revision:db.prepare('SELECT revision FROM lesson_badge_definitions WHERE lesson_id=?').get(lesson)?.revision??0,...body};}const r=await fetch(url+'/api'+p,{method,headers:{Authorization:'Bearer '+tokens[id],'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});return {status:r.status,data:await r.json()};}
 const eligible=async()=>{const r=await req(4,'/rewards/lessons/12');assert.equal(r.status,200);return r.data;};
 const count=()=>db.prepare('SELECT count(*) n FROM student_badge_grants').get().n;
 function complete(){
@@ -21,6 +21,7 @@ before(async()=>{
  db.prepare("INSERT INTO knowledge_cards(id,lesson_id,title,content,status,created_by) VALUES(21,12,'合成卡片','测试非正式教材','published',2)").run();
  db.prepare("INSERT INTO card_exercises(id,card_id,question_type,prompt,answer_json,explanation,is_required) VALUES(31,21,'short_answer','测试问题','\"无泄露答案\"','测试解析',1)").run();
  db.prepare("UPDATE lessons SET review_content='隔离真实回顾媒介' WHERE id=12").run();
+ db.prepare('UPDATE courses SET lesson_badges_enabled=1').run();
  server=app.listen(0);await new Promise(r=>server.once('listening',r));url='http://127.0.0.1:'+server.address().port;
  for(const id of[1,2,3,4,5,6])tokens[id]=(await fetch(url+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'reward'+id,password:'test123'})}).then(r=>r.json())).token;
  for(const id of[11,12,13])assert.equal((await req(2,`/courses/1/maintenance/badges/${id}`,'PUT',{name:'测试徽章'+id,artId:id===11?'vr':id===12?'theory':'glider',description:'合成验收'})).status,200);

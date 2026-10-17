@@ -49,6 +49,7 @@ before(async () => {
   db.prepare("INSERT INTO lessons (id,course_id,title,status,sort_order,instructor_id) VALUES (1,1,'第一课','completed',1,2)").run();
   db.prepare("INSERT INTO lessons (id,course_id,title,status,sort_order,instructor_id) VALUES (2,2,'草稿课时','scheduled',1,2)").run();
   db.prepare("INSERT INTO lessons (id,course_id,title,status,sort_order,instructor_id) VALUES (3,3,'受邀课时','scheduled',1,6)").run();
+  db.prepare("INSERT INTO course_managers(course_id,mentor_id,source,granted_by) VALUES(3,6,'admin',1)").run();
   db.prepare("INSERT INTO enrollments (id,student_id,course_id,status,enrolled_by) VALUES (1,3,1,'active',2)").run();
   db.prepare("INSERT INTO enrollments (id,student_id,course_id,status,enrolled_by) VALUES (2,3,2,'active',2)").run();
   db.prepare("INSERT INTO tasks (id,lesson_id,title,require_upload,status,sort_order) VALUES (1,1,'综合成果',1,'active',1)").run();

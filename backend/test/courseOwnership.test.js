@@ -32,6 +32,7 @@ before(async () => {
     db.prepare('INSERT INTO course_replays (id,course_id,title,video_path,created_by) VALUES (?,?,?,?,?)').run(id,id,`回放${id}`,path.join(dir,`replay-${id}.mp4`),owner);
     fs.writeFileSync(path.join(dir,`replay-${id}.mp4`),'original');
   }
+  db.prepare('UPDATE users SET mentor_id=2 WHERE id=5').run();
   server = app.listen(0,'127.0.0.1'); await new Promise(r=>server.once('listening',r));
   base = `http://127.0.0.1:${server.address().port}`;
   for (const username of ['admin','mentor_a','mentor_b','teacher','student','media']) tokens[username]=(await api('/auth/login','POST',{username,password:'user123'},null)).body.token;
@@ -39,10 +40,10 @@ before(async () => {
 after(async () => { await new Promise(r=>server.close(r)); db.close(); fs.rmSync(dir,{recursive:true,force:true}); });
 
 test('课程管理策略拒绝非导师创建者、空课程；管理员和课程创建导师允许', () => {
-  assert.equal(canManageCourse({id:2,role:'academic_mentor'},{created_by:2}),true);
-  assert.equal(canManageCourse({id:3,role:'academic_mentor'},{created_by:2}),false);
-  assert.equal(canManageCourse({id:2,role:'teacher'},{created_by:2}),false);
-  assert.equal(canManageCourse({id:1,role:'admin'},{created_by:2}),true);
+  assert.equal(canManageCourse({id:2,role:'academic_mentor'},{id:1,created_by:2}),true);
+  assert.equal(canManageCourse({id:3,role:'academic_mentor'},{id:1,created_by:2}),false);
+  assert.equal(canManageCourse({id:2,role:'teacher'},{id:1,created_by:2}),false);
+  assert.equal(canManageCourse({id:1,role:'admin'},{id:1,created_by:2}),true);
   assert.equal(canManageCourse({id:1,role:'admin'},null),false);
 });
 
@@ -84,6 +85,7 @@ test('课程列表与详情返回逐课程管理标志，其他导师草稿详�
 
 test('本人课程及管理员跨课程管理仍可用，候选学生保留全平台查询能力', async () => {
   for (const [id,token] of [[1,tokens.mentor_a],[2,tokens.mentor_b],[3,tokens.admin]]) {
+    if(id===2)db.prepare('UPDATE users SET mentor_id=3 WHERE id=5').run();
     assert.equal((await api(`/courses/${id}`,'PUT',{title:'合法编辑'},token)).status,200);
     assert.equal((await api(`/courses/${id}/lessons`,'POST',{title:'合法课时'},token)).status,200);
     assert.equal((await api(`/courses/lessons/${id}/tasks`,'POST',{title:'合法任务'},token)).status,200);
@@ -97,8 +99,10 @@ test('本人课程及管理员跨课程管理仍可用，候选学生保留全�
   assert.equal(db.prepare('SELECT COUNT(*) c FROM enrollments').get().c,3);
 });
 
-test('受邀授课导师可管理该课程，其他课程仍无权限', async () => {
+test('修改授课人不授权；管理员显式授权后可管理，其他课程仍无权限', async () => {
   db.prepare('UPDATE lessons SET instructor_id = ? WHERE id = ?').run(2, 2);
+  assert.equal(canManageCourse({ id: 2, role: 'academic_mentor' }, { id: 2, created_by: 3 }), false);
+  assert.equal((await api('/courses/2/managers','POST',{mentorId:2,active:true,expectedRevision:0,reason:'明确授权替代授课隐式权限',request_key:'ownership-grant'},tokens.admin)).status,200);
   assert.equal(canManageCourse({ id: 2, role: 'academic_mentor' }, { id: 2, created_by: 3 }), true);
   const list = await api('/courses');
   assert.deepEqual(list.body.courses.filter((c) => c.can_manage).map((c) => c.id).sort(), [1, 2]);

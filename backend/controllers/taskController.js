@@ -7,9 +7,7 @@ function canManageTask(user, taskId) {
     SELECT 1 FROM tasks t
     JOIN lessons l ON l.id = t.lesson_id
     JOIN courses c ON c.id = l.course_id
-    WHERE t.id = ? AND (c.created_by = ? OR EXISTS (
-      SELECT 1 FROM lessons own_l WHERE own_l.course_id = c.id AND own_l.instructor_id = ?
-    ))
+    WHERE t.id = ? AND (${require('../helpers/courseScope').mentorCourseScope('c.id')})
   `).get(taskId, user.id, user.id);
 }
 
@@ -52,7 +50,7 @@ function taskQuery(user) {
     scopeConditions.push('EXISTS (SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = ?)');
     scopeParams.push(user.id, 'active');
   } else if (user.role === 'academic_mentor') {
-    scopeConditions.push('(c.created_by = ? OR EXISTS (SELECT 1 FROM lessons own_l WHERE own_l.course_id = c.id AND own_l.instructor_id = ?))');
+    scopeConditions.push(`(${require('../helpers/courseScope').mentorCourseScope('c.id')})`);
     scopeParams.push(user.id, user.id);
   }
   const scopeSql = scopeConditions.length ? ` AND ${scopeConditions.join(' AND ')}` : '';

@@ -573,9 +573,7 @@ exports.detail = (req, res) => {
       } else if (target.role === 'academic_mentor') {
         managedCourses = db.prepare(
           `SELECT c.id, c.title, c.status FROM courses c
-           WHERE c.created_by = ? OR EXISTS (
-             SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-           ) ORDER BY c.updated_at DESC`
+           WHERE ${require('../helpers/courseScope').mentorCourseScope('c.id')} ORDER BY c.updated_at DESC`
         ).all(target.id, target.id);
       }
       return res.json({
@@ -620,6 +618,7 @@ exports.getClasses = (req, res) => {
     if (req.user && isTeacher(req.user.role) && Number(req.params.schoolId) !== req.user.school_id) {
       return res.status(403).json({ error: '无权访问该学校班级' });
     }
+    if(req.user.role==='academic_mentor'&&!require('../helpers/mentorDirectory').schoolIds(db,req.user).includes(Number(req.params.schoolId)))return res.status(403).json({error:'无权查看该学校班级'});
     const classes = db.prepare(
       'SELECT id, name, grade FROM classes WHERE school_id = ? ORDER BY grade, name'
     ).all(req.params.schoolId);

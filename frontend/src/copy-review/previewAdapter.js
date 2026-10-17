@@ -7,7 +7,7 @@ export function previewRequest(config){
  const raw=new URL(config.url,'https://local.invalid').pathname,method=(config.method||'get').toLowerCase();
  if(method==='post'&&['/rewards/badges/reconcile','/rewards/coins/reconcile'].includes(raw)){config.adapter=async()=>({data:{preview:true,pending:[]},status:200,statusText:'OK',headers:{},config});return;}
  if(method!=='get')throw Object.assign(new Error('管理员预览禁止业务写入'),{code:'PREVIEW_READ_ONLY',config});
- if(raw==='/auth/me'||raw.startsWith('/student-copy/')||/^\/courses\/(?:resources\/\d+\/download|\d+\/(?:map-images\/|maintenance\/resources\/))/.test(raw))return;
+ if(raw==='/auth/me'||raw.startsWith('/student-copy/')||/^\/courses\/(?:resources\/\d+\/download|\d+\/(?:map-images\/|theme\/images\/|maintenance\/resources\/))/.test(raw))return;
  const c=context||{},p=raw.replace(/^\/course-spaces\/\d+/,'').replace(/^\/rewards(?=\/coins)/,''),empty={preview:true};let data;
  if(p==='/courses')data={courses:c.courses||[],pagination:{total:c.courses?.length||0}};
  else if(/^\/courses\/\d+$/.test(p))data={...c,course:c.course,lessons:c.lessons||[],enrollments:[],teachers:[],progress:0};

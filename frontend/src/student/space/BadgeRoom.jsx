@@ -18,23 +18,24 @@ import './badge-room.css';
 export default function BadgeRoom(){
  const remote=useServerRewards(),[params]=useSearchParams();
  const [selection,setSelection]=useState(null),[sceneFailed,setSceneFailed]=useState(false),trigger=useRef(null),heading=useRef(null),page=useRef(null);
- const items=badgeRoomItems(remote.data),highlight=params.get('grant'),returnTo=badgeRoomReturn(params.get('returnTo'));
+ const allItems=badgeRoomItems(remote.data),[filter,setFilter]=useState(params.get('courseId')||''),items={earned:allItems.earned.filter(b=>!filter||String(b.course_id)===filter),locked:allItems.locked.filter(b=>!filter||String(b.course_id)===filter)},highlight=params.get('grant'),returnTo=badgeRoomReturn(params.get('returnTo'));
  useEffect(()=>{const header=document.querySelector('.space-header');if(!header)return;const observer=new ResizeObserver(()=>page.current?.style.setProperty('--badge-room-header-top',Math.ceil(header.getBoundingClientRect().height)+'px'));observer.observe(header);return()=>observer.disconnect();},[]);
  const selected=remote.loading||remote.error?null:selectedBadge(items,selection);
  const open=(key,event)=>{trigger.current=event.currentTarget;setSelection(key);};
  useEffect(()=>{if(remote.loading||remote.error||!highlight)return;const button=[...document.querySelectorAll('.badge-room [data-real-grant]')].find(el=>el.dataset.realGrant===highlight);if(button){button.scrollIntoView({block:'center',behavior:'instant'});button.focus({preventScroll:true});}},[remote.loading,remote.error,highlight]);
- const art=b=>b.source==='exchange'?<RewardImage id={b.image_id} name={b.name}/>:<BadgeArt art={b.art_id||b.art} size={128}/>;
+ const art=b=>b.source==='exchange'?<RewardImage id={b.image_id} name={b.name}/>:<BadgeArt art={b.art_id||b.art} imageId={b.image_id} size={128}/>;
  const display=(b,demo=false)=><button type="button" key={b.key} className={'badge-room-badge '+(b.earned?'is-earned':'is-locked')+(String(b.id)===highlight?' is-highlighted':'')} data-real-grant={!demo&&b.earned?b.id:undefined} data-locked-lesson={!demo&&!b.earned?b.lesson_id:undefined} data-demo-badge={demo?b.key:undefined} onClick={e=>open(demo?'demo:'+b.key:b.key,e)}>
   <span className="badge-room-medallion">{art(b)}</span><strong><ConfigCopyText object={b} field="name" value={b.name}/></strong><span>{<StudentCopyText id={b.earned?'badgeRoom.earned':'badgeRoom.locked'}/>}</span>
  </button>;
  return <div ref={page} className="badge-room-page">
   <header className="badge-room-header"><Link to={returnTo}>{<StudentCopyText id={'badgeRoom.back'}/>}</Link><h1 ref={heading} tabIndex={-1}>{<StudentCopyText id={'badgeRoom.title'}/>}</h1><span>{<StudentCopyText id={'badgeRoom.account'}/>}</span></header>
+  <label className="reward-course-filter">我的课程 <select aria-label="勋章课程筛选" value={filter} onChange={e=>{setFilter(e.target.value);setSelection(null);}}><option value="">全部课程与个人历史</option>{[...new Map([...(remote.data?.courses||[]),...allItems.earned.map(b=>({id:b.course_id,title:b.course_title||'历史课程'}))].filter(c=>c.id).map(c=>[String(c.id),c])).values()].map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select></label>
   <div className="badge-room" data-scene-failed={sceneFailed||undefined}>
    {!sceneFailed&&<picture className="badge-room-scenery" aria-hidden="true"><source media="(max-width:767px)" srcSet="/assets/badge-room/room-768.webp"/><img src="/assets/badge-room/room-1536.webp" alt="" onError={()=>setSceneFailed(true)}/></picture>}
    <div className="badge-room-display">
     {remote.loading?<div className="badge-room-status" aria-busy="true"><Spin/><span>{<StudentCopyText id={'badgeRoom.loading'}/>}</span></div>:remote.error?<Alert type="warning" title={copyText('badgeRoom.error')} description={remote.error} action={<PixelButton onClick={remote.read}>{<StudentCopyText id={'next3.retry'}/>}</PixelButton>} data-copy-bindings={JSON.stringify(['badgeRoom.error'])}/>:<>
      <section aria-labelledby="badge-room-earned"><h2 id="badge-room-earned">{<StudentCopyText id={'badgeRoom.earnedTitle'}/>} <span>{items.earned.length}</span></h2><div className="badge-room-grid">{items.earned.map(b=>display(b))}</div>{!items.earned.length&&<p className="badge-room-empty">{<StudentCopyText id={'badgeRoom.noEarned'}/>}</p>}</section>
-     <section aria-labelledby="badge-room-locked"><h2 id="badge-room-locked">{<StudentCopyText id={'badgeRoom.lockedTitle'}/>} <span>{items.locked.length}</span></h2><div className="badge-room-grid">{items.locked.map(b=>display(b))}</div>{!items.locked.length&&<p className="badge-room-empty">{<StudentCopyText id={items.earned.length?'badgeRoom.allEarned':'badgeRoom.noDefinitions'}/>}</p>}</section>
+     {items.locked.length>0&&<section aria-labelledby="badge-room-locked"><h2 id="badge-room-locked">{<StudentCopyText id={'badgeRoom.lockedTitle'}/>} <span>{items.locked.length}</span></h2><div className="badge-room-grid">{items.locked.map(b=>display(b))}</div>{!items.locked.length&&<p className="badge-room-empty">{<StudentCopyText id={items.earned.length?'badgeRoom.allEarned':'badgeRoom.noDefinitions'}/>}</p>}</section>}
      {highlight&&!items.earned.some(b=>b.id===highlight)&&<p role="status" className="badge-room-empty">{<StudentCopyText id={'badgeRoom.missingHighlight'}/>}</p>}
     </>}
    </div>

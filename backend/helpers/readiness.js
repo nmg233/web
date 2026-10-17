@@ -1,7 +1,9 @@
-const MIN_SCHEMA_VERSION=1028;
+const MIN_SCHEMA_VERSION=1031;
 const checks={
+ lesson_badge_definitions:"lesson_id,enabled,image_id,revision",student_badge_grants:"id,image_id",
+ course_managers:'course_id,mentor_id,active,revision',course_manager_events:'course_id,mentor_id,actor_id,action',school_applications:'applicant_id,status,revision',school_managers:'school_id,mentor_id,active,revision',school_created_accounts:'student_id,actor_id,fingerprint',school_management_events:'school_id,actor_id,action',
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
-  schools:'id,is_active', classes:'id,school_id',courses:'id,status',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
+  schools:'id,is_active', classes:'id,school_id',courses:'id,status,learning_objectives,automatic_map,background_opacity,theme_revision,lesson_badges_enabled,badge_revision',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
   enrollments:'id,student_id,course_id,status,completed_at',course_replays:'id,lesson_id,video_path',resources:'id,lesson_id,file_path',
   knowledge_cards:'id,lesson_id,status',card_exercises:'id,card_id,answer_json,rubric',
   student_card_progress:'student_id,card_id,completed_at',card_exercise_attempts:'student_id,exercise_id,attempt_no',
@@ -15,11 +17,12 @@ const checks={
   class_school_transfers:'id,actor_id',student_school_transfers:'id,student_id,actor_id',ai_documents:'id,status',ai_chunks:'id,text',
   lesson_version_supplements:'content_version_id,lesson_json,resources_json',
   student_coin_ledger:'id,student_id,amount',student_coin_checkins:'student_id,checkin_date,streak',
-  reward_gifts:'id,stock,price,revision',reward_orders:'id,student_id,request_key,cost,fulfilled_by,fulfilled_at',
-  reward_images:'id,uploaded_by,upload_key,file_path',reward_badge_grants:'student_id,gift_id,order_id',coin_activity:'sequence,income_id,order_id',
+  reward_gifts:'id,stock,price,revision,course_id',reward_orders:'id,student_id,request_key,cost,fulfilled_by,fulfilled_at,course_id,course_title',
+  reward_images:'id,uploaded_by,upload_key,file_path,course_id',reward_badge_grants:'student_id,gift_id,order_id',coin_activity:'sequence,income_id,order_id',
   student_guide_dismissals:'student_id,dismissed_at',
   lesson_map_images:'id,course_id,lesson_id,file_path,digest,upload_key',
   student_copy_scopes:'scope,draft_json,published_json,revision,published_revision',
+  course_theme_images:'id,course_id,purpose,file_path,digest',course_theme_bindings:'course_id,purpose,image_id',
   student_copy_history:'scope,revision,entries_json,actor_id,action',
   tasks:'id,lesson_id,status',work_reviews:'work_id,comment',feedbacks:'id,user_id,status',feedback_messages:'feedback_id,content',
   feedback_attachments:'id,feedback_id,file_path',refresh_tokens:'user_id,token_hash',account_import_batches:'id,actor_id,status',

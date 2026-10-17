@@ -51,6 +51,6 @@ async function createAccount(row, hooks = {}) {
     const account = { id: Number(result.lastInsertRowid), username, real_name, role, ...currentOrg, temp_password, force_reset_password: 1, auth_version: 0 };
     hooks.onCreated?.(account);
     return account;
-  })();
+  }).immediate();
 }
 module.exports = { createAccount, normalizeRole, organization, assertCreator };

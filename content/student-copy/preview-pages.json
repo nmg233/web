@@ -406,6 +406,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -432,7 +434,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -852,6 +855,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -878,7 +883,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -1369,7 +1375,8 @@
       "system.shell.017",
       "system.shell.018",
       "system.shell.019",
-      "system.shell.020"
+      "system.shell.020",
+      "workspace.map.objectives"
     ],
     "sources": [
       "frontend/src/api/client.js",
@@ -1433,6 +1440,8 @@
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CourseCover.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/CourseTodos.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/LessonMapPlace.jsx",
@@ -1463,7 +1472,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -2131,6 +2141,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/DailyFortune.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/Personal.jsx",
@@ -2159,7 +2171,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -2710,6 +2723,8 @@
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/BadgeRoom.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -2736,7 +2751,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -3133,6 +3149,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -3159,7 +3177,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -3650,7 +3669,8 @@
       "system.shell.017",
       "system.shell.018",
       "system.shell.019",
-      "system.shell.020"
+      "system.shell.020",
+      "workspace.map.objectives"
     ],
     "sources": [
       "frontend/src/api/client.js",
@@ -3714,6 +3734,8 @@
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CourseCover.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/CourseTodos.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/LessonMapPlace.jsx",
@@ -3744,7 +3766,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -4419,6 +4442,8 @@
       "frontend/src/student/space/ArticleContent.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/ExerciseView.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/LessonLearningView.jsx",
@@ -4452,7 +4477,8 @@
       "frontend/src/utils/date.js",
       "frontend/src/utils/exerciseAnswer.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -4929,6 +4955,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -4956,7 +4984,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -5376,6 +5405,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -5402,7 +5433,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -6013,6 +6045,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -6039,7 +6073,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -6527,6 +6562,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -6554,7 +6591,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -6983,6 +7021,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -7010,7 +7050,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -7491,6 +7532,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -7519,7 +7562,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -7962,6 +8006,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -7989,7 +8035,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -8493,6 +8540,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -8520,7 +8569,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -9103,6 +9153,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -9130,7 +9182,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -9600,6 +9653,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -9626,7 +9681,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -10040,6 +10096,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -10066,7 +10124,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -10464,6 +10523,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/LegacyEntry.jsx",
       "frontend/src/student/space/SceneArt.jsx",
@@ -10492,7 +10553,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -10930,6 +10992,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -10956,7 +11020,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -11415,6 +11480,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -11443,7 +11510,8 @@
       "frontend/src/utils/feedbackFiles.js",
       "frontend/src/utils/requestError.js",
       "frontend/src/utils/requestKey.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -11934,6 +12002,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -11961,7 +12031,8 @@
       "frontend/src/utils/date.js",
       "frontend/src/utils/feedbackFiles.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -12389,6 +12460,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -12415,7 +12488,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -12822,6 +12896,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -12848,7 +12924,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -13252,6 +13329,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -13278,7 +13357,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -13699,6 +13779,7 @@
       "frontend/src/copy-review/reviewData.js",
       "frontend/src/hooks/useNotifications.js",
       "frontend/src/hooks/useRemoteResource.js",
+      "frontend/src/pages/admin/navigation.js",
       "frontend/src/store/AuthContext.jsx",
       "frontend/src/store/notificationContext.js",
       "frontend/src/student/CourseResourceDownload.jsx",
@@ -13722,6 +13803,8 @@
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CourseExperience.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -13749,7 +13832,8 @@
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
       "frontend/src/utils/roleNavigation.js",
-      "frontend/src/utils/staffCourseTheme.js"
+      "frontend/src/utils/staffCourseTheme.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -14184,6 +14268,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
       "frontend/src/student/space/SpaceLink.jsx",
@@ -14210,7 +14296,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   },
@@ -14670,6 +14757,8 @@
       "frontend/src/student/space/AccountAvatarImage.jsx",
       "frontend/src/student/space/AvatarPreference.jsx",
       "frontend/src/student/space/CoursePresentation.jsx",
+      "frontend/src/student/space/CourseScene.jsx",
+      "frontend/src/student/space/CourseThemeImage.jsx",
       "frontend/src/student/space/DailyFortune.jsx",
       "frontend/src/student/space/FloatingAssistant.jsx",
       "frontend/src/student/space/SceneArt.jsx",
@@ -14697,7 +14786,8 @@
       "frontend/src/utils/authSession.js",
       "frontend/src/utils/date.js",
       "frontend/src/utils/requestError.js",
-      "frontend/src/utils/roleNavigation.js"
+      "frontend/src/utils/roleNavigation.js",
+      "frontend/src/utils/teachingContent.js"
     ],
     "meaning": "当前页面与所用公共组件，未出现状态需浏览到相应状态或从文字清单选择"
   }

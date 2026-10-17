@@ -52,7 +52,7 @@ function list(user, query = {}) {
     ORDER BY latest.version DESC, latest.id DESC LIMIT 1)`];
   const params = [];
   if (user.role !== 'admin') {
-    where.push('(c.created_by = ? OR EXISTS (SELECT 1 FROM lessons own_l WHERE own_l.course_id = c.id AND own_l.instructor_id = ?))');
+    where.push(`(${require('../helpers/courseScope').mentorCourseScope('c.id')})`);
     params.push(user.id, user.id);
   }
   for (const [field, column] of [['course_id', 'c.id'], ['lesson_id', 'l.id'], ['student_id', 'r.student_id']]) {

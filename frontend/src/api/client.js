@@ -162,3 +162,5 @@ client.interceptors.response.use(
   }
 );
 export default client;
+
+client.interceptors.response.use(value=>value,error=>{if(!error.config?.skipCourseCheck&&[403,404].includes(error.response?.status))window.dispatchEvent(new Event('course-access-check'));return Promise.reject(error);});

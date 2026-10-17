@@ -6,10 +6,7 @@ function mentorStudentScope(column = 'u.id') {
   return `EXISTS (SELECT 1 FROM enrollments scope_e
     JOIN courses scope_c ON scope_c.id = scope_e.course_id
     WHERE scope_e.student_id = ${column}
-      AND (scope_c.created_by = ? OR EXISTS (
-        SELECT 1 FROM lessons scope_l
-        WHERE scope_l.course_id = scope_c.id AND scope_l.instructor_id = ?
-      )))`;
+      AND ${require('../helpers/courseScope').mentorCourseScope('scope_c.id')})`;
 }
 
 function mentorStudentParams(mentorId) {

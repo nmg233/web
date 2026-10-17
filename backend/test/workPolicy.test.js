@@ -58,6 +58,8 @@ before(async () => {
 
   db.prepare("INSERT INTO lessons (id, course_id, title, sort_order, instructor_id) VALUES (1, 1, '第一讲', 1, 2)").run();
   db.prepare("INSERT INTO lessons (id, course_id, title, sort_order, instructor_id) VALUES (2, 3, '第三课讲', 1, 7)").run();
+  // Explicit test authorization replaces the former instructor-derived permission.
+  db.prepare("INSERT INTO course_managers(course_id,mentor_id,source,granted_by) VALUES(3,7,'admin',1)").run();
   db.prepare("INSERT INTO tasks (id, lesson_id, title, sort_order, require_upload) VALUES (1, 1, '任务一', 1, 1)").run();
   db.prepare("INSERT INTO tasks (id, lesson_id, title, sort_order, require_upload) VALUES (2, 1, '任务二', 2, 1)").run();
   db.prepare("INSERT INTO tasks (id, lesson_id, title, sort_order, require_upload) VALUES (3, 1, '文字任务', 3, 0)").run();

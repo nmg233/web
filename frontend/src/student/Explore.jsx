@@ -16,7 +16,8 @@ import { studentTestConfigEnabled } from './config';
 import AssociatedExperiments from './AssociatedExperiments';
 import PixelIcon from './visual/PixelIcon';
 import { PixelButton, PixelPanel, PixelProgress, PixelTag } from './visual/PixelUI';
-import SceneArt from './space/SceneArt';
+import CourseScene from './space/CourseScene';
+import {hasTeachingValue} from '../utils/teachingContent';
 import CourseTodos from './space/CourseTodos';
 import LessonPlace from './space/LessonPlace';
 import {useCoursePresentation} from './space/CoursePresentation';
@@ -45,6 +46,7 @@ function learningState(lesson) {
 }
 
 function CourseResources({ resources, courseId }) {
+  resources=resources.filter(r=>r.has_file!==false);
   const { courseAPI } = useCourseApis();
   const [errors, setErrors] = useState({});
   const [pending, setPending] = useState({});
@@ -89,24 +91,24 @@ function LessonDetails({ lesson, tasks, courseId, isCurrent }) {
     {lesson.status === 'cancelled'
       ? <Alert type="warning" showIcon title={copyText('system.map.025')} description={lesson.cancel_reason || copyText('system.map.026')}  data-copy-bindings={JSON.stringify(['system.map.025','system.map.026'])}/>
       : <div className="pixel-map-enter"><PixelButton type="primary" onClick={() => navigate(href)} icon={<PixelIcon name="continue" />}>{<StudentCopyText id={lesson.presentation_type==='visit'?'next.visit.enter':'system.map.027'}/>}</PixelButton></div>}
-    {lesson.description&&<Sentence as={Typography.Paragraph} className="pixel-map-lesson-description"><ConfigCopyText sentence object={lesson} field="description" value={lesson.description}/></Sentence>}
-    {lesson.teaching_tip&&<Sentence className="pixel-map-lesson-description">{lesson.teaching_tip}</Sentence>}
-    <div className="pixel-map-schedule">
+    {hasTeachingValue(lesson.description)&&<Sentence as={Typography.Paragraph} className="pixel-map-lesson-description"><ConfigCopyText sentence object={lesson} field="description" value={lesson.description}/></Sentence>}
+    {hasTeachingValue(lesson.teaching_tip)&&<Sentence className="pixel-map-lesson-description">{lesson.teaching_tip}</Sentence>}
+    {[lesson.start_at,lesson.end_at,lesson.location,lesson.instructor_name,lesson.duration].some(hasTeachingValue)&&<div className="pixel-map-schedule">
       <Typography.Title level={4}><PixelIcon name="clock" />{<StudentCopyText id={'system.map.028'}/>}</Typography.Title>
       <Descriptions size="small" column={1} colon={false} items={[
-        { key: 'start', label: copyText('system.map.029'), children: scheduleTime(lesson.start_at) ,__copyIds:{"label":"system.map.029"}},
-        { key: 'end', label: copyText('system.map.030'), children: scheduleTime(lesson.end_at) ,__copyIds:{"label":"system.map.030"}},
-        { key: 'location', label: copyText('system.map.031'), children: lesson.location || copyText('system.map.032') ,__copyIds:{"label":"system.map.031"}},
-        { key: 'teacher', label: copyText('system.map.033'), children: lesson.instructor_name || copyText('system.map.034') ,__copyIds:{"label":"system.map.033"}},
-        { key: 'duration', label: copyText('system.map.035'), children: lesson.duration ? lesson.duration + copyText('system.map.036') : copyText('system.map.037') ,__copyIds:{"label":"system.map.035"}},
-      ]}  data-copy-bindings={JSON.stringify(['system.map.029','system.map.030','system.map.031','system.map.032','system.map.033','system.map.034','system.map.035','system.map.036','system.map.037'])}/>
-    </div>
-    {lesson.status !== 'cancelled' && <div className="pixel-map-lesson-tasks">
-      <Typography.Title level={4}>{<StudentCopyText id={'system.map.038'}/>}</Typography.Title>
-      {tasks.length ? <ul>{tasks.map((task) => <li key={task.id}><Link to={href + '?task_id=' + task.id + '#task-' + task.id}><ConfigCopyText object={task} field="title" value={task.title}/></Link>{task.deadline && <span>{<StudentCopyText id={'system.map.039'}/>}{scheduleTime(task.deadline)}</span>}</li>)}</ul>
-        : <Sentence as={Typography.Paragraph} type="secondary">{<StudentCopyText id={'system.map.040'}/>}</Sentence>}
-      {!lessonAccessReason(lesson)&&<AssociatedExperiments courseId={courseId} lessonId={lesson.id} />}
+        { key: 'start', label: copyText('system.map.029'), children: hasTeachingValue(lesson.start_at)?scheduleTime(lesson.start_at):null ,__copyIds:{"label":"system.map.029"}},
+        { key: 'end', label: copyText('system.map.030'), children: hasTeachingValue(lesson.end_at)?scheduleTime(lesson.end_at):null ,__copyIds:{"label":"system.map.030"}},
+        { key: 'location', label: copyText('system.map.031'), children: lesson.location ,__copyIds:{"label":"system.map.031"}},
+        { key: 'teacher', label: copyText('system.map.033'), children: lesson.instructor_name ,__copyIds:{"label":"system.map.033"}},
+        { key: 'duration', label: copyText('system.map.035'), children: hasTeachingValue(lesson.duration) ? lesson.duration + copyText('system.map.036') : null ,__copyIds:{"label":"system.map.035"}},
+      ].filter(item=>hasTeachingValue(item.children))}  data-copy-bindings={JSON.stringify(['system.map.029','system.map.030','system.map.031','system.map.032','system.map.033','system.map.034','system.map.035','system.map.036','system.map.037'])}/>
     </div>}
+    {lesson.status !== 'cancelled' && tasks.length>0 && <div className="pixel-map-lesson-tasks">
+      {tasks.length>0&&<Typography.Title level={4}>{<StudentCopyText id={'system.map.038'}/>}</Typography.Title>}
+      {tasks.length ? <ul>{tasks.map((task) => <li key={task.id}><Link to={href + '?task_id=' + task.id + '#task-' + task.id}><ConfigCopyText object={task} field="title" value={task.title}/></Link>{task.deadline && <span>{<StudentCopyText id={'system.map.039'}/>}{scheduleTime(task.deadline)}</span>}</li>)}</ul>
+        : null}
+    </div>}
+    {lesson.status!=='cancelled'&&!lessonAccessReason(lesson)&&<AssociatedExperiments courseId={courseId} lessonId={lesson.id} />}
     <CopyBlock id="system.map.041" as="p" className="pixel-map-detail-note"/>
   </PixelPanel>;
 }
@@ -217,7 +219,7 @@ export function CourseMap() {
           {(studentTestConfigEnabled || look.sample) && <CopyBlock id="system.map.049" as="p" className="space-map-test-note"/>}
           <PixelPanel className="pixel-map-course-info" id="course-information" hidden={openSection !== 'info'}>
             <Typography.Title level={3}>{<StudentCopyText id={'system.map.050'}/>}</Typography.Title>
-            {course.description&&<Sentence as={Typography.Paragraph} data-teaching-field="course.description" data-course-id={id}><ConfigCopyText sentence object={course} field="description" value={course.description}/></Sentence>}
+            {hasTeachingValue(course.description)&&<Sentence as={Typography.Paragraph} data-teaching-field="course.description" data-course-id={id}><ConfigCopyText sentence object={course} field="description" value={course.description}/></Sentence>}
             <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 3 }} items={[
               ...(course.theme?[{ key: 'theme', label: copyText('system.map.052'), children: course.theme ,__copyIds:{"label":"system.map.052"}}]:[]),
               { key: 'grade', label: copyText('system.map.054'), children: grades[course.grade_level] || course.grade_level || copyText('system.map.055') ,__copyIds:{"label":"system.map.054"}},
@@ -225,11 +227,12 @@ export function CourseMap() {
               { key: 'lessons', label: copyText('system.map.058'), children: data.lessons.length + copyText('system.map.059') ,__copyIds:{"label":"system.map.058"}},
               { key: 'tasks', label: copyText('system.map.060'), children: data.tasks.length + copyText('system.map.061') ,__copyIds:{"label":"system.map.060"}},
             ]}  data-copy-bindings={JSON.stringify(['system.map.052','system.map.054','system.map.055','system.map.056','system.map.057','system.map.058','system.map.059','system.map.060','system.map.061'])}/>
-            {(course.driving_question||course.story_line||course.materials_needed)&&<Collapse size="small" items={[{ key: 'intro', label: copyText('system.map.062'), children: <Descriptions column={1} items={[
+            {[course.driving_question,course.learning_objectives,course.story_line,course.materials_needed].some(hasTeachingValue)&&<Collapse size="small" items={[{ key: 'intro', label: copyText('system.map.062'), children: <Descriptions column={1} items={[
               { key: 'question', label: copyText('system.map.063'), children: <span data-teaching-field="course.driving_question" data-course-id={id}>{course.driving_question}</span> ,__copyIds:{"label":"system.map.063"}},
+              { key: 'objectives', label: <StudentCopyText id={'workspace.map.objectives'}/>, children: <span data-teaching-field="course.learning_objectives" data-course-id={id}>{course.learning_objectives}</span> },
               { key: 'story', label: copyText('system.map.065'), children: <span data-teaching-field="course.story_line" data-course-id={id}>{course.story_line}</span> ,__copyIds:{"label":"system.map.065"}},
               { key: 'materials', label: copyText('system.map.067'), children: <span data-teaching-field="course.materials_needed" data-course-id={id}>{course.materials_needed}</span> ,__copyIds:{"label":"system.map.067"}},
-            ].filter(item=>item.children)}  data-copy-bindings={JSON.stringify(['system.map.063','system.map.065','system.map.067'])}/> ,__copyIds:{"label":"system.map.062"}}]}  data-copy-bindings={JSON.stringify(['system.map.062'])}/>}
+            ].filter(item=>hasTeachingValue(item.children.props.children))}  data-copy-bindings={JSON.stringify(['system.map.063','system.map.065','system.map.067'])}/> ,__copyIds:{"label":"system.map.062"}}]}  data-copy-bindings={JSON.stringify(['system.map.062'])}/>}
             <div className="pixel-map-info-links"><Link to={'/courses/' + id + '/learn'}>{<StudentCopyText id={'system.map.069'}/>}</Link>
               {current && <Link to={'/courses/' + id + '/lessons/' + current.id + '/learn'}>{<StudentCopyText id={'system.map.070'}/>}<ConfigCopyText object={current} field="title" value={current.title}/></Link>}
             </div>
@@ -245,7 +248,7 @@ export function CourseMap() {
           </div>
           {!lessons.length ? <PixelPanel className="pixel-map-empty"><Empty description={copyText('system.map.075')}  data-copy-bindings={JSON.stringify(['system.map.075'])}/></PixelPanel> : <div className="pixel-map-layout">
             <div className="pixel-map-stage" aria-label={copyText('system.map.076')} data-copy-bindings={JSON.stringify(['system.map.076'])}>
-              <SceneArt name={look.theme==='voyage'?'cosmos':'campus'} vertical={look.theme==='voyage'} className="space-map-art" priority/>
+              <CourseScene name={look.theme==='voyage'?'cosmos':'campus'} vertical={look.theme==='voyage'} className="space-map-art" priority/>
               <div className="pixel-map-route-content">
                 {groups.map((group, groupIndex) => <CourseRouteRegion key={group.key} group={group} groupIndex={groupIndex} current={current} selected={selected} selectionKey={selectionKey} onSelect={(next,button)=>{trigger.current=button;button.focus();setSelection(next);session?.openOverlay('details');}} hasNext={groupIndex < groups.length - 1} theme={look.theme} />)}
               </div>

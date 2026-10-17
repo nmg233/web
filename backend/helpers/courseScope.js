@@ -1,16 +1,12 @@
-// 导师课程归属模型（决策 D-1）：课程创建者 或 该课程任一课时授课人。
-// 课程移交只需调整 created_by / instructor_id 即可恢复权限。
+// One explicit relationship for every entry point. Two placeholders retain existing callers' parameter shape.
+function mentorCourseScope(column='c.id') {
+ return `EXISTS (SELECT 1 FROM course_managers cm JOIN users manager ON manager.id=cm.mentor_id WHERE cm.course_id=${column} AND cm.mentor_id=? AND manager.id=? AND cm.active=1 AND manager.role='academic_mentor' AND manager.is_active=1 AND manager.archived_at IS NULL)`;
+}
 function courseBelongsToMentor(mentorId, courseId, connection) {
   if (!mentorId || !courseId) return false;
   const db = connection || require('../config/database');
-  return !!db.prepare(`
-    SELECT c.id FROM courses c
-    WHERE c.id = ?
-      AND (c.created_by = ? OR EXISTS (
-        SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-      ))
-    LIMIT 1
-  `).get(courseId, mentorId, mentorId);
+  return !!db.prepare(`SELECT c.id FROM courses c WHERE c.id=? AND ${mentorCourseScope()}`).get(courseId,mentorId,mentorId);
 }
 
-module.exports = { courseBelongsToMentor };
+function managerRecipients(db,courseId){return db.prepare(`SELECT id FROM users WHERE is_active=1 AND archived_at IS NULL AND (role='admin' OR role='academic_mentor' AND EXISTS(SELECT 1 FROM course_managers m WHERE m.course_id=? AND m.mentor_id=users.id AND m.active=1))`).all(courseId).map(r=>r.id);}
+module.exports = { courseBelongsToMentor,mentorCourseScope,managerRecipients };
