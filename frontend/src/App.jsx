@@ -31,6 +31,7 @@ function StudentView({ student, legacy }) {
 
 // 路由级代码分割：按需加载各业务页面，降低首包体积
 const ChangePassword = lazy(() => import('./pages/auth/ChangePassword'));
+const ModuleHub = lazy(() => import('./pages/admin/ModuleHub'));
 const Dashboard = lazy(() => import('./pages/dashboard/Index'));
 const SchoolDetail = lazy(() => import('./pages/dashboard/School'));
 const AIAssistant = lazy(() => import('./pages/dashboard/AI'));
@@ -100,6 +101,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
+                <Route path="admin/:module" element={guard(<ModuleHub/>, ['admin'])} />
                 <Route path="student-copy" element={guard(<StudentCopyManagement/>, ['admin'])} />
                 <Route path="copy-review" element={guard(<CopyReview />, ['admin'])} />
                 <Route path="reward-management" element={guard(<RewardManagement />, ['admin'])} />

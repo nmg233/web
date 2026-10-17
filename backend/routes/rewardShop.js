@@ -14,6 +14,7 @@ router.get('/management/gifts',admin,action(()=>({gifts:db.prepare('SELECT * FRO
 router.post('/management/gifts',admin,action(req=>s.saveGift(req.user.id,null,req.body)));
 router.put('/management/gifts/:id',admin,action(req=>s.saveGift(req.user.id,req.params.id,req.body)));
 router.get('/management/orders',admin,action(req=>{fields(req.query,['page']);return s.orders(null,req.query);}));
+router.get('/management/orders/:id',admin,action(req=>{const order=db.prepare('SELECT * FROM reward_orders WHERE id=?').get(req.params.id);if(!order)invalid('兑换订单不存在',404);return {items:[order],total:1,page:1};}));
 router.post('/management/orders/:id/fulfill',admin,action(req=>s.fulfill(req.user.id,req.params.id,req.body)));
 router.get('/management/notifications',admin,action(()=>s.notificationState()));
 router.post('/management/notifications/retry',admin,action(req=>{fields(req.body,[]);return s.flushNotifications();}));

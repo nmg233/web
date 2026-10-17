@@ -68,7 +68,7 @@ export default function CourseList() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>{canManage(user?.role) ? siteText("site.e8852d20ff6054dc") : siteText("site.7f43419faac5a913")}</Title>
         {canManage(user?.role) && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>{siteText("site.aa67584ea92a428b")}</Button>
+          <Button aria-label="新建课程" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>新建课程</Button>
         )}
       </div>
       <Card>

@@ -1,7 +1,7 @@
 // Admin-only read model. No student identity, progress recalculation, version binding or writes.
 function previewData(db,user,{courseId,lessonId}={}){
  if(user.role!=='admin')throw Object.assign(new Error('仅管理员可预览学生界面'),{status:403});
- const courses=db.prepare("SELECT id,title,theme,description,cover_image,presentation_theme,map_mode,status,grade_level,difficulty FROM courses ORDER BY id").all();
+ const courses=db.prepare("SELECT * FROM courses ORDER BY id").all();
  const course=courseId?courses.find(c=>c.id===Number(courseId)):null;if(courseId&&!course)throw Object.assign(new Error('课程不存在'),{status:404});
  const lessons=course?db.prepare("SELECT l.*,(SELECT real_name FROM users WHERE id=l.instructor_id) instructor_name FROM lessons l WHERE course_id=? ORDER BY sort_order,id").all(course.id):[];
  const lesson=lessonId?lessons.find(l=>l.id===Number(lessonId)):lessons[0];if(lessonId&&!lesson)throw Object.assign(new Error('课时不属于所选课程'),{status:404});

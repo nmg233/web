@@ -71,7 +71,7 @@ test('兼容快照回填失败时整个018迁移回滚，修复故障后可重�
     assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='lesson_content_versions'").get(),undefined);
     assert.equal(db.prepare('SELECT answer_json,attempt_no FROM card_exercise_attempts').get().answer_json,'false');
     runMigrations(db);
-    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,1028);
+    assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,1029);
     assert.equal(db.prepare('SELECT COUNT(*) n FROM card_exercise_attempts').get().n,1);
   } finally {db.prepare=prepare;db.close();}
 });

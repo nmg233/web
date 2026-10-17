@@ -87,9 +87,10 @@ router.put('/lessons/:lessonId',action(req=>{
  const start=data.start_at===undefined?row.start_at:data.start_at,end=data.end_at===undefined?row.end_at:data.end_at;
  if(start&&end&&Date.parse(end)<Date.parse(start))v.invalid('结束时间不能早于开始时间');
  if(v.own(req.body,'instructor_id')){const teacher=v.integer(req.body.instructor_id,'授课人',{nullable:true,min:1});if(teacher&&!db.prepare("SELECT id FROM users WHERE id=? AND role='academic_mentor' AND is_active=1").get(teacher))v.invalid('授课人不存在或不可用');data.instructor_id=teacher;}
- if(v.own(req.body,'chapter_id'))data.chapter_id=v.chapterId(req.body.chapter_id,req.params.id);return db.transaction(()=>{const result=update('lessons',row.id,data);require('../services/lessonMapImages').bind(db,revisionRow('lessons',row.id));return result;}).immediate();
+ if(v.own(req.body,'chapter_id'))data.chapter_id=v.chapterId(req.body.chapter_id,req.params.id);return db.transaction(()=>{const result=update('lessons',row.id,data);require('../services/lessonMapImages').bind(db,revisionRow('lessons',row.id));require('../services/automaticCourseMap').sync(db,req.params.id);return result;}).immediate();
 }));
 router.put('/plan',action(req=>{
+ if(req.managedCourse.automatic_map)v.invalid('自动地图由真实课时顺序生成，请编辑课时排序',409);
  fields(req.body,['nodes']);const nodes=req.body.nodes;
  if(!Array.isArray(nodes)||!nodes.length||nodes.length>100)v.invalid('地图节点无效');
  const positions=new Set(),lessons=new Set();

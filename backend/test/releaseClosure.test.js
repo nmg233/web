@@ -166,11 +166,11 @@ test('N13：100个坏JSON不阻塞后续合法通知，退避隔离和人工重�
 });
 
 test('N14：缺关键表/列及只读模式均拒绝就绪，不因迁移号正确而放行',()=>{
-  assert.equal(readiness.assertReady(db),1028);
+  assert.equal(readiness.assertReady(db),1029);
   db.exec('ALTER TABLE notification_outbox RENAME TO outbox_missing');
   try{assert.throws(()=>readiness.assertReady(db));}finally{db.exec('ALTER TABLE outbox_missing RENAME TO notification_outbox');}
   db.exec('ALTER TABLE notification_outbox RENAME COLUMN next_retry_at TO missing_retry');
   try{assert.throws(()=>readiness.assertReady(db));}finally{db.exec('ALTER TABLE notification_outbox RENAME COLUMN missing_retry TO next_retry_at');}
   db.pragma('query_only=ON');try{assert.throws(()=>readiness.assertReady(db));}finally{db.pragma('query_only=OFF');}
-  assert.equal(readiness.assertReady(db),1028);
+  assert.equal(readiness.assertReady(db),1029);
 });

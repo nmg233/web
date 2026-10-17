@@ -21,4 +21,4 @@ function Metadata({id,children}){
 }
 export function useCoursePresentation(){return useContext(Context)||{...coursePresentation(null),experiments:[],groups:[],data:null};}
 
-export function CoursePreviewTheme({course,children}){return <Context.Provider value={{...coursePresentation(course),id:course.id,data:{course},experiments:[],groups:[]}}>{children}</Context.Provider>;}
+export function CoursePreviewTheme({course,themeImages,children}){return <Context.Provider value={{...coursePresentation(course),id:course.id,data:{course,themeImages},experiments:[],groups:[]}}>{children}</Context.Provider>;}

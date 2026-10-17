@@ -14,6 +14,7 @@ router.use(requireAuth);
 router.use(requirePasswordChanged);
 router.get('/upload-formats',requireRole('admin','academic_mentor'),(req,res)=>res.json({formats:require('../services/courseUploadPolicy').formats,resourceLimitMB:50,replayLimitMB:500,coverLimitMB:5,coverExtensions:['.jpg','.jpeg','.png','.webp'],replayExtensions:['.mp4','.webm']}));
 router.use('/:id/map-images',require('./lessonMapImages'));
+router.use('/:id/theme',require('./courseTheme'));
 router.use('/:id/cover',require('./courseCovers'));
 router.use('/:id/maintenance',require('./courseMaintenance'));
 

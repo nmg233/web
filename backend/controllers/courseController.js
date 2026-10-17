@@ -132,22 +132,27 @@ exports.create = (req, res) => {
   try {
     const validated = contentValidation.courseFields(req.body, true);
     const { title, theme, description, driving_question, story_line,
-            grade_level, difficulty, total_hours, materials_needed } = req.body;
+            grade_level, difficulty, materials_needed } = req.body;
 
     if (!title || !grade_level || !difficulty) {
       return res.status(400).json({ error: '课程名称、适用学段和难度等级为必填项' });
     }
 
+    const identity=requests.identity(req.user,'course:create',req.body);
+    const prior=requests.existing(db,identity);if(prior)return res.json(prior);
+    const output=db.transaction(()=>{
+    const existing=requests.existing(db,identity);if(existing)return existing;
     const result = db.prepare(
       `INSERT INTO courses (title, theme, description, driving_question, story_line,
         grade_level, difficulty, total_hours, materials_needed, status, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`
     ).run(validated.title, theme || null, description || null, driving_question || null,
-         story_line || null, grade_level, difficulty, total_hours || null,
+         story_line || null, grade_level, difficulty, validated.total_hours ?? null,
          materials_needed || null, req.user.id);
-    db.prepare('UPDATE courses SET presentation_theme=?,cover_image=? WHERE id=?').run(validated.presentation_theme||'campus',validated.cover_image||null,result.lastInsertRowid);
+    db.prepare("UPDATE courses SET presentation_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run(validated.presentation_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
+    const response={ message: '课程创建成功（草稿），补充课时后即可发布', id: Number(result.lastInsertRowid) };requests.save(db,identity,response);return response;}).immediate();
 
-    res.json({ message: '课程创建成功（草稿），补充课时后即可发布', id: result.lastInsertRowid });
+    res.json(output);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     console.error('创建课程错误:', err);
@@ -305,6 +310,7 @@ exports.update = (req, res) => {
       if (req.body.status === 'archived') lifecycle.assertCanClose(id);
       if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) throw Object.assign(new Error('已有学习记录，不能撤回草稿'),{status:409});
       db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
+      if(fields.includes('cover_image'))db.prepare("DELETE FROM course_theme_bindings WHERE course_id=? AND purpose='cover'").run(id);
       if(oldCover)db.prepare('DELETE FROM course_covers WHERE course_id=?').run(id);
     }).immediate();
     if(oldCover)removeFilesAfterCommit([oldCover.file_path],UPLOAD_ROOT);
@@ -378,18 +384,23 @@ exports.addLesson = (req, res) => {
       }
     }
 
+    const identity=requests.identity(req.user,'lesson:create:'+id,req.body),prior=requests.existing(db,identity);if(prior)return res.json(prior);
+    const type=req.body.presentation_type??'learning';if(!['learning','visit','theory','experiment'].includes(type))return res.status(400).json({error:'课时模板无效'});
+    if(req.body.content_state!==undefined&&!['ready','preparing'].includes(req.body.content_state))return res.status(400).json({error:'课时就绪状态无效'});
     const mapFields=require('../services/lessonMapImages').fields(db,id,null,req.body);
-    const maxOrder = db.prepare('SELECT MAX(sort_order) as max_order FROM lessons WHERE course_id = ?').get(id);
-    const sortOrder = (maxOrder.max_order || 0) + 1;
-    // 全部输入验证通过后才冻结历史报名。
-    for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id = ? AND status = 'active'").all(id)) versions.courseState(db, e.student_id, Number(id), true);
-
-    const result = db.transaction(()=>{const result=db.prepare(
+    const result = db.transaction(()=>{const existing=requests.existing(db,identity);if(existing)return{lastInsertRowid:existing.id};
+    const sortOrder=(db.prepare('SELECT MAX(sort_order) max_order FROM lessons WHERE course_id=?').get(id).max_order||0)+1;
+    // Freeze historical enrollment and create the real lesson/map in the same transaction.
+    for(const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id=? AND status='active'").all(id))versions.courseState(db,e.student_id,Number(id),true);
+    const result=db.prepare(
       `INSERT INTO lessons (course_id, title, description, duration, sort_order, start_at, end_at, location, instructor_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(id, title.trim(), description || null, duration || null, sortOrder,
+    ).run(id, title.trim(), description || null, duration === '' ? null : duration ?? null, sortOrder,
           start_at || null, end_at || null, location || null, instructor_id || null);
-    const fields=Object.entries(mapFields);if(fields.length)db.prepare(`UPDATE lessons SET ${fields.map(([k])=>k+'=?').join(',')} WHERE id=?`).run(...fields.map(([,v])=>v),result.lastInsertRowid);require('../services/lessonMapImages').bind(db,db.prepare('SELECT * FROM lessons WHERE id=?').get(result.lastInsertRowid));return result;}).immediate();
+    const fields=Object.entries(mapFields);if(fields.length)db.prepare(`UPDATE lessons SET ${fields.map(([k])=>k+'=?').join(',')} WHERE id=?`).run(...fields.map(([,v])=>v),result.lastInsertRowid);
+    db.prepare('UPDATE lessons SET presentation_type=?,content_state=? WHERE id=?').run(type,req.body.content_state??'ready',result.lastInsertRowid);
+    require('../services/lessonMapImages').bind(db,db.prepare('SELECT * FROM lessons WHERE id=?').get(result.lastInsertRowid));require('../services/automaticCourseMap').sync(db,id);
+    requests.save(db,identity,{message:'课时添加成功',id:Number(result.lastInsertRowid)});return result;}).immediate();
 
     res.json({ message: '课时添加成功', id: Number(result.lastInsertRowid) });
   } catch (err) {
@@ -447,6 +458,7 @@ exports.cancelLesson = (req, res) => {
     db.transaction(() => {
       lifecycle.assertCanClose(lesson.course_id,lesson.id);
       db.prepare("UPDATE lessons SET status='cancelled',cancel_reason=?,cancelled_at=CURRENT_TIMESTAMP WHERE id=?").run(reason,lesson.id);
+      require('../services/automaticCourseMap').sync(db,lesson.course_id);
       for (const e of db.prepare("SELECT student_id FROM enrollments WHERE course_id=? AND status='active'").all(lesson.course_id)) versions.courseState(db,e.student_id,lesson.course_id,true);
     }).immediate();
     res.json({ message: '课时已取消' });

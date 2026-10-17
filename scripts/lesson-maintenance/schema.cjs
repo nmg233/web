@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),{backup}=require('./backup
 async function migrate(options){
  const Database=require('../../backend/node_modules/better-sqlite3'),db=new Database(path.resolve(options.dbPath),{readonly:!options.apply,fileMustExist:true});
  try{db.pragma('foreign_keys=ON');const applied=db.prepare('SELECT version,name FROM schema_migrations ORDER BY version').all(),files=fs.readdirSync(path.join(__dirname,'../../backend/database/migrations')).filter(n=>/^\d+_.*\.sql$/.test(n)),pending=files.filter(n=>!applied.some(r=>r.version===parseInt(n,10))).sort((a,b)=>parseInt(a)-parseInt(b));
-  const result={dryRun:!options.apply,writes:0,applied,pending,codeReference:'dc5aa36 + lesson-maintenance-copy; require deployment of this new code',noSeed:true};if(!options.apply)return result;
+  const result={dryRun:!options.apply,writes:0,applied,pending,codeReference:'b862a16 + admin-course-workspace; deploy matching application code',noSeed:true};if(!options.apply)return result;
   if(!options.maintenanceConfirmed)throw Error('先停止业务写入并确认维护窗口，传入--maintenance-confirmed');if(!options.backupDir)throw Error('必须明确指定全新的私有--backup-dir');
   result.backup=await backup(db,{destination:options.backupDir,uploads:options.uploads,feedback:options.feedback});require('../../backend/database/migrate').runMigrations(db);if(db.pragma('integrity_check',{simple:true})!=='ok'||db.pragma('foreign_key_check').length)throw Error('迁移后校验未通过；停止上线并核对备份');return{...result,dryRun:false,writes:pending.length,schema:db.prepare('SELECT version,name FROM schema_migrations ORDER BY version').all()};
  }finally{db.close();}

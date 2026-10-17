@@ -6,7 +6,7 @@ import InlineTeachingEditor from '../pages/courses/InlineTeachingEditor';
 import {requestError} from '../utils/requestError';
 import '../pages/courses/maintenance.css';
 
-const labels={title:'课时名称',description:'课时介绍',review_content:'课堂回顾正文',report_guidance:'报告与反思引导',experiment_guidance:'实验引导',teaching_tip:'教学提示',moments_note:'参观说明',article:'课堂文章',cards:'知识卡片',resources:'资料说明',tasks:'作品任务','course.title':'课程名称','course.description':'课程介绍','course.driving_question':'课程驱动问题','course.story_line':'课程故事说明','course.materials_needed':'课程材料说明'};
+const labels={title:'课时名称',description:'课时介绍',review_content:'课堂回顾正文',report_guidance:'报告与反思引导',experiment_guidance:'实验引导',teaching_tip:'教学提示',moments_note:'参观说明',article:'课堂文章',cards:'知识卡片',resources:'资料说明',tasks:'作品任务','course.title':'课程名称','course.description':'课程介绍','course.driving_question':'课程驱动问题','course.learning_objectives':'课程学习目标','course.story_line':'课程故事说明','course.materials_needed':'课程材料说明'};
 export default function PreviewTeachingEditor({selection,onClose,onRefresh,onDirty,onBusy}){
  const [data,setData]=useState(null),[policy,setPolicy]=useState(null),[cards,setCards]=useState([]),[objectId,setObjectId]=useState(selection.objectId?Number(selection.objectId):null),[error,setError]=useState(''),[saved,setSaved]=useState(false),[busy,setBusy]=useState(false),[publishCard,setPublishCard]=useState(false),[form]=Form.useForm();
  const live=useRef(true),changed=useRef(false),pending=useRef(false),known=useRef(null),identity=useRef(null);

@@ -130,3 +130,10 @@ docs/next-version/step-02/browser-first/
 !docs/student-copy-inline/*.md
 !docs/student-copy-inline/*.html
 /docs/student-copy-inline/evidence/
+
+!docs/admin-workspace/*.md
+!docs/admin-workspace/*.html
+/docs/admin-workspace/evidence/
+
+!docs/admin-workspace/images/*.png
+!docs/admin-workspace/verified-scenes.json

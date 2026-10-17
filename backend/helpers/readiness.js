@@ -1,7 +1,7 @@
-const MIN_SCHEMA_VERSION=1028;
+const MIN_SCHEMA_VERSION=1029;
 const checks={
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
-  schools:'id,is_active', classes:'id,school_id',courses:'id,status',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
+  schools:'id,is_active', classes:'id,school_id',courses:'id,status,learning_objectives,automatic_map,background_opacity,theme_revision',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
   enrollments:'id,student_id,course_id,status,completed_at',course_replays:'id,lesson_id,video_path',resources:'id,lesson_id,file_path',
   knowledge_cards:'id,lesson_id,status',card_exercises:'id,card_id,answer_json,rubric',
   student_card_progress:'student_id,card_id,completed_at',card_exercise_attempts:'student_id,exercise_id,attempt_no',
@@ -20,6 +20,7 @@ const checks={
   student_guide_dismissals:'student_id,dismissed_at',
   lesson_map_images:'id,course_id,lesson_id,file_path,digest,upload_key',
   student_copy_scopes:'scope,draft_json,published_json,revision,published_revision',
+  course_theme_images:'id,course_id,purpose,file_path,digest',course_theme_bindings:'course_id,purpose,image_id',
   student_copy_history:'scope,revision,entries_json,actor_id,action',
   tasks:'id,lesson_id,status',work_reviews:'work_id,comment',feedbacks:'id,user_id,status',feedback_messages:'feedback_id,content',
   feedback_attachments:'id,feedback_id,file_path',refresh_tokens:'user_id,token_hash',account_import_batches:'id,actor_id,status',

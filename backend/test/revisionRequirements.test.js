@@ -323,7 +323,7 @@ test('导师视频上传精确绑定课时，跨课程、取消课时、归档�
 
 test('健康检查核对数据库与迁移版本，数据库故障返回503而不是静态ok', async () => {
   const healthy=await api('/health','GET',undefined,null);
-  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,1028);
+  assert.equal(healthy.status,200);assert.equal(healthy.body.database,'ready');assert.equal(healthy.body.schema_version,1029);
   const prepare=db.prepare;
   try {
     db.prepare=function(sql){if(sql.includes('FROM schema_migrations'))throw Error('模拟数据库不可用');return prepare.call(this,sql);};

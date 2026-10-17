@@ -1,6 +1,6 @@
+import {lessonTemplates} from './workspaceFields';
 import ReplaySummary from '../../components/common/ReplaySummary';
 import LessonMapImageField from './LessonMapImageField';
-import useTeachingLeaveGuard from './useTeachingLeaveGuard';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
@@ -35,6 +35,7 @@ function CourseDetailPage() {
   const requestRevision=useRef(0),playSequence=useRef(0),candidateSequence=useRef(0),classSequence=useRef(0);
   const [videoLesson,setVideoLesson]=useState(null),[videoBusy,setVideoBusy]=useState(false),[videoDirty,setVideoDirty]=useState(false),[playingReplayId,setPlayingReplayId]=useState(null);
   const [course, setCourse] = useState(null);
+  const [workspaceVersion,setWorkspaceVersion]=useState(0);
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [lessons, setLessons] = useState([]);
@@ -44,10 +45,9 @@ function CourseDetailPage() {
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [teachers, setTeachers] = useState([]);
-  const creationLock=useRef(false),[creating,setCreating]=useState(false);
+  const lessonRequest=useRef(crypto.randomUUID()),creationLock=useRef(false),[creating,setCreating]=useState(false);
   const [lessonModal, setLessonModal] = useState(false);
   const [mapBusy,setMapBusy]=useState(false),[mapSession,setMapSession]=useState(0),creationDraft=useRef(new Set()),creationUploads=useRef(new Set());
-  useTeachingLeaveGuard(creationDraft,'新增课时尚未保存，离开将丢失当前填写与图片选择，确定离开？',creationUploads);
   const markCreation=()=>creationDraft.current.add('lesson');
   const closeCreation=()=>{if(creating||mapBusy)return;if(creationDraft.current.size&&!window.confirm('放弃尚未保存的新增课时和图片选择？'))return;creationDraft.current.clear();lessonForm.resetFields();setMapSession(n=>n+1);setLessonModal(false);};
   const [taskModal, setTaskModal] = useState(false);
@@ -109,10 +109,10 @@ function CourseDetailPage() {
     if(creationLock.current)return;creationLock.current=true;setCreating(true);
     creationUploads.current.add('save');
     try {
-      await courseAPI.addLesson(id, values);
+      const created=await courseAPI.addLesson(id, {...values,content_state:'preparing',request_key:lessonRequest.current});lessonRequest.current=crypto.randomUUID();setWorkspaceVersion(n=>n+1);
       message.success(siteText("site.aedcc7ad1fa4519e"));
       setLessonModal(false);
-      lessonForm.resetFields();creationDraft.current.clear();setMapSession(n=>n+1);
+      lessonForm.resetFields();creationDraft.current.clear();setMapSession(n=>n+1);creationUploads.current.delete('save');setSearch({tab:'maintenance',lesson:String(created.id)},{replace:true});
       loadData();
     } catch { /* handled */ } finally {creationUploads.current.delete('save');creationLock.current=false;setCreating(false);}
   };
@@ -120,12 +120,12 @@ function CourseDetailPage() {
   const handleAddTask = async (values) => {
     if(creationLock.current)return;creationLock.current=true;setCreating(true);
     try {
-      await courseAPI.addTask(activeLesson.id, values);
+      creationUploads.current.add('task-save');await courseAPI.addTask(activeLesson.id, values);creationDraft.current.delete('task');setWorkspaceVersion(n=>n+1);
       message.success(siteText("site.4b5970447d3bcea5"));
       setTaskModal(false);
       taskForm.resetFields();
       loadData();
-    } catch { /* handled */ } finally {creationLock.current=false;setCreating(false);}
+    } catch { /* handled */ } finally {creationUploads.current.delete('task-save');creationLock.current=false;setCreating(false);}
   };
 
   const downloadResource = async (r) => {
@@ -340,9 +340,6 @@ function CourseDetailPage() {
       key: 'lessons', label: siteText("site.da605a00c0cc8f39"),
       children: (
         <div>
-          {canEdit && (
-            <Button type="dashed" icon={<PlusOutlined />} onClick={() => setLessonModal(true)} style={{ marginBottom: 16 }}>{siteText("site.fefe81c54427efe9")}</Button>
-          )}
           {lessons.map((lesson) => (
             <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
@@ -359,7 +356,7 @@ function CourseDetailPage() {
                 {lesson.instructor_name && <Tag>{siteText("site.14a915e6ecc03d59")}{lesson.instructor_name}</Tag>}
               </Space>
               {canEdit&&lesson.status!=='cancelled'&&<Space wrap><Button size="small" onClick={()=>setSearch({tab:'maintenance',lesson:String(lesson.id)})}>编辑课时安排</Button><CancellationButton label="取消课时" onCancel={reason=>courseAPI.cancelLesson(lesson.id,reason)} refresh={loadData}/></Space>}
-              <LessonReplays lesson={lesson} replays={replays} canEdit={canEdit} playing={search.get('tab')==='lessons' ? {id:playingReplayId,url:replayUrl} : null} onUpload={setVideoLesson} onEdit={openReplayModal} onDelete={handleDeleteReplay} onPlay={playReplay}/>
+              <LessonReplays lesson={lesson} replays={replays} canEdit={canEdit} playing={course.can_manage||search.get('tab')==='lessons' ? {id:playingReplayId,url:replayUrl} : null} onUpload={setVideoLesson} onEdit={openReplayModal} onDelete={handleDeleteReplay} onPlay={playReplay}/>
               {tasks.filter((task) => task.lesson_id === lesson.id).map((task) => <div key={task.id} style={{ marginTop: 8 }}><Link to={`/tasks/${task.id}`}>{task.title}</Link>{canEdit&&lesson.status!=='cancelled'&&task.status!=='cancelled'&&<CancellationButton label="取消独立任务" onCancel={reason=>taskAPI.cancel(task.id,reason)} refresh={loadData}/>} {task.status==='cancelled'&&<Tag>已取消，仅查看历史</Tag>}{task.deadline && <Tag style={{ marginLeft: 8 }}>{siteText("site.b13857ca6ccf3773")}{task.deadline}</Tag>}</div>)}
             </Card>
           ))}
@@ -371,7 +368,7 @@ function CourseDetailPage() {
       children: (
         <div>
           <Alert type="info" title="此处汇总已有回放；新视频请由对应课时的上传入口添加。"/>
-          {search.get('tab')==='replays' && replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl}/>}
+          {(course.can_manage||search.get('tab')==='replays') && replayUrl && <SignedReplayPlayer key={playingReplayId} replayId={playingReplayId} initialUrl={replayUrl}/>}
           {replays.length === 0 ? (
             <Typography.Text type="secondary">{siteText("site.999eaf8d1129e1db")}</Typography.Text>
           ) : replays.map((replay) => (
@@ -462,6 +459,7 @@ function CourseDetailPage() {
         {canEdit && course.status === 'published' && (
           <Button size="small" disabled={course.has_learning_history} title={course.has_learning_history?'已有学习记录，请处理待评和待修改内容后归档':undefined} onClick={() => handleChangeStatus('draft')}>{siteText("site.64c911e2e80f6704")}</Button>
         )}
+        {canEdit&&<Button size="small" danger onClick={()=>Modal.confirm({title:'归档课程？',content:'将保留课时、作品、教材版本和学生历史；系统会阻止仍有待评或待修改内容的课程归档。',onOk:()=>handleChangeStatus('archived')})}>归档课程</Button>}
         {isStudent && isEnrolled && <Tag color="green">{siteText("site.ae2a3b18e87b22b3")}</Tag>}
         {isStudent && isEnrolled && firstLearningLesson && <Button type="primary" onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>{siteText("site.11b1c4c4c18d18a4")}</Button>}
         {isStudent && isEnrolled && <Button type="link" onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>{siteText("site.a240a3a770a5bcff")}</Button>}
@@ -514,18 +512,20 @@ function CourseDetailPage() {
             <Descriptions.Item label={siteText("site.9dc48f0148d99859")}>{DIFFICULTY_LABELS[course.difficulty] || course.difficulty}</Descriptions.Item>
             <Descriptions.Item label={siteText("site.7271ab6693f110e3")}><Tag color={course.status === 'published' ? 'green' : course.status === 'archived' ? 'default' : 'orange'}>{STATUS_LABELS[course.status] || course.status}</Tag></Descriptions.Item>
             <Descriptions.Item label={siteText("site.e097bc496098bb01")}>{course.creator_name}</Descriptions.Item>
-            <Descriptions.Item label={siteText("site.ed42d8611e8bbbf1")}>{course.total_hours || '—'}</Descriptions.Item>
+            <Descriptions.Item label={siteText("site.ed42d8611e8bbbf1")}>{course.total_hours ?? '—'}</Descriptions.Item>
           </Descriptions>
           {course.description && <p style={{ marginTop: 12 }}>{course.description}</p>}
         </Card>
       )}
 
       <Modal open={Boolean(videoLesson)} title={videoLesson?'上传视频 · '+videoLesson.title:''} footer={null} closable={!videoBusy} maskClosable={!videoBusy} onCancel={()=>{if(videoBusy)return;if(videoDirty&&!window.confirm('关闭将丢失尚未上传的文件选择和填写内容；结果未确认的上传可重新进入本课时查询。确定关闭？'))return;setVideoDirty(false);setVideoLesson(null);}} destroyOnHidden width={720}>{videoLesson&&<LessonVideoUpload key={videoLesson.id} courseId={id} courseTitle={course.title} lesson={videoLesson} refresh={loadData} onBusyChange={setVideoBusy} onDirtyChange={setVideoDirty}/>}</Modal>
-      <Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>
+      {course.can_manage?<ContentMaintenance creationDraft={creationDraft} creationUploads={creationUploads} key={id} id={id} onCreateTask={lesson=>{setActiveLesson(lesson);setTaskModal(true);}} refreshVersion={workspaceVersion} onCreateLesson={()=>setLessonModal(true)} students={tabItems.find(t=>t.key==='students')?.children} legacyReplays={tabItems.find(t=>t.key==='replays')?.children} legacyLessons={tabItems.find(t=>t.key==='lessons')?.children}/>:<Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>}
 
       {/* 添加课时 Modal */}
-      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating||mapBusy} closable={!creating&&!mapBusy} maskClosable={!creating&&!mapBusy} onCancel={closeCreation} okButtonProps={{'aria-label':'确定'}} onOk={() => lessonForm.submit()}>
-        <Form name="course-add-lesson" form={lessonForm} layout="vertical" onValuesChange={markCreation} onFinish={handleAddLesson}>
+      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating||mapBusy} closable={!creating&&!mapBusy} maskClosable={!creating&&!mapBusy} onCancel={closeCreation} cancelButtonProps={{'aria-label':'取消'}} okButtonProps={{'aria-label':'确定'}} onOk={() => lessonForm.submit()}>
+        <Form name="course-add-lesson" form={lessonForm} layout="vertical" initialValues={{presentation_type:'learning'}} onValuesChange={markCreation} onFinish={handleAddLesson}>
+          <Form.Item name="presentation_type" label="课时模板（创建时选择）" rules={[{required:true}]}><Select options={lessonTemplates.map(({value,label})=>({value,label}))}/></Form.Item>
+          <Form.Item noStyle shouldUpdate>{()=> <Alert type="info" title={lessonTemplates.find(t=>t.value===lessonForm.getFieldValue('presentation_type'))?.help} description="以上为管理员填写提示，不保存成学生教材；保存为准备中，不自动发布卡片、关联实验或发币。"/>}</Form.Item>
           <LessonMapImageField key={mapSession} courseId={id} form={lessonForm} disabled={creating} onDirty={markCreation} onBusyChange={value=>{setMapBusy(value);value?creationUploads.current.add('image'):creationUploads.current.delete('image');}}/>
           <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
@@ -541,8 +541,8 @@ function CourseDetailPage() {
       </Modal>
 
       {/* 添加任务 Modal */}
-      <Modal title={siteText("site.9886a9520506bd4a")} open={taskModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => !creating&&setTaskModal(false)} onOk={() => taskForm.submit()}>
-        <Form name="course-add-task" form={taskForm} layout="vertical" onFinish={handleAddTask}>
+      <Modal title={siteText("site.9886a9520506bd4a")} open={taskModal} confirmLoading={creating} closable={!creating} maskClosable={!creating} onCancel={() => {if(creating)return;if(creationDraft.current.has('task')&&!window.confirm('放弃尚未保存的任务填写？'))return;creationDraft.current.delete('task');taskForm.resetFields();setTaskModal(false);}} onOk={() => taskForm.submit()}>
+        <Form name="course-add-task" form={taskForm} onValuesChange={()=>creationDraft.current.add('task')} layout="vertical" onFinish={handleAddTask}>
           <Form.Item name="title" label={siteText("site.7116edd08327c83e")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="task_type" label={siteText("site.b2c1b05dc0234230")} initialValue="inquiry">
