@@ -1,6 +1,8 @@
 import {useCopyVersion} from './content/useCopyVersion';
 import CourseAccessBoundary from './pages/courses/CourseAccessBoundary';
-import SchoolApplications from './pages/organization/SchoolApplications';
+import MentorOrganization from './pages/mentor/Organization';
+import MentorTeaching from './pages/mentor/TeachingHub';
+import MentorGuide from './pages/mentor/Guide';
 import RuntimeCopyProvider from './content/RuntimeCopyProvider';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -103,7 +105,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
-                <Route path="mentor/organization" element={guard(<SchoolApplications/>, ['academic_mentor'])} />
+                <Route path="mentor/organization" element={guard(<MentorOrganization/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/teaching" element={guard(<MentorTeaching/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/guide" element={guard(<MentorGuide/>, ['admin','academic_mentor'])} />
                 <Route path="admin/:module" element={guard(<ModuleHub/>, ['admin'])} />
                 <Route path="student-copy" element={guard(<CourseAccessBoundary><StudentCopyManagement/></CourseAccessBoundary>, ['admin','academic_mentor'])} />
                 <Route path="copy-review" element={guard(<CopyReview />, ['admin'])} />

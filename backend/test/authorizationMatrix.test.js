@@ -80,6 +80,7 @@ before(async () => {
     db.prepare("INSERT INTO knowledge_cards (id,lesson_id,title,content,status,created_by) VALUES (?,?,'卡片','内容','published',?)").run(lesson,lesson,lesson+1);
     db.prepare("INSERT INTO card_exercises (card_id,question_type,prompt,answer_json,explanation) VALUES (?,'true_false','判断','true','详解')").run(lesson);
   }
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;

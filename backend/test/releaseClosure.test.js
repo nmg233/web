@@ -25,6 +25,7 @@ function fixture(withExercise=true){
   const replay=Number(db.prepare("INSERT INTO course_replays(course_id,lesson_id,title,description,video_path,created_by) VALUES(?,?,'视频','简介',?,2)").run(course,lesson,file).lastInsertRowid);
   const card=learning.createCard(admin,lesson,{title:'卡片',content:'正文',status:'published'}).id;
   const exercise=withExercise ? learning.createExercise(admin,card,{question_type:'single_choice',prompt:'题干',options:['A','B'],answer:'A',explanation:'详解'}).id : null;
+  require('./helpers/explicitScopeFixture.cjs').admissions(db);require('./helpers/explicitScopeFixture.cjs').observers(db);
   return {course,lesson,replay,card,exercise,file};
 }
 function finish(f){learning.lessonPackage(3,f.lesson);learning.completeReview(3,f.lesson);learning.submitExercise(3,f.exercise,'A');learning.completeCard(3,f.card);return learning.submitReport(3,f.lesson,{report:{summary:'报告'},reflection:{difficulty:'反思'}});}
@@ -166,11 +167,11 @@ test('N13：100个坏JSON不阻塞后续合法通知，退避隔离和人工重�
 });
 
 test('N14：缺关键表/列及只读模式均拒绝就绪，不因迁移号正确而放行',()=>{
-  assert.equal(readiness.assertReady(db),1031);
+  assert.equal(readiness.assertReady(db),require('../helpers/readiness').MIN_SCHEMA_VERSION);
   db.exec('ALTER TABLE notification_outbox RENAME TO outbox_missing');
   try{assert.throws(()=>readiness.assertReady(db));}finally{db.exec('ALTER TABLE outbox_missing RENAME TO notification_outbox');}
   db.exec('ALTER TABLE notification_outbox RENAME COLUMN next_retry_at TO missing_retry');
   try{assert.throws(()=>readiness.assertReady(db));}finally{db.exec('ALTER TABLE notification_outbox RENAME COLUMN missing_retry TO next_retry_at');}
   db.pragma('query_only=ON');try{assert.throws(()=>readiness.assertReady(db));}finally{db.pragma('query_only=OFF');}
-  assert.equal(readiness.assertReady(db),1031);
+  assert.equal(readiness.assertReady(db),require('../helpers/readiness').MIN_SCHEMA_VERSION);
 });

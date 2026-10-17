@@ -57,6 +57,7 @@ before(async () => {
   db.prepare('INSERT INTO lesson_progress (student_id,lesson_id,progress) VALUES (3,2,100)').run();
   db.prepare("INSERT INTO works (id,student_id,enrollment_id,task_id,title,description,review_status) VALUES (1,3,1,1,'历史作品','必须保留','rejected')").run();
   settings.saveSettings({ enabled: true, api_key: 'delivery-test-key' });
+  require('./helpers/explicitScopeFixture.cjs').admissions(db);
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -139,7 +140,9 @@ test('角色变更与会话撤销原子执行，失败时不留下半改的账�
 
 test('学校及班级目录拒绝匿名访问，教师目录限制生效，课程管理角色仍可读取', async () => {
   for (const url of ['/auth/schools','/auth/classes?school_id=1','/students/classes/1']) assert.equal((await api(url,{user:null})).status,401);
-  for (const user of ['admin','mentor']) for (const url of ['/auth/schools','/auth/classes?school_id=1','/students/classes/1']) assert.equal((await api(url,{user})).status,200);
+  for (const url of ['/auth/schools','/auth/classes?school_id=1','/students/classes/1']) assert.equal((await api(url,{user:'admin'})).status,200);
+  assert.deepEqual((await api('/auth/schools',{user:'mentor'})).body.schools,[]);
+  for(const url of ['/auth/classes?school_id=1','/students/classes/1'])assert.equal((await api(url,{user:'mentor'})).status,403);
   assert.equal((await api('/students/classes/1',{user:'teacher'})).status,200);
   assert.equal((await api('/students/classes/2',{user:'teacher'})).status,403);
   assert.equal((await api('/auth/register',{method:'POST',user:null,body:{}})).status,403);

@@ -14,6 +14,7 @@ before(async()=>{
  db.prepare("INSERT INTO lessons(id,course_id,title,chapter_id,location,duration,start_at,instructor_id) VALUES(1,1,'有安排的课时',1,'原教室',45,'2026-10-20T15:00',2),(2,2,'不可见课时',NULL,NULL,NULL,NULL,2),(3,3,'待评课时',NULL,NULL,NULL,NULL,2)").run();
  db.prepare("INSERT INTO course_plan_nodes(course_id,position,lesson_id,state) VALUES(1,1,1,'linked')").run();
  db.prepare("INSERT INTO lesson_learning_reports(student_id,lesson_id,enrollment_id,summary,key_points,application,difficulties,next_plan,status,score) VALUES(3,1,1,'报告正文','关键知识','应用记录','困难记录','下一步','approved',91),(3,2,2,'无权报告',NULL,NULL,NULL,NULL,'approved',90),(3,3,3,'待评报告',NULL,NULL,NULL,NULL,'submitted',NULL)").run();
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
  server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port+'/api';
 });
 after(async()=>{await new Promise(r=>server.close(r));db.close();fs.rmSync(dir,{recursive:true,force:true});});

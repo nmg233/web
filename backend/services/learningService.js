@@ -205,9 +205,9 @@ function previewLesson(user, lessonId) {
   if (user.role === 'teacher' && !db.prepare(`
     SELECT 1 FROM enrollments e JOIN users s ON s.id = e.student_id
     WHERE e.course_id = ? AND e.status = 'active'
-      AND s.teacher_id = ? AND s.role = 'student'
+      AND ${require('./teacherObservations').sql(user,'s.id','e.course_id')} AND s.role = 'student'
       AND s.is_active = 1 AND s.archived_at IS NULL LIMIT 1
-  `).get(lesson.course_id, user.id)) {
+  `).get(lesson.course_id)) {
     throw new LearningError('无权预览该课时', 403, 'LESSON_FORBIDDEN');
   }
   const cards = db.prepare(`

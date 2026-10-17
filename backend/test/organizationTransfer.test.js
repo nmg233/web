@@ -17,6 +17,7 @@ const admin = { id:1,role:'admin' };
 const hash = bcrypt.hashSync('Test!1234',4);
 before(async () => {
   db.prepare("INSERT INTO users (id,username,password_hash,real_name,role) VALUES (1,'transfer_admin',?,'迁移管理员','admin')").run(hash);
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   server = app.listen(0,'127.0.0.1'); await new Promise(resolve => server.once('listening',resolve));
   base = `http://127.0.0.1:${server.address().port}/api`;
 });
@@ -42,6 +43,7 @@ function fixture() {
   db.prepare('INSERT INTO lesson_progress (student_id,lesson_id,progress,completed_at) VALUES (?,?,100,CURRENT_TIMESTAMP)').run(student,lesson);
   db.prepare("INSERT INTO lesson_learning_reports (student_id,lesson_id,enrollment_id,summary,status,score,version,reviewer_id) VALUES (?,?,?,'报告','approved',95,1,?)").run(student,lesson,enrollment,mentor);
   db.prepare('INSERT INTO enrollment_completions (enrollment_id,lesson_manifest_json) VALUES (?,?)').run(enrollment,JSON.stringify([lesson]));
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   return { id,from,to,holding,teacher,oldTeacher,mentor,student,archived,
     data:{source_school_id:from,target_school_id:to,teacher_id:teacher,reason:'班级整体调整',student_count:2,request_key:`transfer_key_${n}`} };
 }

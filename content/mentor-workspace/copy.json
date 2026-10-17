@@ -1,0 +1,720 @@
+{
+  "version": 1,
+  "entries": {
+    "mentor.WorkspaceDashboard.a39a66e81ae5": {
+      "text": "待评报告",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.049ba8ff0894": {
+      "text": "待评作品",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.d680f564c1eb": {
+      "text": "待发礼品",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.c0d6121442c7": {
+      "text": "课时准备",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.5efa802d6c9f": {
+      "text": "学校申请状态",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.d724d03f659a": {
+      "text": "所管课程",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.2a10f86deade": {
+      "text": "获准学校",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.8b5f5a61eac1": {
+      "text": "工作台读取失败，请重试",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.544eb8d13754": {
+      "text": "办课工作台",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.a732e7fe5033": {
+      "text": "新建课程草稿",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.41149c019e98": {
+      "text": "进入学校与账号",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.e03bb7c821ca": {
+      "text": "查看办课指引",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.df7a462595b3": {
+      "text": "刷新工作台",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.df7392cc96be": {
+      "text": "重新读取",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.14fdcfb05510": {
+      "text": "按当前课程和学校权限实时核验；通知已读不会清除真实待办。",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.a83cd4801ef0": {
+      "text": "最后更新：",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.52fdbbaeda4c": {
+      "text": "待办",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.WorkspaceDashboard.b6584b789ea7": {
+      "text": "当前范围暂无记录",
+      "page": "mentor/WorkspaceDashboard",
+      "source": "frontend/src/pages/mentor/WorkspaceDashboard.jsx"
+    },
+    "mentor.SchoolAccounts.283acac56aa8": {
+      "text": "组织账号或观察范围尚未保存，是否放弃？",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.b2c9d471858d": {
+      "text": "学校账号读取失败",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.f0a9ef0914c2": {
+      "text": "放弃当前未保存输入？",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.4dce7e5ff1c1": {
+      "text": "账号已建立，尚未加入课程；请到课程的学员与授权中明确报名。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.7d1b6652abf9": {
+      "text": "教师账号已建立；尚无观察范围，请继续明确选择学生和课程。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a694a43e87be": {
+      "text": "已保存到服务器",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.7856e0f824b2": {
+      "text": "保存尚未确认，输入保留，请用同一请求重试；不要重复建号。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.7b4b556590f5": {
+      "text": "凭据读取失败",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.090ecd58b419": {
+      "text": "组织账号与教师观察",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a07418b208b1": {
+      "text": "组织账号与课程学生分开管理",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.3aa7216edffa": {
+      "text": "只维护本人创建或管理员明确委托的学生；同校不自动互看账号。教师须同时获得明确学生和课程授权，始终只读。跨校、移交、停用和重置由管理员处理。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.cc03efc41cef": {
+      "text": "当前输入保留；权限变化时已移除不可访问列表。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.df7392cc96be": {
+      "text": "重新读取",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.1feb68991758": {
+      "text": "进入课程管理报名",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.111b8df7ab2a": {
+      "text": "当前学校",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a8e26cee89be": {
+      "text": "账号管理学校",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a3418a31ad9c": {
+      "text": "切换学校将放弃当前输入，是否继续？",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.36900e3333bc": {
+      "text": "请选择获准学校",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a69813722443": {
+      "text": "刷新学校与账号",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.eeabe64766a5": {
+      "text": "新建本校班级",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.e7b96b45cdbd": {
+      "text": "新建本校学生",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.01f6cd3e830e": {
+      "text": "新建本校教师",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.bc4e4482a178": {
+      "text": "配置教师观察范围",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a2c0a63cfde2": {
+      "text": "明确委托学生账号",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.d557e256a767": {
+      "text": "组织学生（不代表已报名课程）",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.13a58ec2074e": {
+      "text": "学生",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.3e96370ba61d": {
+      "text": "班级ID",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.ed31fbb483ee": {
+      "text": "操作",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a18ac4e7f4e6": {
+      "text": "到课程报名",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.6c1c63232033": {
+      "text": "交付初始凭据",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.08cb2d045554": {
+      "text": "本范围教师",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.a6654120cbec": {
+      "text": "教师",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.311bb313fdec": {
+      "text": "账号",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.5b92443e5e18": {
+      "text": "初始凭据",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.3f8f3eafe198": {
+      "text": "学生账号委托（不授予学校或课程权限）",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.ac3367cb1f3c": {
+      "text": "导师",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.6320b4a8722a": {
+      "text": "状态",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.11afd2a53439": {
+      "text": "有效",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.fef96e34f77b": {
+      "text": "已撤销",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.9fb66b7efd18": {
+      "text": "核对委托",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.933259c9411d": {
+      "text": "学生 × 课程观察授权",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.60db1afb4022": {
+      "text": "课程",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.fab0a7e8814e": {
+      "text": " · 历史观察授权",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.02ec04427d81": {
+      "text": "核对并调整",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.62b0ad3bdff0": {
+      "text": "当前学校：",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.c658d4eebff0": {
+      "text": "；保存到服务器。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.476042a9a79b": {
+      "text": "班级名称",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.3f458403162e": {
+      "text": "年级",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.314650e6a724": {
+      "text": "获准学校的导师",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.b6efd1dff8db": {
+      "text": "委托状态",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.9664ed324785": {
+      "text": "授予账号维护",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.9ec42712721f": {
+      "text": "撤销委托",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.6659e9debd4e": {
+      "text": "委托说明",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.237a65af0dd8": {
+      "text": "观察状态",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.84f04c6dccd9": {
+      "text": "授予只读观察",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.27fba8472954": {
+      "text": "撤销观察",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.1dcd54b5f54a": {
+      "text": "授权或撤销说明",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.4a04ed587739": {
+      "text": "教师姓名",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.5a3df2d1dea1": {
+      "text": "学生姓名",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.21b9a534f35a": {
+      "text": "账号（选填，留空按原规则生成）",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.e9881ffa88db": {
+      "text": "角色固定，初始密码统一生成；首次登录强制改密。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.52d6949c89a3": {
+      "text": "保存到服务器",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.cce8087480eb": {
+      "text": "初始凭据安全交付",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.c17448507f76": {
+      "text": "关闭凭据",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.35d78229f6ec": {
+      "text": "读取本次创建的有效初始凭据",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.0625422bff1b": {
+      "text": "请私下交给本人，不写入通知或公开日志。改密后不能再次导出。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.3f662b6d5a8f": {
+      "text": "账号：",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.e584ae179cfb": {
+      "text": "初始密码：",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.efbdf00e9b76": {
+      "text": "班级读取失败，请关闭后重试；当前输入可先复制保留。",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.SchoolAccounts.99e481c8d7cb": {
+      "text": "本校班级",
+      "page": "mentor/SchoolAccounts",
+      "source": "frontend/src/pages/mentor/SchoolAccounts.jsx"
+    },
+    "mentor.Organization.d24a0079db42": {
+      "text": "学校与账号",
+      "page": "mentor/Organization",
+      "source": "frontend/src/pages/mentor/Organization.jsx"
+    },
+    "mentor.Organization.41eb023d7dbc": {
+      "text": "学校申请与结果",
+      "page": "mentor/Organization",
+      "source": "frontend/src/pages/mentor/Organization.jsx"
+    },
+    "mentor.Organization.8bd124abe640": {
+      "text": "组织账号与观察",
+      "page": "mentor/Organization",
+      "source": "frontend/src/pages/mentor/Organization.jsx"
+    },
+    "mentor.TeachingHub.3d6a1679784d": {
+      "text": "教学与成长",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.45e35142bf10": {
+      "text": "课程学生与组织账号分别管理；这里只查看当前课程授权内的教学记录。",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.317a494a871f": {
+      "text": "课程学生与学习记录",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.32191cba41b8": {
+      "text": "报告评审与逐题反馈",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.d82ad30044ce": {
+      "text": "作品评审与版本",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.9270a2a4871f": {
+      "text": "成长档案与反思",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.1642ce955e4c": {
+      "text": "课后任务",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.TeachingHub.f88182fcd575": {
+      "text": "进入",
+      "page": "mentor/TeachingHub",
+      "source": "frontend/src/pages/mentor/TeachingHub.jsx"
+    },
+    "mentor.Guide.ba7f24c5ef91": {
+      "text": "办课使用指引",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.950468c240bf": {
+      "text": "学校管理、课程管理、学生报名和教师观察分别授权；有学校不等于已报名课程",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.187eed5ac9dc": {
+      "text": "从首次登录到学生学习",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.050ab8a9c6fd": {
+      "text": "首次改密，保护账号与初始凭据；凭据私下交给本人，不放入通知或教材。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.b901d267b3a1": {
+      "text": "学校与账号：说明办学背景并申请学校，管理员批准后才能在本校建班和建号。没有学校仍可准备课程草稿。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.16a1c6d5a153": {
+      "text": "新建班级、学生或教师；账号已建立不等于加入课程。教师还须明确选择学生与课程观察范围。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.246609b072fc": {
+      "text": "新建课程后先查看概览和填写清单。课程的上线学校需明确选择，默认不勾选全部学校。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.cabaf6a4d6c8": {
+      "text": "课时与内容：选择教学课时模板，填写教材、卡片和练习。空选填字段在学生端隐藏。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.c15378c65254": {
+      "text": "上传只是文件保存；正文中选择引用并保存后才成为教学内容。上传失败可保留队列重试。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.a56e61f3a5aa": {
+      "text": "受控学生预览检查内容；课程发布、课时就绪、卡片发布是独立状态。学生开始后使用教材快照，不能覆盖其历史版本。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.af85bdc58bae": {
+      "text": "课程发布后，从学员与授权报名本范围学生；学生没有自助选课入口。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.f92bbb53de08": {
+      "text": "教学与成长：处理报告及作品评审，按原评分与金币规则结算；课程奖励中处理既有兑换发放。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.938f83b07a98": {
+      "text": "发生保存冲突先保留输入，核对最新修订后再保存；撤权后停止写入并联系管理员。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.3fbc4beb3ad7": {
+      "text": "原有工具与兼容入口",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.b4d79dbaebef": {
+      "text": "课程管理",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.3d6a1679784d": {
+      "text": "教学与成长",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.449e1339ffe7": {
+      "text": "课程学生与记录",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.29bee1ad89b4": {
+      "text": "平台问题反馈",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.c6e74a4ec129": {
+      "text": "规则学习助手（以启用状态为准）",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.fd3bdcd21b3f": {
+      "text": "独立实验工具",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.f88182fcd575": {
+      "text": "进入",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.28c834ddacb1": {
+      "text": "数据课程包和高级开发指引将随第三步提供；当前不开放任意脚本或交互代码运行。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "courses.SchoolScope.0d359599dc98": {
+      "text": "课程上线学校范围尚未保存，是否放弃？",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.d63a706acde6": {
+      "text": "学校范围读取失败",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.e2ea225b5cd9": {
+      "text": "上线学校范围已保存到服务器，未自动报名或发布课程",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.da312a341aec": {
+      "text": "保存尚未确认，选择和说明保留；请核对后重试",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.5427364be270": {
+      "text": "课程上线学校范围",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.8054d62ef604": {
+      "text": "默认不选择学校。发布及新增招生需核验学校范围；既有报名和历史保留。导师只调整自己获准学校的范围，其他管理者已配置的范围保持。",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.55b547425f68": {
+      "text": "核对最新范围（保留选择）",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.66c6d5aa06ea": {
+      "text": "当前范围：",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.cb7f9f368463": {
+      "text": "（由其他管理者维护）",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.f51bc1439591": {
+      "text": "尚未配置",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.ebfb993368de": {
+      "text": "暂无获准学校，可继续准备课程草稿",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.6268ca6d46ec": {
+      "text": "前往申请学校",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.f56052db8b8b": {
+      "text": "选择上线学校",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.d553111915c8": {
+      "text": "范围调整说明",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.bcf1b1e4adfb": {
+      "text": "存量报名保留：",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.7ed292f1a2aa": {
+      "text": "条；缩小范围涉及当前学生时须管理员确认保留访问，不会删除报名或重写教学记录。",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.1f409e284cb3": {
+      "text": "· 学生 #",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.1a65a649f70e": {
+      "text": "· 报名 #",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.ce2c46eb2b11": {
+      "text": "已核对现有学生影响，明确保留既有报名访问",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.a1abebb976c7": {
+      "text": "保存上线学校范围",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    },
+    "courses.SchoolScope.72143965dcab": {
+      "text": "重新读取范围",
+      "page": "courses/SchoolScope",
+      "source": "frontend/src/pages/courses/SchoolScope.jsx"
+    }
+  }
+}

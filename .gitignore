@@ -155,3 +155,9 @@ docs/next-version/step-02/browser-first/
 !docs/admin-ui-patch/verified-scenes.json
 !docs/admin-ui-patch/images/*.png
 /docs/admin-ui-patch/evidence/
+
+!docs/mentor-workspace/**/*.md
+!docs/mentor-workspace/**/*.html
+!docs/mentor-workspace/**/verified-scenes.json
+!docs/mentor-workspace/**/images/*.png
+/docs/mentor-workspace/**/evidence/

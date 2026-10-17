@@ -30,8 +30,8 @@ test('通知已创建但投递标记失败整体回滚，重放后只有一次�
  assert.equal(db.prepare('SELECT COUNT(*) n FROM notifications WHERE dedupe_key=?').get(key).n,1);
 });
 test('readiness同时检查上游结构、旧教材补充与兑换幂等约束',()=>{
- assert.equal(readiness.assertReady(db),1031);
+ assert.equal(readiness.assertReady(db),require('../helpers/readiness').MIN_SCHEMA_VERSION);
  db.exec('ALTER TABLE lesson_version_supplements RENAME TO missing_supplements');
  try{assert.throws(()=>readiness.assertReady(db));}finally{db.exec('ALTER TABLE missing_supplements RENAME TO lesson_version_supplements');}
- assert.equal(readiness.assertReady(db),1031);
+ assert.equal(readiness.assertReady(db),require('../helpers/readiness').MIN_SCHEMA_VERSION);
 });

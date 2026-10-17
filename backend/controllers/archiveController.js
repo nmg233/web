@@ -36,7 +36,7 @@ function loadStudentArchive(studentId, user, courseSpace = null) {
     : null;
 
   const allowedEnrollments = user.role === 'student' ? db.prepare("SELECT e.id FROM enrollments e JOIN courses c ON c.id=e.course_id WHERE e.student_id=? AND e.status='active' AND c.status='published'").all(studentId).map(r=>r.id) : null;
-  const inScope = id => (!allowedEnrollments || allowedEnrollments.includes(id)) && (!courseSpace || db.prepare('SELECT id FROM enrollments WHERE id=? AND course_id=?').get(id,courseSpace));
+  const inScope = (id,knownCourse) => (user.role!=='teacher'||(knownCourse?require('../services/teacherObservations').can(user,Number(studentId),knownCourse):!!db.prepare('SELECT 1 FROM enrollments e WHERE e.id=? AND '+require('../services/teacherObservations').sql(user,'e.student_id','e.course_id')).get(id))) && (!allowedEnrollments || allowedEnrollments.includes(id)) && (!courseSpace || db.prepare('SELECT id FROM enrollments WHERE id=? AND course_id=?').get(id,courseSpace));
   const courses = db.prepare(
     `SELECT e.id AS enrollment_id, c.id AS course_id, c.title, c.theme, c.grade_level, c.difficulty,
             e.enrolled_at, e.completed_at
@@ -57,12 +57,12 @@ function loadStudentArchive(studentId, user, courseSpace = null) {
     .map(toFileDto);
 
   const reflections = db.prepare(
-    `SELECT r.*, l.title as lesson_title
+    `SELECT r.*, l.title as lesson_title,l.course_id
      FROM reflections r
      LEFT JOIN lessons l ON r.lesson_id = l.id
      WHERE r.student_id = ? ORDER BY r.created_at DESC`
   ).all(studentId)
-    .filter((r) => inScope(r.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
+    .filter((r) => inScope(r.enrollment_id,r.course_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
 
   const evaluations = db.prepare(
     `SELECT ev.*, u2.real_name as evaluator_name
@@ -70,11 +70,11 @@ function loadStudentArchive(studentId, user, courseSpace = null) {
      WHERE ev.student_id = ? ORDER BY ev.created_at DESC`
   ).all(studentId)
     .filter((ev) => inScope(ev.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(ev.enrollment_id)));
-  const learningReports = db.prepare(`SELECT r.*, l.title AS lesson_title, c.title AS course_title,
+  const learningReports = db.prepare(`SELECT r.*, l.title AS lesson_title, c.id AS course_id, c.title AS course_title,
     u.real_name AS reviewer_name FROM lesson_learning_reports r JOIN lessons l ON l.id = r.lesson_id
     JOIN courses c ON c.id = l.course_id LEFT JOIN users u ON u.id = r.reviewer_id
     WHERE r.student_id = ? ORDER BY r.submitted_at DESC, r.id DESC`).all(studentId)
-    .filter((r) => inScope(r.enrollment_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
+    .filter((r) => inScope(r.enrollment_id,r.course_id) && (!mentorEnrollmentIds || mentorEnrollmentIds.includes(r.enrollment_id)));
 
   // 能力评分口径与作品可见性一致：教师仅统计其可见（approved）作品，其余角色全量
   const ability = db.prepare(`SELECT ROUND(AVG(problem_discovery),1) problem_discovery, ROUND(AVG(solution_design),1) solution_design, ROUND(AVG(hands_on),1) hands_on, ROUND(AVG(data_analysis),1) data_analysis, ROUND(AVG(presentation),1) presentation FROM work_reviews r JOIN works w ON w.id=r.work_id WHERE w.student_id=? AND w.id IN (SELECT value FROM json_each(?))`).get(studentId, JSON.stringify(works.map((w) => w.id)));
@@ -82,7 +82,7 @@ function loadStudentArchive(studentId, user, courseSpace = null) {
   const growthRecords = db.prepare(`SELECT g.*, u.real_name recorder_name FROM growth_records g LEFT JOIN users u ON u.id=g.recorded_by WHERE g.student_id=? ORDER BY g.created_at DESC`).all(studentId)
     .filter((record) => {
       if (courseSpace) return !!record.work_id && visibleWorkIds.has(record.work_id);
-      if (user.role === 'teacher' && record.work_id) return visibleWorkIds.has(record.work_id);
+      if (user.role === 'teacher') return !!record.work_id && visibleWorkIds.has(record.work_id);
       if (user.role === 'academic_mentor') {
         return record.work_id ? visibleWorkIds.has(record.work_id) : record.recorded_by === user.id;
       }
@@ -120,7 +120,7 @@ exports.showExport = (req, res) => {
         ? db.prepare(`SELECT DISTINCT c.id, c.title FROM courses c
             JOIN enrollments e ON e.course_id = c.id
             JOIN users u ON u.id = e.student_id
-            WHERE u.teacher_id = ? ORDER BY c.title`).all(user.id)
+            WHERE ${require('../services/teacherObservations').sql(user,'u.id','c.id')} ORDER BY c.title`).all()
       : db.prepare('SELECT id, title FROM courses ORDER BY title').all();
 
     res.json({ title: '成长档案导出', tree, courses, filters: req.query });
@@ -210,8 +210,7 @@ exports.generateBatch = (req, res) => {
       params.push(`%${search}%`, `%${search}%`);
     }
     if (isTeacher(user.role)) {
-      sql += ' AND teacher_id = ?';
-      params.push(user.id);
+      sql += ' AND '+require('../services/teacherObservations').sql(user,'users.id');
     }
     if (user.role === 'academic_mentor') {
       sql += ` AND ${mentorStudentScope('users.id')}`;

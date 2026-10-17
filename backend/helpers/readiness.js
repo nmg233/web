@@ -1,5 +1,6 @@
-const MIN_SCHEMA_VERSION=1031;
+const MIN_SCHEMA_VERSION=1032;
 const checks={
+ course_school_scopes:'course_id,school_id,created_by',teacher_observation_grants:'teacher_id,student_id,course_id,active,revision',enrollment_access_confirmations:'enrollment_id,school_id,source',school_created_teachers:'teacher_id,actor_id,fingerprint',
  lesson_badge_definitions:"lesson_id,enabled,image_id,revision",student_badge_grants:"id,image_id",
  course_managers:'course_id,mentor_id,active,revision',course_manager_events:'course_id,mentor_id,actor_id,action',school_applications:'applicant_id,status,revision',school_managers:'school_id,mentor_id,active,revision',school_created_accounts:'student_id,actor_id,fingerprint',school_management_events:'school_id,actor_id,action',
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',

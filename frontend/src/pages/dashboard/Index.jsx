@@ -1,3 +1,4 @@
+import WorkspaceDashboard from '../mentor/WorkspaceDashboard';
 import ActionablePending from '../admin/ActionablePending';
 import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect } from 'react';
@@ -21,7 +22,7 @@ export default function Dashboard({organization=false}) {
     dashboardAPI.getIndex().then(setData).finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { if(user.role!=='academic_mentor')loadData(); }, [user.role]);
 
   const handleAddSchool = async (values) => {
     try {
@@ -33,6 +34,7 @@ export default function Dashboard({organization=false}) {
     } catch { /* handled */ }
   };
 
+  if(user.role==='academic_mentor')return <WorkspaceDashboard/>;
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
   if (!data) return <Text type="danger">{siteText("site.16279ec1bdee4bdf")}</Text>;
 

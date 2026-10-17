@@ -195,8 +195,10 @@ test('新学生/教师/导师改密后配置职责、建课、选课与访问课
   assert.equal((await api(`/students/${student.id}/assign`,{school_id:1,class_id:1,teacher_id:teacher.id,mentor_id:mentor.id},token,'PUT')).status,200);
   const course=await api('/courses',{title:'账号闭环课程',grade_level:'primary',difficulty:'basic'},sessions.mentor);assert.equal(course.status,200);
   assert.equal((await api(`/courses/${course.body.id}/lessons`,{title:'第一课',instructor_id:mentor.id},sessions.mentor)).status,200);
+  require('./helpers/explicitScopeFixture.cjs').admissions(db);
   assert.equal((await api(`/courses/${course.body.id}`,{status:'published'},sessions.mentor,'PUT')).status,200);
   assert.equal((await api(`/courses/${course.body.id}/enroll`,{student_ids:[student.id]},sessions.mentor)).status,200);
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   assert.equal((await api(`/courses/${course.body.id}`,undefined,sessions.student)).status,200);
   assert.equal((await api(`/students/${student.id}`,undefined,sessions.teacher)).status,200);
   assert.equal((await api(`/students/${student.id}`,undefined,sessions.mentor)).status,200);

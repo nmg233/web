@@ -1,0 +1,30 @@
+{
+  "records": [
+    {
+      "name": "五项导航展开、收起、悬浮及键盘，统计与完整列表可刷新",
+      "status": "passed"
+    },
+    {
+      "name": "学校组织账号分区与课程学生分开，导师能开建教师表单",
+      "status": "passed"
+    },
+    {
+      "name": "课程六页签保留、上线学校可真实保存，新建课落在概览",
+      "status": "passed"
+    },
+    {
+      "name": "教师仅看到明确课程，admin可进入同一办学工具",
+      "status": "passed"
+    },
+    {
+      "name": "1440、768、390与360窄屏、短屏和横屏侧栏可唤起，正文不横向溢出",
+      "status": "passed"
+    },
+    {
+      "name": "管理员学生转校先看到现有课程影响，不保存不改变组织或报名",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "New temporary synthetic fixture; existing teaching services untouched"
+}

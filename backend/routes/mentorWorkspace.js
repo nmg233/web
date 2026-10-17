@@ -1,0 +1,14 @@
+const router=require('express').Router(),{requireAuth,requirePasswordChanged,requireRole}=require('../middleware/auth');
+const schools=require('../services/mentorSchoolScope'),teachers=require('../services/teacherObservations');
+router.use(requireAuth,requirePasswordChanged,requireRole('admin','academic_mentor'));
+const handle=fn=>async(req,res,next)=>{try{res.set('Cache-Control','no-store').json(await fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message,items:e.items});next(e);}};
+router.get('/dashboard',handle(req=>require('../services/mentorDashboard').read(req.user,req.query)));
+router.get('/schools',handle(req=>({schools:schools.schools(req.user)})));
+router.post('/schools/:id/account-delegations',requireRole('admin'),handle(req=>schools.delegate(req.user,req.params.id,req.body)));
+router.get('/courses/:id/schools',handle(req=>schools.read(req.user,req.params.id)));
+router.put('/courses/:id/schools',handle(req=>schools.save(req.user,req.params.id,req.body)));
+router.get('/schools/:id/observers',handle(req=>teachers.list(req.user,req.params.id)));
+router.post('/schools/:id/observers',handle(req=>teachers.write(req.user,req.params.id,req.body)));
+router.post('/schools/:id/teachers',handle(req=>teachers.createTeacher(req.user,req.params.id,req.body)));
+router.get('/schools/:id/teachers/:teacherId/credentials',handle(req=>teachers.credentials(req.user,req.params.id,req.params.teacherId)));
+module.exports=router;

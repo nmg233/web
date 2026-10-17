@@ -1,7 +1,7 @@
 import {copyText as siteText,copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect,useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm } from 'antd';
+import { Alert, Card, Descriptions, Tag, Button, Typography, Space, Spin, Modal, Form, Select, Input, InputNumber, message, Popconfirm } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, ReloadOutlined, FormOutlined } from '@ant-design/icons';
 import { studentAPI, authAPI, archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
@@ -264,7 +264,7 @@ function StudentDetailContent() {
             <Select allowClear disabled={crossSchool || assignSaving} placeholder="选择负责导师"
               options={options.mentors.map((m) => ({ label: m.real_name, value: m.id }))} />
           </Form.Item>
-          {crossSchool && <><Form.Item name="reason" label="跨校迁移原因" rules={[{required:true,whitespace:true}]}><Input.TextArea maxLength={1000} /></Form.Item><p>跨校保留用户名、密码、负责导师、全部学习历史和已结课结果；仅变更学校、班级和负责教师。</p></>}
+          {crossSchool && <><Form.Item name="reason" label="跨校迁移原因" rules={[{required:true,whitespace:true}]}><Input.TextArea maxLength={1000} /></Form.Item><p>跨校保留用户名、密码、负责导师、全部学习历史和已结课结果；仅变更学校、班级和负责教师。</p><Alert type="warning" title="当前课程报名及访问保持；新校不会自动加入课程" description={<><p>本次影响的课程：{(detail.courses||[]).map(c=>c.title).join("、")||"暂无有效报名"}。新校后续招生仍需核对课程上线范围，旧教师观察会停止。</p><p>点击确认保存表示管理员明确保留这些既有报名；如需停止访问，应在课程内按原异常移除/归档规则另行处理。</p></>}/></>}
         </Form>
       </Modal>
 

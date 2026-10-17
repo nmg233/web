@@ -129,6 +129,7 @@ exports.showCreate = (req, res) => {
 exports.create = (req, res) => {
   try {
     const validated = contentValidation.courseFields(req.body, true);
+    if(req.body.status&&req.body.status!=='draft')return res.status(409).json({error:'新课程先保存草稿，明确上线学校后再发布'});
     const { title, theme, description, driving_question, story_line,
             grade_level, difficulty, materials_needed } = req.body;
 
@@ -306,6 +307,7 @@ exports.update = (req, res) => {
     db.transaction(() => {
       if (!writable(id)) throw Object.assign(new Error('已归档课程只允许查看历史'),{status:409});
       if (req.body.status === 'archived') lifecycle.assertCanClose(id);
+      if (req.body.status === 'published' && current.status!=='published')require('../services/mentorSchoolScope').assertPublish(req.user,id);
       if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) throw Object.assign(new Error('已有学习记录，不能撤回草稿'),{status:409});
       db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
       if(fields.includes('cover_image'))db.prepare("DELETE FROM course_theme_bindings WHERE course_id=? AND purpose='cover'").run(id);
@@ -884,9 +886,9 @@ exports.enroll = (req, res) => {
     const placeholders = ids.map(() => '?').join(',');
     const students = db.prepare(
       `SELECT u.id, u.real_name, u.school_id FROM users u
-       WHERE u.id IN (${placeholders}) AND u.role = 'student' AND u.is_active = 1 AND u.archived_at IS NULL ${req.user.role==='academic_mentor'?`AND (u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`:''}`
-    ).all(...ids,...(req.user.role==='academic_mentor'?[req.user.id,req.user.id,req.user.id]:[]));
-    if(req.user.role==='academic_mentor'&&students.length!==new Set(ids.map(Number)).size)return res.status(403).json({error:'只能导入负责或已授权课程范围内的学生'});
+       WHERE u.id IN (${placeholders}) AND u.role = 'student' AND ${require('../services/mentorSchoolScope').admissionSql(req.user,Number(id))}`
+    ).all(...ids);
+    if(students.length!==new Set(ids.map(Number)).size)return res.status(403).json({error:'学生不在课程上线学校与账号管理交集内，请先核对上线学校和账号归属'});
     const studentMap = new Map(students.map((s) => [s.id, s]));
 
     const added = [];
@@ -917,6 +919,7 @@ exports.enroll = (req, res) => {
           skipped.push({ name: String(raw), reason: '学生不存在或已禁用' });
           continue;
         }
+        require('../services/mentorSchoolScope').assertAdmission(req.user,Number(id),num);
         insert.run(num, Number(id), req.user.id);
         added.push(student.real_name);
       }
@@ -931,6 +934,7 @@ exports.enroll = (req, res) => {
       skipped,
     });
   } catch (err) {
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('报名错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
@@ -957,7 +961,7 @@ exports.enrollCandidates = (req, res) => {
       `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
     ];
     const params = [];
-    if(req.user.role==='academic_mentor'){conditions.push(`(u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`);params.push(req.user.id,req.user.id,req.user.id);}
+    conditions.push(require('../services/mentorSchoolScope').admissionSql(req.user,Number(id)));
     if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
     if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
     if (req.query.search) {

@@ -143,8 +143,7 @@ exports.list = (req, res) => {
     const params = [];
 
     if (isTeacher(req.user.role)) {
-      sql += ' AND u.teacher_id = ?';
-      params.push(req.user.id);
+      sql += ' AND '+require('../services/teacherObservations').sql(req.user,'u.id');
     }
 
     if (req.query.school_id) { sql += ' AND u.school_id = ?'; params.push(req.query.school_id); }
@@ -164,7 +163,7 @@ exports.list = (req, res) => {
     const schools = isTeacher(req.user.role)
       ? db.prepare(`SELECT DISTINCT s.id, s.name FROM schools s
           JOIN users u ON u.school_id = s.id
-          WHERE u.role = 'student' AND u.teacher_id = ? ORDER BY s.name`).all(req.user.id)
+          WHERE u.role = 'student' AND ${require('../services/teacherObservations').sql(req.user,'u.id')} ORDER BY s.name`).all()
       : db.prepare(`SELECT DISTINCT s.id, s.name FROM schools s
           JOIN users u ON u.school_id = s.id
           WHERE u.role = 'student' AND ${mentorStudentScope()} ORDER BY s.name`)

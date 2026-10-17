@@ -83,6 +83,7 @@ before(async () => {
   db.prepare("INSERT INTO reflections (id, student_id, enrollment_id, difficulty) VALUES (2, 4, NULL, '无课程反思')").run();
 
   await new Promise((resolve) => {
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
     server = app.listen(0, resolve);
   });
   baseUrl = `http://127.0.0.1:${server.address().port}`;

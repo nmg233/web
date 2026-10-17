@@ -63,6 +63,7 @@ before(async () => {
               VALUES (2,1,'草稿卡片','不可见内容',2,1,'draft',2)`).run();
   db.prepare(`INSERT INTO card_exercises (id,card_id,question_type,prompt,options_json,answer_json,explanation,points,is_required)
               VALUES (1,1,'single_choice','正确选项是什么？','["A","B"]','"A"','因为 A 正确',2,1)`).run();
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   server = app.listen(0, '127.0.0.1');
   await new Promise((resolve) => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;

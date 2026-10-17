@@ -1,3 +1,4 @@
+import {mentorModules,mentorModuleFor} from '../pages/mentor/navigation';
 import {adminModules,adminModuleFor} from '../pages/admin/navigation';
 import {copyText as siteText} from "../content/copy";
 import { PLATFORM_NAME } from '../student/space/identity';
@@ -8,10 +9,7 @@ import {
   DashboardOutlined,
   BookOutlined,
   TeamOutlined,
-  FileTextOutlined,
   FolderOpenOutlined,
-  CheckSquareOutlined,
-  RobotOutlined,
   MessageOutlined,
   BellOutlined,
   ExperimentOutlined,
@@ -27,6 +25,7 @@ const adminIcons = {
   learning: <ReadOutlined />,
   team: <TeamOutlined />,
   settings: <SettingOutlined />,
+  guide: <ReadOutlined />,
 };
 
 const menuItems = {
@@ -36,19 +35,7 @@ const menuItems = {
     title: item.label,
     'aria-label': item.label,
   })),
-  academic_mentor: [
-    {key:'/mentor/organization',icon:<TeamOutlined/>,label:'账号与组织'},
-    { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
-    { key: '/courses', icon: <BookOutlined />, label: siteText("site.68d0d9a0dd22dfc5") },
-    { key: '/students', icon: <TeamOutlined />, label: siteText("site.ce21387ea0791ec0") },
-    { key: '/works', icon: <FileTextOutlined />, label: siteText("site.97b14c37be582fde") },
-    { key: '/mentor/reviews', icon: <CheckSquareOutlined />, label: siteText("site.ac39a88c5cd27d64") },
-    { key: '/archives', icon: <FolderOpenOutlined />, label: siteText("site.f8f376cfb06cb013") },
-    { key: '/tasks', icon: <CheckSquareOutlined />, label: siteText("site.78bd9e7ce64c43a5") },
-    { key: '/dashboard/ai', icon: <RobotOutlined />, label: siteText("site.bf73f1442dae6e1f") },
-    { key: '/feedback', icon: <MessageOutlined />, label: siteText("site.82eec37d198a490e") },
-    { key: '/notifications', icon: <BellOutlined />, label: siteText("site.a2f1a21199c19e4b") },
-  ],
+  academic_mentor: mentorModules.map(({iconKey,...item})=>({...item,icon:adminIcons[iconKey],title:item.label,'aria-label':item.label})),
   teacher: [
     { key: '/observer', icon: <DashboardOutlined />, label: siteText("site.c61b5a1d704612ec") },
     { key: '/observer/students', icon: <TeamOutlined />, label: siteText("site.438446d175a31f66") },
@@ -79,7 +66,7 @@ export default function Sidebar() {
 
   const items = menuItems[user?.role] || menuItems.student;
 
-  const specialKey = user?.role === 'admin' ? adminModuleFor(location.pathname) : user?.role === 'student'
+  const specialKey = user?.role === 'admin' ? adminModuleFor(location.pathname) : user?.role === 'academic_mentor' ? mentorModuleFor(location.pathname) : user?.role === 'student'
     ? (location.pathname.startsWith('/archives') ? '/archives' : /^\/(lab|glider)/.test(location.pathname) ? '/lab' : '/explore')
     : location.pathname.startsWith('/feedback')
     ? (user?.role === 'admin' ? '/feedback/manage' : '/feedback')
@@ -112,7 +99,7 @@ export default function Sidebar() {
         theme="dark"
         mode="inline"
         selectedKeys={[selectedKey]}
-        items={user?.role === 'admin' ? items.map(item => ({
+        items={['admin','academic_mentor'].includes(user?.role) ? items.map(item => ({
           ...item,
           'aria-current': item.key === selectedKey ? 'page' : undefined,
         })) : items}
