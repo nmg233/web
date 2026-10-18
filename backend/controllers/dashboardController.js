@@ -69,9 +69,7 @@ exports.index = (req, res) => {
         workCount: db.prepare('SELECT COUNT(DISTINCT COALESCE(parent_work_id, id)) AS c FROM works').get().c,
       };
     } else if (user.role === 'academic_mentor') {
-      const scope = `c.created_by = ? OR EXISTS (
-        SELECT 1 FROM lessons scope_l WHERE scope_l.course_id = c.id AND scope_l.instructor_id = ?
-      )`;
+      const scope = `${require('../helpers/courseScope').mentorCourseScope('c.id')}`;
       viewData.stats = {
         schoolCount: db.prepare(`SELECT COUNT(DISTINCT u.school_id) AS c FROM users u
           JOIN enrollments e ON e.student_id = u.id JOIN courses c ON c.id = e.course_id
@@ -117,9 +115,7 @@ exports.index = (req, res) => {
               (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id AND status = 'active') AS student_count,
               (SELECT COUNT(DISTINCT COALESCE(w.parent_work_id, w.id)) FROM works w JOIN enrollments e ON w.enrollment_id = e.id WHERE e.course_id = c.id) AS work_count
             FROM courses c
-            WHERE c.status != 'archived' AND (c.created_by = ? OR EXISTS (
-              SELECT 1 FROM lessons own_l WHERE own_l.course_id = c.id AND own_l.instructor_id = ?
-            ))
+            WHERE c.status != 'archived' AND (${require('../helpers/courseScope').mentorCourseScope('c.id')})
             ORDER BY c.updated_at DESC
           `).all(user.id, user.id);
 
@@ -139,9 +135,7 @@ exports.index = (req, res) => {
         JOIN users u ON w.student_id = u.id
         JOIN enrollments e ON w.enrollment_id = e.id
         JOIN courses c ON e.course_id = c.id
-        WHERE (c.created_by = ? OR EXISTS (
-          SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?
-        ))
+        WHERE (${require('../helpers/courseScope').mentorCourseScope('c.id')})
         ORDER BY w.created_at DESC LIMIT 10
       `).all(user.id, user.id);
 

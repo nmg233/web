@@ -138,6 +138,7 @@ test('奖励按已绑定教材判定：新卡题不追溯阻断，需补学报�
   const f=fixture(), report=submit(f);
   reviews.review(mentor,report.id,{status:'approved',score:77});
   db.prepare("INSERT INTO lesson_badge_definitions(lesson_id,name,art_id,description) VALUES(?,'隔离徽章','theory','隔离说明')").run(f.lesson);
+  db.prepare('UPDATE courses SET lesson_badges_enabled=1 WHERE id=(SELECT course_id FROM lessons WHERE id=?)').run(f.lesson);
   learning.updateCard(admin,f.card,{status:'archived'});
   const added=learning.createCard(admin,f.lesson,{title:'后来新增卡',content:'新教材',status:'published'}).id;
   learning.createExercise(admin,added,{question_type:'true_false',prompt:'新增题',answer:true,explanation:'新解析'});

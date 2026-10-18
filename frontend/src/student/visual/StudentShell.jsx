@@ -19,17 +19,20 @@ import AvatarPreference from '../space/AvatarPreference';
 import AccountAvatarImage from '../space/AccountAvatarImage';
 import '../space/course-pages.css';
 import SceneArt from '../space/SceneArt';
+import CourseScene from '../space/CourseScene';
+import CourseThemeImage from '../space/CourseThemeImage';
 import {useCoursePresentation} from '../space/CoursePresentation';
 import StudentGuideModal from '../guide/StudentGuideModal';
 
 function Points({to}){const {data,error,loading}=useRealCoins();return <Link to={to} className="student-points" data-testid="header-real-coins" aria-label={copyText('coins.title')+' '+(data?data.balance:copyText(error?'coins.readFailed':'coins.loading'))} data-copy-bindings={JSON.stringify(['coins.title',error?'coins.readFailed':'coins.loading'])}><PixelIcon name="coin"/><strong data-business-value="真实金币余额">{data?data.balance:'—'}</strong><span>{<StudentCopyText id={loading?'coins.shortLoading':error?'coins.shortError':'coins.unit'}/>}</span></Link>;}
 function CourseNavigation({id,course,close}){
- const {pathname}=useLocation();const theme=useCoursePresentation().theme;
+ const {pathname}=useLocation();const look=useCoursePresentation(),theme=look.theme;
  const entries=[['','map','course.nav.map'],['/lab','lab','course.nav.lab'],['/archives','archive','course.nav.archive']];
  return <div className="space-course-navigation" data-course-theme={theme}>
    <Link to="/explore" className="space-exit" onClick={close}><PixelIcon name="back"/>{<StudentCopyText id={'course.nav.exit'}/>}</Link>
-   <Link to={'/courses/'+id} className="space-course-brand" onClick={close}>{theme==='voyage'?<img src={asset('ship',192)} alt=""/>:<PixelIcon name="book" size={48}/>}<strong>{course?.title||<StudentCopyText id={'system.shell.005'}/>}</strong><span>{<StudentCopyText id={'system.shell.006'}/>}{id}</span></Link>
+   <Link to={'/courses/'+id} className="space-course-brand" onClick={close}>{look.data?.themeImages?.mark?<CourseThemeImage image={look.data.themeImages.mark}/>:theme==='voyage'?<img src={asset('ship',192)} alt=""/>:<PixelIcon name="book" size={48}/>}<strong>{course?.title||<StudentCopyText id={'system.shell.005'}/>}</strong><span>{<StudentCopyText id={'system.shell.006'}/>}{id}</span></Link>
    <nav aria-label={copyText('system.shell.007')} data-copy-bindings={JSON.stringify(['system.shell.007'])}>{entries.map(([suffix,icon,labelId])=>{const to='/courses/'+id+suffix;const selected=suffix==='/lab'?/\/(lab|glider)$/.test(pathname):suffix==='/archives'?/\/(archives|works|reflection)(?:\/|$)/.test(pathname):! /\/(lab|glider|archives|works|reflection)(?:\/|$)/.test(pathname);return <Link key={to} to={to} aria-current={selected?'page':undefined} onClick={close}><PixelIcon name={icon}/><span><StudentCopyText id={labelId}/></span><span aria-hidden="true">›</span></Link>;})}</nav>
+   <p className="space-reward-links"><Link to={'/me?courseId='+id+'&returnTo='+encodeURIComponent('/courses/'+id)} onClick={close}>本课程礼品兑换</Link><Link to={'/me/badges?courseId='+id+'&returnTo='+encodeURIComponent('/me?returnTo='+encodeURIComponent('/courses/'+id))} onClick={close}>本课程勋章墙</Link></p>
    <div className="space-sidebar-art" aria-hidden="true"/>
  </div>;
 }
@@ -45,7 +48,7 @@ function Shell({children}){
  const voyage=id&&look.theme==='voyage';
  const scene=id?(voyage?(/\/(lab|glider|archives|works|reflection)(?:\/|$)/.test(location.pathname)?'voyage-lab':'voyage-reading'):'campus-select'):(location.pathname==='/me'?'campus-personal':'campus-select');
  return <div className={'space-shell student-shell '+(id?'space-shell--course':'space-shell--platform')} data-course-space={id||undefined} data-course-pathname={location.pathname}>
-   <div className="space-underlay" aria-hidden="true"><SceneArt key={scene} name={scene} patch priority/></div>
+   <div className="space-underlay" aria-hidden="true">{id?<CourseScene key={scene} name={scene} patch priority/>:<SceneArt key={scene} name={scene} patch priority/>}</div>
    {id&&screens.lg&&<aside className="space-sidebar"><CourseNavigation id={id} course={data?.course}/></aside>}
    <div className="space-shell-main">
     <header className="space-header">

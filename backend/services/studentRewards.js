@@ -14,26 +14,27 @@ function invalid(message,status=400){throw Object.assign(new Error(message),{sta
 function fields(body,allowed){if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowed.includes(k)))invalid('包含无效字段');}
 function eligibility(studentId,lessonId){
  const state=require('../helpers/rewardEligibility').taskEligibility(studentId,lessonId);
- const definition=db.prepare('SELECT * FROM lesson_badge_definitions WHERE lesson_id=?').get(lessonId);
+ const raw=db.prepare('SELECT b.* FROM lesson_badge_definitions b JOIN lessons l ON l.id=b.lesson_id JOIN courses c ON c.id=l.course_id WHERE b.lesson_id=? AND c.lesson_badges_enabled=1').get(lessonId);
+ const definition=require('./courseBadges').complete(raw)?raw:null;
  const checks=[{key:'definition',satisfied:Boolean(definition),reason:'本课时尚未配置通关徽章'},...state.checks];
  return {...state,definition,version:VERSION,eligible:checks.every(c=>c.satisfied),checks};
 }
-function visibleLessons(studentId){return db.prepare(`SELECT l.id FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id AND e.student_id=? AND e.status='active' JOIN lesson_badge_definitions b ON b.lesson_id=l.id WHERE c.status='published' AND l.status!='cancelled' ORDER BY c.id,l.sort_order,l.id`).all(studentId);}
+function visibleLessons(studentId){return db.prepare(`SELECT l.id FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id AND e.student_id=? AND e.status='active' JOIN lesson_badge_definitions b ON b.lesson_id=l.id WHERE c.status='published' AND c.lesson_badges_enabled=1 AND b.enabled=1 AND trim(b.name)!='' AND trim(b.description)!='' AND l.status!='cancelled' ORDER BY c.id,l.sort_order,l.id`).all(studentId);}
 function reconcile(studentId){return db.transaction(()=>{
  const created=[];for(const {id}of visibleLessons(studentId)){
   const state=eligibility(studentId,id);if(!state.eligible)continue;
   const context=db.prepare('SELECT l.title lesson_title,c.title course_title FROM lessons l JOIN courses c ON c.id=l.course_id WHERE l.id=?').get(id);
   const grantId=randomUUID();const snapshot={version:VERSION,checks:state.checks,reportId:gate.latestReport(studentId,id)?.id,works:db.prepare('SELECT w.id,w.version,w.review_status FROM works w JOIN tasks t ON t.id=w.task_id WHERE w.student_id=? AND t.lesson_id=? AND t.status=\'active\' ORDER BY w.id').all(studentId,id)};
-  const r=db.prepare('INSERT OR IGNORE INTO student_badge_grants(id,student_id,lesson_id,course_id,name,art_id,description,lesson_title,course_title,criterion_snapshot) VALUES(?,?,?,?,?,?,?,?,?,?)').run(grantId,studentId,id,state.courseId,state.definition.name,state.definition.art_id,state.definition.description,context.lesson_title,context.course_title,JSON.stringify(snapshot));
+  const r=db.prepare('INSERT OR IGNORE INTO student_badge_grants(id,student_id,lesson_id,course_id,name,art_id,description,lesson_title,course_title,criterion_snapshot,image_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(grantId,studentId,id,state.courseId,state.definition.name,state.definition.art_id,state.definition.description,context.lesson_title,context.course_title,JSON.stringify(snapshot),state.definition.image_id);
   if(r.changes)created.push(grantId);
  }return {created};
-}) ();}
+}).immediate();}
 function profile(studentId){
- const grants=db.prepare('SELECT id,lesson_id,course_id,name,art_id,description,lesson_title,course_title,earned_at,shown_at FROM student_badge_grants WHERE student_id=? ORDER BY earned_at,id').all(studentId).map(g=>({...g,source:'lesson',accessible:Boolean(db.prepare(`SELECT 1 FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE l.id=? AND c.status='published' AND l.status!='cancelled' AND e.student_id=? AND e.status='active'`).get(g.lesson_id,studentId))}));
- return {grants:[...grants,...require('./rewardRedemptions').badges(studentId)],locked:visibleLessons(studentId).map(l=>eligibility(studentId,l.id)),exchanges:exchanges(studentId)};
+ const grants=db.prepare('SELECT id,lesson_id,course_id,name,art_id,description,image_id,lesson_title,course_title,earned_at,shown_at FROM student_badge_grants WHERE student_id=? ORDER BY earned_at,id').all(studentId).map(g=>({...g,source:'lesson',presentable:Boolean(db.prepare("SELECT 1 FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id JOIN lesson_badge_definitions b ON b.lesson_id=l.id WHERE l.id=? AND l.status!='cancelled' AND c.lesson_badges_enabled=1 AND c.status='published' AND e.student_id=? AND e.status='active' AND b.enabled=1 AND trim(b.name)!='' AND trim(b.description)!=''").get(g.lesson_id,studentId)),accessible:Boolean(db.prepare(`SELECT 1 FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE l.id=? AND c.status='published' AND l.status!='cancelled' AND e.student_id=? AND e.status='active'`).get(g.lesson_id,studentId))}));
+ return {courses:require('../helpers/courseRewardScope').courses(studentId),grants:[...grants,...require('./rewardRedemptions').badges(studentId)],locked:visibleLessons(studentId).map(l=>eligibility(studentId,l.id)),exchanges:exchanges(studentId)};
 }
 function present(studentId,body){fields(body,['grantId']);if(typeof body.grantId!=='string')invalid('缺少已读取的徽章编号');return db.transaction(()=>{
- const grant=db.prepare('SELECT id,name,art_id FROM student_badge_grants WHERE id=? AND student_id=? AND shown_at IS NULL').get(body.grantId,studentId);if(!grant)return {grant:null};
+ const grant=db.prepare("SELECT g.id,g.name,g.art_id,g.image_id,g.course_id FROM student_badge_grants g JOIN courses c ON c.id=g.course_id JOIN enrollments e ON e.course_id=c.id AND e.student_id=g.student_id WHERE g.id=? AND g.student_id=? AND g.shown_at IS NULL AND c.lesson_badges_enabled=1 AND c.status='published' AND e.status='active'").get(body.grantId,studentId);if(!grant)return {grant:null};
  db.prepare('UPDATE student_badge_grants SET shown_at=CURRENT_TIMESTAMP WHERE id=? AND student_id=? AND shown_at IS NULL').run(grant.id,studentId);return {grant};
 }) ();}
 function exchanges(studentId){return db.prepare('SELECT id,operation_id,gift_id,gift_name,gift_type,art_id,created_at FROM demo_exchange_events WHERE student_id=? ORDER BY created_at DESC,id').all(studentId);}

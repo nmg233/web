@@ -14,7 +14,7 @@
 .student-pixel .space-map .pixel-map-course-progress>span { font-size:14px; }
 .student-pixel .space-map .pixel-map-layout { display:block; }
 .student-pixel .space-map .pixel-map-stage { min-height:470px; padding:0 16px 14px; background:#071b42; border:2px solid #698ab5; box-shadow:5px 5px 0 #030e24; overflow:hidden; }
-.space-map-art.space-scene { position:absolute; z-index:-2; inset:0; width:100%; height:100%; }
+.space-map-art.space-scene, .space-map-art.course-scene-layer { position:absolute; z-index:-2; inset:0; width:100%; height:100%; }
 .space-map-art img { object-position:center; opacity:1; }
 .student-pixel .space-map .pixel-map-stage:after { content:''; position:absolute; inset:0; z-index:-1; background:#081a4340; pointer-events:none; }
 .student-pixel .space-map .pixel-map-region.route-group { padding:20px 0 24px; border:0; background:transparent; }

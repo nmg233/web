@@ -70,7 +70,8 @@ function isChangePwdRateLimited(userId) {
 // 获取学校列表（注册用）
 exports.getSchools = (req, res) => {
   try {
-    const schools = db.prepare('SELECT id, name FROM schools ORDER BY name').all();
+    const allowed=req.user.role==='academic_mentor'?require('../helpers/mentorDirectory').schoolIds(db,req.user):null;
+    const schools = db.prepare('SELECT id, name FROM schools ORDER BY name').all().filter(s=>!allowed||allowed.includes(s.id));
     res.json({ schools });
   } catch (err) {
     console.error('获取学校列表错误:', err);

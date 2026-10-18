@@ -30,8 +30,7 @@ exports.getCourses = (req, res) => {
       courses = db.prepare(`SELECT c.id, c.title FROM courses c JOIN enrollments e ON e.course_id = c.id
         WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published' ORDER BY c.id DESC`).all(user.id);
     } else if (user.role === 'academic_mentor') {
-      courses = db.prepare(`SELECT c.id, c.title FROM courses c WHERE c.created_by = ? OR EXISTS
-        (SELECT 1 FROM lessons l WHERE l.course_id = c.id AND l.instructor_id = ?) ORDER BY c.id DESC`).all(user.id, user.id);
+      courses = db.prepare(`SELECT c.id, c.title FROM courses c WHERE ${require('../helpers/courseScope').mentorCourseScope('c.id')} ORDER BY c.id DESC`).all(user.id, user.id);
     } else {
       courses = db.prepare('SELECT id, title FROM courses ORDER BY id DESC').all();
     }

@@ -210,8 +210,8 @@ test('历史缺题定向修复只影响指定学生，不重置已有作答、�
   const report=Number(db.prepare("INSERT INTO lesson_learning_reports (student_id,lesson_id,enrollment_id,summary,status,version) VALUES (3,?,?, '历史报告','rejected',1)").run(f.lesson,db.prepare('SELECT id FROM enrollments WHERE student_id=3 AND course_id=?').get(f.course).id).lastInsertRowid);
   db.prepare('INSERT INTO report_content_versions (report_id,content_version_id) VALUES (?,?)').run(report,old.id);
   const added=learning.createExercise(admin,second,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
-  assert.throws(()=>learning.repairLegacy(mentor,f.lesson,3,'补齐'),e=>e.status===403);
-  const repaired=learning.repairLegacy(admin,f.lesson,3,'历史缺题修复');
+  assert.throws(()=>learning.repairLegacy({id:999,role:'academic_mentor'},f.lesson,3,'补齐'),e=>e.status===403);
+  const repaired=learning.repairLegacy(mentor,f.lesson,3,'历史缺题修复');
   assert.notEqual(repaired.new_version_id,old.id);
   assert.equal(versions.boundVersion(db,4,f.lesson).id,old.id);
   assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts WHERE student_id=3 AND exercise_id=?').get(f.exercise),attempt);

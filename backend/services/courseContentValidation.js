@@ -15,7 +15,7 @@ function lessonId(value,courseId){const id=integer(value,'课时',{min:1,nullabl
 function chapterId(value,courseId){const id=integer(value,'章节',{min:1,nullable:true});if(id&&!db.prepare('SELECT id FROM course_chapters WHERE id=? AND course_id=?').get(id,courseId))invalid('章节不属于当前课程');return id;}
 function courseFields(body,create=false){
  const result={};
- for(const [key,max,required] of [['title',120,true],['theme',120,false],['description',10000,false],['driving_question',1000,false],['story_line',10000,false],['materials_needed',10000,false]])if(own(body,key)||create&&required)result[key]=text(body[key],key,max,required);
+ for(const [key,max,required] of [['title',120,true],['theme',120,false],['description',10000,false],['driving_question',1000,false],['learning_objectives',10000,false],['story_line',10000,false],['materials_needed',10000,false]])if(own(body,key)||create&&required)result[key]=text(body[key],key,max,required);
  for(const [key,values] of [['presentation_theme',['campus','voyage']],['grade_level',['primary','junior','senior']],['difficulty',['basic','advanced','challenge']],['status',['draft','published','archived']]]){
   if(own(body,key)||create&&['grade_level','difficulty'].includes(key)){if(!values.includes(body[key]))invalid(`${key}选项无效`);result[key]=body[key];}
  }

@@ -65,7 +65,7 @@ test('受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/�
  db.prepare("INSERT INTO lessons(id,course_id,title) VALUES(2000001,1,'大编号旧课时')").run();assert.equal((await request(1,route('/experiments'),'POST',{experiment:'glider',lessonId:2000001,stage:0,cardId:null,label:'合法大编号来源',enabled:true})).status,200);
 });
 test('受邀课时导师、停用/强制改密/匿名与回放对象链均遵循真实权限',async()=>{
- db.prepare('UPDATE lessons SET instructor_id=5 WHERE id=2').run();assert.equal((await request(5,route('',2))).status,200);assert.equal((await request(5,route('/chapters',2),'POST',{title:'授课导师可维护'})).status,200);
+ db.prepare('UPDATE lessons SET instructor_id=5 WHERE id=2').run();assert.equal((await request(5,route('',2))).status,404);db.prepare("INSERT INTO course_managers(course_id,mentor_id,source,granted_by) VALUES(2,5,'admin',4)").run();assert.equal((await request(5,route('',2))).status,200);assert.equal((await request(5,route('/chapters',2),'POST',{title:'授课导师可维护'})).status,200);
  const before=files().length;
  assert.equal((await fetch(url+'/api/courses/1/maintenance')).status,401);
  db.prepare('UPDATE users SET force_reset_password=1 WHERE id=1').run();assert.equal((await request(1,route(''))).status,403);assert.equal((await file(1,1,'拒绝.txt','x','text/plain')).status,403);db.prepare('UPDATE users SET force_reset_password=0 WHERE id=1').run();

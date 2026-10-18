@@ -1,3 +1,4 @@
+import ActionablePending from '../admin/ActionablePending';
 import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
 
-export default function Dashboard() {
+export default function Dashboard({organization=false}) {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,8 +45,9 @@ export default function Dashboard() {
         <Text type="secondary">{data.today}</Text>
       </div>
 
+      {user?.role==='admin'&&!organization&&<ActionablePending/>}
       {/* 统计卡片 */}
-      {stats && (
+      {stats && !organization && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.6bd53bff0cade4bc") : siteText("site.1779ace1d1d111d7")} value={stats.schoolCount} prefix={<BankOutlined />} /></Card></Col>
           <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.c1d4876d33408f87") : siteText("site.049f257b97e2144c")} value={stats.userCount} prefix={<TeamOutlined />} /></Card></Col>
@@ -55,7 +57,7 @@ export default function Dashboard() {
       )}
 
       {/* 今日项目提示（按角色） */}
-      {prompt && (
+      {prompt && !organization && (
         <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${prompt.color}15, ${prompt.color}05)`, borderLeft: `4px solid ${prompt.color}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 32 }}>{prompt.emoji}</span>
@@ -69,7 +71,7 @@ export default function Dashboard() {
       )}
 
       <Row gutter={16}>
-        {user?.role === 'admin' && data.feedbackStats && (
+        {user?.role === 'admin' && !organization && data.feedbackStats && (
           <Col span={24} style={{ marginBottom: 16 }}>
             <Card
               title={<Space><MessageOutlined />{siteText("site.6b5dda31bdc685be")}</Space>}
@@ -85,7 +87,7 @@ export default function Dashboard() {
         )}
 
         {/* 管理员：学校列表 */}
-        {user?.role === 'admin' && data.schools && (
+        {user?.role === 'admin' && organization && data.schools && (
           <Col span={24}>
             <Card title={siteText("site.6bd53bff0cade4bc")} extra={<Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => setAddSchoolOpen(true)}>{siteText("site.bb89ab68b1ecb420")}</Button>}>
               <Table dataSource={data.schools} rowKey="id" pagination={false} size="small"
@@ -113,7 +115,7 @@ export default function Dashboard() {
         )}
 
         {/* 教师/导师：我的课程和最近作品 */}
-        {data.myCourses && data.myCourses.length > 0 && (
+        {!organization && data.myCourses && data.myCourses.length > 0 && (
           <Col xs={24} lg={12}>
             <Card title={siteText("site.fd67de636300817e")} style={{ marginBottom: 16 }}>
               <List dataSource={data.myCourses.slice(0, 5)} renderItem={(c) => (
@@ -125,7 +127,7 @@ export default function Dashboard() {
           </Col>
         )}
 
-        {data.recentWorks && data.recentWorks.length > 0 && (
+        {!organization && data.recentWorks && data.recentWorks.length > 0 && (
           <Col xs={24} lg={12}>
             <Card title={siteText("site.dd5f79c16186739a")} style={{ marginBottom: 16 }}>
               <List dataSource={data.recentWorks.slice(0, 5)} renderItem={(w) => (

@@ -86,7 +86,7 @@ export default function LessonContentEditor({embeddedCourseId,embeddedLessonId,o
     description={siteText("site.851a9d1035acf2bf")}
     extra={!embeddedCourseId&&<Button icon={<ArrowLeftOutlined />} onClick={() => navigate(`/courses/${courseId}`)}>{siteText("site.30a332e6ab645388")}</Button>}
   >
-    <p>{copyText('next2.guide.card')}</p>{readOnly&&<Alert type="info" title="此身份或课时状态仅可预览知识卡片与题目"/>}{user?.role==='admin'&&<Button disabled={readOnly} onClick={()=>setRepairOpen(true)}>修复指定学生历史缺失内容</Button>}<Button disabled={readOnly} type="primary" icon={<PlusOutlined />} style={{ marginBottom: 16 }} onClick={() => openCard()}>{siteText("site.dac98a402a2de702")}</Button>
+    <p>{copyText('next2.guide.card')}</p>{readOnly&&<Alert type="info" title="此身份或课时状态仅可预览知识卡片与题目"/>}{['admin','academic_mentor'].includes(user?.role)&&<Button disabled={readOnly} onClick={()=>setRepairOpen(true)}>修复指定学生历史缺失内容</Button>}<Button disabled={readOnly} type="primary" icon={<PlusOutlined />} style={{ marginBottom: 16 }} onClick={() => openCard()}>{siteText("site.dac98a402a2de702")}</Button>
     <AsyncPageState loading={loading} error={error} onRetry={load} empty={!cards.length} emptyText={siteText("site.8a613b8889143bbb")}>
       {cards.map((card, index) => <Card
         className="content-card"

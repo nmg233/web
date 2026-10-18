@@ -1,3 +1,4 @@
+import {adminModules,adminModuleFor} from '../pages/admin/navigation';
 import {copyText as siteText} from "../content/copy";
 import { PLATFORM_NAME } from '../student/space/identity';
 import { useState } from 'react';
@@ -14,29 +15,29 @@ import {
   MessageOutlined,
   BellOutlined,
   ExperimentOutlined,
+  SettingOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../store/AuthContext';
 
 const { Sider } = Layout;
+const adminIcons = {
+  dashboard: <DashboardOutlined />,
+  book: <BookOutlined />,
+  learning: <ReadOutlined />,
+  team: <TeamOutlined />,
+  settings: <SettingOutlined />,
+};
 
 const menuItems = {
-  admin: [
-    {key:'/student-copy',label:'编辑学生页面文字'},
-    {key:'/reward-management',icon:<CheckSquareOutlined/>,label:'奖励管理'},
-    { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
-    { key: '/courses', icon: <BookOutlined />, label: siteText("site.68d0d9a0dd22dfc5") },
-    { key: '/mentor/content', icon: <BookOutlined />, label: siteText("site.a5dcfd6bb2c993fa") },
-    { key: '/students', icon: <TeamOutlined />, label: siteText("site.26ff7feaa9236e16") },
-    { key: '/works', icon: <FileTextOutlined />, label: siteText("site.97b14c37be582fde") },
-    { key: '/mentor/reviews', icon: <CheckSquareOutlined />, label: siteText("site.ac39a88c5cd27d64") },
-    { key: '/archives', icon: <FolderOpenOutlined />, label: siteText("site.f8f376cfb06cb013") },
-    { key: '/glider', icon: <ExperimentOutlined />, label: siteText("site.63a97c4c6372c0f6") },
-    { key: '/dashboard/ai', icon: <RobotOutlined />, label: siteText("site.bf73f1442dae6e1f") },
-    { key: '/dashboard/ai/settings', icon: <RobotOutlined />, label: siteText("site.afebea6ca3efce49") },
-    { key: '/feedback/manage', icon: <MessageOutlined />, label: siteText("site.911847df600e4ab6") },
-    { key: '/notifications', icon: <BellOutlined />, label: siteText("site.a2f1a21199c19e4b") },
-  ],
+  admin: adminModules.map(({iconKey, ...item}) => ({
+    ...item,
+    icon: adminIcons[iconKey],
+    title: item.label,
+    'aria-label': item.label,
+  })),
   academic_mentor: [
+    {key:'/mentor/organization',icon:<TeamOutlined/>,label:'账号与组织'},
     { key: '/dashboard', icon: <DashboardOutlined />, label: siteText("site.d9bb630c8f6f2c56") },
     { key: '/courses', icon: <BookOutlined />, label: siteText("site.68d0d9a0dd22dfc5") },
     { key: '/students', icon: <TeamOutlined />, label: siteText("site.ce21387ea0791ec0") },
@@ -72,13 +73,13 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  // 移动端基础适配：小屏自动折叠为图标栏
+  // 桌面折叠保留图标，小屏折叠为零宽并保留唤起按钮。
   const [collapsed, setCollapsed] = useState(false);
   const [broken,setBroken]=useState(false);
 
   const items = menuItems[user?.role] || menuItems.student;
 
-  const specialKey = user?.role === 'student'
+  const specialKey = user?.role === 'admin' ? adminModuleFor(location.pathname) : user?.role === 'student'
     ? (location.pathname.startsWith('/archives') ? '/archives' : /^\/(lab|glider)/.test(location.pathname) ? '/lab' : '/explore')
     : location.pathname.startsWith('/feedback')
     ? (user?.role === 'admin' ? '/feedback/manage' : '/feedback')
@@ -111,7 +112,10 @@ export default function Sidebar() {
         theme="dark"
         mode="inline"
         selectedKeys={[selectedKey]}
-        items={items}
+        items={user?.role === 'admin' ? items.map(item => ({
+          ...item,
+          'aria-current': item.key === selectedKey ? 'page' : undefined,
+        })) : items}
         onClick={({ key }) => {navigate(key);if(broken)setCollapsed(true);}}
       />
     </Sider>

@@ -44,6 +44,7 @@ export default function CourseList() {
     ...(canManage(user?.role) ? [{
       title: siteText("site.802e4d31466b05d9"), key: 'actions', render: (_, r) => r.can_manage ? (
         <Space>
+          {user?.role==='admin'&&<Button size="small" onClick={()=>navigate(`/courses/${r.id}?tab=students`)}>管理授权</Button>}
           <Button size="small" onClick={() => navigate(`/courses/${r.id}/edit`)}>{siteText("site.d735782323a6623c")}</Button>
           {r.status === 'draft' && (
             <Popconfirm
@@ -68,9 +69,10 @@ export default function CourseList() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>{canManage(user?.role) ? siteText("site.e8852d20ff6054dc") : siteText("site.7f43419faac5a913")}</Title>
         {canManage(user?.role) && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>{siteText("site.aa67584ea92a428b")}</Button>
+          <Button aria-label="新建课程" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/courses/create')}>新建课程</Button>
         )}
       </div>
+      {user?.role==='admin'&&<p><Link to="/reward-management">核对待关联课程的存量礼品/历史订单</Link></p>}
       <Card>
         <Space wrap style={{ marginBottom: 16 }}>
           <Input prefix={<SearchOutlined />} placeholder="搜索课程" value={search} onChange={(e) => setSearch(e.target.value)}

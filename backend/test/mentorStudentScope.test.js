@@ -102,12 +102,13 @@ test('档案树、学校/班级批量导出和搜索均应用相同关系限制'
   assert.deepEqual(ids((await api('/archives/generate-batch?school_id=2')).body.archives.map(a=>a.student)),[8]);
 });
 
-test('无关学生不能添加成长记录；导师仍可向自己的课程搜索全平台候选',async()=>{
+test('无关学生不能添加成长记录；课程候选只包含合法负责学生',async()=>{
   assert.equal((await api('/archives/growth-records',tokens.mentor_a,{student_id:6,description:'越权记录'})).status,403);
   assert.equal(db.prepare('SELECT COUNT(*) c FROM growth_records').get().c,0);
   assert.equal((await api('/archives/growth-records',tokens.mentor_a,{student_id:5,description:'合法观察'})).status,200);
   const candidates=await api('/courses/3/enroll/candidates?search=other');
-  assert.equal(candidates.status,200);assert.deepEqual(ids(candidates.body.students),[6]);
+  assert.equal(candidates.status,200);assert.deepEqual(ids(candidates.body.students),[]);
+  assert.equal((await api('/courses/3/enroll',tokens.mentor_a,{student_ids:[6]})).status,403);
   assert.equal((await api('/courses/2/enroll/candidates')).status,403);
 });
 
