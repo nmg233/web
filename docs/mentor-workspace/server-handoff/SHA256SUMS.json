@@ -1,0 +1,56 @@
+{
+  "format": "mentor-handoff-sha256-v1",
+  "releaseCommit": "6271ba421ef56fc7aacac21c25fc5e119c41d8ed",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2448,
+      "sha256": "220a02ff8b7a6dea1efd4044ebd5035c6b4f1e8b058e2d6d8c5a8859e2876826"
+    },
+    {
+      "path": "migrations-reference/1032_mentor_school_scope.sql",
+      "bytes": 3594,
+      "sha256": "dbd0cc26c0de334dbba69201ba6801469e53c38cc49af032b8e9243a23cb6048"
+    },
+    {
+      "path": "migrations-reference/1033_mentor_feedback_conversations.sql",
+      "bytes": 3544,
+      "sha256": "68ad27a38012169072beed3758b3ae49119406a1003c4eb576b5861e74737eae"
+    },
+    {
+      "path": "migrations-reference/1034_public_themes_course_packages.sql",
+      "bytes": 2451,
+      "sha256": "57746a4ac349229426b5e9a50d606ebd28c76705db48cb160933977625f32c69"
+    },
+    {
+      "path": "scripts/preflight.cjs",
+      "bytes": 6183,
+      "sha256": "b95d983298ad4ad49c6d73f9ee9a04325d1baac11c400d0049262a962d177349"
+    },
+    {
+      "path": "发给服务器负责人的说明.txt",
+      "bytes": 1030,
+      "sha256": "75429d228dcc6efc5550b55c43f9ecf62303f7557daa33fe4861f624027dcc05"
+    },
+    {
+      "path": "数据与人工配置清单.md",
+      "bytes": 4781,
+      "sha256": "4e0b19293a35ccba90876e8322ae6cc4adb9ee1f968141ef1d363ba8fb79e5ee"
+    },
+    {
+      "path": "权限批准与课程隔离说明.md",
+      "bytes": 4520,
+      "sha256": "3b9c345ff42a079b2f1815d0636f75bc6eb15a60889e972935c78a5d1a37d82f"
+    },
+    {
+      "path": "部署步骤.md",
+      "bytes": 8090,
+      "sha256": "9950b8ba333bf0d6bc0d82b08151208b18c9935855e66644b86f5177fd39e7b8"
+    },
+    {
+      "path": "验证说明.md",
+      "bytes": 2590,
+      "sha256": "70e7f1b32d55f99313adbe1e93a2dde965ba98d1159cb3ff117115394305d74f"
+    }
+  ]
+}
