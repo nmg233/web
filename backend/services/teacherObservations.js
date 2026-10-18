@@ -18,17 +18,30 @@ function list(user,schoolId){scope.school(user,schoolId);return{
  courses:db.prepare(`SELECT c.id,c.title FROM courses c WHERE ${user.role==='admin'?'1=1':require('../helpers/courseScope').mentorCourseScope('c.id')}`).all(...(user.role==='admin'?[]:[user.id,user.id])),
  grants:db.prepare(`SELECT og.*,t.real_name teacher_name,s.real_name student_name,c.title course_title FROM teacher_observation_grants og JOIN users t ON t.id=og.teacher_id JOIN users s ON s.id=og.student_id JOIN courses c ON c.id=og.course_id WHERE og.school_id=? ${user.role==='admin'?'':'AND og.actor_id='+Number(user.id)} ORDER BY og.teacher_id,og.student_id,og.course_id`).all(schoolId)};}
 function write(user,schoolId,body){return db.transaction(()=>{
- scope.school(user,schoolId);if(![body.teacherId,body.studentId,body.courseId].every(v=>Number.isSafeInteger(v)&&v>0))fail('请选择有效教师、学生和课程');const t=teacher(user,body.teacherId),s=account(user,body.studentId);scope.manages(user,body.courseId);
- if(t.school_id!==Number(schoolId)||s.school_id!==Number(schoolId))fail('教师与学生必须属于当前学校');
- if(!db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(s.id,body.courseId))fail('学生尚未报名此课程');
+ scope.actor(user);if(![body.teacherId,body.studentId,body.courseId].every(v=>Number.isSafeInteger(v)&&v>0))fail('请选择有效教师、学生和课程');
  if(typeof body.active!=='boolean'||!Number.isSafeInteger(body.expectedRevision)||typeof body.reason!=='string'||!body.reason.trim()||body.reason.length>1000)fail('请填写授权状态、修订及原因');
  if(Object.keys(body).some(k=>!['teacherId','studentId','courseId','active','expectedRevision','reason','request_key'].includes(k)))fail('观察授权字段无效');
- const identity=requests.identity(user,'teacher-observe:'+schoolId,body);if(!identity)fail('缺少请求编号');const old=requests.existing(db,identity);if(old)return old;
- const g=db.prepare('SELECT * FROM teacher_observation_grants WHERE teacher_id=? AND student_id=? AND course_id=?').get(t.id,s.id,body.courseId);
+ const g=db.prepare('SELECT * FROM teacher_observation_grants WHERE teacher_id=? AND student_id=? AND course_id=?').get(body.teacherId,body.studentId,body.courseId);
+ if(body.active){
+  scope.school(user,schoolId);const t=teacher(user,body.teacherId),s=account(user,body.studentId);scope.manages(user,body.courseId);
+  if(t.school_id!==Number(schoolId)||s.school_id!==Number(schoolId))fail('教师与学生必须属于当前学校');
+  if(!db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(s.id,body.courseId))fail('学生尚未报名此课程');
+ }else{
+  // Cleanup addresses an existing grant in its recorded school, not a new admission.
+  if(!g||g.school_id!==Number(schoolId))fail('当前学校的观察授权不存在',404);
+  if(user.role!=='admin'){
+   scope.school(user,schoolId);scope.manages(user,body.courseId);
+   const t=db.prepare("SELECT school_id FROM users WHERE id=? AND role='teacher'").get(body.teacherId),s=account(user,body.studentId);
+   if(t?.school_id!==Number(schoolId)||s.school_id!==Number(schoolId)||!db.prepare('SELECT 1 FROM school_created_teachers WHERE teacher_id=? AND actor_id=?').get(body.teacherId,user.id))fail('教师或学生不在当前可维护范围',403);
+  }
+ }
  if(g&&user.role!=='admin'&&g.actor_id!==user.id)fail('已有观察关系请管理员核对，不覆盖他人授权',403);
+ const identity=requests.identity(user,'teacher-observe:'+schoolId,body);if(!identity)fail('缺少请求编号');const old=requests.existing(db,identity);if(old)return old;
  if((g?.revision||0)!==body.expectedRevision)fail('观察授权已变化，请重新核对',409);
- db.prepare(`INSERT INTO teacher_observation_grants(teacher_id,student_id,course_id,school_id,actor_id,source,active) VALUES(?,?,?,?,?,?,?) ON CONFLICT(teacher_id,student_id,course_id) DO UPDATE SET active=excluded.active,actor_id=excluded.actor_id,source=excluded.source,school_id=excluded.school_id,revision=teacher_observation_grants.revision+1,updated_at=CURRENT_TIMESTAMP`).run(t.id,s.id,body.courseId,schoolId,user.id,user.role==='admin'?'admin':'mentor',body.active?1:0);
- db.prepare('INSERT INTO teacher_observation_events(teacher_id,student_id,course_id,actor_id,active,reason) VALUES(?,?,?,?,?,?)').run(t.id,s.id,body.courseId,user.id,body.active?1:0,body.reason.trim());
+ if(!body.active&&!g.active){const result={saved:true,revision:g.revision};requests.save(db,identity,result);return result;}
+ if(body.active)db.prepare(`INSERT INTO teacher_observation_grants(teacher_id,student_id,course_id,school_id,actor_id,source,active) VALUES(?,?,?,?,?,?,1) ON CONFLICT(teacher_id,student_id,course_id) DO UPDATE SET active=1,actor_id=excluded.actor_id,source=excluded.source,school_id=excluded.school_id,revision=teacher_observation_grants.revision+1,updated_at=CURRENT_TIMESTAMP`).run(body.teacherId,body.studentId,body.courseId,schoolId,user.id,user.role==='admin'?'admin':'mentor');
+ else db.prepare('UPDATE teacher_observation_grants SET active=0,revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE teacher_id=? AND student_id=? AND course_id=?').run(g.teacher_id,g.student_id,g.course_id);
+ db.prepare('INSERT INTO teacher_observation_events(teacher_id,student_id,course_id,actor_id,active,reason) VALUES(?,?,?,?,?,?)').run(body.teacherId,body.studentId,body.courseId,user.id,body.active?1:0,body.reason.trim());
  const result={saved:true,revision:(g?.revision||0)+1};requests.save(db,identity,result);return result;
  }).immediate();}
 async function createTeacher(user,schoolId,body){

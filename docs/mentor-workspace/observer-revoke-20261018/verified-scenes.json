@@ -1,0 +1,14 @@
+{
+  "records": [
+    {
+      "name": "完整链路：网页建立授权→网页移除报名→既有行撤销→网页迁校→重新登录拒绝旧校",
+      "status": "passed"
+    },
+    {
+      "name": "候选缺失：停用学生已不在可选列表，既有授权行仍显示原对象并能撤销",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge + temporary Express/SQLite; no teaching or4187 writes"
+}
