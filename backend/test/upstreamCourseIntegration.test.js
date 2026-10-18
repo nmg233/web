@@ -14,6 +14,7 @@ before(async()=>{
  db.prepare("INSERT INTO lessons(id,course_id,title,chapter_id,location,duration,start_at,instructor_id) VALUES(1,1,'有安排的课时',1,'原教室',45,'2026-10-20T15:00',2),(2,2,'不可见课时',NULL,NULL,NULL,NULL,2),(3,3,'待评课时',NULL,NULL,NULL,NULL,2)").run();
  db.prepare("INSERT INTO course_plan_nodes(course_id,position,lesson_id,state) VALUES(1,1,1,'linked')").run();
  db.prepare("INSERT INTO lesson_learning_reports(student_id,lesson_id,enrollment_id,summary,key_points,application,difficulties,next_plan,status,score) VALUES(3,1,1,'报告正文','关键知识','应用记录','困难记录','下一步','approved',91),(3,2,2,'无权报告',NULL,NULL,NULL,NULL,'approved',90),(3,3,3,'待评报告',NULL,NULL,NULL,NULL,'submitted',NULL)").run();
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
  server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port+'/api';
 });
 after(async()=>{await new Promise(r=>server.close(r));db.close();fs.rmSync(dir,{recursive:true,force:true});});
@@ -35,6 +36,7 @@ test('回放保存摘要、字节幂等与部分修改，非管理角色不可�
  for(const [url,method,body]of [['/courses/1/replays','POST',replayForm('mentor_replay_123')],['/courses/replays/'+id,'PUT',{title:'越权'}],['/courses/replays/'+id,'DELETE',undefined],['/courses/1/maintenance/replays/'+id,'PUT',{title:'旁路越权'}],['/courses/1/maintenance/replays/'+id,'DELETE',undefined]])assert.equal((await api(url,method,body,4)).status,403);
 });
 test('原课程外观维护仍保存，有历史禁止撤回、待评禁止关闭，合法归档立即撤销学生读取',async()=>{
+ db.prepare("UPDATE courses SET presentation_theme='voyage',public_theme=NULL,cover_image='/assets/redesign-v2/web/cosmos-960.webp' WHERE id=1").run(); // Explicit pre-existing voyage fixture; new courses cannot select it.
  const appearance=await api('/courses/1','PUT',{presentation_theme:'voyage',cover_image:'/assets/redesign-v2/web/cosmos-960.webp'});assert.equal(appearance.status,200);assert.equal(db.prepare('SELECT presentation_theme FROM courses WHERE id=1').get().presentation_theme,'voyage');
  assert.equal((await api('/courses/1','PUT',{status:'draft'})).status,409);
  assert.equal((await api('/courses/3','PUT',{status:'archived'})).status,409);

@@ -46,6 +46,11 @@ function assignStudent(actor, studentId, data) {
     if(moved) db.prepare(`INSERT INTO student_school_transfers(student_id,actor_id,source_school_id,target_school_id,teacher_id,reason,context_json) VALUES(?,?,?,?,?,?,?)`)
       .run(id,actor.id,student.school_id,school,teacher,reason,JSON.stringify({username:student.username,old_class_id:student.class_id,new_class_id:cls,old_teacher_id:student.teacher_id,mentor_id:student.mentor_id,target_school_name:target.name}));
     db.prepare('UPDATE users SET school_id=?,class_id=?,teacher_id=?,mentor_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(school,cls,teacher,mentor,id);
+    // An explicit admin teacher assignment freezes only currently existing courses.
+    if(own(data,'teacher_id')&&teacher)for(const e of db.prepare('SELECT course_id FROM enrollments WHERE student_id=?').all(id)){
+      db.prepare("INSERT INTO teacher_observation_grants(teacher_id,student_id,course_id,school_id,actor_id,source) VALUES(?,?,?,?,?,'admin_assignment') ON CONFLICT(teacher_id,student_id,course_id) DO UPDATE SET school_id=excluded.school_id,actor_id=excluded.actor_id,source='admin_assignment',active=1,revision=teacher_observation_grants.revision+1").run(teacher,id,e.course_id,school,actor.id);
+    }
+
     const result={message:'学生分配信息已更新',student_id:id}; requests.save(db,identity,result); return result;
   }).immediate();
 }
@@ -84,6 +89,8 @@ function transferClass(actor, classId, data) {
       actor_name: db.prepare('SELECT real_name FROM users WHERE id=?').get(actor.id)?.real_name };
     db.prepare('UPDATE classes SET school_id=? WHERE id=?').run(to,id);
     db.prepare("UPDATE users SET school_id=?,teacher_id=? WHERE class_id=? AND role='student'").run(to,teacherId,id);
+    for(const student of students)for(const e of db.prepare('SELECT course_id FROM enrollments WHERE student_id=?').all(student.id))db.prepare("INSERT INTO teacher_observation_grants(teacher_id,student_id,course_id,school_id,actor_id,source) VALUES(?,?,?,?,?,'admin_assignment') ON CONFLICT(teacher_id,student_id,course_id) DO UPDATE SET school_id=excluded.school_id,actor_id=excluded.actor_id,source='admin_assignment',active=1,revision=teacher_observation_grants.revision+1").run(teacherId,student.id,e.course_id,to,actor.id);
+
     const audit = db.prepare(`INSERT INTO class_school_transfers
       (class_id,source_school_id,target_school_id,teacher_id,actor_id,reason,members_json,context_json)
       VALUES (?,?,?,?,?,?,?,?)`).run(id,from,to,teacherId,actor.id,reason,JSON.stringify(students),JSON.stringify(context));

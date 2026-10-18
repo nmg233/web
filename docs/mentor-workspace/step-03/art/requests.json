@@ -1,0 +1,110 @@
+[
+  {
+    "id": "sky-cover",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a large ivory cloud observatory and tiny cloud garden at lower right, with bright blue sky, enormous blocky white cloud sea, distant ivory/cloud observatory towers, restrained gold. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "sky-mobile",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. bright blue sky, enormous blocky white cloud sea, distant ivory/cloud observatory towers, restrained gold. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "sky-mark",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: a single ivory wing-and-cloud symbol with small gold sun. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "sky-node2",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory deck on chunky clouds. Rear half contains one large model wing held on a cyan wind-testing rack, a compact tool bench behind it. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "sky-node3",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory deck on chunky clouds. Rear half contains an ivory open exhibition pavilion with one cloud-weather model under a navy glass dome and a cyan presentation screen. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "forest-cover",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a timber field research hut and large fern specimen station at lower right, with sunlit jade forest, broad navy-edged tree trunks, large fern silhouettes and an ivory timber observation hut. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "forest-mobile",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. sunlit jade forest, broad navy-edged tree trunks, large fern silhouettes and an ivory timber observation hut. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "forest-mark",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: one bold green fern leaf and ivory magnifying glass. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "forest-node2",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck supported by a thick short tree stump. Rear half contains one timber treehouse maker shed with a broad workbench, simple wooden bridge model and cyan tools. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "forest-node3",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck supported by a thick short tree stump. Rear half contains a woodland exhibition shelter with a large specimen cabinet, leaf model and one blank cyan display board. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "beach-cover",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a large ivory coastal lighthouse and tide-pool research shelter at lower right, with golden shore, turquoise tidal shallows, bold navy coastal rocks, distant ivory lighthouse. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "beach-mobile",
+    "transparent": false,
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. golden shore, turquoise tidal shallows, bold navy coastal rocks, distant ivory lighthouse. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "beach-mark",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: one ivory lighthouse with cyan wave and warm gold beacon. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "beach-node2",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck atop bold navy shore rocks. Rear half contains one sand-side maker bench with a large wooden water-wheel model and cyan water channel. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "beach-node3",
+    "transparent": true,
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-node1.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck atop bold navy shore rocks. Rear half contains one small ivory lighthouse exhibition station with a navy-and-cyan model display case and a large shell sculpture. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "campus-node1",
+    "transparent": true,
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains one large microscope observation bench with green specimen pots and cyan magnifier. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "campus-node2",
+    "transparent": true,
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains one large engineering maker workbench with a blocky bridge model and cyan simple tools. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  },
+  {
+    "id": "campus-node3",
+    "transparent": true,
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains a compact open campus showcase pavilion with a model airplane on an ivory plinth and a blank cyan display board. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people."
+  }
+]

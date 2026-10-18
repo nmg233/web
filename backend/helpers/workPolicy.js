@@ -5,7 +5,7 @@ const { courseBelongsToMentor } = require('./courseScope');
 
 function belongsToTeacher(user, work) {
   if (user.role !== 'teacher') return false;
-  return work.student_teacher_id === user.id;
+  return require('../services/teacherObservations').can(user,work.student_id,work.course_id);
 }
 
 // 评审：admin 全部；执行导师仅自己课程（含授课归属）；教师永远不可评审

@@ -96,3 +96,5 @@
 @media(max-width:767px){.course-scene-desktop{display:none}.course-scene-mobile{display:block}}
 
 .course-scene-layer .course-scene-mobile img,.course-scene-layer .course-scene-desktop img{object-position:center}
+
+.course-module-description{display:block;font-size:14px;line-height:1.5;white-space:normal}.space-sidebar-art{position:relative;overflow:hidden;min-height:180px}

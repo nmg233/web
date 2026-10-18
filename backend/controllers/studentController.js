@@ -143,8 +143,7 @@ exports.list = (req, res) => {
     const params = [];
 
     if (isTeacher(req.user.role)) {
-      sql += ' AND u.teacher_id = ?';
-      params.push(req.user.id);
+      sql += ' AND '+require('../services/teacherObservations').sql(req.user,'u.id');
     }
 
     if (req.query.school_id) { sql += ' AND u.school_id = ?'; params.push(req.query.school_id); }
@@ -164,7 +163,7 @@ exports.list = (req, res) => {
     const schools = isTeacher(req.user.role)
       ? db.prepare(`SELECT DISTINCT s.id, s.name FROM schools s
           JOIN users u ON u.school_id = s.id
-          WHERE u.role = 'student' AND u.teacher_id = ? ORDER BY s.name`).all(req.user.id)
+          WHERE u.role = 'student' AND ${require('../services/teacherObservations').sql(req.user,'u.id')} ORDER BY s.name`).all()
       : db.prepare(`SELECT DISTINCT s.id, s.name FROM schools s
           JOIN users u ON u.school_id = s.id
           WHERE u.role = 'student' AND ${mentorStudentScope()} ORDER BY s.name`)
@@ -363,11 +362,13 @@ exports.updateUser = (req, res) => {
 
     const finalSchoolId = role === 'academic_mentor' ? null : school_id;
     if(existing.role==='student' && role==='student' && Number(finalSchoolId)!==existing.school_id) return res.status(409).json({error:'学生跨校请使用编辑分配，指定目标学校新教师并填写原因'});
-    if(existing.role==='teacher' && Number(finalSchoolId)!==existing.school_id && db.prepare('SELECT 1 FROM users WHERE teacher_id=? LIMIT 1').get(userId)) return res.status(409).json({error:'该教师仍负责学生，请先移交负责学生再调整学校'});
+    const assertTeacherTransfer=()=>{if(existing.role==='teacher' && Number(finalSchoolId)!==existing.school_id && (db.prepare('SELECT 1 FROM users WHERE teacher_id=? LIMIT 1').get(userId)||db.prepare('SELECT 1 FROM teacher_observation_grants WHERE teacher_id=? AND active=1 LIMIT 1').get(userId)))throw Object.assign(new Error('该教师仍有学生或课程观察职责，请先明确移交/撤销观察授权再调整学校；历史记录保留'),{status:409});};
+    assertTeacherTransfer();
     const finalClassId = role === 'academic_mentor' ? null : class_id;
     const active = is_active === undefined ? existing.is_active : toBooleanInt(is_active);
 
     db.transaction(() => {
+      assertTeacherTransfer();
       const current = db.prepare('SELECT role FROM users WHERE id=?').get(userId);
       if (!current) throw Object.assign(new Error('用户不存在'), {status:404});
       if (current.role === 'admin') throw Object.assign(new Error('不能通过此接口修改管理员账号'), {status:400});

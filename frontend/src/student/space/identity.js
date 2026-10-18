@@ -1,7 +1,8 @@
+import {effectiveTheme} from './publicThemes.js';
 export const PLATFORM_NAME = 'PBL 科创平台';
 export const PLATFORM_FONT = "'ChillReunion', 'Microsoft YaHei', sans-serif";
 // 主题来自已授权课程的真实元数据，与 courses.theme（教学主题）分开。
-export function coursePresentation(course){return {theme:course?.presentation_theme==='voyage'?'voyage':'campus',sample:false,groups:[]};}
+export function coursePresentation(course){return {theme:effectiveTheme(course),sample:false,groups:[]};}
 export function asset(name,width=960){return '/assets/redesign-v2/web/'+name+'-'+width+'.webp';}
 
 // 封面只接受同站静态资源引用；私有附件仍由服务器鉴权，失败时保留安全底色。

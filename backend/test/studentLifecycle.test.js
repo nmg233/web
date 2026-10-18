@@ -35,6 +35,7 @@ before(async () => {
   db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (2,'新课程','primary','basic','published',1)").run();
   db.prepare('INSERT INTO enrollments (id,student_id,course_id) VALUES (1,4,1)').run();
   db.prepare("INSERT INTO works (student_id,enrollment_id,title,file_path,review_status) VALUES (4,1,'历史作品','preserved.txt','approved')").run();
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -94,7 +95,7 @@ test('归档保留学习记录和授权查阅，不能选入新课、编辑启�
   for (const url of ['/students/4', '/students/users/4']) assert.equal((await api(url, undefined, tokens.admin, 'DELETE')).status, 400);
   const batch = await api('/students/users/batch-delete', { ids: [4] });
   assert.equal(batch.body.deleted.length, 0);
-  assert.equal((await api('/courses/2/enroll', { student_ids: [4] })).status, 200);
+  assert.equal((await api('/courses/2/enroll', { student_ids: [4] })).status, 403);
   assert.deepEqual(db.prepare('SELECT * FROM works').all(), records);
   assert.deepEqual(db.prepare('SELECT * FROM enrollments').all(), enrollment);
   assert.equal((await change('restore')).status, 200);

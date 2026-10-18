@@ -33,6 +33,7 @@ function fixture(type = 'single_choice', answer = 'A', options = ['A','B']) {
   db.prepare("INSERT INTO course_replays (course_id,lesson_id,title,description,video_path,created_by) VALUES (?,?,'回放','视频简介',?,2)").run(course,lesson,file);
   const card = learning.createCard(admin, lesson, { title:'卡片',content:'正文',status:'published' }).id;
   const exercise = learning.createExercise(admin, card, { question_type:type,prompt:'问题',options,answer,explanation:'旧详解',points:2 }).id;
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   return { course, lesson, card, exercise };
 }
 function runController(handler, req) {
@@ -177,6 +178,8 @@ test('教师包含未开始课时及超过100名学生的统计；学校停用�
     db.prepare("INSERT INTO users (id,username,password_hash,real_name,role,teacher_id) VALUES (?,?,'hash','测试学生','student',5)").run(i,`u${i}`);
     db.prepare('INSERT INTO lesson_progress (student_id,lesson_id,progress,completed_at) VALUES (?,?,100,CURRENT_TIMESTAMP)').run(i,f.lesson);
   }
+  for(let i=100;i<205;i++)db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(?,?,'active')").run(i,f.course);
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   assert.equal(observer.dashboard({id:5,role:'teacher'}).stats.weekly_completed,before+105);
   const school=org.createSchool({name:'组织测试'}).id;
   org.createClass({name:'班级',school_id:school});

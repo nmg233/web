@@ -1,0 +1,9 @@
+{
+  "masters": 24,
+  "variants": 60,
+  "genuineAlphaMasters": 15,
+  "hashesDimensionsAndAlpha": "passed",
+  "resizing": "nearest-neighbour only, integer dimension rounding of <=1 pixel; no recoloring/cropping counted as originals",
+  "model": null,
+  "generationFailureRetried": "beach desktop attempt1 connection failure, succeeded on built-in retry"
+}

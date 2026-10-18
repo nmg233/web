@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-18",
+  "scope": "latest successful runs per suite; synthetic isolated HTTP/SQLite + real Edge; not one invented all-green run",
+  "suites": {
+    "mentor-step1": {
+      "records": [
+        {
+          "name": "五项导航展开、收起、悬浮及键盘，统计与完整列表可刷新",
+          "status": "passed"
+        },
+        {
+          "name": "学校组织账号分区与课程学生分开，导师能开建教师表单",
+          "status": "passed"
+        },
+        {
+          "name": "课程六页签保留、上线学校可真实保存，新建课落在概览",
+          "status": "passed"
+        },
+        {
+          "name": "教师仅看到明确课程，admin可进入同一办学工具",
+          "status": "passed"
+        },
+        {
+          "name": "1440、768、390与360窄屏、短屏和横屏侧栏可唤起，正文不横向溢出",
+          "status": "passed"
+        },
+        {
+          "name": "管理员学生转校先看到现有课程影响，不保存不改变组织或报名",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 6
+    },
+    "mentor-step2": {
+      "records": [
+        {
+          "name": "学生显式课程反馈，导师列表直达且领取后能回复",
+          "status": "passed"
+        },
+        {
+          "name": "公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交",
+          "status": "passed"
+        },
+        {
+          "name": "内部原因转管理员与管理员转回，学生只见公开进展",
+          "status": "passed"
+        },
+        {
+          "name": "学校申请原会话追问与补充，不自动授权，工作台待办可刷新",
+          "status": "passed"
+        },
+        {
+          "name": "铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办",
+          "status": "passed"
+        },
+        {
+          "name": "三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 6
+    },
+    "mentor-step3": {
+      "records": [
+        {
+          "name": "导师网页上传校验预览；确认回包丢失后查询原结果，不重复导入",
+          "status": "passed"
+        },
+        {
+          "name": "恢复暂存并向原课程追加，保留原课时；admin可同样新建导入",
+          "status": "passed"
+        },
+        {
+          "name": "创建课程只有四公共主题；真实保存、默认关卡与本校授权报名",
+          "status": "passed"
+        },
+        {
+          "name": "四主题真实地图3/4/7课时，五尺寸、连线、键盘、站位与无宇航员串入",
+          "status": "passed"
+        },
+        {
+          "name": "主题桌面/手机预览、模块标题保存与空实验隐藏；原上传图优先及缺图降级",
+          "status": "passed"
+        },
+        {
+          "name": "导入教材原位编辑、卡片发布/课时就绪分开；本校学习、教师只读、导师评审金币仍沿原规则",
+          "status": "passed"
+        },
+        {
+          "name": "管理员可真实授予并撤销开发资格，导师只读准确限制；无代码运行入口",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 7
+    },
+    "real-redemption": {
+      "records": [
+        {
+          "name": "正式入口无演示余额或兑换；空礼品可见，旧存储独立保留",
+          "status": "passed"
+        },
+        {
+          "name": "管理员真实上传保存实物和徽章，学生效果预览、刷新持久可读",
+          "status": "passed"
+        },
+        {
+          "name": "管理员修改介绍、替换真实图片和限兑后重新保存",
+          "status": "passed"
+        },
+        {
+          "name": "学生签到后实物确认兑换，余额扣减、精确成功文案、管理员通知",
+          "status": "passed"
+        },
+        {
+          "name": "跨设备订单可读；管理员线下标记已发放并记录操作人时间、通知学生",
+          "status": "passed"
+        },
+        {
+          "name": "数字徽章真实到账徽章墙；不混入演示；跨设备保留",
+          "status": "passed"
+        },
+        {
+          "name": "响应丢失后刷新恢复原请求，余额与库存仅扣一次",
+          "status": "passed"
+        },
+        {
+          "name": "服务重启与页面刷新后余额、订单、徽章仍持久存在",
+          "status": "passed"
+        },
+        {
+          "name": "图片404在局部降级，手机与平板无横向溢出，权限页面保留",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 9
+    },
+    "authoring-preservation": {
+      "records": [
+        {
+          "name": "阶段切换取消保留原文，确认丢弃后不残留假 dirty",
+          "status": "passed"
+        },
+        {
+          "name": "仅选图片关闭取消保留 File、标题说明与未上传状态",
+          "status": "passed"
+        },
+        {
+          "name": "正文已保存仍保护待上传队列，预览取消不丢选件",
+          "status": "passed"
+        },
+        {
+          "name": "教师编辑与学生效果的五项报告名称完整，禁止提交且不读学生私有状态",
+          "status": "passed"
+        },
+        {
+          "name": "卡片切换和关联编辑入口取消保留指导，确认后清理",
+          "status": "passed"
+        },
+        {
+          "name": "失败图片与正文分别保存，取消课时/路由/后退仍保留队列并可重试",
+          "status": "passed"
+        },
+        {
+          "name": "结果未确认时保留 token 和原 File，核对重试只产生一个真实 ID",
+          "status": "passed"
+        },
+        {
+          "name": "保存与上传进行中禁止静默卸载，结束后可正常继续",
+          "status": "passed"
+        },
+        {
+          "name": "五尺寸原位文字/段落/图片选件取消保留，报告预览标签可读且禁用",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 9
+    },
+    "course-rewards": {
+      "records": [
+        {
+          "name": "完整链起点：新课程、显式授权、学校审批建班建学生、四类课时与自动地图",
+          "status": "passed"
+        },
+        {
+          "name": "导师课程内真实上传/礼品预览保存，两个课程和两位导师范围分离",
+          "status": "passed"
+        },
+        {
+          "name": "勋章草稿与真实图案，断网保存保留输入、课程开启范围确认",
+          "status": "passed"
+        },
+        {
+          "name": "同一新学生实际学习、报告导师通过、真实金币与勋章只结算一次",
+          "status": "passed"
+        },
+        {
+          "name": "本课程实际兑换与导师发放，跨标签重试只扣一次且通知当前课程管理者",
+          "status": "passed"
+        },
+        {
+          "name": "通关开关关闭不影响兑换章到账，已获彩色上/未获灰度下与三尺寸展示",
+          "status": "passed"
+        },
+        {
+          "name": "撤回/撤销模拟后历史仍保留且阻止新兑换、导师新入口即时拒绝",
+          "status": "passed"
+        },
+        {
+          "name": "管理员存量核对逐项绑定、本人历史图片、原请求恢复与三个尺寸管理页",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 8
+    },
+    "learning-flow": {
+      "records": [
+        {
+          "name": "管理员可视化段落和真实图片上传保存，学生读取同一教材文件",
+          "status": "passed"
+        },
+        {
+          "name": "管理员真实回放上传、Markdown摘要与课时回顾保存，学生可播放",
+          "status": "passed"
+        },
+        {
+          "name": "学生真实完成回顾、必做习题与卡片，提交包含开放反思的第一版报告",
+          "status": "passed"
+        },
+        {
+          "name": "导师退回、学生修改新版本、导师通过，旧报告与开放反思完整保留",
+          "status": "passed"
+        },
+        {
+          "name": "按已绑定教材结算真实金币且不重复，重启和另一设备保留报告及奖励历史",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": [],
+      "count": 5
+    }
+  },
+  "businessSceneCount": 50
+}

@@ -18,10 +18,12 @@ const COMMON_RULES = [
 
 const ROLE_PATH_RULES = {
   admin: [
+    /^\/admin\/(?:organization|teaching|settings)$/,
+    /^\/mentor\/(?:organization|teaching|guide|requests|feedback)$/,
     /^\/reward-management$/,
     /^\/dashboard(?:\/schools\/\d+|\/ai)?$/,
     /^\/glider$/,
-    /^\/courses(?:\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,
+    /^\/courses(?:\/import|\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,
     /^\/students(?:\/\d+)?$/,
     /^\/works(?:\/\d+)?$/,
     /^\/tasks(?:\/\d+)?$/,
@@ -31,9 +33,10 @@ const ROLE_PATH_RULES = {
     /^\/observer(?:\/students(?:\/\d+)?)?$/,
   ],
   academic_mentor: [
+    /^\/mentor\/(?:organization|teaching|guide|requests|feedback)$/,
     /^\/dashboard(?:\/ai)?$/,
     /^\/glider$/,
-    /^\/courses(?:\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,
+    /^\/courses(?:\/import|\/create|\/\d+|\/\d+\/edit|\/\d+\/lessons\/\d+\/content)?$/,
     /^\/students(?:\/\d+)?$/,
     /^\/works(?:\/\d+)?$/,
     /^\/tasks(?:\/\d+)?$/,

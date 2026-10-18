@@ -1,6 +1,10 @@
+import ApplicationInbox from './pages/mentor/ApplicationInbox';
+import CourseFeedback from './pages/mentor/CourseFeedback';
 import {useCopyVersion} from './content/useCopyVersion';
 import CourseAccessBoundary from './pages/courses/CourseAccessBoundary';
-import SchoolApplications from './pages/organization/SchoolApplications';
+import MentorOrganization from './pages/mentor/Organization';
+import MentorTeaching from './pages/mentor/TeachingHub';
+import MentorGuide from './pages/mentor/Guide';
 import RuntimeCopyProvider from './content/RuntimeCopyProvider';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -42,6 +46,7 @@ const AIKnowledge = lazy(() => import('./pages/courses/AIKnowledge'));
 const CourseList = lazy(() => import('./pages/courses/List'));
 const CourseDetail = lazy(() => import('./pages/courses/Detail'));
 const CourseForm = lazy(() => import('./pages/courses/Form'));
+const CoursePackageImport=lazy(()=>import('./pages/courses/CoursePackageImport'));
 const Learning = lazy(() => import('./pages/courses/Learning'));
 const TaskList = lazy(() => import('./pages/tasks/List'));
 const TaskDetail = lazy(() => import('./pages/tasks/Detail'));
@@ -103,7 +108,11 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<AppLayout />}>
                 <Route path="change-password" element={<ChangePassword />} />
-                <Route path="mentor/organization" element={guard(<SchoolApplications/>, ['academic_mentor'])} />
+                <Route path="mentor/organization" element={guard(<MentorOrganization/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/requests" element={guard(<ApplicationInbox/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/feedback" element={guard(<CourseFeedback/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/teaching" element={guard(<MentorTeaching/>, ['admin','academic_mentor'])} />
+                <Route path="mentor/guide" element={guard(<MentorGuide/>, ['admin','academic_mentor'])} />
                 <Route path="admin/:module" element={guard(<ModuleHub/>, ['admin'])} />
                 <Route path="student-copy" element={guard(<CourseAccessBoundary><StudentCopyManagement/></CourseAccessBoundary>, ['admin','academic_mentor'])} />
                 <Route path="copy-review" element={guard(<CopyReview />, ['admin'])} />
@@ -122,6 +131,7 @@ function App() {
                 <Route path="dashboard/ai/settings" element={guard(<AISettings />, ['admin'])} />
                 <Route path="glider" element={guard(<StudentView student={<LegacyEntry free={<GliderSimulator/>}/>} legacy={<GliderSimulator/>}/>, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses" element={guard(<StudentView student={<ExploreHome />} legacy={<CourseList />} />, ['admin', 'academic_mentor', 'student', 'media'])} />
+                <Route path="courses/import" element={guard(<CoursePackageImport/>,['admin','academic_mentor'])}/>
                 <Route path="courses/create" element={guard(<CourseAccessBoundary><CourseForm /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id" element={guard(<StudentView student={<CourseMap />} legacy={<CourseAccessBoundary><CourseDetail /></CourseAccessBoundary>} />, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses/:courseId/lab" element={guard(<Lab/>, ['student'])} />

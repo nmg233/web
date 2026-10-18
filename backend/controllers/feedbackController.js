@@ -3,6 +3,7 @@ const path = require('path');
 const feedbackService = require('../services/feedbackService');
 const { FEEDBACK_UPLOAD_ROOT, removeFiles } = require('../middleware/feedbackUpload');
 
+const meta=req=>{const body=req.body||{};if(Object.hasOwn(body,'attachments'))throw Object.assign(new Error('附件未以正确上传格式发送，文字尚未保存；请保留输入后重试'),{status:400});return{expectedRevision:body.expectedRevision===undefined?undefined:Number(body.expectedRevision),request_key:body.request_key,files:req.files||[]};};
 function sendError(res, err) {
   if (err instanceof feedbackService.FeedbackError || err.status) {
     return res.status(err.status).json({ success: false, error: err.message, code: err.code });
@@ -20,8 +21,7 @@ exports.create = (req, res) => {
     const feedback = feedbackService.create(req.user, req.body, req.files || []);
     return res.status(201).json({ success: true, data: { feedback } });
   } catch (err) {
-    removeFiles(req.files);
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -29,7 +29,7 @@ exports.mine = (req, res) => {
   try {
     return res.json({ success: true, data: feedbackService.listMine(req.user, req.query) });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -37,7 +37,7 @@ exports.manageList = (req, res) => {
   try {
     return res.json({ success: true, data: feedbackService.listManage(req.user, req.query) });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -45,7 +45,7 @@ exports.stats = (req, res) => {
   try {
     return res.json({ success: true, data: { stats: feedbackService.stats(req.user) } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -53,70 +53,70 @@ exports.detail = (req, res) => {
   try {
     return res.json({ success: true, data: feedbackService.detail(req.user, req.params.id) });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.addMessage = (req, res) => {
   try {
-    const message = feedbackService.addPublicMessage(req.user, req.params.id, req.body.content);
+    const message = feedbackService.addPublicMessage(req.user, req.params.id, req.body.content,meta(req));
     return res.status(201).json({ success: true, data: { message } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.addInternalNote = (req, res) => {
   try {
-    const message = feedbackService.addInternalNote(req.user, req.params.id, req.body.content);
+    const message = feedbackService.addInternalNote(req.user, req.params.id, req.body.content,meta(req));
     return res.status(201).json({ success: true, data: { message } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.changeStatus = (req, res) => {
   try {
-    const feedback = feedbackService.changeStatus(req.user, req.params.id, req.body.status);
+    const feedback = feedbackService.changeStatus(req.user, req.params.id, req.body.status,meta(req));
     return res.json({ success: true, data: { feedback } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.changePriority = (req, res) => {
   try {
-    const feedback = feedbackService.changePriority(req.user, req.params.id, req.body.priority);
+    const feedback = feedbackService.changePriority(req.user, req.params.id, req.body.priority,meta(req));
     return res.json({ success: true, data: { feedback } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.resolve = (req, res) => {
   try {
-    const feedback = feedbackService.resolve(req.user, req.params.id, req.body.resolution);
+    const feedback = feedbackService.resolve(req.user, req.params.id, req.body.resolution,meta(req));
     return res.json({ success: true, data: { feedback } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.confirm = (req, res) => {
   try {
-    const feedback = feedbackService.confirmResolved(req.user, req.params.id);
+    const feedback = feedbackService.confirmResolved(req.user, req.params.id,meta(req));
     return res.json({ success: true, data: { feedback } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
 exports.reopen = (req, res) => {
   try {
-    const feedback = feedbackService.reopen(req.user, req.params.id, req.body.reason);
+    const feedback = feedbackService.reopen(req.user, req.params.id, req.body.reason,meta(req));
     return res.json({ success: true, data: { feedback } });
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -130,7 +130,7 @@ exports.downloadAttachment = (req, res) => {
     }
     return res.download(resolvedPath, attachment.original_name);
   } catch (err) {
-    return sendError(res, err);
+    removeFiles(req.files);return sendError(res, err);
   }
 };
 
@@ -144,3 +144,5 @@ exports.uploadError = (err, req, res, _next) => {
   }
   return res.status(400).json({ success: false, error: err.message || '附件上传失败', code: 'FEEDBACK_UPLOAD_FAILED' });
 };
+
+exports.workflow=(req,res)=>{try{res.json({success:true,data:require('../services/feedbackRouting').workflow(req.user,req.params.id,req.body,req.files||[])});}catch(e){removeFiles(req.files);sendError(res,e);}};

@@ -33,8 +33,7 @@ test('教材防丢稿与报告预览：独立合成库原生操作',{timeout:360
  const lessonRow=l=>db.prepare('SELECT * FROM lessons WHERE id=?').get(l);
  async function open(l){
   // Native navigation discards only on explicit acceptance; each scene starts clean.
-  const accept=d=>d.accept();m.on('dialog',accept);await m.goto(base+'/courses');m.off('dialog',accept);await m.locator('a[href="/courses/'+id+'"]').click();await m.getByRole('tab',{name:'课程内容维护',exact:true}).click();
-  await m.getByRole('tab',{name:'可视化填写 / 学生效果预览',exact:true}).click();const select=m.locator('#preview-lesson');await select.click();
+  const accept=d=>d.accept();m.on('dialog',accept);await m.goto(base+'/courses');m.off('dialog',accept);await m.locator('a[href="/courses/'+id+'"]').click();await m.getByRole('tab',{name:'课时与内容',exact:true}).click();const select=m.locator('#preview-lesson');await select.click();
   if(l===theory)await select.press('ArrowDown');await select.press('Enter');await m.locator('.teaching-preview .study-header h2').filter({hasText:lessonRow(l).title}).waitFor();
  }
  async function selectImage(name='待上传.png'){

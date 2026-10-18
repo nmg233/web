@@ -20,6 +20,7 @@ test('上游合并后真实教材、学习报告、评审与金币闭环（合�
  // Observer authorization requires an explicit assignment; sharing a class
  // alone never grants access. Set this relation only in the synthetic fixture.
  db.prepare('UPDATE users SET teacher_id=3 WHERE id=4').run();
+ db.prepare("INSERT INTO teacher_observation_grants(teacher_id,student_id,course_id,school_id,actor_id,source) SELECT 3,4,?,school_id,1,'admin' FROM users WHERE id=4").run(course); // Explicit test-only current-course grant; no automatic future-course expansion.
  db.prepare("UPDATE courses SET title='上游整合学习验收（合成课程）' WHERE id=?").run(course);
  db.prepare("UPDATE lessons SET content_state='ready',review_content='合成回顾原稿',report_guidance='记录条件与证据',status='completed' WHERE id IN (?,?)").run(visit,theory);
  // Author in preparing state: homepage candidates must not bind a pre-edit version.

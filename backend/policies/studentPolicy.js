@@ -17,7 +17,7 @@ function canViewStudent(user, student) {
   if (!user || !student) return false;
   if (user.role === 'admin') return true;
   if (user.role === 'student') return user.id === student.id;
-  if (user.role === 'teacher') return student.teacher_id === user.id;
+  if (user.role === 'teacher') return require('../services/teacherObservations').can(user,student.id);
   if (user.role === 'academic_mentor') {
     return !!db.prepare(`SELECT 1 FROM users u WHERE u.id = ? AND ${mentorStudentScope()}`)
       .get(student.id, ...mentorStudentParams(user.id));

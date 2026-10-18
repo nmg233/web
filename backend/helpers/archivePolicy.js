@@ -11,7 +11,7 @@ function studentInMentorCourses(mentorId, studentId) {
 function canViewArchive(user, student) {
   if (user.role === 'admin') return true;
   if (user.role === 'student') return student.id === user.id;
-  if (user.role === 'teacher') return student.teacher_id === user.id;
+  if (user.role === 'teacher') return require('../services/teacherObservations').can(user,student.id);
   if (user.role === 'academic_mentor') return studentInMentorCourses(user.id, student.id);
   return false;
 }

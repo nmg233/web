@@ -129,6 +129,7 @@ exports.showCreate = (req, res) => {
 exports.create = (req, res) => {
   try {
     const validated = contentValidation.courseFields(req.body, true);
+    if(req.body.status&&req.body.status!=='draft')return res.status(409).json({error:'新课程先保存草稿，明确上线学校后再发布'});
     const { title, theme, description, driving_question, story_line,
             grade_level, difficulty, materials_needed } = req.body;
 
@@ -147,7 +148,7 @@ exports.create = (req, res) => {
     ).run(validated.title, theme || null, description || null, driving_question || null,
          story_line || null, grade_level, difficulty, validated.total_hours ?? null,
          materials_needed || null, req.user.id);
-    db.prepare("UPDATE courses SET presentation_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run(validated.presentation_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
+    db.prepare("UPDATE courses SET presentation_theme=?,public_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run('campus',validated.public_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
     const response={ message: '课程创建成功（草稿），补充课时后即可发布', id: Number(result.lastInsertRowid) };requests.save(db,identity,response);return response;}).immediate();
 
     res.json(output);
@@ -280,12 +281,12 @@ exports.update = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(403).json({ error: '无权管理该课程' });
     }
-    const current = db.prepare('SELECT status FROM courses WHERE id = ?').get(id);
+    const current = db.prepare('SELECT * FROM courses WHERE id = ?').get(id);
     if (current?.status === 'archived') return res.status(409).json({ error: '已归档课程只允许查看历史' });
     if (req.body.status !== undefined && !['draft','published','archived'].includes(req.body.status)) return res.status(400).json({error:'课程状态无效'});
     if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) return res.status(409).json({error:'已有学生学习记录，不能撤回草稿；关闭课程请使用归档'});
     if (req.body.status === 'archived') lifecycle.assertCanClose(id);
-    const validated = contentValidation.courseFields(req.body);
+    const validated = contentValidation.courseFields(req.body,false,current);
     const fields = Object.keys(validated);
     const sets = [];
     const values = [];
@@ -306,6 +307,7 @@ exports.update = (req, res) => {
     db.transaction(() => {
       if (!writable(id)) throw Object.assign(new Error('已归档课程只允许查看历史'),{status:409});
       if (req.body.status === 'archived') lifecycle.assertCanClose(id);
+      if (req.body.status === 'published' && current.status!=='published')require('../services/mentorSchoolScope').assertPublish(req.user,id);
       if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) throw Object.assign(new Error('已有学习记录，不能撤回草稿'),{status:409});
       db.prepare(`UPDATE courses SET ${sets.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(...values);
       if(fields.includes('cover_image'))db.prepare("DELETE FROM course_theme_bindings WHERE course_id=? AND purpose='cover'").run(id);
@@ -347,6 +349,7 @@ exports.delete = (req, res) => {
 
     if (['reward_gifts','reward_images','reward_orders','reward_badge_grants'].some(table=>db.prepare(`SELECT 1 FROM ${table} WHERE course_id=? LIMIT 1`).get(id))) return res.status(409).json({error:'该课程已有奖励配置、图片或订单，不可删除；请归档保留奖励和履约记录'});
 
+    if(['course_package_imports','development_qualifications','development_qualification_events'].some(t=>db.prepare('SELECT 1 FROM '+t+' WHERE course_id=? LIMIT 1').get(id)))return res.status(409).json({error:'课程有导入或资格审计记录，请归档保留历史'});
     const filePaths = [
       ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
       ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),
@@ -884,9 +887,9 @@ exports.enroll = (req, res) => {
     const placeholders = ids.map(() => '?').join(',');
     const students = db.prepare(
       `SELECT u.id, u.real_name, u.school_id FROM users u
-       WHERE u.id IN (${placeholders}) AND u.role = 'student' AND u.is_active = 1 AND u.archived_at IS NULL ${req.user.role==='academic_mentor'?`AND (u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`:''}`
-    ).all(...ids,...(req.user.role==='academic_mentor'?[req.user.id,req.user.id,req.user.id]:[]));
-    if(req.user.role==='academic_mentor'&&students.length!==new Set(ids.map(Number)).size)return res.status(403).json({error:'只能导入负责或已授权课程范围内的学生'});
+       WHERE u.id IN (${placeholders}) AND u.role = 'student' AND ${require('../services/mentorSchoolScope').admissionSql(req.user,Number(id))}`
+    ).all(...ids);
+    if(students.length!==new Set(ids.map(Number)).size)return res.status(403).json({error:'学生不在课程上线学校与账号管理交集内，请先核对上线学校和账号归属'});
     const studentMap = new Map(students.map((s) => [s.id, s]));
 
     const added = [];
@@ -917,6 +920,7 @@ exports.enroll = (req, res) => {
           skipped.push({ name: String(raw), reason: '学生不存在或已禁用' });
           continue;
         }
+        require('../services/mentorSchoolScope').assertAdmission(req.user,Number(id),num);
         insert.run(num, Number(id), req.user.id);
         added.push(student.real_name);
       }
@@ -931,6 +935,7 @@ exports.enroll = (req, res) => {
       skipped,
     });
   } catch (err) {
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('报名错误:', err);
     res.status(500).json({ error: '操作失败，请稍后重试' });
   }
@@ -957,7 +962,7 @@ exports.enrollCandidates = (req, res) => {
       `NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = u.id AND e.course_id = ${Number(id)} AND e.status = 'active')`,
     ];
     const params = [];
-    if(req.user.role==='academic_mentor'){conditions.push(`(u.mentor_id=? OR ${require('../policies/studentPolicy').mentorStudentScope()})`);params.push(req.user.id,req.user.id,req.user.id);}
+    conditions.push(require('../services/mentorSchoolScope').admissionSql(req.user,Number(id)));
     if (req.query.school_id) { conditions.push('u.school_id = ?'); params.push(req.query.school_id); }
     if (req.query.class_id) { conditions.push('u.class_id = ?'); params.push(req.query.class_id); }
     if (req.query.search) {

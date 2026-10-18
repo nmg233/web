@@ -6,7 +6,7 @@ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
 async function call(actor,p,body,method='POST'){const r=await fetch(url+'/api'+p,{method:body===undefined?'GET':method,headers:{Authorization:'Bearer '+tokens[actor],...(!(body instanceof FormData)?{'Content-Type':'application/json'}:{})},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body)});return{status:r.status,data:r.headers.get('content-type')?.includes('application/json')?await r.json():await r.arrayBuffer()};}
 const upload=(actor,id,purpose='desktop',key=crypto.randomUUID(),bytes=png)=>{const form=new FormData();form.append('image',new Blob([bytes],{type:'image/png'}),'test.png');form.append('purpose',purpose);form.append('requestKey',key);return call(actor,'/courses/'+id+'/theme/images',form);};
 const revision=id=>contentRevision(db.prepare('SELECT * FROM courses WHERE id=?').get(id));
-const theme=(id,images,extra={})=>({expected_revision:revision(id),images,preset:'voyage',opacity:0.65,...extra});
+const theme=(id,images,extra={})=>({expected_revision:revision(id),images,preset:'forest',opacity:0.65,...extra});
 before(async()=>{const hash=require('bcryptjs').hashSync(password,4);for(const [id,role]of[[1,'admin'],[2,'academic_mentor'],[3,'student'],[4,'teacher'],[5,'academic_mentor']])db.prepare('INSERT INTO users(id,username,password_hash,real_name,role) VALUES(?,?,?,?,?)').run(id,'workspace'+id,hash,'合成验收'+id,role);
  db.prepare("INSERT INTO courses(id,title,status,created_by,map_mode,grade_level,difficulty) VALUES(20,'存量十关课程','published',2,'plan','junior','basic')").run();db.prepare("INSERT INTO lessons(id,course_id,title,map_art_preset,sort_order) VALUES(21,20,'旧图旧课时','vr',1)").run();for(let i=1;i<=10;i++)db.prepare('INSERT INTO course_plan_nodes(course_id,position,lesson_id,state) VALUES(20,?,?,?)').run(i,i===1?21:null,i===1?'linked':'preparing');
  server=app.listen(0);await new Promise(r=>server.once('listening',r));url='http://127.0.0.1:'+server.address().port;
@@ -14,7 +14,7 @@ before(async()=>{const hash=require('bcryptjs').hashSync(password,4);for(const [
 });
 after(async()=>{if(server)await new Promise(r=>server.close(r));db.close();});
 test('创建草稿课程、真实学习目标与0值；同请求并发只创建一次',async()=>{
- const body={title:'隔离自动课程',grade_level:'junior',difficulty:'basic',total_hours:0,learning_objectives:'保留人工目标。',status:'published',request_key:crypto.randomUUID()};
+ const body={title:'隔离自动课程',grade_level:'junior',difficulty:'basic',total_hours:0,learning_objectives:'保留人工目标。',status:'draft',request_key:crypto.randomUUID()};
  const results=await Promise.all(Array.from({length:8},()=>call(2,'/courses',body)));assert.ok(results.every(r=>r.status===200));assert.equal(new Set(results.map(r=>r.data.id)).size,1);courseId=results[0].data.id;
  const c=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);assert.equal(c.status,'draft');assert.equal(c.automatic_map,1);assert.equal(c.map_mode,'plan');assert.equal(c.total_hours,0);assert.equal(c.learning_objectives,body.learning_objectives);assert.equal((await call(2,'/courses',{...body,title:'不同内容'})).status,409);assert.equal(db.prepare('SELECT count(*) n FROM course_plan_nodes WHERE course_id=?').get(courseId).n,0);
 });
@@ -42,7 +42,7 @@ test('学生可读取已发布授权主题；撤回/移除立即拒绝，未绑�
 test('主题并发修订拒绝覆盖，失败替换保留绑定，管理员待办与历史订单受控',async()=>{
  const up=await upload(1,courseId,'mark'),body=theme(courseId,{mark:up.data.id});assert.equal((await call(1,`/courses/${courseId}/theme`,body,'PUT')).status,200);assert.equal((await call(1,`/courses/${courseId}/theme`,{...body,opacity:0.2},'PUT')).status,409);assert.equal((await call(1,`/courses/${courseId}/theme`,theme(courseId,{mark:'not-an-image'}),'PUT')).status,404);assert.equal((await call(2,`/courses/${courseId}`)).data.themeImages.mark.id,up.data.id);
  assert.equal((await call(1,'/dashboard/admin-pending')).status,200);assert.equal((await call(2,'/dashboard/admin-pending')).status,403);assert.equal((await call(4,'/reward-shop/management/orders/missing')).status,403);assert.equal((await call(1,'/reward-shop/management/orders/missing')).status,404);
- const readiness=require('../helpers/readiness');db.exec('ALTER TABLE courses RENAME COLUMN theme_revision TO missing_theme_revision');assert.throws(()=>readiness.assertReady(db));db.exec('ALTER TABLE courses RENAME COLUMN missing_theme_revision TO theme_revision');assert.equal(readiness.assertReady(db),1031);
+ const readiness=require('../helpers/readiness');db.exec('ALTER TABLE courses RENAME COLUMN theme_revision TO missing_theme_revision');assert.throws(()=>readiness.assertReady(db));db.exec('ALTER TABLE courses RENAME COLUMN missing_theme_revision TO theme_revision');assert.equal(readiness.assertReady(db),require('../helpers/readiness').MIN_SCHEMA_VERSION);
  const before=db.prepare('SELECT * FROM schema_migrations ORDER BY version').all();require('../database/migrate').runMigrations(db);assert.deepEqual(db.prepare('SELECT * FROM schema_migrations ORDER BY version').all(),before);assert.equal(db.pragma('integrity_check',{simple:true}),'ok');assert.deepEqual(db.pragma('foreign_key_check'),[]);
 });
 test('自动地图上限失败原子回滚；未改变顺序的教材保存保留节点身份',async()=>{

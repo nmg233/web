@@ -1,0 +1,16 @@
+const router=require('express').Router(),multer=require('multer'),service=require('../services/coursePackages'),{requireAuth,requirePasswordChanged,requireRole}=require('../middleware/auth');
+router.use(requireAuth,requirePasswordChanged,requireRole('admin','academic_mentor'));
+const handle=fn=>(req,res,next)=>{try{res.set('Cache-Control','no-store').json(fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}};
+const parser=multer({storage:multer.memoryStorage(),limits:{fileSize:20*1024*1024,files:1,fields:1}}).single('package');
+router.get('/uploads',handle(req=>service.uploads(req.user)));
+router.get('/imports/:id',handle(req=>service.resultById(req.user,req.params.id)));
+router.get('/imports',handle(req=>service.imports(req.user)));
+router.get('/result/:key',handle(req=>service.query(req.user,req.params.key)));
+router.post('/uploads',parser,handle(req=>{if(!req.file||Object.keys(req.body).some(k=>k!=='request_key'))throw Object.assign(new Error('请选择数据课程ZIP及请求编号'),{status:400});return service.upload(req.user,req.file.buffer,req.body.request_key);}));
+router.get('/uploads/:id',handle(req=>service.inspect(req.user,req.params.id)));
+router.delete('/uploads/:id',handle(req=>service.discard(req.user,req.params.id)));
+router.post('/uploads/:id/plan',handle(req=>service.plan(req.user,req.params.id,req.body||{})));
+router.post('/uploads/:id/commit',handle(req=>{if(req.aborted)throw Object.assign(new Error('确认请求已取消，尚未开始导入'),{status:409});return service.commit(req.user,req.params.id,req.body||{});}));
+router.get('/uploads/:id/assets/:assetId',(req,res,next)=>{try{const a=service.asset(req.user,req.params.id,req.params.assetId);res.set({'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Content-Disposition':`attachment; filename="${a.name}"`}).type(a.mime).sendFile(a.file);}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}});
+router.use((error,req,res,next)=>{if(error instanceof multer.MulterError)return res.status(400).json({error:'课程ZIP最多20MiB，仅一个文件；校验失败未写教材'});next(error);});
+module.exports=router;

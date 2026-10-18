@@ -88,6 +88,7 @@ before(async () => {
   insertWork.run(12, 8, 5, 1, '未分配学生待审作品', '/tmp/pbl-w12.pdf', 'pending', null, 1);
 
   await new Promise((resolve) => {
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
     server = app.listen(0, resolve);
   });
   baseUrl = `http://127.0.0.1:${server.address().port}`;

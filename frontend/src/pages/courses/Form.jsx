@@ -1,3 +1,4 @@
+import PublicThemePicker from './PublicThemePicker';
 import {maintenanceAPI as maintenance} from './maintenanceApi';
 import useTeachingLeaveGuard from './useTeachingLeaveGuard';
 import {copyText as siteText} from "../../content/copy";
@@ -43,7 +44,7 @@ export default function CourseForm() {
   }, [id, form, isEdit, navigate,attempt]);
 
   useEffect(() => {
-    if (isEdit && editableId === id && loadedCourse) form.setFieldsValue(loadedCourse);
+    if (isEdit && editableId === id && loadedCourse) form.setFieldsValue({...loadedCourse,public_theme:loadedCourse.public_theme||undefined});
   }, [editableId, id, isEdit, loadedCourse, form]);
 
   const onFinish = async (values) => {
@@ -55,14 +56,14 @@ export default function CourseForm() {
         await maintenance.save(id,'/course',{...values,expected_revision:known.current});
         message.success(siteText("site.a2c4aa5c6824a935"));
       } else {
-        const result=await courseAPI.create({...values,request_key:request.current});dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+result.id+'?tab=students');return;
+        const result=await courseAPI.create({...values,request_key:request.current});dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+result.id+'?tab=overview');return;
       }
       dirty.current=false;unsaved.current.clear();processing.current.clear();navigate('/courses/'+id);
     } catch(error) {setReadError(error.response?.data?.error||'保存未确认，当前输入已保留，请核对服务器版本');}
     finally { busy.current=false;processing.current.clear();setLoading(false); }
   };
 
-  const inspectLatest=async()=>{try{const latest=(await maintenance.read(id)).course,mine=form.getFieldsValue(),diff=Object.keys(mine).filter(key=>String(mine[key]??'')!==String(latest[key]??'')),labels={title:'课程名称',description:'课程简介',learning_objectives:'学习目标',theme:'教学主题',presentation_theme:'视觉预设',driving_question:'核心问题',story_line:'故事',materials_needed:'材料准备',grade_level:'学段',difficulty:'难度',total_hours:'总课时'};Modal.confirm({title:'核对最新课程，保留我的输入',content:<div style={{maxHeight:'60vh',overflow:'auto'}}><p>服务器课程：{latest.title}</p>{diff.map(key=><div key={key}><strong>{labels[key]||key}</strong><p style={{whiteSpace:'pre-wrap'}}>服务器：{String(latest[key]??'（未填写）')}</p><p style={{whiteSpace:'pre-wrap'}}>我的输入：{String(mine[key]??'（未填写）')}</p></div>)}<p>确认只采用最新修订号，不替换表单。确认后保存会使用当前表单，请先核对全部差异。</p></div>,onOk:()=>{known.current=latest.content_revision;setReadError('已核对新修订，输入保留，请检查后保存');}});}catch(error){setReadError(error.response?.data?.error||'最新版本读取失败，输入已保留');}};
+  const inspectLatest=async()=>{try{const latest=(await maintenance.read(id)).course,mine=form.getFieldsValue(),diff=Object.keys(mine).filter(key=>String(mine[key]??'')!==String(latest[key]??'')),labels={title:'课程名称',description:'课程简介',learning_objectives:'学习目标',theme:'教学主题',public_theme:'公共视觉主题',presentation_theme:'存量视觉预设',driving_question:'核心问题',story_line:'故事',materials_needed:'材料准备',grade_level:'学段',difficulty:'难度',total_hours:'总课时'};Modal.confirm({title:'核对最新课程，保留我的输入',content:<div style={{maxHeight:'60vh',overflow:'auto'}}><p>服务器课程：{latest.title}</p>{diff.map(key=><div key={key}><strong>{labels[key]||key}</strong><p style={{whiteSpace:'pre-wrap'}}>服务器：{String(latest[key]??'（未填写）')}</p><p style={{whiteSpace:'pre-wrap'}}>我的输入：{String(mine[key]??'（未填写）')}</p></div>)}<p>确认只采用最新修订号，不替换表单。确认后保存会使用当前表单，请先核对全部差异。</p></div>,onOk:()=>{known.current=latest.content_revision;setReadError('已核对新修订，输入保留，请检查后保存');}});}catch(error){setReadError(error.response?.data?.error||'最新版本读取失败，输入已保留');}};
   if (!['admin', 'academic_mentor'].includes(user?.role)) return <p>{siteText("site.5face19c0cc4760d")}</p>;
   if (isEdit && editableId !== id) return readError?<Alert type="error" title={readError} action={<Button onClick={()=>setAttempt(n=>n+1)}>{c('retryRead')}</Button>}/>:<p>{siteText("site.39bfa026fb882acf")}</p>;
 
@@ -74,12 +75,12 @@ export default function CourseForm() {
       </Space>
       {readError&&<Alert type="warning" title={readError} description="当前输入保留；可另开本课程概览核对字段差异，不能直接覆盖他人修改。" action={isEdit?<Button disabled={loading} onClick={inspectLatest}>核对最新修订（保留输入）</Button>:null}/>}
       <Card>
-        <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={()=>{dirty.current=true;unsaved.current.add('course');}} disabled={loading} initialValues={{presentation_theme:'campus'}}>
+        <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={()=>{dirty.current=true;unsaved.current.add('course');}} disabled={loading} initialValues={{public_theme:'campus'}}>
           <Form.Item name="title" label={siteText("site.c266f61dfb37f71d")} rules={[{ required: true, message: siteText("site.d911ed4f250de1c0") }]}>
             <Input maxLength={120}/>
           </Form.Item>
           <Form.Item name="theme" label={siteText("site.948c344e38f324b3")}><Input maxLength={120} placeholder={siteText("site.13465840b4bc43f7")} /></Form.Item>
-          <Form.Item name="presentation_theme" label={c('field.presentation_theme')} extra={c('purpose')}><Select options={['campus','voyage'].map(value=>({value,label:c('theme.'+value)}))}/></Form.Item>
+          <Form.Item name="public_theme" label="公共视觉主题" extra="主题不决定教学模板；默认校园，图片以后可逐项更换。存量远航保留，明确选择公共主题才更换。"><PublicThemePicker current={loadedCourse} disabled={loading}/></Form.Item>
           <Form.Item name="description" label={siteText("site.95dc1aa6970c76bb")}><Input.TextArea maxLength={10000} showCount rows={3} /></Form.Item>
           <Form.Item name="driving_question" label={siteText("site.48867c629ac7d0f5")}><Input maxLength={1000} showCount placeholder={siteText("site.50a0856d01e03c88")} /></Form.Item>
           <Form.Item name="learning_objectives" label="学习目标（发布前检查）"><Input.TextArea maxLength={10000} rows={3}/></Form.Item>

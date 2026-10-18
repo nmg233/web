@@ -42,6 +42,7 @@ before(async () => {
   for (const [student,course,status] of [[5,1,'active'],[5,3,'active'],[6,2,'active'],[8,4,'removed'],[9,1,'active']]) {
     db.prepare('INSERT INTO enrollments (student_id,course_id,status) VALUES (?,?,?)').run(student,course,status);
   }
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
   server = app.listen(0,'127.0.0.1'); await new Promise(r=>server.once('listening',r));
   base=`http://127.0.0.1:${server.address().port}`;
   for (const name of ['admin','mentor_a','mentor_b','teacher','own','mentor_empty','media']) tokens[name]=(await api('/auth/login',null,{username:name,password:'user123'})).body.token;

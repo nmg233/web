@@ -10,6 +10,9 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 
+# 校验清单对应固定字节；服务器交接文本在所有系统统一使用 LF
+docs/mentor-workspace/server-handoff/** text eol=lf
+
 # Dockerfile 用 LF：CRLF 会影响 `RUN ... \` 行续接的解析
 Dockerfile    text eol=lf
 *.dockerfile  text eol=lf

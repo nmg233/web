@@ -92,8 +92,7 @@ exports.list = (req, res) => {
 
     if (isTeacher(req.user.role)) {
       // 教师仅可只读查看明确分配学生的作品；无报名关联的遗留作品不进入列表
-      sql += ' AND u.teacher_id = ? AND w.enrollment_id IS NOT NULL AND c.id IS NOT NULL';
-      params.push(req.user.id);
+      sql += ' AND '+require('../services/teacherObservations').sql(req.user,'u.id','c.id');
     } else if (req.user.role === 'academic_mentor') {
       // 导师仅可见自己课程的作品（创建者或授课人，决策 D-1）；
       // 遗留无报名关联的作品（c.id 为 NULL）按决策 D-2 不进入导师列表
@@ -121,10 +120,10 @@ exports.list = (req, res) => {
     } else if (req.user.role === 'teacher') {
       courses = db.prepare(`
         SELECT DISTINCT c.id, c.title FROM works w
-        JOIN users s ON s.id = w.student_id AND s.teacher_id = ?
+        JOIN users s ON s.id = w.student_id
         JOIN enrollments e ON e.id = w.enrollment_id JOIN courses c ON c.id = e.course_id
-        ORDER BY c.title
-      `).all(req.user.id);
+        WHERE ${require('../services/teacherObservations').sql(req.user,'s.id','c.id')} ORDER BY c.title
+      `).all();
     }
 
     res.json({ title: '作品管理', works, courses, filters: req.query });

@@ -85,10 +85,12 @@ exports.getClasses = (req, res) => {
     const { school_id } = req.query;
     let classes = [];
     if (school_id) {
+      require('../services/mentorSchoolScope').school(req.user,school_id);
       classes = db.prepare('SELECT id, name, grade FROM classes WHERE school_id = ? ORDER BY grade, name').all(school_id);
     }
     res.json({ classes });
   } catch (err) {
+    if(err.status)return res.status(err.status).json({error:err.message});
     console.error('获取班级列表错误:', err);
     res.status(500).json({ error: '获取班级列表失败' });
   }

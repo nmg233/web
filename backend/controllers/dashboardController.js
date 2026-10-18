@@ -143,22 +143,7 @@ exports.index = (req, res) => {
       viewData.recentWorks = recentWorks.map(toFileDto);
     }
 
-    if (user.role === 'teacher') {
-      viewData.observerSummary = {
-        assignedStudentCount: db.prepare(
-          "SELECT COUNT(*) AS count FROM users WHERE role = 'student' AND teacher_id = ? AND is_active = 1"
-        ).get(user.id).count,
-      };
-      viewData.recentWorks = db.prepare(`
-        SELECT w.*, u.real_name AS student_name, c.title AS course_title
-        FROM works w
-        JOIN users u ON u.id = w.student_id AND u.teacher_id = ?
-        JOIN enrollments e ON e.id = w.enrollment_id
-        JOIN courses c ON c.id = e.course_id
-        WHERE w.review_status = 'approved'
-        ORDER BY w.updated_at DESC LIMIT 10
-      `).all(user.id).map(toFileDto);
-    }
+    if(user.role==='teacher'){const data=require('../services/observerService').dashboard(user);viewData.observerSummary={assignedStudentCount:data.stats.assigned_students};viewData.recentWorks=db.prepare(`SELECT w.*,u.real_name student_name,c.title course_title FROM works w JOIN users u ON u.id=w.student_id JOIN enrollments e ON e.id=w.enrollment_id JOIN courses c ON c.id=e.course_id WHERE w.review_status='approved' AND ${require('../services/teacherObservations').sql(user,'w.student_id','c.id')} ORDER BY w.updated_at DESC LIMIT 10`).all().map(toFileDto);}
 
     // === 学生端：显示参与的课程、进度、反思入口 ===
     if (user.role === 'student') {

@@ -59,6 +59,7 @@ before(async () => {
   `).run();
 
   await new Promise((resolve) => {
+  require('./helpers/explicitScopeFixture.cjs').observers(db);
     server = app.listen(0, resolve);
   });
   baseUrl = `http://127.0.0.1:${server.address().port}`;

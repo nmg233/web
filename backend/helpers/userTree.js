@@ -26,8 +26,7 @@ function buildUserTree({ roles = ['student', 'teacher'], search = '', includeExe
     params.push(...mentorStudentParams(mentorId));
   }
   if (teacherId !== null) {
-    sql += ' AND u.teacher_id = ?';
-    params.push(teacherId);
+    sql += ' AND '+require('../services/teacherObservations').sql({id:teacherId},'u.id');
   }
   if (classId) {
     sql += ' AND u.class_id = ?';
