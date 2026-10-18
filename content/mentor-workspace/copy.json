@@ -2195,6 +2195,36 @@
       "text": "保存资格与审计",
       "page": "mentor/DevelopmentQualifications",
       "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.ApplicationInbox.ddd5cf447062": {
+      "text": "新申请已保存 #",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.df6fe0ebcd7b": {
+      "text": "；其他会话输入保持原样，切换前仍需确认",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "mentor.ApplicationInbox.e3c919f607fb": {
+      "text": "查看新申请 #",
+      "page": "mentor/ApplicationInbox",
+      "source": "frontend/src/pages/mentor/ApplicationInbox.jsx"
+    },
+    "feedback.Detail.e14827304232": {
+      "text": "已核对最新状态，原文字和附件保留；确认后可再次发送。未确认的发送仍使用原请求编号核对",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "feedback.Detail.e97cfc0bcd3e": {
+      "text": "重新核对反馈（保留输入）",
+      "page": "feedback/Detail",
+      "source": "frontend/src/pages/feedback/Detail.jsx"
+    },
+    "courses.CoursePackageImport.ae7c0ced098e": {
+      "text": "课程包普通资料仅支持UTF-8 TXT/MD/CSV。PDF（包括普通PDF）和Office暂不随包导入：请转换为结构化文字/本站图片，或人工核对后从原课时资料入口单独补传；这里不提供PDF活动内容净化或恶意软件扫描。",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
     }
   }
 }

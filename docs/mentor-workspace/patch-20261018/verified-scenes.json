@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-18",
+  "baseline": "35119c9",
+  "scope": "isolated real HTTP/SQLite + real Edge; final passed runs, no production writes",
+  "patch": {
+    "records": [
+      {
+        "name": "mentor：真实409后重新核对，原文字和原File不编辑重试一次；503回包丢失不重复",
+        "status": "passed"
+      },
+      {
+        "name": "student：真实409后重新核对，原文字和原File不编辑重试一次；503回包丢失不重复",
+        "status": "passed"
+      },
+      {
+        "name": "已有会话原回复与附件：打开/取消新申请及切换类型不解除离开保护",
+        "status": "passed"
+      },
+      {
+        "name": "新申请真实保存后导航取消保留旧会话；明确确认才丢弃并打开新结果",
+        "status": "passed"
+      },
+      {
+        "name": "主题切换后原图未改仍可网页保存标题/安排；公共封面无cosmos，旧素材保留",
+        "status": "passed"
+      },
+      {
+        "name": "管理员回复、审核及资格表单分别保护；保存回复或关闭资格不清除审核草稿",
+        "status": "passed"
+      },
+      {
+        "name": "唯一导师撤权后学生先读，管理员通知与工作台都有同一反馈且不重复",
+        "status": "passed"
+      },
+      {
+        "name": "教师迁校后原页面清除，真实重新登录仍不能读原学校学生与课程",
+        "status": "passed"
+      }
+    ],
+    "pageErrors": [],
+    "browser": "155.0.4283.45",
+    "scope": "real Edge + isolated real HTTP/SQLite; injected409 concurrency and503after-server-commit; no persistent data touched"
+  },
+  "priorSteps": {
+    "01": {
+      "records": [
+        {
+          "name": "五项导航展开、收起、悬浮及键盘，统计与完整列表可刷新",
+          "status": "passed"
+        },
+        {
+          "name": "学校组织账号分区与课程学生分开，导师能开建教师表单",
+          "status": "passed"
+        },
+        {
+          "name": "课程六页签保留、上线学校可真实保存，新建课落在概览",
+          "status": "passed"
+        },
+        {
+          "name": "教师仅看到明确课程，admin可进入同一办学工具",
+          "status": "passed"
+        },
+        {
+          "name": "1440、768、390与360窄屏、短屏和横屏侧栏可唤起，正文不横向溢出",
+          "status": "passed"
+        },
+        {
+          "name": "管理员学生转校先看到现有课程影响，不保存不改变组织或报名",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    },
+    "02": {
+      "records": [
+        {
+          "name": "学生显式课程反馈，导师列表直达且领取后能回复",
+          "status": "passed"
+        },
+        {
+          "name": "公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交",
+          "status": "passed"
+        },
+        {
+          "name": "内部原因转管理员与管理员转回，学生只见公开进展",
+          "status": "passed"
+        },
+        {
+          "name": "学校申请原会话追问与补充，不自动授权，工作台待办可刷新",
+          "status": "passed"
+        },
+        {
+          "name": "铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办",
+          "status": "passed"
+        },
+        {
+          "name": "三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    },
+    "03": {
+      "records": [
+        {
+          "name": "导师网页上传校验预览；确认回包丢失后查询原结果，不重复导入",
+          "status": "passed"
+        },
+        {
+          "name": "恢复暂存并向原课程追加，保留原课时；admin可同样新建导入",
+          "status": "passed"
+        },
+        {
+          "name": "创建课程只有四公共主题；真实保存、默认关卡与本校授权报名",
+          "status": "passed"
+        },
+        {
+          "name": "四主题真实地图3/4/7课时，五尺寸、连线、键盘、站位与无宇航员串入",
+          "status": "passed"
+        },
+        {
+          "name": "主题桌面/手机预览、模块标题保存与空实验隐藏；原上传图优先及缺图降级",
+          "status": "passed"
+        },
+        {
+          "name": "导入教材原位编辑、卡片发布/课时就绪分开；本校学习、教师只读、导师评审金币仍沿原规则",
+          "status": "passed"
+        },
+        {
+          "name": "管理员可真实授予并撤销开发资格，导师只读准确限制；无代码运行入口",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    }
+  },
+  "backendTests": 456,
+  "frontendTests": 139,
+  "businessBrowserScenes": 27
+}

@@ -4,15 +4,21 @@ function mentors(feedback){
  return db.prepare("SELECT u.id,u.real_name FROM course_managers m JOIN users u ON u.id=m.mentor_id WHERE m.course_id=? AND m.active=1 AND u.role='academic_mentor' AND u.is_active=1 AND u.archived_at IS NULL AND u.force_reset_password=0").all(feedback.course_id);
 }
 function refresh(feedback){
- if(!feedback.course_id)return feedback;const pool=mentors(feedback);
- if(feedback.reception_level==='mentor'&&(!pool.length||feedback.assignee_id&&!pool.some(m=>m.id===feedback.assignee_id))){
-  const level=pool.length?'mentor':'admin';
-  db.transaction(()=>{
-   db.prepare('UPDATE feedbacks SET reception_level=?,assignee_id=NULL,revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=?').run(level,feedback.id,feedback.revision);
-   db.prepare("INSERT INTO feedback_reception_events(feedback_id,action,from_level,to_level,reason) VALUES(?,'permission_fallback',?,?,?)").run(feedback.id,feedback.reception_level,level,'当前负责关系变化，重新核验受理范围');
-  }).immediate();
+ if(!feedback.course_id)return feedback;
+ return db.transaction(()=>{
+  const current=db.prepare('SELECT * FROM feedbacks WHERE id=?').get(feedback.id);if(!current)return feedback;
+  const pool=mentors(current);
+  if(current.reception_level==='mentor'&&(!pool.length||current.assignee_id&&!pool.some(m=>m.id===current.assignee_id))){
+   const level=pool.length?'mentor':'admin';
+   const changed=db.prepare('UPDATE feedbacks SET reception_level=?,assignee_id=NULL,revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=?').run(level,current.id,current.revision);
+   if(changed.changes){
+    db.prepare("INSERT INTO feedback_reception_events(feedback_id,action,from_level,to_level,reason) VALUES(?,'permission_fallback',?,?,?)").run(current.id,current.reception_level,level,'当前负责关系变化，重新核验受理范围');
+    const latest={...current,reception_level:level,assignee_id:null,revision:current.revision+1};
+    notify(latest,{eventKey:'feedback.reception',dedupeKey:'feedback.fallback:'+current.id+':'+latest.revision,title:'反馈受理范围已更新',content:'原受理关系变化，请按当前权限继续处理。'},'staff');
+   }
+  }
   return{...feedback,...db.prepare('SELECT * FROM feedbacks WHERE id=?').get(feedback.id)};
- }return feedback;
+ }).immediate();
 }
 function canRead(user,feedback){return!!user&&(user.role==='admin'||feedback.user_id===user.id||user.role==='academic_mentor'&&mentors(feedback).some(m=>m.id===user.id));}
 function isStaff(user,feedback){return user.role==='admin'||user.role==='academic_mentor'&&feedback.user_id!==user.id&&mentors(feedback).some(m=>m.id===user.id);}
@@ -41,7 +47,7 @@ function recipients(feedback,mode='staff'){
 function notify(feedback,payload,mode='staff'){
  return require('./notificationService').safeCreateForUsers({...payload,category:'feedback',businessType:'feedback',businessId:feedback.id,actionUrl:'/feedback/'+feedback.id,feedbackContext:{id:feedback.id,mode}},recipients(feedback,mode));
 }
-function refreshPending(){for(const f of db.prepare("SELECT * FROM feedbacks WHERE reception_level='mentor'").all()){const latest=refresh(f);if(latest.revision!==f.revision)notify(latest,{eventKey:'feedback.reception',dedupeKey:'feedback.fallback:'+f.id+':'+latest.revision,title:'反馈受理范围已更新',content:'原受理关系变化，请按当前权限继续处理。'},'staff');}}
+function refreshPending(){for(const f of db.prepare("SELECT * FROM feedbacks WHERE reception_level='mentor'").all())refresh(f);}
 function guarded(operation,action){return(user,id,value,options={})=>db.transaction(()=>{
  const f=refresh(db.prepare('SELECT * FROM feedbacks WHERE id=?').get(id)||{});if(!f.id)fail('反馈不存在',404);if(!canRead(user,f))throw Object.assign(new Error('反馈不可访问'),{status:403,code:'FEEDBACK_FORBIDDEN'});
  const files=options.files||[],identity=requests.identity(user,'feedback-action:'+id+':'+action,{value,expectedRevision:options.expectedRevision,request_key:options.request_key},files);

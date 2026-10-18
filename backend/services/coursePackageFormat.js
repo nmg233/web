@@ -37,9 +37,9 @@ function validate(entries){
   if(a.kind==='image'){const info=require('./lessonMapImages'); // loaded lazily only by server; imageBytes itself has no DB side effects.
    const image=info.imageBytes(b);if(image.ext!==ext||image.mime!==a.mime)fail('图片内容/扩展名/MIME不一致');
   }else if(a.kind==='document'){
-   const types={'.pdf':'application/pdf','.txt':'text/plain','.md':'text/markdown','.csv':'text/csv'};if(types[ext]!==a.mime)fail('v1普通资料仅支持PDF、UTF-8 TXT/MD/CSV；Office请转换PDF，不接收嵌套包/宏');
-   if(ext==='.pdf'){if(!b.subarray(0,5).equals(Buffer.from('%PDF-'))||!b.subarray(-2048).includes(Buffer.from('%%EOF'))||/\/(?:JavaScript|JS|Launch|EmbeddedFile|OpenAction|AA|Encrypt)\b/.test(b.toString('latin1')))fail('PDF无效或含不允许的动作/嵌入内容');}
-   else {let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(b);}catch{fail('资料应为UTF-8文本');}if(b.length>1024*1024||t.includes('\0')||/<\s*(?:!doctype\s+html|html|script|iframe|svg)\b/i.test(t))fail('资料不是受支持的纯文本');}
+   if(ext==='.pdf'||a.mime==='application/pdf'||b.subarray(0,1024).includes(Buffer.from('%PDF-')))fail('PDF暂不支持从数据课程包导入：请用可信工具转换为结构化文字和本站图片，或人工核对后通过原课时资料入口单独补传；本导入器不提供PDF活动内容净化或完整恶意软件扫描');
+   const types={'.txt':'text/plain','.md':'text/markdown','.csv':'text/csv'};if(types[ext]!==a.mime)fail('v1普通资料仅支持UTF-8 TXT/MD/CSV；PDF/Office请转换或从原课时资料入口单独补传，不接收嵌套包/宏');
+   let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(b);}catch{fail('资料应为UTF-8文本');}if(b.length>1024*1024||t.includes('\0')||/<\s*(?:!doctype\s+html|html|script|iframe|svg)\b/i.test(t))fail('资料不是受支持的纯文本');
   }else fail('素材kind仅支持image/document');assets.set(a.id,{...a,ext});
  }
  const ref=(id,kind)=>{if(!assets.has(id)||kind&&assets.get(id).kind!==kind)fail('素材引用不存在或类型不符：'+id);used.add(id);return assets.get(id);};

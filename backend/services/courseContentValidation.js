@@ -23,7 +23,8 @@ function courseFields(body,create=false,current=null){
  }
  if(own(body,'total_hours'))result.total_hours=integer(body.total_hours,'总课时',{nullable:true,max:10000});
  if(own(body,'cover_image')){
-  const covers=['','/assets/redesign-v2/web/campus-960.webp','/assets/redesign-v2/web/cosmos-960.webp'];
+  const covers=['','/assets/redesign-v2/web/campus-960.webp'];
+  if(!create&&current?.cover_image==='/assets/redesign-v2/web/cosmos-960.webp')covers.push(current.cover_image);
   if(!covers.includes(body.cover_image))invalid('请选择已有封面或通过专用入口上传图片');result.cover_image=body.cover_image||null;
  }
  return result;

@@ -165,6 +165,7 @@ function deliverOutbox(row) {
 }
 
 function retryOutbox() {
+  require('./feedbackRouting').refreshPending();
   const rows=db.prepare(`SELECT * FROM notification_outbox WHERE delivered_at IS NULL AND quarantined_at IS NULL
     AND (next_retry_at IS NULL OR next_retry_at<=CURRENT_TIMESTAMP) ORDER BY COALESCE(next_retry_at,created_at),event_key LIMIT 100`).all();
   for(const row of rows) {
@@ -190,6 +191,7 @@ function replayOutbox(user,key) {
 }
 
 function domainSql(userId){
+ require('./feedbackRouting').refreshPending();
  const user=db.prepare('SELECT id,role FROM users WHERE id=?').get(userId);if(!user)return '0=1';
  const feedback=`(n.business_type IS NULL OR n.business_type!='feedback' OR EXISTS(SELECT 1 FROM feedbacks f WHERE f.id=n.business_id AND ${require('./feedbackRouting').readSql(user)}))`;
  const apps=['school','course','development'].map(kind=>{const table={school:'school_applications',course:'course_access_applications',development:'development_applications'}[kind];return `(n.business_type IS NULL OR n.business_type!='application:${kind}' OR EXISTS(SELECT 1 FROM ${table} a WHERE a.id=n.business_id AND (${user.role==='admin'?'1=1':user.role==='academic_mentor'?`a.applicant_id=${Number(user.id)}`:'0=1'})))`;});

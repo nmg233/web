@@ -32,7 +32,9 @@ function fields(db,courseId,lessonId,body){
  }
  for(const name of ['landing_x','landing_y'])if(Object.hasOwn(body,name)){const value=body[name];if(typeof value!=='number'||!Number.isFinite(value)||value<0.1||value>0.9)fail('角色站位须在0.1至0.9之间');data[name]=value;}
  if(Object.hasOwn(body,'map_art_preset')){
-  if(require('./publicThemes').nodes[body.map_art_preset]){const course=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);if(!require('./publicThemes').registry.themes[require('./publicThemes').effective(course)]?.nodes.some(n=>n.id===body.map_art_preset))fail('默认图不属于当前课程公共主题');data.map_art_preset=body.map_art_preset;}
+  const existing=lessonId&&db.prepare('SELECT map_art_preset FROM lessons WHERE id=? AND course_id=?').get(lessonId,courseId);
+  if(existing&&existing.map_art_preset===body.map_art_preset)data.map_art_preset=body.map_art_preset;
+  else if(require('./publicThemes').nodes[body.map_art_preset]){const course=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);if(!require('./publicThemes').registry.themes[require('./publicThemes').effective(course)]?.nodes.some(n=>n.id===body.map_art_preset))fail('默认图不属于当前课程公共主题');data.map_art_preset=body.map_art_preset;}
   else if(body.map_art_preset==='rock')data.map_art_preset='rock';
   else{const existing=lessonId&&db.prepare('SELECT map_art_preset FROM lessons WHERE id=? AND course_id=?').get(lessonId,courseId);if(!existing||body.map_art_preset!==existing.map_art_preset)fail('只能保留存量题材或显式恢复岩石默认图');}
  }

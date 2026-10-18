@@ -27,7 +27,7 @@ export function prepareMentorFixture(api=3527,front=4557){
 export async function serveFixture(f,api=3527,frontPort=4557){
  const backend=spawn(process.execPath,['scripts/local-server.cjs'],{cwd:root,env:f.env,windowsHide:true,stdio:'ignore'});
  let ready=false;for(let i=0;i<150;i++){try{if((await fetch(`http://127.0.0.1:${api}/api/health`)).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,100));}if(!ready){backend.kill();throw Error('隔离API启动失败');}
- const dist=path.join(root,'build/mentor-teaching'),base=`http://127.0.0.1:${frontPort}`;
+ const dist=path.resolve(root,process.env.PBL_REGRESSION_DIST||'build/mentor-teaching'),base=`http://127.0.0.1:${frontPort}`;
  const server=http.createServer((req,res)=>{
   if(req.url.startsWith('/api/')){const upstream=http.request(`http://127.0.0.1:${api}`+req.url,{method:req.method,headers:req.headers},r=>{res.writeHead(r.statusCode,r.headers);r.pipe(res);});upstream.on('error',()=>{res.writeHead(502);res.end();});req.pipe(upstream);return;}
   const candidate=path.resolve(dist,'.'+new URL(req.url,base).pathname),file=candidate.startsWith(dist+path.sep)&&fs.existsSync(candidate)&&fs.statSync(candidate).isFile()?candidate:path.join(dist,'index.html');

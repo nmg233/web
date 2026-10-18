@@ -48,6 +48,14 @@ function getFeedbackRow(id) {
   return routing.refresh(feedback);
 }
 
+// One response boundary for lists, details, mutations and idempotent replays.
+function serialize(user,row){
+ const fields=['id','feedback_no','user_id','type','module','title','description','priority','status','resolution','allow_contact','course_id','school_id','reception_level','assignee_id','revision','mentor_followup_pending','created_at','updated_at','resolved_at','closed_at','user_name','user_role','latest_message'];
+ const value=Object.fromEntries(fields.filter(k=>Object.hasOwn(row,k)).map(k=>[k,row[k]]));
+ const privileged=user.role==='admin'||row.user_id===user.id;
+ for(const k of privileged?['contact','user_email','user_phone','source_path','client_info']:row.allow_contact?['contact']:[])if(Object.hasOwn(row,k))value[k]=row[k];
+ return value;
+}
 function canAccess(user, feedback) {
   return routing.canRead(user,feedback);
 }
@@ -207,7 +215,7 @@ function listMine(user, query = {}) {
     LIMIT ? OFFSET ?
   `).all(...params, pageSize, offset);
 
-  return { items, pagination: { page, pageSize, total } };
+  return { items:items.map(row=>serialize(user,row)), pagination: { page, pageSize, total } };
 }
 
 function listManage(user, query = {}) {
@@ -258,7 +266,7 @@ function listManage(user, query = {}) {
     LIMIT ? OFFSET ?
   `).all(...params, pageSize, offset);
 
-  return { items, pagination: { page, pageSize, total } };
+  return { items:items.map(row=>serialize(user,row)), pagination: { page, pageSize, total } };
 }
 
 function detail(user, id) {
@@ -281,9 +289,8 @@ function detail(user, id) {
   `).all(feedback.id);
 
   const staff=routing.isStaff(user,feedback);
-  const safe={...feedback,can_handle:staff&&(user.role==='admin'||feedback.reception_level==='mentor'&&feedback.assignee_id===user.id),can_note:staff,can_claim:staff&&user.role==='academic_mentor'&&feedback.reception_level==='mentor'&&!feedback.assignee_id,
+  const safe={...serialize(user,feedback),can_handle:staff&&(user.role==='admin'||feedback.reception_level==='mentor'&&feedback.assignee_id===user.id),can_note:staff,can_claim:staff&&user.role==='academic_mentor'&&feedback.reception_level==='mentor'&&!feedback.assignee_id,
     handler_label:feedback.reception_level==='admin'?'平台管理员':feedback.assignee_id?(db.prepare('SELECT real_name FROM users WHERE id=?').get(feedback.assignee_id)?.real_name||'课程导师'):'课程导师共同受理'};
-  if(!staff||user.role!=='admin'){delete safe.user_email;delete safe.user_phone;if(!feedback.allow_contact)delete safe.contact;}
   return { feedback:safe, messages, attachments,mentors:staff?routing.mentors(feedback):[],history:staff?db.prepare('SELECT e.*,u.real_name actor_name FROM feedback_reception_events e LEFT JOIN users u ON u.id=e.actor_id WHERE feedback_id=? ORDER BY e.id').all(id):[] };
 }
 
@@ -534,20 +541,21 @@ function options() {
 }
 
 const atomic = (operation) => (...args) => db.transaction(() => operation(...args)).immediate();
+const responseAction=(operation,action)=>(user,...args)=>{const result=routing.guarded(operation,action)(user,...args);return result?.feedback_no?serialize(user,result):result;};
 
 module.exports = {
   FeedbackError,
-  create: atomic(create),
+  create:(user,...args)=>serialize(user,atomic(create)(user,...args)),
   listMine,
   listManage,
   detail,
-  addPublicMessage: routing.guarded(addPublicMessage,'reply'),
-  addInternalNote:routing.guarded(addInternalNote,'note'),
-  changeStatus:routing.guarded(changeStatus,'status'),
-  changePriority:routing.guarded(changePriority,'priority'),
-  resolve:routing.guarded(resolve,'resolve'),
-  confirmResolved:(user,id,options={})=>routing.guarded(confirmResolved,'confirm')(user,id,null,options),
-  reopen:routing.guarded(reopen,'reopen'),
+  addPublicMessage: responseAction(addPublicMessage,'reply'),
+  addInternalNote:responseAction(addInternalNote,'note'),
+  changeStatus:responseAction(changeStatus,'status'),
+  changePriority:responseAction(changePriority,'priority'),
+  resolve:responseAction(resolve,'resolve'),
+  confirmResolved:(user,id,options={})=>responseAction(confirmResolved,'confirm')(user,id,null,options),
+  reopen:responseAction(reopen,'reopen'),
   stats,
   attachment,
   options,

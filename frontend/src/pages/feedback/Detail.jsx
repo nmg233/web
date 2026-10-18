@@ -1,3 +1,4 @@
+import {createFeedbackRequests} from '../../utils/feedbackRequests';
 import {mentorText} from '../mentor/workspaceCopy';
 import useTeachingLeaveGuard from '../courses/useTeachingLeaveGuard';
 import ReceptionControls from './ReceptionControls';
@@ -44,7 +45,8 @@ function Attachment({ file }) {
 }
 function Detail({ id }) {
   const { user } = useAuth(), navigate = useNavigate(), location = useLocation();
-  const read = useCallback(async () => (await feedbackAPI.detail(id)).data, [id]);
+  const latestRevision=useRef(null),requests=useRef(createFeedbackRequests());
+  const read = useCallback(async () => {const data=(await feedbackAPI.detail(id)).data;latestRevision.current=data.feedback.revision;return data;}, [id]);
   const resource = useRemoteResource(read);
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState(location.state?.submitted ? { type: 'success', text: siteText("site.37ccb9aac02decf7") } : null);
   const [reopen, setReopen] = useState(false), [resolve, setResolve] = useState(false);
@@ -52,31 +54,32 @@ function Detail({ id }) {
   const pending = useRef(false),drafts=useRef(new Set()),processing=useRef(new Set()),replyDraft=useRef({}),noteDraft=useRef({}),receptionDraft=useRef({});
   useTeachingLeaveGuard(drafts,mentorText("feedback.Detail.34488b08ba6d"),processing);
   const dirty=(name,value)=>{if(value)drafts.current.add(name);else drafts.current.delete(name);};
-  const reread = async () => { const ok = await resource.reload(); if (ok && resource.isCurrent()) setNotice(null); };
+  const reread = async () => { const ok = await resource.reload(); if (ok && resource.isCurrent()){requests.current.rechecked(latestRevision.current);setNotice({type:'info',text:mentorText("feedback.Detail.e14827304232")});} };
   const run = async (action, success, acknowledged) => {
     if (pending.current) return;
     pending.current = true; processing.current.add('save'); setBusy(true); setNotice(null);
     try {
       await action();
       if (!resource.isCurrent()) return;
+      requests.current.acknowledged();
       acknowledged?.(); // Clear an acknowledged reply before the independent GET.
       const ok = await resource.reload();
       if (resource.isCurrent()) setNotice({ type: ok ? 'success' : 'warning', text: ok ? success : siteTemplate("site.d39de4b224f4a83a", {slot0: (success)}), retry: !ok });
     } catch (error) {
       if (resource.isCurrent()) {
+        if(error.response?.status===409)requests.current.conflicted();
         setNotice({ type: 'error', text: requestError(error, { action: siteText("site.b8c0dc2ee4f6a8cc"), write: true }) });
         if ([403, 404].includes(error.response?.status)) void resource.reload();
       }
     } finally { if (resource.isCurrent()) { pending.current = false; processing.current.delete('save'); setBusy(false); } }
   };
   const feedback = resource.data?.feedback, admin = user.role === 'admin',handler=!!feedback?.can_handle,staff=!!feedback?.can_note;
-  const revisionKey=useRef({fingerprint:'',key:''}),requestBases=useRef(new Map());
-  const meta=(payload={},key)=>{const fingerprint=JSON.stringify([feedback?.revision,payload]);if(revisionKey.current.fingerprint!==fingerprint)revisionKey.current={fingerprint,key:crypto.randomUUID()};if(key&&!requestBases.current.has(key))requestBases.current.set(key,feedback?.revision);return{expectedRevision:key?requestBases.current.get(key):feedback?.revision,request_key:key||revisionKey.current.key};};
+  const meta=(payload={},key)=>requests.current.meta(feedback?.revision,payload,key);
   const owner = feedback?.user_id === user.id;
   const canReply = handler || (owner && !['closed', 'rejected'].includes(feedback?.status));
   const canReopen = owner && ['resolved', 'closed', 'rejected'].includes(feedback?.status);
   const modules = user.role === 'student' ? studentFeedbackModules : feedbackModules;
-  return <ServicePage title={siteText("site.f4b37628974f5ee3")} eyebrow={siteText("site.397f6b370f2c1a56")} actions={<Button onClick={() => navigate(admin ? '/feedback/manage' : staff ? '/mentor/feedback' : '/feedback')}>{<StudentCopyText id={"site.e5c9f830a629bb94"}/>}</Button>} data-copy-bindings={JSON.stringify(["site.f4b37628974f5ee3","site.397f6b370f2c1a56"])}>
+  return <ServicePage title={siteText("site.f4b37628974f5ee3")} eyebrow={siteText("site.397f6b370f2c1a56")} actions={<Space wrap><Button disabled={busy||resource.loading} onClick={reread}>{mentorText("feedback.Detail.e97cfc0bcd3e")}</Button><Button onClick={() => navigate(admin ? '/feedback/manage' : staff ? '/mentor/feedback' : '/feedback')}>{<StudentCopyText id={"site.e5c9f830a629bb94"}/>}</Button></Space>} data-copy-bindings={JSON.stringify(["site.f4b37628974f5ee3","site.397f6b370f2c1a56"])}>
     <OperationNotice value={notice?.type !== 'error' || !feedback ? notice : null} onRetry={reread} />
     <ReadState {...resource} object={siteText("site.0ce7c559115c1036")} data-copy-bindings={JSON.stringify(["site.0ce7c559115c1036"])}>
       {feedback && <>

@@ -10,9 +10,12 @@ function schoolSql(user,column='s.id'){
 function schools(user){actor(user);return db.prepare(`SELECT s.id,s.name,s.region FROM schools s WHERE s.is_active=1 AND ${schoolSql(user)} ORDER BY s.name,s.id`).all();}
 function school(user,id){actor(user);const row=db.prepare(`SELECT s.* FROM schools s WHERE s.id=? AND s.is_active=1 AND ${schoolSql(user)}`).get(id);if(!row)fail('学校不存在或管理授权已失效',403);return row;}
 function manages(user,courseId){actor(user);if(user.role!=='admin'&&!require('../helpers/courseScope').courseBelongsToMentor(user.id,courseId))fail('课程管理授权已失效',403);const c=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);if(!c)fail('课程不存在',404);return c;}
-function accountSql(user,column='u.id'){
- if(user.role==='admin')return '1=1';const id=Number(user.id);
- return `(EXISTS(SELECT 1 FROM school_created_accounts ca WHERE ca.student_id=${column} AND ca.actor_id=${id}) OR EXISTS(SELECT 1 FROM organization_account_delegations od WHERE od.student_id=${column} AND od.mentor_id=${id} AND od.active=1 AND od.school_id=u.school_id))`;
+// Expressions are internal server-owned SQL identifiers, never request text.
+function accountScopeSql(mentor,student='u.id',schoolColumn='u.school_id'){
+ return `(EXISTS(SELECT 1 FROM school_created_accounts ca WHERE ca.student_id=${student} AND ca.actor_id=${mentor}) OR EXISTS(SELECT 1 FROM organization_account_delegations od WHERE od.student_id=${student} AND od.mentor_id=${mentor} AND od.active=1 AND od.school_id=${schoolColumn}))`;
+}
+function accountSql(user,column='u.id',schoolColumn='u.school_id'){
+ if(user.role==='admin')return '1=1';const id=Number(user.id);return Number.isSafeInteger(id)?accountScopeSql(String(id),column,schoolColumn):'0=1';
 }
 function admissionSql(user,courseId){
  const cid=Number(courseId);if(!Number.isSafeInteger(cid))fail('课程编号无效');
@@ -52,4 +55,4 @@ function delegate(user,schoolId,body){return db.transaction(()=>{
  db.prepare("INSERT INTO school_management_events(school_id,actor_id,mentor_id,action,detail) VALUES(?,?,?,'account_delegation',?)").run(schoolId,user.id,body.mentorId,JSON.stringify({studentId:body.studentId,active:body.active,reason:body.reason}));
  const result={saved:true,revision:(old?.revision||0)+1};requests.save(db,identity,result);return result;
  }).immediate();}
-module.exports={actor,schools,school,schoolSql,manages,accountSql,admissionSql,assertAdmission,assertPublish,read,save,delegate};
+module.exports={actor,schools,school,schoolSql,manages,accountScopeSql,accountSql,admissionSql,assertAdmission,assertPublish,read,save,delegate};
