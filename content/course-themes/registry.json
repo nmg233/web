@@ -1,0 +1,154 @@
+{
+  "version": "1.0.0",
+  "appCompatibility": "mentor-workspace-v1",
+  "themes": {
+    "campus": {
+      "label": "校园",
+      "version": "1.0.0",
+      "cover": "/assets/redesign-v2/web/campus-960.webp",
+      "desktop": "/assets/redesign-v2/web/campus",
+      "mobile": "/assets/redesign-v2/web/campus",
+      "mark": null,
+      "nodes": [
+        {
+          "id": "campus-node1",
+          "label": "校园 · 观察与发现",
+          "source": "/assets/public-themes/campus-node1",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "campus-node2",
+          "label": "校园 · 制作与探究",
+          "source": "/assets/public-themes/campus-node2",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "campus-node3",
+          "label": "校园 · 分享与成果",
+          "source": "/assets/public-themes/campus-node3",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        }
+      ]
+    },
+    "sky": {
+      "label": "蓝天白云",
+      "version": "1.0.0",
+      "cover": "/assets/public-themes/sky-cover-960.webp",
+      "desktop": "/assets/public-themes/sky-desktop",
+      "mobile": "/assets/public-themes/sky-mobile",
+      "mark": "/assets/public-themes/sky-mark-192.webp",
+      "nodes": [
+        {
+          "id": "sky-node1",
+          "label": "蓝天白云 · 观察与发现",
+          "source": "/assets/public-themes/sky-node1",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "sky-node2",
+          "label": "蓝天白云 · 制作与探究",
+          "source": "/assets/public-themes/sky-node2",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "sky-node3",
+          "label": "蓝天白云 · 分享与成果",
+          "source": "/assets/public-themes/sky-node3",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        }
+      ]
+    },
+    "forest": {
+      "label": "森林",
+      "version": "1.0.0",
+      "cover": "/assets/public-themes/forest-cover-960.webp",
+      "desktop": "/assets/public-themes/forest-desktop",
+      "mobile": "/assets/public-themes/forest-mobile",
+      "mark": "/assets/public-themes/forest-mark-192.webp",
+      "nodes": [
+        {
+          "id": "forest-node1",
+          "label": "森林 · 观察与发现",
+          "source": "/assets/public-themes/forest-node1",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "forest-node2",
+          "label": "森林 · 制作与探究",
+          "source": "/assets/public-themes/forest-node2",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        },
+        {
+          "id": "forest-node3",
+          "label": "森林 · 分享与成果",
+          "source": "/assets/public-themes/forest-node3",
+          "landing": [
+            0.5,
+            0.7
+          ]
+        }
+      ]
+    },
+    "beach": {
+      "label": "海滩",
+      "version": "1.0.0",
+      "cover": "/assets/public-themes/beach-cover-960.webp",
+      "desktop": "/assets/public-themes/beach-desktop",
+      "mobile": "/assets/public-themes/beach-mobile",
+      "mark": "/assets/public-themes/beach-mark-192.webp",
+      "nodes": [
+        {
+          "id": "beach-node1",
+          "label": "海滩 · 观察与发现",
+          "source": "/assets/public-themes/beach-node1",
+          "landing": [
+            0.5,
+            0.63
+          ]
+        },
+        {
+          "id": "beach-node2",
+          "label": "海滩 · 制作与探究",
+          "source": "/assets/public-themes/beach-node2",
+          "landing": [
+            0.5,
+            0.63
+          ]
+        },
+        {
+          "id": "beach-node3",
+          "label": "海滩 · 分享与成果",
+          "source": "/assets/public-themes/beach-node3",
+          "landing": [
+            0.5,
+            0.63
+          ]
+        }
+      ]
+    }
+  }
+}

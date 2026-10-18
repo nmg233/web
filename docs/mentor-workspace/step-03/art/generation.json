@@ -1,0 +1,884 @@
+[
+  {
+    "id": "sky-desktop",
+    "source": "exec-6f656efe-ecbf-4905-9528-614ca436aeea.png",
+    "prompt": "Use case: stylized-concept. Asset: original landscape desktop course-map background, blue sky and white cloud theme. Attached campus selection is STYLE reference only, change all subject matter. Authentic chunky retro pixel art: approximately 240 logical pixels wide scaled up in integer blocks, visible big square pixel clusters, hard staircase edges, dark navy #132a49 contours, ivory #fbf6e8 architectural details, cyan and restrained gold. 2–3 flat shading bands per material. A sunlit sea of enormous tiered white clouds with a few distant floating observation domes and weather towers near the outer sides, broad quiet pale blue sky/cloud areas in the central 65% for separate HTML lesson nodes. Landscape 16:9. Upper left light. Original environment, not campus recoloring. NO people, spaceships, routes, dotted lines, numbers, platforms for clickable lessons, text, letters, logos, watermark or UI. NO smooth 3D, painterly rendering, blur, gradient, antialiasing, photographic texture, grain or microscopic details. Match reference chunky pixel mass at webpage size.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "campus-selection.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "291beccf3031ed23bfbd5831c0dbf51e7122faeadb19f39a6c0d3dd7c70406a6",
+    "mode": "RGB",
+    "master": "masters/sky-desktop.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-desktop-480.webp",
+        "sha256": "ba01d54b41172d7894c762b8691c3534b631bf30fdf262e17326dd00e890831d",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-desktop-960.webp",
+        "sha256": "6841415a38f781f02dd1d1615d2ae136c17a3fbe9cc211df138efc0307b13838",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-desktop-1536.webp",
+        "sha256": "2c248aafde36c3f8e636373eecdb253ae825f6c3bd563fb5f0160ee2c1e460cf",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "sky-node1",
+    "source": "exec-d6e3b3d8-3d0d-468a-9eab-7f725808372b.png",
+    "prompt": "Use case: stylized-concept. Original reusable transparent lesson-platform sprite. One transparent isometric 3/4 pixel-art cloud weather observation platform: a compact ivory observation deck resting on a chunky cloud base, one large brass-and-navy telescope at rear left, a cyan wind gauge at rear right; empty front center standing area at 50%,70%. Attached image is STYLE reference only. Match chunky retro pixel clusters and big square pixels visible at 192–220 CSS pixels; 64–96 logical pixel feel. Staircase contours, navy #132a49 outlines, ivory #fbf6e8, cyan and restrained gold, 2–3 flat shading bands, upper-left light. Entire one-platform silhouette centered within square with transparent padding, navy outlines, real transparent alpha outside. No ground scene or shadow rectangle. Front-center empty for a separate character. NO people, astronauts, spaceships, UI, words, letters, numbers, logos, watermark, route, dots, lock. NO smooth 3D, photographic or painterly texture, gradient, antialiasing, blur, grain or tiny detail. Original subject, not recolored reference.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "level-theory.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "8786b8cbd35673c8e0d14534f2adbe5887e0fff45cac016ecd0b3dd15cf964f1",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "master": "masters/sky-node1.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-node1-192.webp",
+        "sha256": "12ec87fee1f633883ae73b0cc544d1ca489ff05cac75fa7dd6dcad720a0e2366",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-node1-384.webp",
+        "sha256": "3c41c6b840f79d1d8717bd2e8417b86b42f1ee5d1c61c1639f8b13e34a88ba6b",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "forest-desktop",
+    "source": "exec-f7effdcc-90bf-40f7-b03e-777bdcd28d85.png",
+    "prompt": "Use case: stylized-concept. Original reusable desktop map background. Landscape 16:9 forest course-map environment. Large blocky tree trunks and fern silhouettes framing left and right, distant ivory woodland observation hut and small timber canopy station at edges, cool jade/cyan foliage with warm gold light from upper left. Quiet open forest clearing and pale low-detail green areas in central65% for separate lesson nodes. No platforms or routes. Attached image is STYLE reference only. Match chunky retro pixel clusters and big square pixels visible at 960 CSS pixels; 240 logical pixel-wide feel. Staircase contours, navy #132a49 outlines, ivory #fbf6e8, cyan and restrained gold, 2–3 flat shading bands, upper-left light. Full-bleed environment, not a screenshot, broad content negative space. NO people, astronauts, spaceships, UI, words, letters, numbers, logos, watermark, route, dots, lock. NO smooth 3D, photographic or painterly texture, gradient, antialiasing, blur, grain or tiny detail. Original subject, not recolored reference.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "campus-selection.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "9e81d0ef0dce418969175e77b17ce542322dc07d390c27ac7913cc72581f7829",
+    "mode": "RGB",
+    "master": "masters/forest-desktop.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-desktop-480.webp",
+        "sha256": "a984b0f7eacd638f4b6809056744462c12f1ede7f63156326ae889018a1245f3",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-desktop-960.webp",
+        "sha256": "e6dc2ccc3012502e1ea076d3322f20d63c803d257e8667377e18c789c7484b33",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-desktop-1536.webp",
+        "sha256": "176a52ab5cf96dc373187e4c2ea79eb012308dfb85895c7c42a52ea79a8b1bb5",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "forest-node1",
+    "source": "exec-d6667bf3-9b4f-410a-92e9-dc149d95198f.png",
+    "prompt": "Use case: stylized-concept. Original reusable transparent lesson-platform sprite. A woodland observation platform on a chunky timber-and-ivory hexagonal deck. At rear: one large microscope and specimen tray, a modest fern and cyan magnifying screen. One bold recognizable microscopy subject, no buildings. Empty front-center standing area at50%,70%. Attached artwork is STYLE reference only. Coarse 16-bit pixel clusters, visible large square pixels, bold hard staircase contours, simplified broad color bands, dark navy #132a49 outline, ivory #fbf6e8, cyan accents and sparse gold, upper-left light. Isometric 3/4 view; match reference platform scale and viewpoint. Entire silhouette inside square with transparent padding. Genuine transparent alpha outside, no fake checkerboard, no rectangle backdrop; no people or outer glow. Looks chunky at192–220CSSpx;64–96logicalpixel feel. No text, number, logos, watermark, labels, UI, dots, route, locks, astronauts or spaceship. No smooth3D, gradient, painterly texture, antialiasing, blur, grain, microscopic texture.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "level-theory.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "405d12575558dab10188db31300b7a2ba2364171a6186332a16cb6d4951115dc",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "master": "masters/forest-node1.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-node1-192.webp",
+        "sha256": "766819925f8c749581f126605fe1cae2d8026e8acd0ac31654cf8081b0f57c67",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-node1-384.webp",
+        "sha256": "69e51acc93cd548d5ad146c59f40c320613163c339fef677578e9d511b273d34",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "beach-desktop",
+    "source": "exec-0205c46f-c54f-485e-88fd-5151ebdc2945.png",
+    "prompt": "Use case: stylized-concept. Original reusable map background. Landscape16:9 original beach environment. Golden sand around bottomcorners, turquoise tidal shallows, navy stepping rocks nearleftedge, one compact ivory lighthouse far right, distant broad block clouds. Keep central65% quiet shallow blue water and sand for independent HTML nodes. No lesson platforms, routes or people. Attached artwork is STYLE reference only. Coarse 16-bit pixel clusters, visible large square pixels, bold hard staircase contours, simplified broad color bands, dark navy #132a49 outline, ivory #fbf6e8, cyan accents and sparse gold, upper-left light. Full bleed landscape. About240logicalpixelswide feel at960CSSpx. Scene details at outer edges and low-detail central negative space. No text, number, logos, watermark, labels, UI, dots, route, locks, astronauts or spaceship. No smooth3D, gradient, painterly texture, antialiasing, blur, grain, microscopic texture.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "campus-selection.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "8e0a366e0018e2d1a7b5d078bb50555fcbe1d015c6a407c143d945a4f0c0b787",
+    "mode": "RGB",
+    "master": "masters/beach-desktop.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-desktop-480.webp",
+        "sha256": "318d6631e91e5ab04987d7604a897075fa457329882a606757484960d291bd75",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-desktop-960.webp",
+        "sha256": "46e40f51a4be84005b76636e8a462954c7bee47a4d80a85e56210b8226fa5ec5",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-desktop-1536.webp",
+        "sha256": "6a2827370a2d4bb8dfb5bb061f64ab42d3d40f3fcd8307a90bac98544c922d2b",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "beach-node1",
+    "source": "exec-f76912f3-7cf2-4f9d-8e05-5d38a1e9de2c.png",
+    "prompt": "Use case: stylized-concept. Asset: one ORIGINAL transparent beach observation lesson-platform sprite. Attached approved theory platform defines STYLE and consistent platform scale/viewpoint only. A 3/4 isometric ivory-and-timber coastal observation deck on bold navy tidal rocks, one large shallow cyan specimen touchpool and simple navy/gold binocular stand at rear, a shell sample tray nearby. Empty clear ivory front-center standing area around50%,70%, no people. Entire silhouette fits square canvas with transparent padding; genuine transparent alpha outside, no black/white/checkerboard backdrop. Chunky visible 64–96logicalpixel feel at192–220CSSpx, hard staircase contours, thick navy outlines, ivory/cyan/sand gold, 2–3 flat color bands, upper-left light. No spaceship, astronaut, words, numbers, UI, route, locks, logos, watermark, smooth3D, gradient, softshadow, blur, antialiasing, grain or microscopic detail.",
+    "tool": "built-in image_gen",
+    "model": null,
+    "reference": "level-theory.webp",
+    "status": "published variants; original master preserved",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "cda4744baea5dbfca1d0ce4dc36abb0adf351bfb67e25fc6d468a66c364fc18a",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.66
+    ],
+    "master": "masters/beach-node1.png",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-node1-192.webp",
+        "sha256": "708c9d9f1b13150f5e7fc6546ce16a3aa8c4e0b35ef080d786765764ab603419",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-node1-384.webp",
+        "sha256": "0baa0c62f375ab2fed916194b068682fff56c4e8a033e345b8084b7f30e054bb",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收"
+  },
+  {
+    "id": "sky-mobile",
+    "source": "exec-fb45575d-ea50-44ea-8934-b3c54d62ac98.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. bright blue sky, enormous blocky white cloud sea, distant ivory/cloud observatory towers, restrained gold. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/sky-mobile.png",
+    "size": [
+      941,
+      1672
+    ],
+    "sha256": "ebf3bd9558024ddd3da63fd74962c5907699444ecc1ab3c79ba5a2c1b88e808a",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-mobile-480.webp",
+        "sha256": "39a051ae8f6a22db8adfa26cfa6f9ac70a2034c6e2af8ee76a2bfdf9a28fb7dc",
+        "width": 480,
+        "height": 853
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-mobile-960.webp",
+        "sha256": "ea9ac0a9dffa83c725391bfdccff4d367d20ea8234cc41c95eb33389927c7a38",
+        "width": 960,
+        "height": 1706
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-mobile-1536.webp",
+        "sha256": "187a414ca32126ae33935b8ec09c2e54d446f3018c13b0fe36d36bebf08d4714",
+        "width": 1536,
+        "height": 2729
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "sky-cover",
+    "source": "exec-559041f8-51cc-4e48-ab3a-3b2f450c10d4.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a large ivory cloud observatory and tiny cloud garden at lower right, with bright blue sky, enormous blocky white cloud sea, distant ivory/cloud observatory towers, restrained gold. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/sky-cover.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "df18e547a01bd43625d85e8281a44b7560293022f12b953366e39f50d15586c4",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-cover-480.webp",
+        "sha256": "8cefa70c7ee51118ba60b20e814bbefd35702f80dce48757475d77eabf7d0874",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-cover-960.webp",
+        "sha256": "1bfef0a4922a4b7cff79b923e91a2bd777edbcfcd8669265e1d14a3fb6d43cbf",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-cover-1536.webp",
+        "sha256": "52222d840efdbd4717ec26db2ffc4df76cbc691817b1f8528fa0dc4acb22d59f",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "sky-mark",
+    "source": "exec-c2cab231-0d9b-4135-b5e8-017f0f006986.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: a single ivory wing-and-cloud symbol with small gold sun. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/sky-mark.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "sha256": "b87e3987e7443475c7cec9bce4f01bf75cdcc6891199333524fff0f2bd8b93e0",
+    "mode": "RGBA",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-mark-96.webp",
+        "sha256": "83ea3e0d8e0a1f87ff3bc805d9547df7510b595ebdfff737993a4a386577fffe",
+        "width": 96,
+        "height": 72
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-mark-192.webp",
+        "sha256": "2be27451d57112bf1b23507ef0269ee40e04a3a7b0ab6799902c7fad01320be7",
+        "width": 192,
+        "height": 144
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-mark-384.webp",
+        "sha256": "1d24eaab480a70377c3a933e6d59792338142d1d4f97f9089a25e1ab69a71d03",
+        "width": 384,
+        "height": 288
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "sky-node2",
+    "source": "exec-29207ea7-bb40-4381-ba32-7ca1cb5b0def.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory deck on chunky clouds. Rear half contains one large model wing held on a cyan wind-testing rack, a compact tool bench behind it. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/sky-node2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "7149e1f94e2b33a022563fdad8623e592fb56499410dfdf4f051dffe0a4271eb",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-node2-192.webp",
+        "sha256": "e41b8244144f9ffc66e8dba0e094dcc2a291f1760296fb3fa83c1b9709e65b10",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-node2-384.webp",
+        "sha256": "ee8bbd1526d8d662808485f04cd6975af1b885136027cd3eee6d272caa6cd3ec",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "sky-node3",
+    "source": "exec-62d2fd2a-3d45-4374-8d31-e7c96f6fb710.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory deck on chunky clouds. Rear half contains an ivory open exhibition pavilion with one cloud-weather model under a navy glass dome and a cyan presentation screen. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/sky-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/sky-node3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "434d2d7dec516af939e805a05a9234ac1324b7a3858c8c3ddef9e6aee3e29d61",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/sky-node3-192.webp",
+        "sha256": "f72ec5512ea2b7b3e098a39ef2aefe000fca53fd64f36db7212628f9b85cdba9",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/sky-node3-384.webp",
+        "sha256": "e7e524b8f1bd097d3734214e1b1a78fe534748f90030c0fc325a06d0f82436b6",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "forest-cover",
+    "source": "exec-ad0c56b0-1d2b-4e39-be72-82cf78aa1850.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a timber field research hut and large fern specimen station at lower right, with sunlit jade forest, broad navy-edged tree trunks, large fern silhouettes and an ivory timber observation hut. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/forest-cover.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "4fb4021af16727e6e9a498db07fdc776e1cd274b0e385879ed4b9fe7c18533d0",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-cover-480.webp",
+        "sha256": "dc14a132169e1f0e02e2fb76c9a8f5f42b5d1e60fa377139a924ff44a29edbac",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-cover-960.webp",
+        "sha256": "dfc3aa05bfd35b8514436d466cc92551ed067e3506b5522c2523f06e6d31b470",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-cover-1536.webp",
+        "sha256": "e37ff2dcadc923160afa5b5be320cc64581361a717dc36c279e898e0d456e1c9",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "forest-mobile",
+    "source": "exec-bb774aa8-943d-4027-927b-4885ebf68db5.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. sunlit jade forest, broad navy-edged tree trunks, large fern silhouettes and an ivory timber observation hut. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/forest-mobile.png",
+    "size": [
+      941,
+      1672
+    ],
+    "sha256": "bab9fe5fbc05b0be9673aff532d2ffe971110e3668e44f97ef721dfd974c5195",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-mobile-480.webp",
+        "sha256": "8b6dce88d9e3d91fd970f1e16ebd9c70ef915cee7b6282fce0e28cb779df30d5",
+        "width": 480,
+        "height": 853
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-mobile-960.webp",
+        "sha256": "a8d27e234e5beabbe7de5f40a6352ba3328ebf66c209bdd73ea192a0a4c22396",
+        "width": 960,
+        "height": 1706
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-mobile-1536.webp",
+        "sha256": "e8a4712d0df5159e10177e1def64a28045cb1f8cf9c7fd5662051b8faefcf053",
+        "width": 1536,
+        "height": 2729
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "forest-mark",
+    "source": "exec-7e0fdf9b-37f3-4a49-88e9-1f0fb12e9520.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: one bold green fern leaf and ivory magnifying glass. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/forest-mark.png",
+    "size": [
+      1322,
+      1190
+    ],
+    "sha256": "ea3e652379f1758e929b98744137d77bdfaf9a261fa5099f955f96002a59919d",
+    "mode": "RGBA",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-mark-96.webp",
+        "sha256": "8fb8b67627a58a638aa7604bb5600c78c1aadc8ee8d88839b91864e96643ca2d",
+        "width": 96,
+        "height": 86
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-mark-192.webp",
+        "sha256": "b34a536693520e4160aa938f9c5ce09d5ec3d722eea5f572d725e08bf38ad9d6",
+        "width": 192,
+        "height": 173
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-mark-384.webp",
+        "sha256": "13d6fe4dc1cbbac9724966400472dcbaf5ddde8974ab127cd1f95c3e6f376e3c",
+        "width": 384,
+        "height": 346
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "forest-node2",
+    "source": "exec-2298e58c-8aa0-4439-a4ed-9e2613eacbab.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck supported by a thick short tree stump. Rear half contains one timber treehouse maker shed with a broad workbench, simple wooden bridge model and cyan tools. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/forest-node2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "90a00d90e17fe2de23ae440e95154c57ebd53dce7aa3a7ca63d1aee9c7636f3a",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-node2-192.webp",
+        "sha256": "146f09ac8053746196b66355277b45fb6b3f24010afbf10f747a7f9e36d545cf",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-node2-384.webp",
+        "sha256": "dce85241bfa891fee6c0eae4e359933a95b9225aa10c41bdf5ed8242c29cdc1e",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "forest-node3",
+    "source": "exec-53ba83cf-c718-49f6-b455-c36c42e54eb9.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck supported by a thick short tree stump. Rear half contains a woodland exhibition shelter with a large specimen cabinet, leaf model and one blank cyan display board. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/forest-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/forest-node3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "f5fea9fe5f9003da306bfed75df2358aae689fdd396aaa6512d7232f1873e372",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/forest-node3-192.webp",
+        "sha256": "292dc2bfbc7268a78196f2bdceb74dd38b928deb04cd1a2b46436e9c09011b79",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/forest-node3-384.webp",
+        "sha256": "784baab76cac2aad7cbab02c7d22290db8df903d2de35b260da2cf00952b1c09",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "beach-cover",
+    "source": "exec-e90e9d7c-acfd-411f-8a2b-d8c4ac2e0c43.png",
+    "prompt": "Use case: stylized-concept. Original horizontal16:9 course cover, distinct composition from reference scene: foreground a large ivory coastal lighthouse and tide-pool research shelter at lower right, with golden shore, turquoise tidal shallows, bold navy coastal rocks, distant ivory lighthouse. Quiet left half. Full bleed. No platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/beach-cover.png",
+    "size": [
+      1672,
+      941
+    ],
+    "sha256": "e95d048787f0fe0a479f4bece305c976ec398b77df2816ae0c6dc4374c4cd543",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-cover-480.webp",
+        "sha256": "32e7bb58190f7e2aedfa80be8f4b3489f334f55ba8411879bb36879292d2b1e1",
+        "width": 480,
+        "height": 270
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-cover-960.webp",
+        "sha256": "515d20537c89968e4496c794917fda4008bfe543fd92b80f951c2b8865418493",
+        "width": 960,
+        "height": 540
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-cover-1536.webp",
+        "sha256": "d8e306e889ea0df4749d5e1bdef34e8f9c39de6a5138ab6ed649d41dafb78162",
+        "width": 1536,
+        "height": 864
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "beach-mobile",
+    "source": "exec-3935c034-b0e9-4e28-9d0f-0bdbf000b727.png",
+    "prompt": "Use case: stylized-concept. Original independent portrait9:16 mobile map composition, NOT stretched landscape. golden shore, turquoise tidal shallows, bold navy coastal rocks, distant ivory lighthouse. Frame outer vertical edges and far top with scenery; keep a tall quiet low-detail central corridor from20% to85% height for separate DOM nodes. Full bleed. About192–240logicalpixel-wide environment. No lesson platforms or interface. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": false,
+    "master": "masters/beach-mobile.png",
+    "size": [
+      941,
+      1672
+    ],
+    "sha256": "6974b1e7ce6f2aca5158e9a7cf1ccf59a69ecff4012d4b53aa2221233f8c776a",
+    "mode": "RGB",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-mobile-480.webp",
+        "sha256": "ef96ef424e04f20700450a6c73e4b10e9f19392f5c9900240403692dafabb7b2",
+        "width": 480,
+        "height": 853
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-mobile-960.webp",
+        "sha256": "b225410337e1cce4066027678bb485a63d62f45f96eb24bd8df6a805c8b20a74",
+        "width": 960,
+        "height": 1706
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-mobile-1536.webp",
+        "sha256": "1518825eab5f0ae73135ad52dce65c37602e7111cecebd6feac24a9bd78c24be",
+        "width": 1536,
+        "height": 2729
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "beach-mark",
+    "source": "exec-b1993504-05d3-4092-a194-6513294f6aa2.png",
+    "prompt": "Use case: stylized-concept. One original compact transparent course emblem: one ivory lighthouse with cyan wave and warm gold beacon. Bold simple silhouette on genuine transparent alpha, no border medallion, no rectangle. Legible at64–96CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-desktop.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/beach-mark.png",
+    "size": [
+      1374,
+      1145
+    ],
+    "sha256": "65c5af6153a9ae5f205831e874a081297d5ceeab36a1931cdfed6718e11d56f3",
+    "mode": "RGBA",
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-mark-96.webp",
+        "sha256": "86ee6d79033e96d501f3e6a61f91b300605345e15e570594144582b732d4cc3e",
+        "width": 96,
+        "height": 80
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-mark-192.webp",
+        "sha256": "2e3a88bfb481d8d9b1bc1be642bb111aaf578fa1418537c607162a505c940579",
+        "width": 192,
+        "height": 160
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-mark-384.webp",
+        "sha256": "c0659d43d4eb382fe279f55c49c6880b93f17a86a6eb00d2eb0bdcbbbef910b2",
+        "width": 384,
+        "height": 320
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "beach-node2",
+    "source": "exec-06599163-8e1e-43d1-ae59-3442d6e13b09.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck atop bold navy shore rocks. Rear half contains one sand-side maker bench with a large wooden water-wheel model and cyan water channel. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/beach-node2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "b739043e7ed489ad0e6771d1e28704cf741166302634b074e02a0ebcb1c8c515",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-node2-192.webp",
+        "sha256": "8d3e53985071c65ccd460cc28b4e51b242f52765062c4025cd4c806755812217",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-node2-384.webp",
+        "sha256": "960fe4be4ddc8edc4af4c92a2fbe15ce72357ac8eacc7395319cf23028eaea21",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "beach-node3",
+    "source": "exec-a091b08c-fd65-4114-860c-ea2b4d258c86.png",
+    "prompt": "Use case: stylized-concept. One transparent isometric3/4 platform: an ivory-and-timber deck atop bold navy shore rocks. Rear half contains one small ivory lighthouse exhibition station with a navy-and-cyan model display case and a large shell sculpture. Clear empty front-center for separate character at50%,70%. Whole silhouette inside square frame with transparent padding. Match reference platform scale, angle and light. 64–96logicalpixel feel at192–220CSSpx. Genuine transparent alpha outside; no painted backdrop, checkerboard or shadow rectangle. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "docs/mentor-workspace/step-03/art/masters/beach-node1.png",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/beach-node3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "91c55e8088c7fca8b212a5985b352e55f424478fb5bcd8168d59066a23a639b7",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/beach-node3-192.webp",
+        "sha256": "f60a04e38f383e546213db63226d4ada0864e45a931bd6a699d6e047acd96163",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/beach-node3-384.webp",
+        "sha256": "37e75e6aa4cf5ab6540d13ed7dfbe91970b21a8839b3f1305b70e7ffb614eaca",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "campus-node1",
+    "source": "exec-cd09b603-2b2c-4f3c-a7be-e531fd4cc4c6.png",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains one large microscope observation bench with green specimen pots and cyan magnifier. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/campus-node1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "fa627d07a15ce031979e67a75cea636235df35b241de4e8b9dbd92790dea9122",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/campus-node1-192.webp",
+        "sha256": "bef4ef1fdfe406a93396b7b208a060af35e0962bcd4f84d0c29a7516b5894556",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/campus-node1-384.webp",
+        "sha256": "d19cf2fc88646ac09d04c3faf6b448bfc76b9205cb4fb03abc4bfd6636c50de7",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "campus-node2",
+    "source": "exec-530d38d0-83a5-478f-a935-ce5d759ba7f8.png",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains one large engineering maker workbench with a blocky bridge model and cyan simple tools. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/campus-node2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "ddefa335d41ba1f710126a5c25a90704a3364704d9d7047f8df7aeb2f48c32c7",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/campus-node2-192.webp",
+        "sha256": "70e329ccebd32fbfd6f51a3a14dbb2b04ccd30ef2f5b4fa6c9c588955b84a4b9",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/campus-node2-384.webp",
+        "sha256": "5205621087f2dfd62c656b249d4570c7f4a8e634714f3259f54ac53b42665631",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  },
+  {
+    "id": "campus-node3",
+    "source": "exec-534a0471-9b8d-4d93-92f7-2d3eee35def9.png",
+    "prompt": "Use case: stylized-concept. One original transparent isometric3/4 campus exploration lesson platform: an ivory deck with navy foundation and compact campus railings, no space propulsion. Rear half contains a compact open campus showcase pavilion with a model airplane on an ivory plinth and a blank cyan display board. Large empty ivory front-center standing area at50%,70%. Match reference scale/viewpoint with wholly different campus subject, no science-fiction thrusters. Entire silhouette inside square with transparent padding, genuine alpha outside, no painted backdrop/checkerboard. Coarse64–96logicalpixel feel at192–220CSSpx. Original reusable PBL chunky retro pixel artwork. Match attached APPROVED STYLE reference in coarse pixel clusters, hard staircase contours, dark navy #132a49 outlines, ivory #fbf6e8 structures, cyan highlights, sparse warm gold. Upper-left light, 2–3 flat shading bands per material, visible blocks at webpage size. No smooth3D, photorealism, painterly texture, gradient, antialiasing, blur, grain filter, thin hairlines or microscopic details. No words, letters, numbers, watermark, logos, UI, routes, dotted lines, locks or people.",
+    "reference": "C:/Users/shr/Desktop/nmg前端/PBL-new-class/skills/pbl-pixel-course/assets/reference/level-theory.webp",
+    "tool": "built-in image_gen",
+    "model": null,
+    "transparent": true,
+    "master": "masters/campus-node3.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "sha256": "a3fdf3319c0ce9a03085b44ed3babc0b724854cdda3284eaf583e32b62834bae",
+    "mode": "RGBA",
+    "landing": [
+      0.5,
+      0.7
+    ],
+    "variants": [
+      {
+        "file": "frontend/public/assets/public-themes/campus-node3-192.webp",
+        "sha256": "1f16797000145c1412d2e090b9c2a42feb7967181f0c545444cd4a79d0149b53",
+        "width": 192,
+        "height": 192
+      },
+      {
+        "file": "frontend/public/assets/public-themes/campus-node3-384.webp",
+        "sha256": "157745134c35c2984e490dd508b8329f1ffa61e1fe728b51095aa5524ce3285a",
+        "width": 384,
+        "height": 384
+      }
+    ],
+    "review": "内部真实尺寸对照/alpha检查，待用户最终总验收",
+    "status": "published variants; original master preserved"
+  }
+]

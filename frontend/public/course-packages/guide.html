@@ -1,0 +1,81 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>导师完整操作与课程包指南</title><style>body{font:17px/1.75 system-ui;background:#fbf6e8;color:#132a49;margin:24px}main{max-width:1200px;margin:auto}a{color:#154a8a}img{max-width:100%;height:auto}figure{margin:20px 0;border:2px solid #132a49;padding:12px;background:white}summary{cursor:pointer;font-weight:bold}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px;border:1px solid #afb6c0}nav{display:flex;gap:18px;flex-wrap:wrap}h2{margin-top:40px}table{border-collapse:collapse}td,th{padding:8px;border:1px solid #aaa}</style><main><h1>导师完整操作与课程包指南</h1><nav><a href="/courses/import">返回网页导入</a><a href="sample-course-v1.zip" download>下载测试样包</a><a href="sample-preview/index.html">只读样包预览</a><a href="#format">v1字段</a></nav><h1>导师办课、填写、上传、保存与发布操作指南</h1><pre>适用于本轮 mentor-workspace-v1。管理员可完成同样操作，记录真实操作者；教师为明确学生×课程只读观察者，学生只进入自己有效报名且已发布的课程。先完成强制改密。开发资格与回复都不自动授予办学权限。</pre><h2>1. 从学校申请到学生学习</h2><pre>1. 导师工作台 → 学校与账号 → 学校申请，填学校名称、地区、用途和联系方式。申请可往返说明，管理员另行批准/驳回。同名学校需人工核对，不以文字相同自动合并。
+2. 批准前可创建课程草稿、填写教材；批准后才能在获准学校建班、建学生和teacher账号。固定角色不可自行升权；账号仅由创建者或管理员明确委托者维护，同校不自动获得他人学生。
+3. 建班后建学生/teacher，初始凭据私下交付。首次登录须改密；已改密或停用凭据不可重新导出。批量操作失败按实际结果修正，不重复创建成功项。
+4. 新建课程 → 填名称、学段、难度 → 选四公共主题 → 保存草稿。在课程“学员与授权”明确选获准学校、填写原因并保存；学生还需单独报名，不自动全校招生。导师须同时有课程管理、学校管理和本人/委托学生账号权限。
+5. 填教材、预览后分别发布课程、设课时就绪、发布卡片。课程只发布不代表课时/卡片已开放；填完一个字段不代表全部教学内容齐备。学校范围缩小对旧报名须管理员明确核对，不删除历史。
+6. 组织账号 → 观察范围，逐条选择teacher、学生、课程并说明原因。教师只能看交集，不自动看全班或全校；撤权/停用实时生效。
+7. 学生回顾→卡片练习→报告与反思→原有作品任务→导师评审，金币与可选勋章沿原规则核对。参观课暂无个人通关记录时不能擅自发奖励。实验不自动提交作品或完成课时。</pre><h2>2. 逐项填写、上传和保存</h2><pre>|位置|填写检查|操作与空值|
+|---|---|---|
+|课程基础|名称、学段、难度；选填说明、驱动问题、目标、故事、材料|保存课程信息；未填选填字段不编造给学生|
+|课时安排|真实课时标题、顺序、四模板、时长及实际时间/地点/授课人|未提供的安排显示空状态；主题不决定模板|
+|回顾与提示|回顾正文、教学提示、报告/实验/反思引导|保存至服务器；不把提示当学生答案|
+|文章|标题，段落/本站图片/资料块；合法HTTPS链接|先上传本站资料，再插入对应块；同课时引用，不能粘任意生产ID|
+|卡片与题目|标题、正文、选填摘要/要点/误区/示例、必修和时长；原五题型、答案/解析/开放题参考|先保存草稿、逐项核对，再单独发布；题型语义沿原校验|
+|作品任务|标题、说明、类型、附件要求和实际截止时间|保存任务；作品和报告保持不同对象、版本与评审|
+|资料/回放|真实文件、标题、用途和所属课时|等待上传成功后核对保存；普通附件ZIP不自动成为课程包；视频使用回放/视频专用入口|
+|实验关联|只选择已注册滑翔机及具体课时/阶段/卡片来源|无关联不自动展示配套实验；自由实验室仍可用|
+|关卡与主题图|选默认图或上传自有图，核对站位/桌面/手机|上传不等于绑定保存，见下一节|
+|奖励|原课程礼品及勋章管理|本轮不新增规则，课程包也不能导入礼品、金币或成绩|
+
+主题及关卡图片：PNG/JPEG/WebP，单张≤5MiB、≤1600万像素，真实文件头校验。常规资料沿原入口≤50MiB，作品≤100MiB，课堂视频专用入口≤500MiB；页面和服务器校验仍是最终约束，课程包使用更小独立限制。资料上传失败保留原引用并重试，不写“成功”占位。
+
+保存与发布区别：文件上传只说明文件已保存，正文/引用需再保存；课程发布控制学生课程可见；课时就绪控制内容开放；卡片发布控制卡片可见。已有学习绑定教材版本，后续人工编辑不覆盖已绑定学生的历史作答/报告。需要更新学生版本时沿原版控流程明确操作，不重建课时规避历史。保存成功但回读失败先重读确认；冲突保留输入，核对服务器修订后再保存。离开未保存表单/上传队列时阅读拦截提示，不把内存草稿误当跨设备保存。</pre><h2>3. 四主题、关卡和预览</h2><pre>新课选四项之一，默认校园；存量远航仍可维护，但不能新建/复制/导入voyage。课程“视觉与文案”可任选桌面、平板、手机预览；主题保存到服务器，仅改本课程，不改平台登录/选课/我的外层。
+
+可分别上传封面、桌面背景、手机背景、透明标识。上传后检查预览，再点“保存主题”。移除自定义绑定后回到所选预设；自定义图仍优先，历史文件不批量删除。手机独立构图优先，否则按既有规则居中裁切。
+
+每主题三枚默认关卡：观察、制作、分享。它们是视觉选项，不会生成三节正式课。课时里明确选图，可超过三节复用；默认按顺序建议但可随时换。解析优先级：课时自上传→明确选择的主题默认图→既有安全降级。替换图时保存站位，角色与底图分层，不能把角色烘焙到关卡。地图只按真实课时排序连接相邻节点，不新增通关门槛。</pre><h2>4. 制作新题材像素素材</h2><pre>本轮使用 `PBL-new-class/skills/pbl-pixel-course/SKILL.md` 及既有校园参照。先做一个场景和一个节点，按真实网页尺寸/站位检查后再批量。
+
+保持：粗颗粒、阶梯轮廓、少色阶、海军蓝描边、左上光源、统一3/4俯视角、奶油阅读层、寒蝉团圆体、原按钮反馈。可变化：课程内部题材、建筑与植物、地面/天空配色、自有合法图片。不能靠给平滑插画加噪点冒充像素，不能只给旧星海图改色。
+
+每新主题独立封面、桌面场景、手机场景、真透明标识、三枚不同主体透明节点。背景不烘焙文字/路线/按钮，节点保留人物站位空地；平台外壳不改。建议横图1536×1024或16:9、竖图约9:16、节点/标识方形透明；母版保留，本轮发布背景480/960/1536、节点192/384、标识96/192/384无损WebP（整数尺寸舍入≤1像素）。只有响应式缩放，无语义重绘；24母版不可把裁切计为原创。
+
+使用任一实际可用生图工具均需保留提示词、参照、实际工具、模型（不可核实填null）、文件哈希、透明度与用途清单。先看同类参照与网页实际大小再接入；不要伪造工具或转付费接口。本轮母版和生成记录在 `art/`，公共注册表只接受受控键，不拼接请求路径/CSS。</pre><h2>5. 课程包</h2><pre>参阅 [完整格式](package-format.md)。下载网页样包及只读预览，都是明确测试材料。脚本在自己的电脑运行以生成/校验包，不能上传脚本给服务器执行。
+
+课程管理“导入课程包”，上传校验后看对象/素材/待补视频→选新建草稿或追加指定课程→生成写入清单→核对目标/数量/不覆盖项→确认→读取服务器结果。新建后明确配置学校及报名；追加只新增课时，不覆盖既有课程介绍、主题、课时、人工文案或历史。导入后继续原位填写、上传、预览和单独发布。
+
+断网或确认回包丢失：先点“查询服务器导入结果”，使用原请求编号恢复；同包版本同目标不会重复导入。目标/学校范围变化需重新生成清单；撤权不能读取原结果继续维护。未确认可恢复本人暂存，24小时过期后下次上传清理；取消只删本次暂存，不删成功课程。更改相同包ID/版本内容会拒绝，应升内容/包版本；不能拿导入器覆盖旧教学。</pre><h2>6. 可用定制及开发方案边界</h2><pre>已可用：本课程模块标题/介绍/顺序、空实验入口隐藏、主题/关卡/文章和原位教材编辑。标题留空恢复原人工文案。地图/列表切换及核心组件替换没有实现。
+
+管理员申请处理处可授予/调整/撤销指定mentor×课程的开发方案资格，填用途、审核说明及选填到期时间。导师可查看状态、回复和限制；开发申请对话不自动授资格。资格不开放运行，也不授课程或学校权。[高级开发方案](advanced-development.md)仅设计，任何数据库迁移、平台代码、服务部署仍由审查后的管理员/服务器负责人执行。</pre><h2>7. 反馈、申请与通知</h2><pre>学生提交本课程反馈后进入当前管理导师共同池；导师先领取，公开回复与内部协作分开。确需平台协助时手动转管理员并说明；管理员可接管、公开回复或转回导师，学生只见本人公开消息。课程撤回、报名/导师变化后重新核验，管理员兜底，不把他校他课加入导师统计。
+
+学校/课程/开发申请分别进入申请会话；原申请正文、附件、审核结果与对话均保留，公开回复不等于批准。工作台按分类显示完整计数/分页，聚焦、定时或手动刷新核对。通知直达对应对象；失败进入持久补投队列，恢复不会重复兑换/授权/导入。回包丢失先核对结果，不反复新建申请。
+
+会话输入与选中文件只保留当前账号/对象的当前标签页内存，离开有提示；不是跨设备草稿，不保证浏览器退出恢复。新消息/他人更新采用修订核对，附件保存完成会在服务器消息中显示。teacher不能处理反馈/申请，admin可真实代办且审计保留本人身份。</pre><div id="format"></div><h1>数据课程包 v1 格式与恢复</h1><pre>这是数据格式，不是可执行插件。已验证版本组合：`format=pbl-course-data`、`formatVersion=1`、`themeVersion=1.0.0`、`appCompatibility=mentor-workspace-v1`。`packageVersion` 表示包发行，`contentVersion` 表示教材内容，均须三段数字；未知版本拒绝。主题版本独立于内容版本。ZIP格式或字段不支持时先转换，不承诺任意旧课程全兼容。</pre><h2>本机工具与真实样包</h2><pre>以项目根目录为工作目录，使用已安装依赖和Node：
+
+```powershell
+node scripts/validate-course-package.cjs frontend/public/course-packages/sample-course-v1.zip
+node scripts/preview-course-package.cjs frontend/public/course-packages/sample-course-v1.zip .local/my-new-readonly-preview</pre><h1>仅生成明确的测试样包；不要将测试教材当成正式内容</h1><pre>node scripts/build-course-package-sample.cjs .local/my-test-course.zip
+```
+
+校验工具不连接API/数据库；校验格式、字节、哈希和引用，服务器还会按原学习服务复核卡片/答案语义、角色/目标权限。预览输出必须是项目内尚不存在的新目录，不覆盖文件，打开其中index.html；只读、不读取学生信息、不执行包代码。不要在服务器上传/运行这些脚本。
+
+网页 `/course-packages/sample-course-v1.zip` 是实际可导入的四模板测试包；`/course-packages/sample-preview/index.html` 为其实际离线预览。解压样包查看完整manifest，不能只压缩外层目录：根目录必须直接出现manifest.json。</pre><h2>容器与安全限制</h2><pre>ZIP≤20MiB；解压合计≤50MiB；单文件≤10MiB；最多200文件、目录最多另20条、路径≤4层；单条压缩比≤250；manifest≤2MiB、JSON≤32层；课时1–100。单图≤5MiB、≤1600万像素；文本资料≤1MiB。素材重复引用可能产生多份课时文件，导入物化总量≤100MiB，超限回滚。
+
+仅STORE/DEFLATE、UTF-8且ASCII安全文件路径，如 `assets/observation.webp`。拒绝加密/分卷/ZIP64、穿越/绝对路径/反斜杠、链接/设备、大小写重复、条目重叠、伪造类型、CRC/大小不一致和未声明/未引用文件。不按包内路径直接解压；服务端生成自己的隔离目录和文件名。
+
+图片PNG/JPG/WebP，扩展名、MIME、真实签名及结构须一致。普通文档仅PDF、UTF-8 TXT/MD/CSV；PDF拒绝已知脚本/启动/嵌入/加密动作，不声称提供完整恶意软件扫描。Office/宏、嵌套ZIP、SVG、HTML/JS、SQL、模块/安装钩子、字体/任意CSS都拒绝。文章文本按已有安全渲染；不能嵌脚本、事件或HTML媒体。合法HTTPS无凭据教学链接仅保存，不由导入器远端抓取。
+
+账号、学校、授权、生产数据库ID、学生答案/成绩、钱包、奖励、密钥、本机路径均不是允许字段，出现会拒绝。</pre><h2>白名单字段</h2><pre>未知字段逐层报错。选填字段省略，不能用null代替必填。所有对象局部ID是字母开头的1–64位字母/数字/下划线/横线，整个包唯一；文章块ID在同文章唯一。不是数据库ID，真实ID由服务器产生并在结果mapping查询。
+
+|对象|允许字段/约束|
+|---|---|
+|manifest|format、formatVersion、packageId、packageVersion、contentVersion、themeVersion、appCompatibility、course、chapters数组、lessons数组、assets数组|
+|course|id、title(必填≤120)、grade_level(primary/junior/senior)、difficulty(basic/advanced/challenge)、public_theme(campus/sky/forest/beach)；选填description、driving_question、learning_objectives、story_line、materials_needed、theme(普通教学主题文字)、themeAssets|
+|themeAssets|cover/desktop/mobile/mark，各值为已声明image素材ID。仅新建时绑定，追加不覆盖目标主题|
+|chapter|id、title；课时chapterRef指它，未指定仍可见，不编造正式章节|
+|lesson|id、title、presentation_type(learning/visit/theory/experiment)；选填description、teaching_tip、duration(正整数分钟)、chapterRef、review_content、report_guidance、experiment_guidance、moments_note、article_title、article_url、article_blocks、map、cards、tasks、resources、experiments|
+|map|assetRef图片ID或defaultNode(所选主题的node1/2/3受控ID)；landing=[x,y]各0.1–0.9；自图优先。没有字段时保留rock降级，不按名称猜题材|
+|asset|id、path(assets/下安全路径)、sha256(真实小写SHA256)、kind(image/document)、mime|
+|resource|id、title；选填description、resource_type(lesson_plan/guide_card/template/courseware/other)、assetRef；待补视频改用resource_type=video、pendingVideo=true、note必填，无assetRef|
+|article block|paragraph：id/type/text；image/file：id/type/resourceRef及选填title/caption。仅能引用本课时真实resource，image需图片，file需普通文档；待补视频不能当已上传文章块|
+|card|id、title、content；选填summary、key_points、common_mistakes、example_content、is_required布尔、estimated_minutes、exercises数组。全部导入草稿|
+|exercise|id、question_type、prompt、answer、explanation必填；选填options、rubric、points(1–100)、is_required。沿现有练习校验，不把题分当金币|
+|task|id、title、task_type(inquiry/experiment/creation/reflection/presentation)；选填description、require_upload布尔、deadline合法时间字符串|
+|experiment|id、experiment=glider、label；选填stage(0–3)、cardRef(本课时卡片且stage=1)。只建立关联，不导入或运行物理程序|
+
+答案示例：单选`&quot;a&quot;`并有`[{&quot;value&quot;:&quot;a&quot;,&quot;label&quot;:&quot;A&quot;}]`；多选`[&quot;A&quot;,&quot;B&quot;]`对应字符串选项；判断`true`；填空`{&quot;blanks&quot;:[[&quot;测试&quot;]]}`；简答为参考答案字符串，可附rubric。其他语义限制沿原服务，错误在写库前返回。
+
+文章最多200块、合计250000字符；段落/常规正文默认≤10000，卡片正文≤20000，题干/解析≤5000，摘要≤1000。完整边界见实际校验工具及 `backend/services/coursePackageFormat.js`，不要自行增加未支持字段。</pre><h2>追加、重试和版本</h2><pre>新建课程为draft，课时preparing，卡片draft；无课程学校、报名、奖励。追加只插入新章节/课时/资源/卡片/任务/关联，不覆盖旧记录。包内课程标题/介绍/主题等在清单列出为本次不覆盖项；默认节点必须匹配目标主题，否则导入前转换或换自有图，不能悄悄换目标主题。视频待补记录不是已上传文件，成功后按具体课时补传并核对。
+
+清单签名包含当前目标修订及导师学校范围，提交事务内重新核验；并发维护会409，保留选择后重新生成清单。新资源先写独立分配目录，事务失败补偿只删除这次新目录，不动历史。SQLite立即事务序列化写入；包身份/版本/目标约束及请求键防重复。相同内容仅重新压缩，内容摘要相同，仍复用原结果；同身份版本内容不同拒绝，需要升版本。不同版本追加仍是新增，不是更新旧教材。
+
+确认超时先查询服务器结果，不用新请求键盲目导入。请求键按账号保存当前标签页会话，服务器成功历史可跨设备查看；当前权限失效则不能再查看对应课程结果。暂存最多3包/账号，24小时后不可使用；下一次上传时清理到期暂存，或主动取消。成功导入不依赖继续保留暂存；取消不能撤销课程，撤回错误课程需按原管理流程人工处理，不删除学习历史。</pre></main></html>

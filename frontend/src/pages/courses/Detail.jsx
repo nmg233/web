@@ -526,7 +526,7 @@ function CourseDetailPage() {
         <Form name="course-add-lesson" form={lessonForm} layout="vertical" initialValues={{presentation_type:'learning'}} onValuesChange={markCreation} onFinish={handleAddLesson}>
           <Form.Item name="presentation_type" label="课时模板（创建时选择）" rules={[{required:true}]}><Select options={lessonTemplates.map(({value,label})=>({value,label}))}/></Form.Item>
           <Form.Item noStyle shouldUpdate>{()=> <Alert type="info" title={lessonTemplates.find(t=>t.value===lessonForm.getFieldValue('presentation_type'))?.help} description="以上为管理员填写提示，不保存成学生教材；保存为准备中，不自动发布卡片、关联实验或发币。"/>}</Form.Item>
-          <LessonMapImageField key={mapSession} courseId={id} form={lessonForm} disabled={creating} onDirty={markCreation} onBusyChange={value=>{setMapBusy(value);value?creationUploads.current.add('image'):creationUploads.current.delete('image');}}/>
+          <LessonMapImageField course={course} key={mapSession} courseId={id} form={lessonForm} disabled={creating} onDirty={markCreation} onBusyChange={value=>{setMapBusy(value);value?creationUploads.current.add('image'):creationUploads.current.delete('image');}}/>
           <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="duration" label={siteText("site.8e7a7f1c84586481")}><Input type="number" /></Form.Item>

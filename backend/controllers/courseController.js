@@ -148,7 +148,7 @@ exports.create = (req, res) => {
     ).run(validated.title, theme || null, description || null, driving_question || null,
          story_line || null, grade_level, difficulty, validated.total_hours ?? null,
          materials_needed || null, req.user.id);
-    db.prepare("UPDATE courses SET presentation_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run(validated.presentation_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
+    db.prepare("UPDATE courses SET presentation_theme=?,public_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run('campus',validated.public_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
     const response={ message: '课程创建成功（草稿），补充课时后即可发布', id: Number(result.lastInsertRowid) };requests.save(db,identity,response);return response;}).immediate();
 
     res.json(output);
@@ -281,12 +281,12 @@ exports.update = (req, res) => {
     if (!canManageCourse(req.user, id)) {
       return res.status(403).json({ error: '无权管理该课程' });
     }
-    const current = db.prepare('SELECT status FROM courses WHERE id = ?').get(id);
+    const current = db.prepare('SELECT * FROM courses WHERE id = ?').get(id);
     if (current?.status === 'archived') return res.status(409).json({ error: '已归档课程只允许查看历史' });
     if (req.body.status !== undefined && !['draft','published','archived'].includes(req.body.status)) return res.status(400).json({error:'课程状态无效'});
     if (req.body.status === 'draft' && lifecycle.hasLearningHistory(id)) return res.status(409).json({error:'已有学生学习记录，不能撤回草稿；关闭课程请使用归档'});
     if (req.body.status === 'archived') lifecycle.assertCanClose(id);
-    const validated = contentValidation.courseFields(req.body);
+    const validated = contentValidation.courseFields(req.body,false,current);
     const fields = Object.keys(validated);
     const sets = [];
     const values = [];
@@ -349,6 +349,7 @@ exports.delete = (req, res) => {
 
     if (['reward_gifts','reward_images','reward_orders','reward_badge_grants'].some(table=>db.prepare(`SELECT 1 FROM ${table} WHERE course_id=? LIMIT 1`).get(id))) return res.status(409).json({error:'该课程已有奖励配置、图片或订单，不可删除；请归档保留奖励和履约记录'});
 
+    if(['course_package_imports','development_qualifications','development_qualification_events'].some(t=>db.prepare('SELECT 1 FROM '+t+' WHERE course_id=? LIMIT 1').get(id)))return res.status(409).json({error:'课程有导入或资格审计记录，请归档保留历史'});
     const filePaths = [
       ...db.prepare('SELECT file_path FROM resources WHERE course_id = ?').all(id).map((r) => r.file_path),
       ...db.prepare('SELECT video_path FROM course_replays WHERE course_id = ?').all(id).map((r) => r.video_path),

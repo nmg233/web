@@ -3,7 +3,7 @@ const path = require('path');
 const feedbackService = require('../services/feedbackService');
 const { FEEDBACK_UPLOAD_ROOT, removeFiles } = require('../middleware/feedbackUpload');
 
-const meta=req=>{const body=req.body||{};return{expectedRevision:body.expectedRevision===undefined?undefined:Number(body.expectedRevision),request_key:body.request_key,files:req.files||[]};};
+const meta=req=>{const body=req.body||{};if(Object.hasOwn(body,'attachments'))throw Object.assign(new Error('附件未以正确上传格式发送，文字尚未保存；请保留输入后重试'),{status:400});return{expectedRevision:body.expectedRevision===undefined?undefined:Number(body.expectedRevision),request_key:body.request_key,files:req.files||[]};};
 function sendError(res, err) {
   if (err instanceof feedbackService.FeedbackError || err.status) {
     return res.status(err.status).json({ success: false, error: err.message, code: err.code });

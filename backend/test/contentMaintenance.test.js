@@ -52,6 +52,7 @@ test('真实章节排序、课时归属与文字清空：不改原学习、报�
  assert.equal((await request(1,route('/lessons/1'),'PUT',{chapter_id:null})).status,200);assert.equal((await request(1,route('/chapters/'+a),'DELETE')).status,200);
 });
 test('受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/解除不改变历史',async()=>{
+ db.prepare("UPDATE courses SET presentation_theme='voyage',public_theme=NULL WHERE id=1").run(); // Explicit pre-existing voyage fixture; new courses cannot select it.
  assert.equal((await request(1,'/courses/1','PUT',{presentation_theme:'voyage'})).status,200);assert.equal((await request(2,'/course-spaces/1/courses/1')).body.course.presentation_theme,'voyage');
  for(const body of[{presentation_theme:'custom'},{cover_image:'https://evil.invalid/x'},{cover_image:'/uploads/private.png'},{description:'x'.repeat(10001)}])assert.equal((await request(1,'/courses/1','PUT',body)).status,400);
  const values={experiment:'glider',lessonId:1,stage:1,cardId:1,label:'试飞（测试）',enabled:true};

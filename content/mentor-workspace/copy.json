@@ -1460,6 +1460,741 @@
       "text": "受理更新",
       "page": "feedback/ReceptionControls",
       "source": "frontend/src/pages/feedback/ReceptionControls.jsx"
+    },
+    "mentor.Guide.db02263d79a1": {
+      "text": "完整办课与导入指引",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.11f43da970d3": {
+      "text": "学校申请与建号 → 草稿与学校上线 → 教材上传保存 → 四主题预览 → 单独发布课程、就绪课时和发布卡片 → 本校报名 → 学生学习 → 教师只读与导师评审。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.548c1ffb51d6": {
+      "text": "完整填写、上传、保存、发布及课程包格式",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.c89564dd6919": {
+      "text": "导入受控数据课程包",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.44c5cec7754b": {
+      "text": "申请会话与开发资格",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.0d3162f693cb": {
+      "text": "课程包只追加或新建草稿；不覆盖旧教材、不发布、不报名、不发金币或徽章。普通ZIP附件不自动导入。开发资格仅允许准备/提交方案，本版本不运行交互代码。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "mentor.Guide.5ba290958d6b": {
+      "text": "反馈先由课程导师领取公开回复，必要时手动转管理员；申请对话不自动批准。未保存文本与附件只保留当前账号和对象的当前标签页内存，退出浏览器不保证恢复。通知失败进入持久队列补投，不能反复新建业务。",
+      "page": "mentor/Guide",
+      "source": "frontend/src/pages/mentor/Guide.jsx"
+    },
+    "courses.CoursePackageImport.0a16bcc2f44c": {
+      "text": "素材预览失败，可重新校验暂存包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.81c9f9d514fd": {
+      "text": "课程包尚未确认完成；暂存可在24小时内恢复，是否离开？",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.4fcb1c915a3a": {
+      "text": "导入列表读取失败，当前选择保留",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.56ff3183479b": {
+      "text": "请求未确认，选择和请求编号已保留；请先查询结果再重试",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.8893e45cdf6f": {
+      "text": "请先选择ZIP",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.6b34bdb012d2": {
+      "text": "请先上传校验",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.1e7582dfbf7a": {
+      "text": "此请求尚无已提交结果；请恢复暂存包核对后重试，不代表导入成功",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.567639de2627": {
+      "text": "导入数据课程包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.35f3bd654005": {
+      "text": "返回课程管理",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.5992732b8095": {
+      "text": "下载明确标识的四模板测试样包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.e86a557d9d42": {
+      "text": "格式与操作指南",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.eff2085b133d": {
+      "text": "样包本地只读预览",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.f6e879908181": {
+      "text": "上传→校验→预览→选择目标→写入清单→确认→服务器结果",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.a0fd2aceb187": {
+      "text": "只接受pbl-course-data v1数据ZIP：不执行HTML/JS、SQL、安装钩子或外部代码。默认草稿、课时准备中、卡片草稿；不报名、不发布、不发币或徽章。普通资料ZIP仍只是附件。",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.99a9f095846c": {
+      "text": "1. 上传并校验",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.666c3e1f440b": {
+      "text": "选择数据课程ZIP",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.0c367712712c": {
+      "text": "仅支持20MiB以内的数据ZIP",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.498374af9c1f": {
+      "text": "上传并校验课程包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.a47dc88adf9f": {
+      "text": "每账号最多3个暂存包，24小时到期，之后下一次上传清理到期包；只清理本功能暂存，历史教学文件不删除。文件未校验不写教材。",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.5e5d2e87e69a": {
+      "text": "恢复暂存",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.21b6d0b73ce1": {
+      "text": "2. 校验与素材预览",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.9feefb83a3ab": {
+      "text": "· 包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.64184608fffe": {
+      "text": "· 内容",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.2c3571fe69d5": {
+      "text": "· 主题",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.953f8db88082": {
+      "text": "· 应用",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.028620c5ddaa": {
+      "text": "课时局部ID",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.6b5ed490e62d": {
+      "text": "真实课时描述",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.62b95daecb7f": {
+      "text": "模板",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.fb5640f8e12e": {
+      "text": "卡片",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.a8f8efb0dd0f": {
+      "text": "作品任务",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.daa6d02a55bc": {
+      "text": "资源",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.5fbe9d74cd74": {
+      "text": "素材ID",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.ee7778400287": {
+      "text": "用途类型",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.44a50b2ca670": {
+      "text": "素材预览（分页按需读取）",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.8bd121aec14d": {
+      "text": "视频需在导入后通过原专用上传入口补齐",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.53a42c6b6e8c": {
+      "text": "导入方式",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.a732e7fe5033": {
+      "text": "新建课程草稿",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.5d7f9f14ffc2": {
+      "text": "向已有授权课程追加新课时",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.f7d18007ca7d": {
+      "text": "追加目标课程",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.02aa2ace00dc": {
+      "text": "生成写入清单",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.d0317fbbd905": {
+      "text": "取消并删除本包暂存",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.c8b968b501fa": {
+      "text": "3. 核对写入清单",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.903de11d77dd": {
+      "text": "追加新课时",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.73c47d8ad361": {
+      "text": "新课程",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.f8cae3f28bd3": {
+      "text": "新章节",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.921a606bef43": {
+      "text": "新课时",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.9af69965f173": {
+      "text": "素材",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.c98d3970bcf0": {
+      "text": "待补视频",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.9e9a98362715": {
+      "text": "以下包内课程字段只用于新建，本次追加不覆盖目标课程：",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.eab856f481fa": {
+      "text": "确认本次导入",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.480f1686309a": {
+      "text": "4. 查询结果与跨设备历史",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.3230997dd52e": {
+      "text": "请求编号",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.c12d9cc1a06b": {
+      "text": "导入请求编号",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.c7507ade65e6": {
+      "text": "查询服务器导入结果",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.17a0d8cc1596": {
+      "text": "导入已真实保存到服务器",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.259729b82b5a": {
+      "text": "课程 #",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.e38feaaf7ea2": {
+      "text": "· 导入记录",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.46986140a307": {
+      "text": "继续原位填写与学生效果预览",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.8cdcf60bd10c": {
+      "text": "本包声明待补视频：",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.6d661c356b54": {
+      "text": "（课时#",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.1e45cab1adb4": {
+      "text": "。请按当前教材与专用上传结果核对，声明本身不是已上传。",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.fcc84136328d": {
+      "text": "刷新暂存与导入历史",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.60db1afb4022": {
+      "text": "课程",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.26b9c4d2448e": {
+      "text": "包",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.ef7f0eaa2edd": {
+      "text": "成功保存时间",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.bb7ef73495dd": {
+      "text": "结果",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.5b0644bad6c5": {
+      "text": "读取这次结果",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.b304e740f4f6": {
+      "text": "确认写入服务器",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.4a8d6841b402": {
+      "text": "确认导入",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.d2bd032084bf": {
+      "text": "返回核对",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.aae7558c65de": {
+      "text": "：新增",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.30a85dafd69f": {
+      "text": "课时，",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.b892abe82eab": {
+      "text": "创建草稿",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.7cff2032d35b": {
+      "text": "保留目标现有内容，只追加",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.CoursePackageImport.aa0e61f5a035": {
+      "text": "提交时重新核验权限与目标修订。确认后若断网，请用请求编号查询结果；不以超时判断失败，也不重复创建对象。",
+      "page": "courses/CoursePackageImport",
+      "source": "frontend/src/pages/courses/CoursePackageImport.jsx"
+    },
+    "courses.ModuleOptions.021402116abe": {
+      "text": "核对服务器模块配置，保留当前输入",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.34754dce65dc": {
+      "text": "服务器版本",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.981529a763d1": {
+      "text": "我的输入",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.6bccd1411212": {
+      "text": "确认只采用新修订号，保存前请核对全部差异。",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.f81185134138": {
+      "text": "已核对修订，当前输入保留；确认内容后再保存",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.48d13107bd3f": {
+      "text": "模块配置读取失败，输入保留",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.4917a085bcf7": {
+      "text": "尚未保存到服务器",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.cc1a282f3e76": {
+      "text": "模块标题、介绍、顺序及空实验入口配置已真实保存；没有改学习与奖励规则",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.ae032038dbbe": {
+      "text": "保存未确认，输入保留；重试使用相同请求编号",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.0ce454f0b2d2": {
+      "text": "课程内模块展示",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.f8d2b0967ebc": {
+      "text": "三个模块保留真实入口；标题留空沿用原人工文案。只改本课程标题、选填介绍与顺序。关卡权限/完成由平台决定；实验使用注册模块、不直接发币；成长档案不改原提交、评审与历史。",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.3a0b3d1b8cc8": {
+      "text": "核对模块修订（保留输入）",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.e1fd12398b84": {
+      "text": "模块标题",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.650df752127d": {
+      "text": "选填介绍",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.26ff2aa73847": {
+      "text": "模块介绍",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.f853a70b1204": {
+      "text": "上移",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.e75e8b4e5c97": {
+      "text": "下移",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.e250cf979f2e": {
+      "text": "无关联实验时隐藏课程实验室入口",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.3453cdc447d6": {
+      "text": "独立实验室不受影响；地图/列表切换、替换核心学习组件和交互代码运行尚未开放。",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.ModuleOptions.ff783f51df48": {
+      "text": "保存模块展示",
+      "page": "courses/ModuleOptions",
+      "source": "frontend/src/pages/courses/ModuleOptions.jsx"
+    },
+    "courses.PublicThemePicker.5ca98ba624b7": {
+      "text": "四种公共主题",
+      "page": "courses/PublicThemePicker",
+      "source": "frontend/src/pages/courses/PublicThemePicker.jsx"
+    },
+    "courses.PublicThemePicker.9441bfa58903": {
+      "text": "当前保留存量远航；明确选择公共主题后才更换。已有上传图片继续优先。",
+      "page": "courses/PublicThemePicker",
+      "source": "frontend/src/pages/courses/PublicThemePicker.jsx"
+    },
+    "mentor.DevelopmentQualifications.4fb95a0f1cbd": {
+      "text": "资格读取失败",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.9770f253473a": {
+      "text": "导师或课程选项读取失败",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.f742c30ef394": {
+      "text": "资格保存未确认，输入保留",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.c4f6bc68f17a": {
+      "text": "核对服务器资格，保留我的输入",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.8422e8cc13a5": {
+      "text": "当前服务器资格",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.7f14398babb5": {
+      "text": "尚未授予",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.981529a763d1": {
+      "text": "我的输入",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.82fe61cded36": {
+      "text": "确认只采用最新修订号，表单不被替换。",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.127506317c1c": {
+      "text": "已核对服务器修订，请检查当前输入后保存",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.12699112995e": {
+      "text": "读取失败，当前输入保留",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.6133248b1d7f": {
+      "text": "放弃尚未保存的资格设置？",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.87c63c480b35": {
+      "text": "自主开发资格（仅方案准备）",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.084c777051ad": {
+      "text": "本版本不开放交互代码运行",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.37d7493d3409": {
+      "text": "资格不授予课程、学校或教学数据权限；不能上传执行脚本、SQL或安装钩子。批准开发方案与授予/撤销资格是两个独立动作。",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.5ee6548aa663": {
+      "text": "刷新资格",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.9f033f9c2479": {
+      "text": "授予或调整自主开发资格",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.ac3367cb1f3c": {
+      "text": "导师",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.cb375d2320e6": {
+      "text": "课程范围",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.810942b64152": {
+      "text": "当前效力",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.8cfa7be55cfc": {
+      "text": "可准备方案",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.6cf8a4297fc4": {
+      "text": "已到期或课程管理关系无效",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.fef96e34f77b": {
+      "text": "已撤销",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.05b36669c4ad": {
+      "text": "用途",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.abe7133498f1": {
+      "text": "授予与到期",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.2481d5f219ea": {
+      "text": "未设到期；可手动撤销",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.a6e8e2b68c6b": {
+      "text": "审核说明",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.926a50b98ece": {
+      "text": "撤销",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.ed31fbb483ee": {
+      "text": "操作",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.8d6927ebde41": {
+      "text": "调整/撤销",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.6372f0086010": {
+      "text": "资格审计历史",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.db6ec3938d0f": {
+      "text": "授予/调整",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.a322d74c5ee9": {
+      "text": "配置自主开发资格",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.9bedbebfa924": {
+      "text": "核对服务器资格（保留输入）",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.e83515c34e3e": {
+      "text": "资格导师",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.da590a8fe3ce": {
+      "text": "请选择",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.79343c8dd470": {
+      "text": "资格课程范围",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.1361dfb33553": {
+      "text": "审核/撤销说明",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.9eae422947ef": {
+      "text": "到期时间（选填，含时区；本地填写转服务器保存）",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.a8edd08dcc50": {
+      "text": "资格状态",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.f4bc8d15fa5b": {
+      "text": "授予/有效",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.1a2d324ce717": {
+      "text": "只允许准备和提交方案，不开放代码运行。",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
+    },
+    "mentor.DevelopmentQualifications.9551741f4f73": {
+      "text": "保存资格与审计",
+      "page": "mentor/DevelopmentQualifications",
+      "source": "frontend/src/pages/mentor/DevelopmentQualifications.jsx"
     }
   }
 }

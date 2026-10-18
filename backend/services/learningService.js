@@ -702,6 +702,7 @@ module.exports = {
   submitReport,
   listManagedCards,
   listManagedLessons,
+  validateCard:cardPayload,validateExercise:exercisePayload,
   createCard,
   updateCard,
   deleteCard,

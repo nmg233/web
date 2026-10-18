@@ -21,6 +21,7 @@ import AccountAvatarImage from '../space/AccountAvatarImage';
 import '../space/course-pages.css';
 import SceneArt from '../space/SceneArt';
 import CourseScene from '../space/CourseScene';
+import PublicThemeArt from '../space/PublicThemeArt';
 import CourseThemeImage from '../space/CourseThemeImage';
 import {useCoursePresentation} from '../space/CoursePresentation';
 import StudentGuideModal from '../guide/StudentGuideModal';
@@ -28,13 +29,13 @@ import StudentGuideModal from '../guide/StudentGuideModal';
 function Points({to}){const {data,error,loading}=useRealCoins();return <Link to={to} className="student-points" data-testid="header-real-coins" aria-label={copyText('coins.title')+' '+(data?data.balance:copyText(error?'coins.readFailed':'coins.loading'))} data-copy-bindings={JSON.stringify(['coins.title',error?'coins.readFailed':'coins.loading'])}><PixelIcon name="coin"/><strong data-business-value="真实金币余额">{data?data.balance:'—'}</strong><span>{<StudentCopyText id={loading?'coins.shortLoading':error?'coins.shortError':'coins.unit'}/>}</span></Link>;}
 function CourseNavigation({id,course,close}){
  const {pathname}=useLocation();const look=useCoursePresentation(),theme=look.theme;
- const entries=[['','map','course.nav.map'],['/lab','lab','course.nav.lab'],['/archives','archive','course.nav.archive']];
+ const baseEntries={map:['','map','course.nav.map'],lab:['/lab','lab','course.nav.lab'],archives:['/archives','archive','course.nav.archive']},config=look.data?.presentationOptions?.settings,entries=(config?.modules||[{id:'map'},{id:'lab'},{id:'archives'}]).filter(m=>!(m.id==='lab'&&config?.hideEmptyLab&&!look.experiments?.length)).map(m=>[...baseEntries[m.id],m]);
  return <div className="space-course-navigation" data-course-theme={theme}>
    <Link to="/explore" className="space-exit" onClick={close}><PixelIcon name="back"/>{<StudentCopyText id={'course.nav.exit'}/>}</Link>
-   <Link to={'/courses/'+id} className="space-course-brand" onClick={close}>{look.data?.themeImages?.mark?<CourseThemeImage image={look.data.themeImages.mark}/>:theme==='voyage'?<img src={asset('ship',192)} alt=""/>:<PixelIcon name="book" size={48}/>}<strong>{course?.title||<StudentCopyText id={'system.shell.005'}/>}</strong><span>{<StudentCopyText id={'system.shell.006'}/>}{id}</span></Link>
-   <nav aria-label={copyText('system.shell.007')} data-copy-bindings={JSON.stringify(['system.shell.007'])}>{entries.map(([suffix,icon,labelId])=>{const to='/courses/'+id+suffix;const selected=suffix==='/lab'?/\/(lab|glider)$/.test(pathname):suffix==='/archives'?/\/(archives|works|reflection)(?:\/|$)/.test(pathname):! /\/(lab|glider|archives|works|reflection)(?:\/|$)/.test(pathname);return <Link key={to} to={to} aria-current={selected?'page':undefined} onClick={close}><PixelIcon name={icon}/><span><StudentCopyText id={labelId}/></span><span aria-hidden="true">›</span></Link>;})}</nav>
+   <Link to={'/courses/'+id} className="space-course-brand" onClick={close}>{look.data?.themeImages?.mark?<CourseThemeImage image={look.data.themeImages.mark}/>:theme==='voyage'?<img src={asset('ship',192)} alt=""/>:theme!=='campus'?<PublicThemeArt theme={theme} purpose="mark"/>:<PixelIcon name="book" size={48}/>}<strong>{course?.title||<StudentCopyText id={'system.shell.005'}/>}</strong><span>{<StudentCopyText id={'system.shell.006'}/>}{id}</span></Link>
+   <nav aria-label={copyText('system.shell.007')} data-copy-bindings={JSON.stringify(['system.shell.007'])}>{entries.map(([suffix,icon,labelId,option])=>{const to='/courses/'+id+suffix;const selected=suffix==='/lab'?/\/(lab|glider)$/.test(pathname):suffix==='/archives'?/\/(archives|works|reflection)(?:\/|$)/.test(pathname):! /\/(lab|glider|archives|works|reflection)(?:\/|$)/.test(pathname);return <Link key={to} to={to} aria-current={selected?'page':undefined} onClick={close}><PixelIcon name={icon}/><span>{option.title||<StudentCopyText id={labelId}/>} {option.description&&<small className="course-module-description">{option.description}</small>}</span><span aria-hidden="true">›</span></Link>;})}</nav>
    <p className="space-reward-links"><Link to="/feedback/new" state={{courseId:id,from:pathname}}>{mentorText('student.course.feedback')}</Link><Link to={'/me?courseId='+id+'&returnTo='+encodeURIComponent('/courses/'+id)} onClick={close}>本课程礼品兑换</Link><Link to={'/me/badges?courseId='+id+'&returnTo='+encodeURIComponent('/me?returnTo='+encodeURIComponent('/courses/'+id))} onClick={close}>本课程勋章墙</Link></p>
-   <div className="space-sidebar-art" aria-hidden="true"/>
+   <div className="space-sidebar-art" aria-hidden="true"><CourseScene name={theme==='voyage'?'cosmos':'campus'}/></div>
  </div>;
 }
 function Shell({children}){

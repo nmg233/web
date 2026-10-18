@@ -161,3 +161,6 @@ docs/next-version/step-02/browser-first/
 !docs/mentor-workspace/**/verified-scenes.json
 !docs/mentor-workspace/**/images/*.png
 /docs/mentor-workspace/**/evidence/
+!docs/mentor-workspace/step-03/art/**/*.png
+!docs/mentor-workspace/step-03/art/**/*.webp
+!docs/mentor-workspace/step-03/art/*.json

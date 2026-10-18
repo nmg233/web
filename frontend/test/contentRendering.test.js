@@ -42,7 +42,7 @@ test('可选空状态说明清空后不被共用容器补回，未提供说明�
 test('新课时空图使用岩石和独立角色，存量校园节点保持原主题显示',async()=>{
  const Place=(await server.ssrLoadModule('/src/student/space/LessonMapPlace.jsx')).default;
  const render=lesson=>renderToStaticMarkup(createElement(Place,{theme:'campus',number:1,current:true,lesson}));
- const fresh=render({id:1,map_art_preset:'rock'});assert.ok(fresh.includes('data-place="rock"'));assert.ok(fresh.includes('unknown-platform-192.webp'));assert.ok(fresh.includes('space-place-astronaut'));
+ const fresh=render({id:1,map_art_preset:'rock'});assert.ok(fresh.includes('data-place="rock"'));assert.ok(fresh.includes('unknown-platform-192.webp'));assert.ok(!fresh.includes('space-place-astronaut'));const voyage=renderToStaticMarkup(createElement(Place,{theme:'voyage',number:1,current:true,lesson:{id:3,map_art_preset:'rock'}}));assert.ok(voyage.includes('space-place-astronaut'));
  const legacy=render({id:2,map_art_preset:'moon-base'});assert.ok(legacy.includes('data-place="campus"'));assert.ok(!legacy.includes('space-place-art'));
 });
 

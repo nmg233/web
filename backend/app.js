@@ -98,6 +98,8 @@ app.use(`${API_PREFIX}/courses`, require('./routes/courses'));
 app.use(`${API_PREFIX}/tasks`, require('./routes/tasks'));
 app.use(`${API_PREFIX}/students`, require('./routes/students'));
 app.use(`${API_PREFIX}/mentor-requests`, require('./routes/mentorRequests'));
+app.use(`${API_PREFIX}/course-customization`,require('./routes/courseCustomization'));
+app.use(`${API_PREFIX}/course-packages`,require('./routes/coursePackages'));
 app.use(`${API_PREFIX}/mentor-workspace`, require('./routes/mentorWorkspace'));
 app.use(`${API_PREFIX}/school-applications`, require('./routes/schoolApplications'));
 app.use(`${API_PREFIX}/works`, require('./routes/works'));

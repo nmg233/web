@@ -22,7 +22,8 @@ router.put('/',requireRole('admin','academic_mentor'),write,(req,res,next)=>{
   const result=db.transaction(()=>{
    const course=images.managed(db,req.user,req.params.id,true),b=req.body;
    if(b.expected_revision!==contentRevision(course))images.fail('课程已更新，请重新读取并核对主题',409);
-   if(Object.keys(b).some(k=>!['expected_revision','images','preset','opacity'].includes(k))||!['campus','voyage'].includes(b.preset)||typeof b.opacity!=='number'||!Number.isFinite(b.opacity)||b.opacity<0||b.opacity>1||!b.images||typeof b.images!=='object'||Array.isArray(b.images))images.fail('主题设置无效');
+   if(Object.keys(b).some(k=>!['expected_revision','images','preset','opacity'].includes(k))||typeof b.opacity!=='number'||!Number.isFinite(b.opacity)||b.opacity<0||b.opacity>1||!b.images||typeof b.images!=='object'||Array.isArray(b.images))images.fail('主题设置无效');
+   require('../services/publicThemes').assertSelection(b.preset,course);
    for(const [purpose,id]of Object.entries(b.images)){
     if(!purposes.includes(purpose))images.fail('素材用途无效');
     if(id!==null&&!db.prepare('SELECT 1 FROM course_theme_images WHERE id=? AND course_id=? AND purpose=?').get(id,req.params.id,purpose))images.fail('素材不属于当前课程或用途',404);
@@ -31,7 +32,7 @@ router.put('/',requireRole('admin','academic_mentor'),write,(req,res,next)=>{
    }
    const cover=selected(req.params.id).cover;
    // Only an explicitly changed cover changes the legacy cover field. No file is deleted.
-   db.prepare('UPDATE courses SET presentation_theme=?,background_opacity=?,cover_image=?,theme_revision=theme_revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(b.preset,b.opacity,Object.hasOwn(b.images,'cover')?cover?.url||null:course.cover_image,course.id);
+   db.prepare('UPDATE courses SET presentation_theme=?,public_theme=?,background_opacity=?,cover_image=?,theme_revision=theme_revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(b.preset==='voyage'?'voyage':'campus',b.preset==='voyage'?null:b.preset,b.opacity,Object.hasOwn(b.images,'cover')?cover?.url||null:course.cover_image,course.id);
    return{saved:true,images:selected(course.id),content_revision:contentRevision(db.prepare('SELECT * FROM courses WHERE id=?').get(course.id))};
   }).immediate();res.json(result);
  }catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}

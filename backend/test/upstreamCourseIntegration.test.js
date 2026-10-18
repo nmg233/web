@@ -36,6 +36,7 @@ test('回放保存摘要、字节幂等与部分修改，非管理角色不可�
  for(const [url,method,body]of [['/courses/1/replays','POST',replayForm('mentor_replay_123')],['/courses/replays/'+id,'PUT',{title:'越权'}],['/courses/replays/'+id,'DELETE',undefined],['/courses/1/maintenance/replays/'+id,'PUT',{title:'旁路越权'}],['/courses/1/maintenance/replays/'+id,'DELETE',undefined]])assert.equal((await api(url,method,body,4)).status,403);
 });
 test('原课程外观维护仍保存，有历史禁止撤回、待评禁止关闭，合法归档立即撤销学生读取',async()=>{
+ db.prepare("UPDATE courses SET presentation_theme='voyage',public_theme=NULL WHERE id=1").run(); // Explicit pre-existing voyage fixture; new courses cannot select it.
  const appearance=await api('/courses/1','PUT',{presentation_theme:'voyage',cover_image:'/assets/redesign-v2/web/cosmos-960.webp'});assert.equal(appearance.status,200);assert.equal(db.prepare('SELECT presentation_theme FROM courses WHERE id=1').get().presentation_theme,'voyage');
  assert.equal((await api('/courses/1','PUT',{status:'draft'})).status,409);
  assert.equal((await api('/courses/3','PUT',{status:'archived'})).status,409);

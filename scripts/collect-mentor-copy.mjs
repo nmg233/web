@@ -1,7 +1,7 @@
 // Explicit source list: never rewrites teaching data or existing manual copy.
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {createRequire} from 'node:module';
 const root=path.resolve(import.meta.dirname,'..'),require=createRequire(path.join(root,'frontend/package.json')),{parse}=require('@babel/parser');
-const files=['mentor/WorkspaceDashboard','mentor/SchoolAccounts','mentor/Organization','mentor/TeachingHub','mentor/Guide','courses/SchoolScope','mentor/ApplicationInbox','mentor/ApplicationThread','mentor/CourseFeedback','feedback/ReceptionControls','feedback/Form','feedback/Detail'];
+const files=['mentor/WorkspaceDashboard','mentor/SchoolAccounts','mentor/Organization','mentor/TeachingHub','mentor/Guide','courses/SchoolScope','mentor/ApplicationInbox','mentor/ApplicationThread','mentor/CourseFeedback','feedback/ReceptionControls','feedback/Form','feedback/Detail','courses/CoursePackageImport','courses/ModuleOptions','courses/PublicThemePicker','mentor/DevelopmentQualifications'];
 const target=path.join(root,'content/mentor-workspace/copy.json');fs.mkdirSync(path.dirname(target),{recursive:true});
 const catalog=fs.existsSync(target)?JSON.parse(fs.readFileSync(target,'utf8')):{version:1,entries:{}};
 for(const short of files){

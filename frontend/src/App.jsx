@@ -46,6 +46,7 @@ const AIKnowledge = lazy(() => import('./pages/courses/AIKnowledge'));
 const CourseList = lazy(() => import('./pages/courses/List'));
 const CourseDetail = lazy(() => import('./pages/courses/Detail'));
 const CourseForm = lazy(() => import('./pages/courses/Form'));
+const CoursePackageImport=lazy(()=>import('./pages/courses/CoursePackageImport'));
 const Learning = lazy(() => import('./pages/courses/Learning'));
 const TaskList = lazy(() => import('./pages/tasks/List'));
 const TaskDetail = lazy(() => import('./pages/tasks/Detail'));
@@ -130,6 +131,7 @@ function App() {
                 <Route path="dashboard/ai/settings" element={guard(<AISettings />, ['admin'])} />
                 <Route path="glider" element={guard(<StudentView student={<LegacyEntry free={<GliderSimulator/>}/>} legacy={<GliderSimulator/>}/>, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses" element={guard(<StudentView student={<ExploreHome />} legacy={<CourseList />} />, ['admin', 'academic_mentor', 'student', 'media'])} />
+                <Route path="courses/import" element={guard(<CoursePackageImport/>,['admin','academic_mentor'])}/>
                 <Route path="courses/create" element={guard(<CourseAccessBoundary><CourseForm /></CourseAccessBoundary>, ['admin', 'academic_mentor'])} />
                 <Route path="courses/:id" element={guard(<StudentView student={<CourseMap />} legacy={<CourseAccessBoundary><CourseDetail /></CourseAccessBoundary>} />, ['admin', 'academic_mentor', 'student'])} />
                 <Route path="courses/:courseId/lab" element={guard(<Lab/>, ['student'])} />
