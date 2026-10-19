@@ -6,6 +6,7 @@ import { Alert, Card, Input, Button, Select, Typography, Grid, Tag, Spin, messag
 import { SendOutlined, RobotOutlined, UserOutlined } from '@ant-design/icons';
 import { aiAPI, courseAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import StaffHeadingText from '../../components/StaffHeadingText';
 import { STUDENT_COURSES_CHANGED } from '../../student/accessPolicy';
 
 const { Title, Text } = Typography;
@@ -103,7 +104,7 @@ function LegacyAssistant() {
 
   return (
     <div style={{ maxWidth: 850, margin: '0 auto' }}>
-      <Title level={4}>{siteText("site.ec779afa35a9d932")}</Title>
+      <Title level={4}><StaffHeadingText id="site.ec779afa35a9d932" icon="guide"/></Title>
       <Text type="secondary">{siteText("site.347887469bcb12d4")}</Text>
       {loadError && <Alert type="error" showIcon message={loadError} style={{ marginTop: 12 }} />}
       {!enabled && <Alert type="info" showIcon message={siteText("site.756292d44aaf0f6c")} style={{ marginTop: 12 }} />}

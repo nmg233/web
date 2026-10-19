@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "family": "PBL Beihang staff campus pixel scenes",
+  "skill": "PBL-new-class/skills/pbl-pixel-course/SKILL.md",
+  "palette": {
+    "navy": "#132a49",
+    "cream": "#fbf6e8",
+    "interactiveBlue": "#245eb7",
+    "gold": "#ffd276"
+  },
+  "light": "upper left",
+  "processing": "Only proportional nearest-neighbor resampling and lossless WebP encoding; no painting, pixelation filter, palette conversion or blur",
+  "references": [
+    {
+      "role": "style",
+      "path": "PBL-new-class/skills/pbl-pixel-course/assets/reference/campus-selection.webp"
+    },
+    {
+      "role": "style",
+      "path": "PBL-new-class/skills/pbl-pixel-course/assets/reference/campus-personal.webp"
+    },
+    {
+      "role": "real campus subject reference only",
+      "path": "D:/下载的图库/buaa photos/秋.jpg"
+    },
+    {
+      "role": "ginkgo/campus material reference only; crest and writing excluded",
+      "path": "D:/下载的图库/buaa photos/金秋航博.jpg"
+    }
+  ],
+  "sourceAndUse": "New original AI-generated decorative scenes for the user's platform. Existing approved illustrations and user-supplied photos were observed as style/subject references; those source files are not copied into this asset directory. No claim is made to rights in the reference photographs or official marks. No official crest, text or third-party stock image is embedded in the delivered artwork.",
+  "integration": {
+    "masterNeverLoadedByFrontend": true,
+    "reading": "Keep artwork, background wash and readable content as separate layers. Tables, forms, text and status controls need stable cream reading surfaces; never apply opacity to text/control containers.",
+    "responsive": "Use landscape on desktop/tablet and independent portrait on narrow screens. Do not stretch either composition. Use CSS background crop/object-fit and actual image aspect ratios.",
+    "fallback": "#fbf6e8 stable cream background"
+  },
+  "assets": [
+    {
+      "id": "campus-workspace",
+      "purpose": "Desktop/tablet workspace backdrop and wide headings; quiet center behind separate reading surfaces",
+      "master": {
+        "path": "docs/staff-campus/art/masters/campus-workspace.png",
+        "width": 1672,
+        "height": 941,
+        "mode": "RGB",
+        "bytes": 1887661,
+        "sha256": "e00b7a967cb74af5224836a2f7117e3d32018e6e8c3a515ae427773826e28054"
+      },
+      "prompt": "docs/staff-campus/art/prompts/campus-workspace.txt",
+      "generation": {
+        "tool": "image_gen.imagegen",
+        "executionMode": "built-in",
+        "model": null,
+        "generatedOnClientDate": "2026-10-19",
+        "sourceFilename": "exec-56019807-3403-4ab1-aeff-f60fe502d24d.png",
+        "transparentBackground": false,
+        "referenceMechanism": "Approved local reference images were inspected with view_image; prompt identifies them as style anchors; no reference-image argument used for new original generation"
+      },
+      "pixelGrid": {
+        "logicalWidthPromptTarget": "192–320",
+        "fixedGridVerified": false
+      },
+      "variants": [
+        {
+          "path": "frontend/public/assets/staff-campus/campus-workspace-480.webp",
+          "width": 480,
+          "height": 270,
+          "mode": "RGB",
+          "bytes": 180858,
+          "sha256": "dcad6e243b61422a089ca31ba3775fd47baa160dec98c8476b2eeb2b83ba5e93",
+          "url": "/assets/staff-campus/campus-workspace-480.webp"
+        },
+        {
+          "path": "frontend/public/assets/staff-campus/campus-workspace-960.webp",
+          "width": 960,
+          "height": 540,
+          "mode": "RGB",
+          "bytes": 594504,
+          "sha256": "7707a8ae9716a45e5b08df737aaf50b362cdaf9b2f186914c46679e14938b64e",
+          "url": "/assets/staff-campus/campus-workspace-960.webp"
+        },
+        {
+          "path": "frontend/public/assets/staff-campus/campus-workspace-1536.webp",
+          "width": 1536,
+          "height": 864,
+          "mode": "RGB",
+          "bytes": 1313594,
+          "sha256": "bbe4c6231913523215ea64ffe7d1a48562f16887760d2c457111214cedd3ee86",
+          "url": "/assets/staff-campus/campus-workspace-1536.webp"
+        }
+      ]
+    },
+    {
+      "id": "campus-mobile",
+      "purpose": "Independent portrait campus composition for mobile and sidebar background; no landscape stretching",
+      "master": {
+        "path": "docs/staff-campus/art/masters/campus-mobile.png",
+        "width": 941,
+        "height": 1672,
+        "mode": "RGB",
+        "bytes": 1696636,
+        "sha256": "d3032d8c4d06285e0d1c55aabc81b9a8234481ade23cadaac6b5e3d6bda9ddb6"
+      },
+      "prompt": "docs/staff-campus/art/prompts/campus-mobile.txt",
+      "generation": {
+        "tool": "image_gen.imagegen",
+        "executionMode": "built-in",
+        "model": null,
+        "generatedOnClientDate": "2026-10-19",
+        "sourceFilename": "exec-52baaa1c-70cd-46a2-b71d-5a60a6c38d95.png",
+        "transparentBackground": false,
+        "referenceMechanism": "Approved local reference images were inspected with view_image; prompt identifies them as style anchors; no reference-image argument used for new original generation"
+      },
+      "pixelGrid": {
+        "logicalWidthPromptTarget": "192–320",
+        "fixedGridVerified": false
+      },
+      "variants": [
+        {
+          "path": "frontend/public/assets/staff-campus/campus-mobile-480.webp",
+          "width": 480,
+          "height": 853,
+          "mode": "RGB",
+          "bytes": 434214,
+          "sha256": "f6c328b70a7511736801de370aec81eec796008b035777fd033a3554dda54ab4",
+          "url": "/assets/staff-campus/campus-mobile-480.webp"
+        },
+        {
+          "path": "frontend/public/assets/staff-campus/campus-mobile-960.webp",
+          "width": 960,
+          "height": 1706,
+          "mode": "RGB",
+          "bytes": 1341702,
+          "sha256": "a6c8443a88b52f007b0aeefc6609f41ee909c93eb23f4ad42f6af84db88a9114",
+          "url": "/assets/staff-campus/campus-mobile-960.webp"
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "generatedMastersVisuallyInspected": true,
+    "publishedVariantsPixelRoundtrip": "passed; decoded RGB equals proportional nearest-neighbor result",
+    "frontendFiles": 5,
+    "noBusinessOrPermissionChanges": true
+  }
+}

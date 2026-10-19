@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>北航校园管理端原创场景</title>
+<style>:root{color:#132a49;background:#f5edda;font-family:system-ui,sans-serif}body{max-width:1180px;margin:auto;padding:28px}h1{font-size:28px}p{line-height:1.7}a{color:#245eb7}.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:20px;align-items:start}figure{margin:0;padding:12px;border:3px solid #132a49;background:#fbf6e8;box-shadow:5px 5px 0 #d6cba6}img{width:100%;height:auto;display:block;image-rendering:pixelated}figcaption{line-height:1.6;padding:12px 4px 3px}.reading{margin-top:22px;padding:24px;border:2px solid #132a49;background:#fbf6e8}code{word-break:break-all}@media(max-width:700px){body{padding:16px}.pair{grid-template-columns:1fr}}</style>
+<h1>北航校园管理端原创场景</h1>
+<p>使用已验收校园素材作为风格锚点，内置 image_gen 分别绘制独立横幅与竖幅。左上光、奶油建筑、蓝玻璃、金色银杏和航空教学意象保持同组关系。模型具体型号未知，不声称固定像素网格</p>
+<div class="pair">
+<figure><img src="../../../frontend/public/assets/staff-campus/campus-workspace-960.webp" alt="两侧教学楼与银杏，飞机和模型教学展台围绕安静校园广场"><figcaption>横幅：中央低细节，适合在独立奶油阅读面板后方铺设。1536／960／480 无损 WebP</figcaption></figure>
+<figure><img src="../../../frontend/public/assets/staff-campus/campus-mobile-480.webp" alt="竖幅校园，底部白色教学楼、航空展品、桥与水面，天空留白"><figcaption>竖幅：单独构图用于侧栏／手机，480／960 无损 WebP。不能把横图拉伸代替</figcaption></figure>
+</div>
+<div class="reading"><strong>接入与阅读</strong><p>图像、背景遮罩、内容三层分离。表格、表单和长文字保留稳定奶油底，降低的是图片层强度，禁止整体 opacity 淡化文字。母版仅存档，前端使用发布变体</p><p><a href="manifest.json">完整素材与校验清单</a> · <a href="prompts/campus-workspace.txt">横幅提示词</a> · <a href="prompts/campus-mobile.txt">竖幅提示词</a></p><p>素材只补充视觉，不包含标题、校徽、按钮或真实业务状态，不修改课程、权限、数据库或学生资料</p></div>
+</html>
