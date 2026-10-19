@@ -27,7 +27,8 @@
 .staff-campus-ui .staff-dashboard-heading h4 { display: flex; align-items: center; gap: 12px; }
 .staff-campus-ui .staff-module-title { display: flex; align-items: center; gap: 10px; }
 .staff-campus-ui .staff-module-title .staff-pixel-icon { flex: 0 0 26px; }
-.staff-campus-ui :is(.course-workspace-context, .course-maintenance-page > .course-detail-header) { top: var(--staff-header-height, 72px); }
+/* Only the workspace bar sticks; the course title stays in normal flow. */
+.staff-campus-ui .course-workspace-context { top: var(--staff-header-height, 72px); }
 .staff-campus-ui .staff-content {
   position: relative;
   isolation: isolate;

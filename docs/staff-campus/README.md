@@ -1,5 +1,7 @@
 # 管理端校园像素视觉交接
 
+**课程标题错位已单独补修**：[修复后首屏/滚动截图与回归记录](title-patch/index.html)。本页及原图集保留为47de933历史交付；原检查漏查了相对标题与信息卡的重叠，本次布局验收以补修目录为准。
+
 基线：`82b021bfbb23a31da21190e302f703fc747001ee`。分支：`feat/staff-campus-visual`。本轮承接原未提交草稿，仅提交自己的 `shrrrrrrrr/web-frontend-test`；不向上游提PR、不部署公网。
 
 验收入口：[真实截图与前后对照](index.html) · [场景素材](art/index.html) · [17枚图标](icons.html) · [详细验证](verification.md) · [逐项结果](verified-scenes.json)
