@@ -1,0 +1,58 @@
+Evidence: docs\staff-desk\patch-feedback-guide\selection-regression\2026-10-20T14-40-28-588Z
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (12295.0786ms)
+▶ 指南办理入口进入真实反馈受理队列，个人提交独立保留
+  ✔ 学生通过真实表单提交课程反馈 (1778.6785ms)
+  ✔ mentor：从指南点击进入学生反馈受理队列及原会话 (1161.5448ms)
+Evidence: docs\staff-desk\patch-feedback-guide\evidence\2026-10-20T14-40-41-160Z
+  ✖ mentor：指南明确区分个人提交，原个人反馈列表仍可访问 (10227.8179ms)
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (20493.0478ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34426.1437
+
+✖ failing tests:
+
+test at tests\school-grant-selection.browser.test.js:10:1
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (12295.0786ms)
+  locator.getAttribute: Timeout 5000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('dialog').getByRole('combobox', { name: '已有学校', exact: true })[22m
+  
+      at assertGrantSelected (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\school-grant-selection.mjs:5:26)
+      at TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\school-grant-selection.browser.test.js:54:15) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('dialog').getByRole('combobox', { name: '已有学校', exact: true })" ]
+  }
+
+test at tests\staff-guide-feedback.browser.test.js:20:13
+✖ mentor：指南明确区分个人提交，原个人反馈列表仍可访问 (10227.8179ms)
+  locator.waitFor: Timeout 8000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.ant-table') to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:83:39
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:21:13)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:20:5)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:76:7) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.ant-table') to be visible" ]
+  }
+
+test at tests\staff-guide-feedback.browser.test.js:8:1
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (20493.0478ms)
+  locator.waitFor: Timeout 8000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.ant-table') to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:83:39
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:21:13)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:20:5)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:76:7) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.ant-table') to be visible" ]
+  }

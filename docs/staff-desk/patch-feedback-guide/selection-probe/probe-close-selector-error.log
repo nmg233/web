@@ -1,0 +1,16 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 6000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog').getByRole('button', { name: 'Close', exact: true })
+
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\.local\school-select-probe.mjs:18:61 {
+  log: [
+    "  - waiting for getByRole('dialog').getByRole('button', { name: 'Close', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v26.2.0

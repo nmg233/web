@@ -1,0 +1,61 @@
+▶ 指南办理入口进入真实反馈受理队列，个人提交独立保留
+  ✔ 学生通过真实表单提交课程反馈 (1681.0861ms)
+Evidence: docs\staff-desk\patch-feedback-guide\evidence\2026-10-20T14-34-55-121Z
+  ✖ mentor：从指南点击进入学生反馈受理队列及原会话 (1437.9154ms)
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (10367.0962ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11111.2733
+
+✖ failing tests:
+
+test at tests\staff-guide-feedback.browser.test.js:20:13
+✖ mentor：从指南点击进入学生反馈受理队列及原会话 (1437.9154ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/feedback'
+  - '/mentor/feedback'
+  
+      at file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:66:16
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:21:13)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async scene (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:20:5)
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:60:7)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/feedback',
+    expected: '/mentor/feedback',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\staff-guide-feedback.browser.test.js:8:1
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (10367.0962ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/feedback'
+  - '/mentor/feedback'
+  
+      at file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:66:16
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:21:13)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async scene (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:20:5)
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/staff-guide-feedback.browser.test.js:60:7)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/feedback',
+    expected: '/mentor/feedback',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

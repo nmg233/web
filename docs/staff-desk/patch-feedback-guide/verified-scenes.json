@@ -1,0 +1,283 @@
+{
+  "sourceBase": "f39c6dacc4e9782165d322e6e0f671c7ce221f07",
+  "scope": "Local Edge, synthetic isolated data only; no formal site requests",
+  "businessScenes": 19,
+  "selectionAttempts": 24,
+  "frontendUnitTests": 144,
+  "groups": [
+    {
+      "suite": "staff-desk",
+      "evidence": "desk-regression/final/results.json",
+      "records": [
+        {
+          "name": "admin：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+          "status": "passed"
+        },
+        {
+          "name": "mentor：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+          "status": "passed"
+        },
+        {
+          "name": "报告与课程分页直达对象；返回保持队列和页码；不再请求旧重复统计",
+          "status": "passed"
+        },
+        {
+          "name": "admin：角色指南权限、导航路径和去办理按钮",
+          "status": "passed"
+        },
+        {
+          "name": "mentor：角色指南权限、导航路径和去办理按钮",
+          "status": "passed"
+        },
+        {
+          "name": "旧学校申请深链接与会话共用原对象，保留列表筛选",
+          "status": "passed"
+        },
+        {
+          "name": "管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问",
+          "status": "passed"
+        },
+        {
+          "name": "局部网络错误可重试；真实空队列；键盘焦点可见",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "suite": "mentor-step2",
+      "evidence": "mentor-step2-results.json",
+      "records": [
+        {
+          "name": "学生显式课程反馈，导师列表直达且领取后能回复",
+          "status": "passed"
+        },
+        {
+          "name": "公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交",
+          "status": "passed"
+        },
+        {
+          "name": "内部原因转管理员与管理员转回，学生只见公开进展",
+          "status": "passed"
+        },
+        {
+          "name": "学校申请原会话追问与补充，不自动授权，工作台待办可刷新",
+          "status": "passed"
+        },
+        {
+          "name": "铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办",
+          "status": "passed"
+        },
+        {
+          "name": "三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "suite": "guide-feedback",
+      "evidence": "evidence/2026-10-20T14-47-35-337Z/results.json",
+      "records": [
+        {
+          "name": "学生通过真实表单提交课程反馈",
+          "status": "passed"
+        },
+        {
+          "name": "mentor：从指南点击进入学生反馈受理队列及原会话",
+          "status": "passed"
+        },
+        {
+          "name": "mentor：指南明确区分个人提交，原个人反馈列表仍可访问",
+          "status": "passed"
+        },
+        {
+          "name": "admin：从指南点击进入学生反馈受理队列及原会话",
+          "status": "passed"
+        },
+        {
+          "name": "admin：指南明确区分个人提交，原个人反馈列表仍可访问",
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    },
+    {
+      "suite": "school-selection",
+      "evidence": "selection-regression/2026-10-20T14-47-39-456Z/results.json",
+      "records": [
+        {
+          "attempt": 1,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 2,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 3,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 4,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 5,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 6,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 7,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 8,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 9,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 10,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 11,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 12,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 13,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 14,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 15,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 16,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 17,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 18,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 19,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 20,
+          "mode": "pointer",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 21,
+          "mode": "keyboard",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 22,
+          "mode": "keyboard",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 23,
+          "mode": "keyboard",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        },
+        {
+          "attempt": 24,
+          "mode": "keyboard",
+          "school": 7001,
+          "mentor": 10007,
+          "status": "passed"
+        }
+      ],
+      "pageErrors": []
+    }
+  ],
+  "firstFailureHashesVerified": true,
+  "intermediateFailureLogsRetained": true
+}

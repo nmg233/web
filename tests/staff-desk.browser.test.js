@@ -1,7 +1,8 @@
+import {assertGrantSelected,chooseGrantOption} from './school-grant-selection.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import {chromium} from 'playwright';
 import {prepareDeskFixture} from './staff-desk-fixture.mjs';import {serveFixture,root,Database} from './mentor-fixture.mjs';
 test('校园书桌、角色指南与独立学校授权真实浏览器',{timeout:300000},async t=>{
- const f=prepareDeskFixture(),db=new Database(f.env.DB_PATH),runtime=await serveFixture(f,3567,4597),browser=await chromium.launch({channel:'msedge',headless:true}),out=path.join(root,'docs/staff-desk/evidence');fs.mkdirSync(out,{recursive:true});const records=[],geometry=[],errors=[];
+ const f=prepareDeskFixture(),db=new Database(f.env.DB_PATH),runtime=await serveFixture(f,3567,4597),browser=await chromium.launch({channel:'msedge',headless:true}),out=path.resolve(root,process.env.PBL_STAFF_DESK_EVIDENCE||'docs/staff-desk/evidence');fs.mkdirSync(out,{recursive:true});const records=[],geometry=[],errors=[];
  const login=async role=>{const ctx=await browser.newContext({viewport:{width:1440,height:900}}),p=await ctx.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>errors.push(e.message));await p.goto(runtime.base+'/login');await p.getByLabel('账号',{exact:true}).fill('mentor_review_'+role);await p.getByLabel('密码',{exact:true}).fill(f.password);await p.getByRole('button',{name:'登录',exact:true}).click();await p.waitForURL(u=>u.pathname!='/login');return p;};
  const scene=async(name,fn)=>{let failure;await t.test(name,async()=>{try{await fn();records.push({name,status:'passed'});}catch(e){failure=e;records.push({name,status:'failed',error:e.message});throw e;}});if(failure)throw failure;};
  const shot=async(p,name)=>{await p.evaluate(async()=>{await document.fonts.ready;window.scrollTo(0,0);});await p.screenshot({path:path.join(out,name+'.png'),animations:'disabled'});};
@@ -32,9 +33,50 @@ test('校园书桌、角色指南与独立学校授权真实浏览器',{timeout:
   const p=await login('admin');try{await p.goto(runtime.base+'/admin/organization?section=applications&application=7201&filterKind=school&status=pending');await p.getByText('仅用于验收原申请链接与统一会话',{exact:true}).waitFor();assert.equal(await p.getByRole('tab',{name:'学校申请',exact:true}).count(),0);assert.equal(new URL(p.url()).searchParams.get('filterKind'),'school');await shot(p,'admin-request-thread');await p.goto(runtime.base+'/mentor/organization?application=7201');await p.getByText('仅用于验收原申请链接与统一会话',{exact:true}).waitFor();}finally{await p.context().close();}
  });
  await scene('管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问',async()=>{
-  const p=await login('admin');try{await p.goto(runtime.base+'/admin/organization?section=school-grants');await p.getByRole('button',{name:'授予已有学校管理权',exact:true}).click();const modal=p.getByRole('dialog');await modal.getByLabel('已有学校',{exact:true}).click();await p.locator('.ant-select-item-option-content').getByText('合成验收学校7001 #7001',{exact:true}).click();await modal.getByLabel('授权导师',{exact:true}).click();await p.locator('.ant-select-item-option-content').getByText('合成验收noSchool #10007',{exact:true}).click();await modal.getByLabel('操作原因',{exact:true}).fill('浏览器独立学校授权验收，失败后应保留');await modal.getByRole('checkbox').check();
-   await p.route('**/api/mentor-workspace/school-grants',async route=>route.request().method()==='POST'?route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'隔离模拟保存暂时失败'})}):route.continue());await modal.getByRole('button',{name:'保存学校授权',exact:true}).click();await modal.getByText('隔离模拟保存暂时失败',{exact:true}).waitFor().catch(async e=>{fs.writeFileSync(path.join(out,'school-grant-first-failure.txt'),JSON.stringify({url:p.url(),errors,text:await p.locator('body').innerText()}));await shot(p,'school-grant-first-failure');throw e;});assert.equal(await modal.getByLabel('操作原因',{exact:true}).inputValue(),'浏览器独立学校授权验收，失败后应保留');await p.unroute('**/api/mentor-workspace/school-grants');await modal.getByRole('button',{name:'保存学校授权',exact:true}).click().catch(async e=>{fs.writeFileSync(path.join(out,'school-grant-failure.txt'),JSON.stringify({url:p.url(),errors,text:await p.locator('body').innerText()}));await shot(p,'school-grant-failure');throw e;});await modal.waitFor({state:'hidden'});assert.equal(db.prepare('SELECT active FROM school_direct_grants WHERE school_id=7001 AND mentor_id=10007').get().active,1);await shot(p,'admin-school-grants');
-   const row=p.getByRole('row').filter({hasText:'合成验收noSchool'});await row.getByRole('button',{name:'撤销此项授权',exact:true}).click();await modal.getByLabel('操作原因',{exact:true}).fill('浏览器撤权验收');await modal.getByRole('checkbox').check();await modal.getByRole('button',{name:'保存学校授权',exact:true}).click();await modal.waitFor({state:'hidden'});assert.equal(db.prepare('SELECT active FROM school_direct_grants WHERE school_id=7001 AND mentor_id=10007').get().active,0);
+  const p=await login('admin');
+  try{
+   await p.goto(runtime.base+'/admin/organization?section=school-grants');
+   await p.getByRole('button',{name:'授予已有学校管理权',exact:true}).click();
+   const modal=p.getByRole('dialog');
+   await chooseGrantOption(p,modal,'已有学校','合成验收学校7001 #7001');
+   await chooseGrantOption(p,modal,'授权导师','合成验收noSchool #10007');
+   await modal.getByLabel('操作原因',{exact:true}).fill('浏览器独立学校授权验收，失败后应保留');
+   await modal.getByRole('checkbox').check();
+   const assertSelected=async()=>{
+    await assertGrantSelected(p,modal,'已有学校','合成验收学校7001 #7001');
+    await assertGrantSelected(p,modal,'授权导师','合成验收noSchool #10007');
+   };
+   const posts=[];
+   p.on('request',r=>{if(new URL(r.url()).pathname==='/api/mentor-workspace/school-grants'&&r.method()==='POST')posts.push(r.postDataJSON());});
+   await p.route('**/api/mentor-workspace/school-grants',async route=>route.request().method()==='POST'?route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'隔离模拟保存暂时失败'})}):route.continue());
+   await assertSelected();
+   await modal.getByRole('button',{name:'保存学校授权',exact:true}).click();
+   await modal.getByText('隔离模拟保存暂时失败',{exact:true}).waitFor();
+   assert.equal(posts.length,1);
+   assert.equal(posts[0].schoolId,7001);assert.equal(posts[0].mentorId,10007);assert.equal(posts[0].active,true);
+   assert.equal(await modal.getByLabel('操作原因',{exact:true}).inputValue(),'浏览器独立学校授权验收，失败后应保留');
+   await p.unroute('**/api/mentor-workspace/school-grants');
+   await assertSelected();
+   await modal.getByRole('button',{name:'保存学校授权',exact:true}).click();
+   await modal.waitFor({state:'hidden'});
+   assert.equal(posts.length,2);assert.equal(posts[1].schoolId,7001);assert.equal(posts[1].mentorId,10007);
+   assert.equal(db.prepare('SELECT active FROM school_direct_grants WHERE school_id=7001 AND mentor_id=10007').get().active,1);
+   await shot(p,'admin-school-grants');
+   const row=p.getByRole('row').filter({hasText:'合成验收noSchool'});
+   await row.getByRole('button',{name:'撤销此项授权',exact:true}).click();
+   await modal.getByLabel('操作原因',{exact:true}).fill('浏览器撤权验收');
+   await modal.getByRole('checkbox').check();
+   await assertSelected();
+   await modal.getByRole('button',{name:'保存学校授权',exact:true}).click();
+   await modal.waitFor({state:'hidden'});
+   assert.equal(posts.length,3);assert.equal(posts[2].schoolId,7001);assert.equal(posts[2].mentorId,10007);assert.equal(posts[2].active,false);
+   assert.equal(db.prepare('SELECT active FROM school_direct_grants WHERE school_id=7001 AND mentor_id=10007').get().active,0);
+   fs.writeFileSync(path.join(out,'school-grant-submission-checks.json'),JSON.stringify(posts.map(({schoolId,mentorId,active})=>({schoolId,mentorId,active})),null,2));
+  }catch(e){
+   const name='school-grant-failure-'+Date.now();
+   fs.writeFileSync(path.join(out,name+'.json'),JSON.stringify({url:p.url(),errors,text:await p.locator('body').innerText()},null,2),{flag:'wx'});
+   await shot(p,name);
+   throw e;
   }finally{await p.context().close();}
  });
  await scene('局部网络错误可重试；真实空队列；键盘焦点可见',async()=>{

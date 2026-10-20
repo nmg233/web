@@ -275,20 +275,23 @@
     {
       "id": "feedback",
       "title": "处理反馈与通知",
-      "path": "/feedback",
-      "navigation": "顶部帮助与反馈 / 通知；教学与成长 → 课程反馈",
-      "permission": "工作人员按原课程受理范围；学生看不到内部备注",
+      "path": "/mentor/feedback",
+      "navigation": "受理学生反馈：教学与成长 → 课程反馈；管理员 → 反馈管理。个人问题：提交个人反馈",
+      "permission": "管理员受理平台反馈；mentor仅受理授权课程反馈；个人提交与学生反馈受理分开，学生看不到内部备注",
       "steps": [
         "打开具体反馈，先领取、回复或补充工作人员说明",
         "转交后沿原会话继续，内部备注与学生回复分开",
-        "通知已读不会清除真实待办；图片和附件始终使用鉴权入口"
+        "通知已读不会清除真实待办；图片和附件始终使用鉴权入口",
+        "自己的问题点击“提交个人反馈”；个人已提交记录仍在账号菜单的“我的反馈”查看"
       ],
       "roles": [
         "admin",
         "academic_mentor"
       ],
       "icon": "message",
-      "adminPath": "/feedback/manage"
+      "adminPath": "/feedback/manage",
+      "secondaryPath": "/feedback/new",
+      "secondaryLabel": "提交个人反馈"
     },
     {
       "id": "rewards",

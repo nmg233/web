@@ -1,0 +1,6 @@
+# Preserve raw failure bytes and runner whitespace as evidence, including on Windows.
+original-first-failure/* -text
+original-first-failure/manifest.json text eol=lf
+original-first-failure/*.log -diff
+logs/*.log -text -diff
+selection-probe/*.log -text -diff

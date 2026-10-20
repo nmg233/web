@@ -1,0 +1,1912 @@
+{
+  "records": [
+    {
+      "name": "admin：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+      "status": "passed"
+    },
+    {
+      "name": "mentor：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+      "status": "passed"
+    },
+    {
+      "name": "报告与课程分页直达对象；返回保持队列和页码；不再请求旧重复统计",
+      "status": "passed"
+    },
+    {
+      "name": "admin：角色指南权限、导航路径和去办理按钮",
+      "status": "passed"
+    },
+    {
+      "name": "mentor：角色指南权限、导航路径和去办理按钮",
+      "status": "passed"
+    },
+    {
+      "name": "旧学校申请深链接与会话共用原对象，保留列表筛选",
+      "status": "passed"
+    },
+    {
+      "name": "管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问",
+      "status": "passed"
+    },
+    {
+      "name": "局部网络错误可重试；真实空队列；键盘焦点可见",
+      "status": "passed"
+    }
+  ],
+  "geometry": [
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 900,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 75,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 75,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 136,
+          "h": 764,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 148,
+          "h": 656.09375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 1440,
+      "height": 900,
+      "scrollHeight": 900,
+      "scrollWidth": 1440,
+      "desk": {
+        "x": 224,
+        "y": 262.28125,
+        "width": 1192,
+        "height": 541.8125,
+        "top": 262.28125,
+        "right": 1416,
+        "bottom": 804.09375,
+        "left": 224
+      },
+      "clock": "22:47:00",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 96.28125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 428.21875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 428.21875,
+          "p": "18px 18px 8px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 231.25,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 51.59375,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 720.03125,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 75,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 75,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 136,
+          "h": 584.03125,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 148,
+          "h": 554.15625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "scrollHeight": 720,
+      "scrollWidth": 1280,
+      "desk": {
+        "x": 224,
+        "y": 235.9375,
+        "width": 1032,
+        "height": 466.21875,
+        "top": 235.9375,
+        "right": 1256,
+        "bottom": 702.15625,
+        "left": 224
+      },
+      "clock": "22:47:00",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 79.9375,
+          "p": "0px",
+          "margin": "0px 0px 8px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 380.03125,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 380.03125,
+          "p": "12px 12px 4px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 201.25,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 42.1875,
+          "p": "8px 0px 0px",
+          "margin": "10px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 1291.5,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 127,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 127,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 188,
+          "h": 1103.5,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 200,
+          "h": 1079.5,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 768,
+      "height": 1024,
+      "scrollHeight": 1292,
+      "scrollWidth": 768,
+      "desk": {
+        "x": 224,
+        "y": 389.078125,
+        "width": 520,
+        "height": 890.421875,
+        "top": 389.078125,
+        "right": 744,
+        "bottom": 1279.5,
+        "left": 224
+      },
+      "clock": "22:47:01",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 171.078125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 729.234375,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 478.96875,
+          "p": "18px 18px 8px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 240,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 101.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 1771.4375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 171,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 171,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 232,
+          "h": 1539.4375,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 248,
+          "h": 1499.4375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 390,
+      "height": 844,
+      "scrollHeight": 1771,
+      "scrollWidth": 390,
+      "desk": {
+        "x": 13,
+        "y": 452.703125,
+        "width": 365,
+        "height": 1294.734375,
+        "top": 452.703125,
+        "right": 378,
+        "bottom": 1747.4375,
+        "left": 13
+      },
+      "clock": "22:47:01",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 186.703125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 1048.546875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 624.96875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 1805.1875,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 171,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 171,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 232,
+          "h": 1573.1875,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 248,
+          "h": 1533.1875,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 360,
+      "height": 640,
+      "scrollHeight": 1805,
+      "scrollWidth": 360,
+      "desk": {
+        "x": 12,
+        "y": 486.453125,
+        "width": 336,
+        "height": 1294.734375,
+        "top": 486.453125,
+        "right": 348,
+        "bottom": 1781.1875,
+        "left": 12
+      },
+      "clock": "22:47:02",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 220.453125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 1048.546875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 624.96875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 1527.015625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_11_",
+          "y": 0,
+          "h": 87,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "copy-review-toolbar",
+          "y": 87,
+          "h": 61,
+          "p": "8px 16px",
+          "style": null,
+          "min": "auto"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_11_",
+          "y": 148,
+          "h": 1379.015625,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 164,
+          "h": 1339.015625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 720,
+      "height": 450,
+      "scrollHeight": 1527,
+      "scrollWidth": 720,
+      "desk": {
+        "x": 12,
+        "y": 333.078125,
+        "width": 696,
+        "height": 1169.9375,
+        "top": 333.078125,
+        "right": 708,
+        "bottom": 1503.015625,
+        "left": 12
+      },
+      "clock": "22:47:02",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 151.078125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 923.75,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 500.171875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 900,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 75,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 75,
+          "h": 825,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 87,
+          "h": 656.09375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 1440,
+      "height": 900,
+      "scrollHeight": 900,
+      "scrollWidth": 1440,
+      "desk": {
+        "x": 224,
+        "y": 201.28125,
+        "width": 1192,
+        "height": 541.8125,
+        "top": 201.28125,
+        "right": 1416,
+        "bottom": 743.09375,
+        "left": 224
+      },
+      "clock": "22:47:04",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 96.28125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 428.21875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 428.21875,
+          "p": "18px 18px 8px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 231.25,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 118,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 51.59375,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 720.765625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 75,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 75,
+          "h": 645.765625,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 87,
+          "h": 554.15625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "scrollHeight": 721,
+      "scrollWidth": 1280,
+      "desk": {
+        "x": 224,
+        "y": 174.9375,
+        "width": 1032,
+        "height": 466.21875,
+        "top": 174.9375,
+        "right": 1256,
+        "bottom": 641.15625,
+        "left": 224
+      },
+      "clock": "22:47:04",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 79.9375,
+          "p": "0px",
+          "margin": "0px 0px 8px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 380.03125,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 380.03125,
+          "p": "12px 12px 4px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 201.25,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 40.25,
+          "p": "2px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 110,
+          "p": "13px 10px 7px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 42.1875,
+          "p": "8px 0px 0px",
+          "margin": "10px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 1188.5,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 127,
+          "p": "12px 24px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 127,
+          "h": 1061.5,
+          "p": "12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 139,
+          "h": 1037.5,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 768,
+      "height": 1024,
+      "scrollHeight": 1189,
+      "scrollWidth": 768,
+      "desk": {
+        "x": 224,
+        "y": 328.078125,
+        "width": 520,
+        "height": 848.421875,
+        "top": 328.078125,
+        "right": 744,
+        "bottom": 1176.5,
+        "left": 224
+      },
+      "clock": "22:47:05",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 171.078125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 687.234375,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 436.96875,
+          "p": "18px 18px 8px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 240,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 46.25,
+          "p": "5px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 135.6875,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 101.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 1662.4375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 171,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 171,
+          "h": 1491.4375,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 187,
+          "h": 1451.4375,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 390,
+      "height": 844,
+      "scrollHeight": 1662,
+      "scrollWidth": 390,
+      "desk": {
+        "x": 14.875,
+        "y": 391.703125,
+        "width": 363.125,
+        "height": 1246.734375,
+        "top": 391.703125,
+        "right": 378,
+        "bottom": 1638.4375,
+        "left": 14.875
+      },
+      "clock": "22:47:05",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 186.703125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 1000.546875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 576.96875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 1696.1875,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 171,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 171,
+          "h": 1525.1875,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 187,
+          "h": 1485.1875,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 360,
+      "height": 640,
+      "scrollHeight": 1696,
+      "scrollWidth": 360,
+      "desk": {
+        "x": 12,
+        "y": 425.453125,
+        "width": 336,
+        "height": 1246.734375,
+        "top": 425.453125,
+        "right": 348,
+        "bottom": 1672.1875,
+        "left": 12
+      },
+      "clock": "22:47:06",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 220.453125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 1000.546875,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 576.96875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    },
+    {
+      "role": "mentor",
+      "parents": [
+        {
+          "c": "ant-layout staff-main css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 1466.015625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        },
+        {
+          "c": "ant-layout-header staff-header css-viwxw0 css-var-_r_i_",
+          "y": 0,
+          "h": 87,
+          "p": "10px 12px 10px 70px",
+          "style": null,
+          "min": "72px"
+        },
+        {
+          "c": "ant-layout-content staff-content css-viwxw0 css-var-_r_i_",
+          "y": 87,
+          "h": 1379.015625,
+          "p": "16px 12px 24px",
+          "style": null,
+          "min": "360px"
+        },
+        {
+          "c": "staff-desk",
+          "y": 103,
+          "h": 1339.015625,
+          "p": "0px",
+          "style": null,
+          "min": "0px"
+        }
+      ],
+      "width": 720,
+      "height": 450,
+      "scrollHeight": 1466,
+      "scrollWidth": 720,
+      "desk": {
+        "x": 12,
+        "y": 272.078125,
+        "width": 696,
+        "height": 1169.9375,
+        "top": 272.078125,
+        "right": 708,
+        "bottom": 1442.015625,
+        "left": 12
+      },
+      "clock": "22:47:06",
+      "parts": [
+        {
+          "c": "desk-heading",
+          "h": 151.078125,
+          "p": "0px",
+          "margin": "0px 0px 18px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-layout",
+          "h": 923.75,
+          "p": "0px",
+          "margin": "0px",
+          "display": "grid"
+        },
+        {
+          "c": "desk-clipboard",
+          "h": 500.171875,
+          "p": "16px 10px 6px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-paper",
+          "h": 310,
+          "p": "0px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "",
+          "h": 62,
+          "p": "6px 0px",
+          "margin": "0px",
+          "display": "flex"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-folder",
+          "h": 142,
+          "p": "18px 13px 10px",
+          "margin": "0px",
+          "display": "block"
+        },
+        {
+          "c": "desk-tools",
+          "h": 188.1875,
+          "p": "12px 0px 0px",
+          "margin": "18px 0px 0px",
+          "display": "flex"
+        }
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge and synthetic temporary SQLite; no live writes; hidden polling checked separately with controlled scheduler"
+}

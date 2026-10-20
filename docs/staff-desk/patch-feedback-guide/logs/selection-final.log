@@ -1,0 +1,10 @@
+Evidence: docs\staff-desk\patch-feedback-guide\selection-regression\2026-10-20T14-47-39-456Z
+✔ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (46467.3111ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47542.3787
