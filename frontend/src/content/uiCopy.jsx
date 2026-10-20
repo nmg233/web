@@ -12144,7 +12144,7 @@ export const uiCopy = {
     "futureTeacher": false
   },
   "maintenance.upload.videoNote": {
-    "text": "MP4/WebM，最多 500 MB；学生在公共或对应课时课堂回顾中播放",
+    "text": "MP4/WebM，单个视频最多 1.5GB（1,500,000,000 字节）；请在对应课时上传",
     "enabled": true,
     "page": "课程内容维护",
     "position": "upload.videoNote",

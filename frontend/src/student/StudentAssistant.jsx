@@ -36,7 +36,7 @@ export function AssistantContent({ open }) {
   const ready=catalog.enabled&&!catalog.loading&&!catalog.error&&catalog.course;
   return <>
     <div className="course-chat-context"><span>{catalog.course?.title||<StudentCopyText id={'system.assistant.001'}/>}</span>
-      {catalog.loading?<Sentence role="status"><Spin size="small"/>{<StudentCopyText id={'system.assistant.002'}/>}</Sentence>
+      {catalog.loading?<Sentence as="div" role="status"><Spin size="small"/>{<StudentCopyText id={'system.assistant.002'}/>}</Sentence>
         :catalog.error?<Alert role="alert" type="error" title={copyText('system.assistant.003')} description={requestError(catalog.error)} action={<PixelButton onClick={load}>{<StudentCopyText id={'assistant.reload'}/>}</PixelButton>} data-copy-bindings={JSON.stringify(['system.assistant.003'])}/>
           :!catalog.enabled?<Alert type="info" title={copyText('assistant.disabled')} description={copyText('system.assistant.004')} data-copy-bindings={JSON.stringify(['assistant.disabled','system.assistant.004'])}/>
             :!catalog.course?<Alert type="warning" title={copyText('system.assistant.005')} data-copy-bindings={JSON.stringify(['system.assistant.005'])}/>:null}

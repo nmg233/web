@@ -1,4 +1,5 @@
 import {lessonTemplates} from './workspaceFields';
+import PublicationPanel from './PublicationPanel';
 import ReplaySummary from '../../components/common/ReplaySummary';
 import LessonMapImageField from './LessonMapImageField';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
@@ -154,6 +155,8 @@ function CourseDetailPage() {
   };
 
   const openReplayModal = (replay = null) => {
+    const lesson=lessons.find(l=>l.id===replay?.lesson_id);
+    if(lesson&&['legacy','published'].includes(lesson.publication_state)){message.warning('请先在对应课时工作区关闭课时，再修改视频信息');return;}
     setEditingReplay(replay);
     replayForm.resetFields();
     if (replay) {
@@ -190,25 +193,17 @@ function CourseDetailPage() {
     } catch { /* handled */ }
   };
 
-  // 发布/撤回：不强制课程须有课时，仅在 0 课时时给提示
+  // 首次发布统一由审批面板处理；这里只处理撤回和归档。
   const handleChangeStatus = (targetStatus) => {
+    if (!['draft', 'archived'].includes(targetStatus)) return;
     if(targetStatus==='draft'&&course.has_learning_history)return message.warning('已有学习记录，不能撤回草稿；请先处理待评和待修改内容，再归档。');
     const apply = async () => {
       try {
         await courseAPI.update(id, { status: targetStatus });
-        message.success(targetStatus === 'published' ? siteText("site.e5bd83eeb86bbb32") : siteText("site.79820bcc3250859e"));
+        message.success(siteText("site.79820bcc3250859e"));
         loadData();
       } catch { /* handled */ }
     };
-    if (targetStatus === 'published' && lessons.length === 0) {
-      Modal.confirm({
-        title: siteText("site.8e2f4c50f92b7904"),
-        content: siteText("site.04a00ace3bb993f2"),
-        okText: siteText("site.8ea02d1fc1705315"), cancelText: siteText("site.c7d073fde6e4c69c"),
-        onOk: apply,
-      });
-      return;
-    }
     if (targetStatus === 'draft') {
       Modal.confirm({
         title: siteText("site.f34b4468f5ea2c6b"),
@@ -343,12 +338,12 @@ function CourseDetailPage() {
           {lessons.map((lesson) => (
             <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
-                {isEnrolled && lesson.status!=='cancelled' && lesson.learning_in_scope!==false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>{siteText("site.7cbfd4a69b6bd74e")}</Button>}
-                {canEdit && lesson.status!=='cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
-                {canEdit && lesson.status!=='cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
+                {isEnrolled && lesson.status!=='cancelled' && lesson.publication_state!=='closed' && lesson.learning_in_scope!==false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>{siteText("site.7cbfd4a69b6bd74e")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && !['legacy','published'].includes(lesson.publication_state) && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && !['legacy','published'].includes(lesson.publication_state) && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
               </Space>}
             >
-              {course.can_manage&&!canEdit&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
+              {course.can_manage&&!canEdit&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.publication_state==='closed'&&<Tag color="orange">课时暂停，记录保留，待审批后恢复</Tag>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
               <Space wrap size={[4, 0]}>
                 {lesson.duration && <Tag>{lesson.duration}{siteText("site.3b8590060236e9d8")}</Tag>}
                 {lesson.start_at && <Tag color="blue">{siteText("site.a1cddcd6c59eb5bc")}{lesson.start_at.replace('T', ' ')}</Tag>}
@@ -375,9 +370,9 @@ function CourseDetailPage() {
             <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
               extra={canReplayWrite && (
                 <Space size={4}>
-                  <Button size="small" type="link" icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>{siteText("site.3be380b766bc89c7")}</Button>
+                  <Button size="small" type="link" disabled={['legacy','published'].includes(lessons.find(l=>l.id===replay.lesson_id)?.publication_state)} icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>{siteText("site.3be380b766bc89c7")}</Button>
                   <Popconfirm title={siteText("site.e0427eaf97caa346")} okText={siteText("site.112c8da10fb2fc22")} cancelText={siteText("site.e22a4167edd7f34b")} onConfirm={() => handleDeleteReplay(replay.id)}>
-                    <Button size="small" type="link" danger icon={<DeleteOutlined />}>{siteText("site.631573e93be5f4cf")}</Button>
+                    <Button size="small" type="link" disabled={['legacy','published'].includes(lessons.find(l=>l.id===replay.lesson_id)?.publication_state)} danger icon={<DeleteOutlined />}>{siteText("site.631573e93be5f4cf")}</Button>
                   </Popconfirm>
                 </Space>
               )}
@@ -435,7 +430,7 @@ function CourseDetailPage() {
               { title: siteText("site.cc937981f7d3ce49"), dataIndex: 'school_name' },
               { title: siteText("site.9ef404bec164f565"), dataIndex: 'class_name' },
               { title: siteText("site.b7ad43ba120a0833"), dataIndex: 'enrolled_by_name', render: (v) => v || '—' },
-              ...(course.can_manage ? [{
+              ...(course.can_manage && user.role==='admin' ? [{
                 title: siteText("site.9f6296c8ef30b865"), key: 'actions',
                 render: (_, r) => (
                   <Button size="small" type="link" danger onClick={() => openRemoveModal(r)}>{siteText("site.7af36450c6a484ec")}</Button>
@@ -453,9 +448,7 @@ function CourseDetailPage() {
       <Space className="course-detail-header" style={{ marginBottom: 16 }}>
         <Link className="ant-btn ant-btn-default" to="/courses"><ArrowLeftOutlined/>{siteText("site.2b2602fe97ea824d")}</Link>
         <Title level={4} style={{ margin: 0 }}>{course.title}</Title>
-        {canEdit && course.status !== 'published' && (
-          <Button type="primary" size="small" onClick={() => handleChangeStatus('published')}>{siteText("site.ad9e34aa52b0b6e6")}</Button>
-        )}
+        {canEdit && course.status==='draft'&&<Tag color="orange">请在下方提交发布审批</Tag>}
         {canEdit && course.status === 'published' && (
           <Button size="small" disabled={course.has_learning_history} title={course.has_learning_history?'已有学习记录，请处理待评和待修改内容后归档':undefined} onClick={() => handleChangeStatus('draft')}>{siteText("site.64c911e2e80f6704")}</Button>
         )}
@@ -464,6 +457,8 @@ function CourseDetailPage() {
         {isStudent && isEnrolled && firstLearningLesson && <Button type="primary" onClick={() => navigate(`/courses/${id}/lessons/${firstLearningLesson.id}/learn`)}>{siteText("site.11b1c4c4c18d18a4")}</Button>}
         {isStudent && isEnrolled && <Button type="link" onClick={() => navigate(`/dashboard/ai?course_id=${id}`)}>{siteText("site.a240a3a770a5bcff")}</Button>}
       </Space>
+      {course.can_manage&&<PublicationPanel course={course} refresh={loadData}/>}
+      {course.can_manage&&user.role==='academic_mentor'&&<Alert type="info" title="报名异常移除仅管理员操作，已有学习记录的报名必须保留。" action={<Link to={`/feedback/new?course_id=${id}`}>申请管理员处理</Link>}/>}
 
       {isStudent ? (
         <Card style={{ marginBottom: 16 }}>

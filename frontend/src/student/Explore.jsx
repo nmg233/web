@@ -36,6 +36,7 @@ const difficulties = { get basic(){return copyText('system.map.004')}, get advan
 
 
 function learningState(lesson) {
+  if (lesson.publication_state==='closed') return {label:'临时关闭，学习记录保留',tone:'neutral'};
   if (lesson.future) return {label:copyText('next.map.future'),tone:'neutral',__copyIds:{"label":"next.map.future"}};
   if (lesson.content_state==='preparing') return {label:copyText('next.map.preparing'),tone:'neutral',__copyIds:{"label":"next.map.preparing"}};
   if(lessonAccessReason(lesson))return {label:lesson.learning_in_scope===false?'已结课范围外':'尚未开放',tone:'neutral'};
