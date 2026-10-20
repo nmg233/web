@@ -61,17 +61,25 @@ function removeDirectoriesAfterCommit(dirPaths, uploadRoot) {
 }
 
 // 手动重试清理队列（部署/运维可调用）
-function retryCleanupQueue(uploadRoot) {
+function retryCleanupQueue(uploadRoot,{isReferenced}={}) {
   const queuePath = cleanupQueueFile(uploadRoot);
   let queue = [];
   try {
     queue = JSON.parse(fs.readFileSync(queuePath, 'utf8'));
   } catch (e) {
-    return { retried: 0, failed: 0 };
+    return { retried: 0, failed: e.code==='ENOENT'?0:1 };
   }
+  if(!Array.isArray(queue))return {retried:0,failed:1};
   const remaining = [];
   for (const item of queue) {
     try {
+      const root=fs.realpathSync(uploadRoot),target=path.resolve(item.path),relative=path.relative(root,target);
+      if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw new Error('清理目标越过上传目录');
+      if(fs.existsSync(target)){
+        const canonical=fs.realpathSync(target),rel=path.relative(root,canonical);
+        if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw new Error('清理目标软链接越界');
+      }
+      if(isReferenced?.(target,item.type==='dir'))throw new Error('文件仍被现有或历史教材引用');
       if (item.type === 'dir') {
         fs.rmSync(item.path, { recursive: true, force: true });
       } else {

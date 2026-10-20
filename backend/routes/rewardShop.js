@@ -20,7 +20,7 @@ router.post('/management/orders/:id/fulfill',admin,action(req=>s.fulfill(req.use
 router.get('/management/notifications',admin,action(req=>{fields(req.query,['courseId']);return s.notificationState(req.user.id,course(req));}));
 router.post('/management/notifications/retry',admin,action(req=>{fields(req.body,['courseId']);scope.manage(req.user.id,course(req));s.flushNotifications(req.user.id,course(req));return s.notificationState(req.user.id,course(req));}));
 router.post('/management/images',admin,upload,action(req=>{
- const courseId=course(req);scope.manage(req.user.id,courseId);
+ const courseId=course(req);scope.writable(req.user.id,courseId);
  fields(req.body,['requestKey','courseId']);const requestKey=s.key(req.body.requestKey),file=req.file;if(!file)invalid('请选择一张 PNG、JPEG 或 WebP 图片');
  const b=file.buffer,mime=b.length>=12&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))?'image/png':b.length>=3&&b[0]===255&&b[1]===216&&b[2]===255?'image/jpeg':b.length>=12&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WEBP'?'image/webp':null;
  if(!mime)invalid('图片格式无效，仅支持 PNG、JPEG、WebP');
