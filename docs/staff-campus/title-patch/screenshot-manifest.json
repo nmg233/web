@@ -1,0 +1,132 @@
+{
+  "clientDate": "2026-10-19",
+  "capture": "Real in-app Browser; original CDP JPEG, CSS viewport clip at actual scrollY; no painting or compositing",
+  "records": [
+    {
+      "file": "images/mentor-1440-top.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "eac3c07de6041e8cd04d95d614a88640fe59c1c202256d8995f3fd9e0df7f851"
+    },
+    {
+      "file": "images/mentor-1440-scrolled.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "31cbb85b7efb74b20aed6950b2e385f0805db8f2dff7bf4dd51e3fce50616ee2"
+    },
+    {
+      "file": "images/mentor-768-top.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "ed9a2f9a9c373ac52f6e8ef3521ef906d050725eec9291bea30734069ccfb172"
+    },
+    {
+      "file": "images/mentor-768-scrolled.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "d3e649acbf9688dd76c481ad2a5e496fb2d228e060d82ab7a4fea8fc0d982e70"
+    },
+    {
+      "file": "images/mentor-390-top.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "77aec4017bd0024da23beda4882115162bd2325dda587161a812a6e3470f1651"
+    },
+    {
+      "file": "images/mentor-390-scrolled.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "0ab27e5b4b06e717dbb6b4b4c59788fbedd8530f3e6767f457856923ed5d7ef4"
+    },
+    {
+      "file": "images/mentor-360-top.jpg",
+      "width": 360,
+      "height": 640,
+      "sha256": "91a723d0a32b7956b5268fc4f9c8f13ceeb4b2f79ee07a7c723a8772b8f63f21"
+    },
+    {
+      "file": "images/mentor-360-scrolled.jpg",
+      "width": 360,
+      "height": 640,
+      "sha256": "ee868b0a8613c486e6826f9f49f3828843721ebb1e022aea49aebfce9fb08088"
+    },
+    {
+      "file": "images/mentor-844-top.jpg",
+      "width": 844,
+      "height": 390,
+      "sha256": "8c723b9f07644efa3b167536eaf9c1528dc40fda01183950b9cb68d0da7dad15"
+    },
+    {
+      "file": "images/mentor-844-scrolled.jpg",
+      "width": 844,
+      "height": 390,
+      "sha256": "16538f5682648c6aa09a722ed37bfdcf7d92166a551cb286a5ba3c9fdf76d274"
+    },
+    {
+      "file": "images/admin-1440-top.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "68f4457212751141571e95203fde22e4932da5f84310ddcb211df02864a24116"
+    },
+    {
+      "file": "images/admin-1440-scrolled.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "688675691becac072504c809a7db2f873c657a9a90fd5be17e2f1d5497c51d29"
+    },
+    {
+      "file": "images/admin-768-top.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "133d8d545a4ec3ec3862e1c1781252e60fb16eb52df23a8f6be57540ef18ad84"
+    },
+    {
+      "file": "images/admin-768-scrolled.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "50752885c5aaaa74c43997c8bd6637aebd4d28b82e6cfff89bf20de655483e8e"
+    },
+    {
+      "file": "images/admin-390-top.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "d361ae481777bba0ac9920ac416c1ea6cca8d43c9ab24db5c03f879cf9860621"
+    },
+    {
+      "file": "images/admin-390-scrolled.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "da39edd6cd23d3463508196351bfb822fc0cf66e69c7f89ff48bcff33bc5ffb0"
+    },
+    {
+      "file": "images/admin-360-top.jpg",
+      "width": 360,
+      "height": 640,
+      "sha256": "05d367f093c920e0d0fbc641a677050bb76836c46e9c8e3a7910c420de95102f"
+    },
+    {
+      "file": "images/admin-360-scrolled.jpg",
+      "width": 360,
+      "height": 640,
+      "sha256": "834b73329188b2c86a0a65d85eed992f0852422da9726dd83a0134629c339bdd"
+    },
+    {
+      "file": "images/admin-844-top.jpg",
+      "width": 844,
+      "height": 390,
+      "sha256": "0d9b34d46c7f8c3bdca99ce551d9e9ce01973e7039393cc3b9c2246206e6b577"
+    },
+    {
+      "file": "images/admin-844-scrolled.jpg",
+      "width": 844,
+      "height": 390,
+      "sha256": "67cca81d81e900394895ea90cedefc19077901e8f2b59a4650964254c9060587"
+    },
+    {
+      "file": "images/before-mentor-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "0403001cd2f0d690120f1ff040960b8ca79c74e08a24bb81ffce21fa81d2a521"
+    }
+  ]
+}

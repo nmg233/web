@@ -1,6 +1,7 @@
 import {isCopyPreview} from '../../copy-review/previewMode.js';
 import {runtimeText as runtimeCopyText} from '../../content/runtimeCopy';
 import StudentCopyText from '../../content/ManagedText';
+import StaffHeadingText from '../../components/StaffHeadingText';
 import {copyText as siteText, copyTemplate as siteTemplate} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
 import { Card, Tree, Button, Typography, Spin, Descriptions, Tag, List, Space, Progress, Modal, Input, message, Row, Col, Statistic, Timeline } from 'antd';
@@ -77,7 +78,7 @@ function StaffArchive() {
 
   return (
     <div>
-      <Title level={4}>{<StudentCopyText id={"site.5330d00929bd9bd3"}/>}</Title>{detailError&&<p role="alert">{detailError}<Button onClick={()=>handleSelect(['user-'+selectedStudentId])}>{<StudentCopyText id={"site.c1fda00380fb315b"}/>}</Button></p>}
+      <Title level={4}><StaffHeadingText id="site.5330d00929bd9bd3" icon="learning"/></Title>{detailError&&<p role="alert">{detailError}<Button onClick={()=>handleSelect(['user-'+selectedStudentId])}>{<StudentCopyText id={"site.c1fda00380fb315b"}/>}</Button></p>}
       {user?.role === 'academic_mentor' && <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>{<StudentCopyText id={"site.4e0d8d6dd08d4d48"}/>}</Text>}
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
         <Card title={siteText("site.eaeca9de1adec4d2")} style={{ width: 320, flex: '0 0 320px', maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }} data-copy-bindings={JSON.stringify(["site.eaeca9de1adec4d2"])}>

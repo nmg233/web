@@ -1,0 +1,295 @@
+{
+  "clientDate": "2026-10-19",
+  "environment": "Synthetic4190; baseline4191 with the same isolated API3190",
+  "images": [
+    {
+      "file": "images/admin-dashboard-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bad49b8389bf6f4dcd39b4b93538c906c079c1420760251316c7c20f4f113708",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-dashboard-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "0dc544def51a4e0a32d52eff5cb930a55d0a99a51351dd067ff33a1d53025e48",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-dashboard-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "5c8f6a0735c269c78f54d84368d936c0a0f2dc966768dd4274d4c81f1d2531c8",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-lessons-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9340696fbc02106344d3a794bad9f8445992f6e65c17d3826f53f94733622ba6",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-lessons-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "a76cc79b4e14c1ee64b50e3724d157038ce6cfb25d8c53879cb1428414e74edc",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-lessons-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "eb3b0ec680d2601894913a49a3420d2b575b2f784150fe951ecf1e913857ea11",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/admin-courses-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b1edc4b93269e9dc343c8022dc1727e487046951f962c376715d441b1511cec5",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-courses-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "25a01df4ce384fb789e2a2295b237e03c62f984e4143ea206821d9b8296ef147",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-courses-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "af55d9d02d01efa944acf1c222120fa87894b6a30135b42df16c8603e5a214d6",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/before-admin-dashboard-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0e333ca32476c9138ef88091627824fbece02d989035e3467cf41ad1d3e3b077",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/before-admin-lessons-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3fd6ab21f27f69ed478795f291a79b54425dbc11ab55bb013b80163444bff2a5",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-theme-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "ff08cc9dbb90e2236ab6a8876f3859749c67a30257469b03521dfd38b02cff3c",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-dashboard-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1ad67d85b4126460747164c96c352495838e70e1e70f4c5bb272f58228f6927c",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-dashboard-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "29b79072593a05e221f8d56afcce03bacb5f72c602d80780ad3263cfd7432a23",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-dashboard-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "6ad7d28be399fd835b055c755d251bd9b7224778ab4f2d8e9707a15feec840d7",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-lessons-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1057f1ea7d1198fea706091e3f7dcd6136c925fb25781eff39f4019549743067",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-lessons-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "8d4d2dbe7c306e928edf74d25155a179b83890d3e9d1cfea5e5a757559340bf4",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-lessons-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "0403001cd2f0d690120f1ff040960b8ca79c74e08a24bb81ffce21fa81d2a521",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "top"
+    },
+    {
+      "file": "images/mentor-courses-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5336416e0d7458e35f0fe3ff9f93061d1887a10d53779467302e9092ea6ae9ad",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-courses-768.jpg",
+      "width": 768,
+      "height": 1024,
+      "sha256": "f9c40a0d6559b8f3980b2c8dd289fdd2be9e593d6f8b0d4702ec236dbcf9eb0e",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-courses-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "493f86986f4e6dd5b37e87638dc5080d9f077fd3f2e82fd34b9ede79ed02deb5",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/before-mentor-dashboard-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cc6b3cea999326e0abb375a24b517c13b2cc30d9aeb511266b73df00f0532e2c",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/before-mentor-lessons-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "23f5886e33b6dee3ab7e605b1d9c1423da5a804b981b8842b0cece0f84c7ee5a",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-theme-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "5db90b8cca4ef9d1b4bd83b8dedf898c169207fb3f13b8b0b40d8ef45d9aec0c",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-lesson-modal-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2d386bacdc0165f79bce79ef3b997133dca30630628d450200ca567d93726092",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-notification-portal-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "71509822cf52f705a7c67cb55e76be3b953b11c9ef1ca226d21ea8fa7bfd52fa",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-collapsed-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4fece6fda998aac82bf9a8289acd86db13339558ab21dd0c0e308bbfc7416aa0",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-mobile-sidebar-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "35ec217e51c8d265fe8a8b85d2592e2d5a02cc5708817a4c947911627f7550aa",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-settings-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cb229d95d67cb669610d19b6a4a934ac92cce5eb6870432ed7c27cd417816152",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-copy-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b0b0a3beeb85aa1e0fd35c58b8f982dc500d80172905e6779738467b54b98dfc",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-ai-settings-1440.jpg",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b17e94814ba8d620b1c5b44a7ec67e792ff983b16ac300d4f55d4c9f93baad01",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-observers-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "52d4b837a081e2e6559d6155a36b9a42d5a1a30fe8d8db14b68dcc96ba9063cc",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-guide-390.jpg",
+      "width": 390,
+      "height": 844,
+      "sha256": "2cbb3aa02f0e4c612572b978841d1803fd8e46324a49654923254417e4253b4b",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/admin-lessons-1920.jpg",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "f89aad8fc7fd232e46df3a861613c2e8ea6cc94598cb8769aeeb171c7e3d9674",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-dashboard-360.jpg",
+      "width": 360,
+      "height": 640,
+      "sha256": "80206d9c15be335e27da568843812b73d8d21c528810680d08b6ee7106dbe03b",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    },
+    {
+      "file": "images/mentor-lessons-844.jpg",
+      "width": 844,
+      "height": 390,
+      "sha256": "805b17858583fd0c58ded93427618c526a2729380b2121e5c72485c6989ec940",
+      "capture": "Real ChatGPT in-app Browser, CDP CSS viewport clip; original capture, no painting/compositing",
+      "position": "viewport at inspected position"
+    }
+  ],
+  "note": "Only selected successful captures are published; draft, viewport mismatch and failure-diagnosis screenshots remain private"
+}

@@ -13,19 +13,18 @@ import {
   MessageOutlined,
   BellOutlined,
   ExperimentOutlined,
-  SettingOutlined,
-  ReadOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../store/AuthContext';
+import StaffPixelIcon from './StaffPixelIcon';
 
 const { Sider } = Layout;
 const adminIcons = {
-  dashboard: <DashboardOutlined />,
-  book: <BookOutlined />,
-  learning: <ReadOutlined />,
-  team: <TeamOutlined />,
-  settings: <SettingOutlined />,
-  guide: <ReadOutlined />,
+  dashboard: <StaffPixelIcon name="dashboard" />,
+  book: <StaffPixelIcon name="book" />,
+  learning: <StaffPixelIcon name="learning" />,
+  team: <StaffPixelIcon name="team" />,
+  settings: <StaffPixelIcon name="settings" />,
+  guide: <StaffPixelIcon name="guide" />,
 };
 
 const menuItems = {
@@ -60,6 +59,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const campusStaff = ['admin', 'academic_mentor'].includes(user?.role);
   // 桌面折叠保留图标，小屏折叠为零宽并保留唤起按钮。
   const [collapsed, setCollapsed] = useState(false);
   const [broken,setBroken]=useState(false);
@@ -89,12 +89,19 @@ export default function Sidebar() {
       className={'staff-sidebar'+(broken?' staff-sidebar-mobile':'')}
       zeroWidthTriggerStyle={{position:'fixed',top:10,left:8,zIndex:90}}
     >
-      <div style={{
+      {campusStaff ? <div
+        className={`staff-campus-brand${collapsed ? ' staff-campus-brand-collapsed' : ''}`}
+        title={PLATFORM_NAME}
+        aria-label={PLATFORM_NAME}
+      >
+        <StaffPixelIcon name="brand" className="staff-campus-brand-icon" />
+        {!collapsed && <span className="staff-campus-brand-name">{PLATFORM_NAME}</span>}
+      </div> : <div style={{
         height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: '#fff', fontSize: 18, fontWeight: 700, borderBottom: '1px solid rgba(255,255,255,0.1)'
       }}>
         {collapsed ? 'PBL' : PLATFORM_NAME}
-      </div>
+      </div>}
       <Menu
         theme="dark"
         mode="inline"
@@ -105,6 +112,7 @@ export default function Sidebar() {
         })) : items}
         onClick={({ key }) => {navigate(key);if(broken)setCollapsed(true);}}
       />
+      {campusStaff && <div className="staff-campus-sidebar-scene" aria-hidden="true" />}
     </Sider>
   );
 }

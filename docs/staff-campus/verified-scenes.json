@@ -1,0 +1,2377 @@
+{
+  "clientDate": "2026-10-19",
+  "baseline": "82b021bfbb23a31da21190e302f703fc747001ee",
+  "environment": "Isolated synthetic local Express/SQLite, not teaching data",
+  "browserReview": {
+    "surface": "ChatGPT in-app Browser; supported CDP emulation/capture after viewport capability mismatch",
+    "pageViewportChecks": 118,
+    "records": [
+      {
+        "label": "admin-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-teaching",
+        "url": "http://127.0.0.1:4190/admin/teaching",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-accounts",
+        "url": "http://127.0.0.1:4190/admin/organization?section=accounts",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "账号与组织",
+          "👥 用户管理"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-schools",
+        "url": "http://127.0.0.1:4190/admin/organization?section=schools",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "账号与组织",
+          "欢迎回来，合成验收admin"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-requests",
+        "url": "http://127.0.0.1:4190/admin/organization?section=requests",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "账号与组织",
+          "申请与回复"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-observers",
+        "url": "http://127.0.0.1:4190/admin/organization?section=school-accounts",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "账号与组织",
+          "组织账号与教师观察"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-school-applications",
+        "url": "http://127.0.0.1:4190/admin/organization?section=applications",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "账号与组织",
+          "导师学校申请"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-settings",
+        "url": "http://127.0.0.1:4190/admin/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "平台设置"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-ai-settings",
+        "url": "http://127.0.0.1:4190/dashboard/ai/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "灵境小智 · 管理员配置"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-feedback",
+        "url": "http://127.0.0.1:4190/feedback/manage",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "反馈管理"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-copy",
+        "url": "http://127.0.0.1:4190/student-copy",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "编辑学生页面文字"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-reports",
+        "url": "http://127.0.0.1:4190/mentor/reviews",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "学习报告评审"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-works",
+        "url": "http://127.0.0.1:4190/works",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "作品管理"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-archives",
+        "url": "http://127.0.0.1:4190/archives",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "📂 成长档案"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-guide",
+        "url": "http://127.0.0.1:4190/mentor/guide",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "办课使用指引"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-ai-test",
+        "url": "http://127.0.0.1:4190/dashboard/ai",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "🤖 灵境小智"
+        ],
+        "height": 900,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品",
+          "实验指导",
+          "课时说明"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-observers",
+        "url": "http://127.0.0.1:4190/admin/organization?section=school-accounts",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "账号与组织",
+          "组织账号与教师观察"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-requests",
+        "url": "http://127.0.0.1:4190/admin/organization?section=requests",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "账号与组织",
+          "申请与回复"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-feedback",
+        "url": "http://127.0.0.1:4190/feedback/manage",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "反馈管理"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-settings",
+        "url": "http://127.0.0.1:4190/admin/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "平台设置"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-ai-settings",
+        "url": "http://127.0.0.1:4190/dashboard/ai/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "灵境小智 · 管理员配置"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-copy",
+        "url": "http://127.0.0.1:4190/student-copy",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "编辑学生页面文字"
+        ],
+        "height": 1024,
+        "nav": [
+          "工作台",
+          "课程管理",
+          "教学与成长",
+          "账号与组织",
+          "平台设置"
+        ],
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 844,
+        "nav": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品",
+          "实验指导",
+          "课时说明"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-observers",
+        "url": "http://127.0.0.1:4190/admin/organization?section=school-accounts",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "账号与组织",
+          "组织账号与教师观察"
+        ],
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-requests",
+        "url": "http://127.0.0.1:4190/admin/organization?section=requests",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "账号与组织",
+          "申请与回复"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-feedback",
+        "url": "http://127.0.0.1:4190/feedback/manage",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "反馈管理"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-settings",
+        "url": "http://127.0.0.1:4190/admin/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "平台设置"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-ai-settings",
+        "url": "http://127.0.0.1:4190/dashboard/ai/settings",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "灵境小智 · 管理员配置"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-copy",
+        "url": "http://127.0.0.1:4190/student-copy",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "编辑学生页面文字"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-feedback-detail",
+        "url": "http://127.0.0.1:4190/feedback/1",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 119,
+        "headings": [
+          "反馈详情",
+          "课程资料阅读体验 · 合成视觉验收",
+          "问题描述",
+          "处理记录",
+          "继续沟通",
+          "管理员处理"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-feedback-detail",
+        "url": "http://127.0.0.1:4190/feedback/1",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 127,
+        "headings": [
+          "反馈详情",
+          "课程资料阅读体验 · 合成视觉验收",
+          "问题描述",
+          "处理记录",
+          "继续沟通",
+          "管理员处理"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 1080,
+        "scrollWidth": 1905,
+        "width": 1920,
+        "status": "passed"
+      },
+      {
+        "label": "admin-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "font": "ChillReunion, \"Microsoft YaHei\", sans-serif",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品",
+          "实验指导",
+          "课时说明"
+        ],
+        "height": 1080,
+        "scrollWidth": 1905,
+        "width": 1920,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 171,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 640,
+        "scrollWidth": 345,
+        "width": 360,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-teaching",
+        "url": "http://127.0.0.1:4190/mentor/teaching",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-observers",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=accounts",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "学校与账号",
+          "组织账号与教师观察"
+        ],
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-requests",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=requests",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "学校与账号",
+          "申请与回复"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-guide",
+        "url": "http://127.0.0.1:4190/mentor/guide",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "办课使用指引"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-feedback",
+        "url": "http://127.0.0.1:4190/mentor/feedback",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "课程反馈"
+        ],
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 900,
+        "scrollWidth": 1425,
+        "width": 1440,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 1024,
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-teaching",
+        "url": "http://127.0.0.1:4190/mentor/teaching",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-observers",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=accounts",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "学校与账号",
+          "组织账号与教师观察"
+        ],
+        "height": 1024,
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-requests",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=requests",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "学校与账号",
+          "申请与回复"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-guide",
+        "url": "http://127.0.0.1:4190/mentor/guide",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "办课使用指引"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-feedback",
+        "url": "http://127.0.0.1:4190/mentor/feedback",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "课程反馈"
+        ],
+        "height": 1024,
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 1024,
+        "scrollWidth": 768,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-courses",
+        "url": "http://127.0.0.1:4190/courses",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "课程管理"
+        ],
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-create",
+        "url": "http://127.0.0.1:4190/courses/create",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "创建课程"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-teaching",
+        "url": "http://127.0.0.1:4190/mentor/teaching",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-observers",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=accounts",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "学校与账号",
+          "组织账号与教师观察"
+        ],
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-requests",
+        "url": "http://127.0.0.1:4190/mentor/organization?section=requests",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "学校与账号",
+          "申请与回复"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-guide",
+        "url": "http://127.0.0.1:4190/mentor/guide",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "办课使用指引"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-feedback",
+        "url": "http://127.0.0.1:4190/mentor/feedback",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "课程反馈"
+        ],
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-notifications",
+        "url": "http://127.0.0.1:4190/notifications",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "通知中心"
+        ],
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-overview",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=overview",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-resources",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=resources",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "可上传、预览与 AI 解析说明"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-students",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=students",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-theme",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=visual",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "校园航空工程 · 合成视觉验收"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-course-rewards",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=rewards",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "课时通关勋章",
+          "本课程礼品与兑换"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 1080,
+        "scrollWidth": 1920,
+        "width": 1920,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 75,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 1080,
+        "scrollWidth": 1905,
+        "width": 1920,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 171,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 640,
+        "scrollWidth": 345,
+        "width": 360,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 171,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 640,
+        "scrollWidth": 345,
+        "width": 360,
+        "status": "passed"
+      },
+      {
+        "label": "mentor-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "办课工作台"
+        ],
+        "height": 390,
+        "scrollWidth": 829,
+        "width": 844,
+        "status": "passed"
+      },
+      {
+        "label": "admin-teaching",
+        "url": "http://127.0.0.1:4190/admin/teaching",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-accounts",
+        "url": "http://127.0.0.1:4190/admin/organization?section=accounts",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "账号与组织",
+          " 用户管理"
+        ],
+        "height": 1024,
+        "scrollWidth": 753,
+        "width": 768,
+        "status": "passed"
+      },
+      {
+        "label": "admin-teaching",
+        "url": "http://127.0.0.1:4190/admin/teaching",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "教学与成长"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-accounts",
+        "url": "http://127.0.0.1:4190/admin/organization?section=accounts",
+        "campus": "true",
+        "header": 119,
+        "headings": [
+          "账号与组织",
+          " 用户管理"
+        ],
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390,
+        "status": "passed"
+      },
+      {
+        "label": "admin-dashboard",
+        "url": "http://127.0.0.1:4190/dashboard",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "欢迎回来，合成验收admin",
+          "真实办课待办",
+          "比较记录待修改（测试作品）",
+          "另一课程作品（测试作品）"
+        ],
+        "height": 390,
+        "scrollWidth": 829,
+        "width": 844,
+        "status": "passed"
+      },
+      {
+        "label": "admin-lessons",
+        "url": "http://127.0.0.1:4190/courses/91001?tab=maintenance",
+        "campus": "true",
+        "header": 127,
+        "headings": [
+          "校园航空工程 · 合成视觉验收",
+          "本课时内容与开放状态",
+          "模型飞机与课堂协作 · 合成视觉验收\n课时标题与安排",
+          "第一阶段：课堂回顾",
+          "第二阶段：知识卡片与配套练习",
+          "本课时任务与作品"
+        ],
+        "height": 390,
+        "scrollWidth": 829,
+        "width": 844,
+        "status": "passed"
+      }
+    ],
+    "note": "Page/viewport inspection records, not 118 end-to-end business tests"
+  },
+  "regression": {
+    "surface": "Project real Edge browser test suites against temporary SQLite",
+    "businessScenes": 34,
+    "nodeTestsIncludingParents": 40,
+    "failures": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "test": "tests/mentor-step1.browser.test.js",
+        "records": [
+          {
+            "name": "五项导航展开、收起、悬浮及键盘，统计与完整列表可刷新",
+            "status": "passed"
+          },
+          {
+            "name": "学校组织账号分区与课程学生分开，导师能开建教师表单",
+            "status": "passed"
+          },
+          {
+            "name": "课程六页签保留、上线学校可真实保存，新建课落在概览",
+            "status": "passed"
+          },
+          {
+            "name": "教师仅看到明确课程，admin可进入同一办学工具",
+            "status": "passed"
+          },
+          {
+            "name": "1440、768、390与360窄屏、短屏和横屏侧栏可唤起，正文不横向溢出",
+            "status": "passed"
+          },
+          {
+            "name": "管理员学生转校先看到现有课程影响，不保存不改变组织或报名",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      },
+      {
+        "test": "tests/mentor-step2.browser.test.js",
+        "records": [
+          {
+            "name": "学生显式课程反馈，导师列表直达且领取后能回复",
+            "status": "passed"
+          },
+          {
+            "name": "公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交",
+            "status": "passed"
+          },
+          {
+            "name": "内部原因转管理员与管理员转回，学生只见公开进展",
+            "status": "passed"
+          },
+          {
+            "name": "学校申请原会话追问与补充，不自动授权，工作台待办可刷新",
+            "status": "passed"
+          },
+          {
+            "name": "铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办",
+            "status": "passed"
+          },
+          {
+            "name": "三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      },
+      {
+        "test": "tests/mentor-step3.browser.test.js",
+        "records": [
+          {
+            "name": "导师网页上传校验预览；确认回包丢失后查询原结果，不重复导入",
+            "status": "passed"
+          },
+          {
+            "name": "恢复暂存并向原课程追加，保留原课时；admin可同样新建导入",
+            "status": "passed"
+          },
+          {
+            "name": "创建课程只有四公共主题；真实保存、默认关卡与本校授权报名",
+            "status": "passed"
+          },
+          {
+            "name": "四主题真实地图3/4/7课时，五尺寸、连线、键盘、站位与无宇航员串入",
+            "status": "passed"
+          },
+          {
+            "name": "主题桌面/手机预览、模块标题保存与空实验隐藏；原上传图优先及缺图降级",
+            "status": "passed"
+          },
+          {
+            "name": "导入教材原位编辑、卡片发布/课时就绪分开；本校学习、教师只读、导师评审金币仍沿原规则",
+            "status": "passed"
+          },
+          {
+            "name": "管理员可真实授予并撤销开发资格，导师只读准确限制；无代码运行入口",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      },
+      {
+        "test": "tests/mentor-patch.browser.test.js",
+        "records": [
+          {
+            "name": "mentor：真实409后重新核对，原文字和原File不编辑重试一次；503回包丢失不重复",
+            "status": "passed"
+          },
+          {
+            "name": "student：真实409后重新核对，原文字和原File不编辑重试一次；503回包丢失不重复",
+            "status": "passed"
+          },
+          {
+            "name": "已有会话原回复与附件：打开/取消新申请及切换类型不解除离开保护",
+            "status": "passed"
+          },
+          {
+            "name": "新申请真实保存后导航取消保留旧会话；明确确认才丢弃并打开新结果",
+            "status": "passed"
+          },
+          {
+            "name": "主题切换后原图未改仍可网页保存标题/安排；公共封面无cosmos，旧素材保留",
+            "status": "passed"
+          },
+          {
+            "name": "管理员回复、审核及资格表单分别保护；保存回复或关闭资格不清除审核草稿",
+            "status": "passed"
+          },
+          {
+            "name": "唯一导师撤权后学生先读，管理员通知与工作台都有同一反馈且不重复",
+            "status": "passed"
+          },
+          {
+            "name": "教师迁校后原页面清除，真实重新登录仍不能读原学校学生与课程",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      },
+      {
+        "test": "tests/observation-revocation.browser.test.js",
+        "records": [
+          {
+            "name": "完整链路：网页建立授权→网页移除报名→既有行撤销→网页迁校→重新登录拒绝旧校",
+            "status": "passed"
+          },
+          {
+            "name": "候选缺失：停用学生已不在可选列表，既有授权行仍显示原对象并能撤销",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      },
+      {
+        "test": "tests/staff-campus.states.browser.test.js",
+        "records": [
+          {
+            "name": "admin：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度",
+            "status": "passed"
+          },
+          {
+            "name": "mentor：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度",
+            "status": "passed"
+          },
+          {
+            "name": "hover/press/focus与减少运动；输入和disabled不缩放，真实弹窗Escape后回焦",
+            "status": "passed"
+          },
+          {
+            "name": "课程预览保留森林主题，通用后台始终校园；切换手机预览真实加载原图",
+            "status": "passed"
+          },
+          {
+            "name": "学生、教师与新媒体不挂管理端类名，退出后清除portal角色标志",
+            "status": "passed"
+          }
+        ],
+        "pageErrors": []
+      }
+    ]
+  },
+  "courseMaintenanceControls": {
+    "baselineControls": {
+      "buttons": [
+        "撤回为草稿",
+        "归档课程",
+        "重新读取",
+        "",
+        "新建课时",
+        "课时基本信息与关卡图",
+        "查看学生效果",
+        "知识卡片与练习",
+        "新增独立任务",
+        "上传本课时资料",
+        "进入课程奖励查看课时勋章",
+        "课程介绍、目标、故事与材料",
+        "核对后标记本课时已准备",
+        "课时标题与安排",
+        "编辑这里 · 课堂回顾正文",
+        "编辑这里 · 参观图文正文",
+        "编辑这里 · 知识卡片与练习",
+        "编辑这里 · 作品任务要求",
+        "编辑这里 · 实验操作指导",
+        "编辑这里 · 实验操作指导",
+        "编辑实验关联与返回位置",
+        "编辑这里 · 课时说明",
+        "编辑这里 · 课堂回放",
+        "编辑这里 · 课时下载资料",
+        "编辑这里 · 报告填写指导",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "fields": [
+        [
+          "",
+          "text",
+          null
+        ]
+      ],
+      "links": [
+        [
+          "/courses",
+          "返回"
+        ],
+        [
+          "/courses/import?courseId=91001",
+          "从课程包追加新课时"
+        ],
+        [
+          "/courses/91001?lesson=91001",
+          "返回课程地图"
+        ],
+        [
+          "/courses/91001/lessons/91001/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92001/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92002/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92003/content",
+          ""
+        ]
+      ],
+      "tabs": [
+        "课程概览",
+        "课时与内容",
+        "课程共享资料",
+        "学员与授权",
+        "视觉主题与学生预览",
+        "课程奖励"
+      ]
+    },
+    "newControls": {
+      "buttons": [
+        "撤回为草稿",
+        "归档课程",
+        "重新读取",
+        "",
+        "新建课时",
+        "课时基本信息与关卡图",
+        "查看学生效果",
+        "知识卡片与练习",
+        "新增独立任务",
+        "上传本课时资料",
+        "进入课程奖励查看课时勋章",
+        "课程介绍、目标、故事与材料",
+        "核对后标记本课时已准备",
+        "课时标题与安排",
+        "编辑这里 · 课堂回顾正文",
+        "编辑这里 · 参观图文正文",
+        "编辑这里 · 知识卡片与练习",
+        "编辑这里 · 作品任务要求",
+        "编辑这里 · 实验操作指导",
+        "编辑这里 · 实验操作指导",
+        "编辑实验关联与返回位置",
+        "编辑这里 · 课时说明",
+        "编辑这里 · 课堂回放",
+        "编辑这里 · 课时下载资料",
+        "编辑这里 · 报告填写指导",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "fields": [
+        [
+          "",
+          "text",
+          null
+        ]
+      ],
+      "links": [
+        [
+          "/courses",
+          "返回"
+        ],
+        [
+          "/courses/import?courseId=91001",
+          "从课程包追加新课时"
+        ],
+        [
+          "/courses/91001?lesson=91001",
+          "返回课程地图"
+        ],
+        [
+          "/courses/91001/lessons/91001/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92001/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92002/content",
+          ""
+        ],
+        [
+          "/courses/91001/lessons/92003/content",
+          ""
+        ]
+      ],
+      "tabs": [
+        "课程概览",
+        "课时与内容",
+        "课程共享资料",
+        "学员与授权",
+        "视觉主题与学生预览",
+        "课程奖励"
+      ]
+    },
+    "controlsEqual": true
+  },
+  "frontend": {
+    "unitPassed": 139,
+    "lint": "passed",
+    "build": "passed"
+  },
+  "legacyAdminSuite": {
+    "file": "tests/admin-workspace.browser.test.js",
+    "status": "not-passed",
+    "originalFileChanged": false,
+    "passedBusinessScenesBeforeFailure": 4,
+    "reason": "Legacy theme Select locator no longer exists on baseline82b021b; the suite also expects voyage as a public choice. Current baseline uses four public theme buttons. A separate local adaptation then hit the baseline course-school publication guard (409) because its old fixture has no school scope. No production policy or original assertions were relaxed. See verification.md."
+  }
+}

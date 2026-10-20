@@ -1,3 +1,4 @@
+import StaffPixelIcon from '../../components/StaffPixelIcon';
 import WorkspaceDashboard from '../mentor/WorkspaceDashboard';
 import ActionablePending from '../admin/ActionablePending';
 import {copyText as siteText} from "../../content/copy";
@@ -12,6 +13,7 @@ const { Title, Text } = Typography;
 
 export default function Dashboard({organization=false}) {
   const { user } = useAuth();
+  const campusStaff = ['admin','academic_mentor'].includes(user?.role);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [addSchoolOpen, setAddSchoolOpen] = useState(false);
@@ -41,9 +43,9 @@ export default function Dashboard({organization=false}) {
   const { prompt, stats } = data;
 
   return (
-    <div>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4} style={{ margin: 0 }}>{siteText("site.75493d3a1d4919b6")}{user?.real_name}</Title>
+    <div className={campusStaff ? 'staff-dashboard' : undefined}>
+      <div className={campusStaff ? 'staff-dashboard-heading' : undefined} style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={4} style={{ margin: 0 }}>{campusStaff&&<StaffPixelIcon name="user" size={28}/>} {campusStaff?siteText("site.75493d3a1d4919b6").replace(/^👋\s*/u,''):siteText("site.75493d3a1d4919b6")}{user?.real_name}</Title>
         <Text type="secondary">{data.today}</Text>
       </div>
 
@@ -51,18 +53,18 @@ export default function Dashboard({organization=false}) {
       {/* 统计卡片 */}
       {stats && !organization && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.6bd53bff0cade4bc") : siteText("site.1779ace1d1d111d7")} value={stats.schoolCount} prefix={<BankOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.c1d4876d33408f87") : siteText("site.049f257b97e2144c")} value={stats.userCount} prefix={<TeamOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.31180b7602e0e948") : siteText("site.0241cd4b8f7a74a4")} value={stats.courseCount} prefix={<BookOutlined />} /></Card></Col>
-          <Col xs={12} sm={6}><Card><Statistic title={siteText("site.fa552b28516a8ce3")} value={stats.workCount} prefix={<FileTextOutlined />} /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.6bd53bff0cade4bc") : siteText("site.1779ace1d1d111d7")} value={stats.schoolCount} prefix={campusStaff ? <StaffPixelIcon name="school" size={32}/> : <BankOutlined /> } /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.c1d4876d33408f87") : siteText("site.049f257b97e2144c")} value={stats.userCount} prefix={campusStaff ? <StaffPixelIcon name="team" size={32}/> : <TeamOutlined /> } /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={user?.role === 'admin' ? siteText("site.31180b7602e0e948") : siteText("site.0241cd4b8f7a74a4")} value={stats.courseCount} prefix={campusStaff ? <StaffPixelIcon name="book" size={32}/> : <BookOutlined /> } /></Card></Col>
+          <Col xs={12} sm={6}><Card><Statistic title={siteText("site.fa552b28516a8ce3")} value={stats.workCount} prefix={campusStaff ? <StaffPixelIcon name="report" size={32}/> : <FileTextOutlined /> } /></Card></Col>
         </Row>
       )}
 
       {/* 今日项目提示（按角色） */}
       {prompt && !organization && (
-        <Card style={{ marginBottom: 16, background: `linear-gradient(135deg, ${prompt.color}15, ${prompt.color}05)`, borderLeft: `4px solid ${prompt.color}` }}>
+        <Card className={campusStaff ? 'staff-campus-prompt' : undefined} style={{ marginBottom: 16, background: campusStaff ? undefined : `linear-gradient(135deg, ${prompt.color}15, ${prompt.color}05)`, borderLeft: campusStaff ? undefined : `4px solid ${prompt.color}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 32 }}>{prompt.emoji}</span>
+            <span style={{ fontSize: 32 }}>{campusStaff ? <StaffPixelIcon name="guide" size={40}/> : prompt.emoji}</span>
             <div>
               <Text strong style={{ fontSize: 16, color: prompt.color }}>{siteText("site.bb38e12e8201834b")}</Text>
               <br />
@@ -76,7 +78,7 @@ export default function Dashboard({organization=false}) {
         {user?.role === 'admin' && !organization && data.feedbackStats && (
           <Col span={24} style={{ marginBottom: 16 }}>
             <Card
-              title={<Space><MessageOutlined />{siteText("site.6b5dda31bdc685be")}</Space>}
+              title={<Space>{campusStaff?<StaffPixelIcon name="message"/>:<MessageOutlined />}{siteText("site.6b5dda31bdc685be")}</Space>}
               extra={<Button type="link" onClick={() => navigate('/feedback/manage')}>{siteText("site.c5f8b7526fc56f9a")}</Button>}
             >
               <Row gutter={16}>

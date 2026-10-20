@@ -1,0 +1,93 @@
+{
+  "source": "frontend/src/components/StaffPixelIcon.jsx",
+  "grid": "24x24",
+  "count": 17,
+  "kind": "original native SVG, no model/image generation",
+  "icons": [
+    {
+      "name": "brand",
+      "file": "art/icons/brand.svg",
+      "sha256": "daaaa5f3ca46dfc6cadc7c04a7cd9526ece033218a6b983ea7ae1b0b974f95cf"
+    },
+    {
+      "name": "dashboard",
+      "file": "art/icons/dashboard.svg",
+      "sha256": "c599640cd8ca117c66d25ee6b5c9bf910255b70df24876679c04b4ce63e99111"
+    },
+    {
+      "name": "book",
+      "file": "art/icons/book.svg",
+      "sha256": "c40eaeb17ef15c4f4a9354a8bd3dce4e5f47477f55fd76effc34ade2204b857f"
+    },
+    {
+      "name": "learning",
+      "file": "art/icons/learning.svg",
+      "sha256": "da4c5dfff45b6c8b3b144c48a765f354170ffe730fc10a6542512f69fececc71"
+    },
+    {
+      "name": "team",
+      "file": "art/icons/team.svg",
+      "sha256": "a3cb34055929485ecddde051973160aef08a71b2d11bc5ed7a1a0aea1d5d1091"
+    },
+    {
+      "name": "settings",
+      "file": "art/icons/settings.svg",
+      "sha256": "eff8f47416b071bc70af623725ce390608802fd2f623ffa782637d15ef3f8a30"
+    },
+    {
+      "name": "guide",
+      "file": "art/icons/guide.svg",
+      "sha256": "792599f25d81f1609b8ded906310cd2706c25e998cbe452e2338c17dcdce4f80"
+    },
+    {
+      "name": "message",
+      "file": "art/icons/message.svg",
+      "sha256": "da6504924b285ad72d5413f643acb22dd195112ef6335ef85ee6fc91acca2cbb"
+    },
+    {
+      "name": "bell",
+      "file": "art/icons/bell.svg",
+      "sha256": "64e3ff7143b7899c02081540cc7484c58291374edc0051084c8f331ce493100f"
+    },
+    {
+      "name": "user",
+      "file": "art/icons/user.svg",
+      "sha256": "23075d319da52ba81f5e83ed63a4b32935c899344571ffd015395bb77f994b55"
+    },
+    {
+      "name": "back",
+      "file": "art/icons/back.svg",
+      "sha256": "e7ac478a77173e8b26a444bd87b03e973662faa7849f77093dd4a6b906f7a608"
+    },
+    {
+      "name": "key",
+      "file": "art/icons/key.svg",
+      "sha256": "34602e119f197af2193ff2072bca0bce8845643246e47da4a9dc81fe8608c393"
+    },
+    {
+      "name": "logout",
+      "file": "art/icons/logout.svg",
+      "sha256": "16aed88fed67bf50738fceacdf7abfd361af80b49a772600d6ac87f794720341"
+    },
+    {
+      "name": "school",
+      "file": "art/icons/school.svg",
+      "sha256": "91e12bcad7809d7d88f43a72a418e377f3de7a3cdbc7d9d9ac79123d64eaf21b"
+    },
+    {
+      "name": "report",
+      "file": "art/icons/report.svg",
+      "sha256": "0a98e9cf834cbb29a5381912e4be8c67e966ad3100ad6b2c9447c2a9f000aa9c"
+    },
+    {
+      "name": "gift",
+      "file": "art/icons/gift.svg",
+      "sha256": "17075099ef4fe71f62ce86e2898c69c165966946c2722d836e6334d522502ea7"
+    },
+    {
+      "name": "upload",
+      "file": "art/icons/upload.svg",
+      "sha256": "13e2dc3f3f64d9b21f66f34da007c4445968a1164cbe4a882221f94f8f73c1cf"
+    }
+  ]
+}

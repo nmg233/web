@@ -5,6 +5,7 @@ import { Table, Card, Button, Space, Input, Typography, Tag, Modal, Form, Select
 import { PlusOutlined, UploadOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { studentAPI, dashboardAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
+import StaffPixelIcon from '../../components/StaffPixelIcon';
 import { downloadAccounts } from '../../utils/accountExport';
 import AccountImportModal from '../../components/AccountImportModal';
 import TempPasswordModal from '../../components/TempPasswordModal';
@@ -17,6 +18,7 @@ const usernameRules = [{ pattern: /^[A-Za-z0-9][A-Za-z0-9_-]{3,159}$/, message: 
 
 export default function StudentList() {
   const { user } = useAuth();
+  const campusStaff = ['admin','academic_mentor'].includes(user?.role);
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -134,7 +136,7 @@ export default function StudentList() {
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Title level={4} style={{ margin: 0 }}>{siteText("site.0bb70a013282f249")}</Title>
+          <Title level={4} style={{ margin: 0 }}>{campusStaff&&<StaffPixelIcon name="team" size={28}/>} {campusStaff?siteText("site.0bb70a013282f249").replace(/^👥\s*/u,''):siteText("site.0bb70a013282f249")}</Title>
           <Space>
             <Button icon={<PlusOutlined />} onClick={() => setAddModal(true)}>{siteText("site.d7ea606de22d9198")}</Button>
             <Button icon={<UploadOutlined />} onClick={() => setImportOpen(true)}>{siteText("site.365fdbe0b91ea0b8")}</Button>
@@ -174,7 +176,7 @@ export default function StudentList() {
             <Card key={school.id} title={`🏫 ${school.name}`} style={{ marginBottom: 12 }} size="small">
               {school.classes?.map((cls) => (
                 <div key={cls.id} style={{ marginBottom: 8 }}>
-                  <strong>📚 {cls.grade ? `${cls.grade} - ` : ''}{cls.name}</strong>
+                  <strong>{campusStaff?<StaffPixelIcon name="book"/>:'📚'} {cls.grade ? `${cls.grade} - ` : ''}{cls.name}</strong>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
                     {cls.roles?.student?.map((s) => renderUserTag(s, 'blue', null))}
                     {cls.roles?.teacher?.map((t) => renderUserTag(t, 'green', '👨‍🏫'))}
@@ -255,7 +257,7 @@ export default function StudentList() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Title level={4} style={{ margin: 0 }}>{siteText("site.6ef7e345fa0ab6b8")}</Title>
+        <Title level={4} style={{ margin: 0 }}>{campusStaff&&<StaffPixelIcon name="team" size={28}/>} {campusStaff?siteText("site.6ef7e345fa0ab6b8").replace(/^👥\s*/u,''):siteText("site.6ef7e345fa0ab6b8")}</Title>
         {canManage(user?.role) && (
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModal(true)}>{siteText("site.8101bb5f63ade608")}</Button>
         )}
