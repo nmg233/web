@@ -1,10 +1,5 @@
-export const mentorModules=[
- {key:'/dashboard',label:'工作台',iconKey:'dashboard'},
- {key:'/courses',label:'课程管理',iconKey:'book'},
- {key:'/mentor/teaching',label:'教学与成长',iconKey:'learning'},
- {key:'/mentor/organization',label:'学校与账号',iconKey:'team'},
- {key:'/mentor/guide',label:'使用指引',iconKey:'guide'},
-];
+import registry from '../../../../shared/staffWorkspace.json' with {type:'json'};
+export const mentorModules=registry.modules.academic_mentor;
 export function mentorModuleFor(path){
  if(/^\/(courses|student-copy|mentor\/content)(\/|$)/.test(path))return '/courses';
  if(/^\/mentor\/(organization|requests)(\/|$)/.test(path))return '/mentor/organization';

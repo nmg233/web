@@ -6,6 +6,7 @@ const light = '#baf6ff';
 const gold = '#ffd276';
 
 const shapes = {
+  refresh: <><path fill={ink} d="M5 3h12v2h3v3h3v7h-7V8h3V7h-2V6H7v2H5v8h2v2h10v-2h3v3h-3v2H5v-2H2V7h3z"/><path fill={teal} d="M7 5h9v2H7zM4 9h2v7H4zm3 10h10v1H7zm11-9h3v3h-3z"/></>,
   brand: <>
     <path fill={ink} d="M2 12h7v1h6v-1h7v9h-8v1h-4v-1H2zM9 2h6v3h3v2h3v3h-7v3h-4v-3H3V7h3V5h3z" />
     <path fill={paper} d="M3 13h6v1h2v6H9v-1H3zm10 1h2v-1h6v6h-6v1h-2z" />

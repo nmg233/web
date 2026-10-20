@@ -44,6 +44,7 @@ export default function HeaderBar() {
   return (
     <Header ref={headerRef} className="staff-header"><Button className="staff-back" icon={campusStaff ? <StaffPixelIcon name="back" /> : undefined} aria-label={copyText('next2.staff.back')} onClick={()=>window.history.state?.idx? navigate(-1):navigate(user.role==='teacher'?'/observer':'/dashboard')}>{!campusStaff && '← '}{copyText('next2.staff.back')}</Button>
       <Space size="middle" className={campusStaff ? 'staff-campus-header-actions' : undefined}>
+        {campusStaff&&<Button type="text" icon={<StaffPixelIcon name="guide"/>} onClick={()=>navigate('/mentor/guide',{state:{returnTo:location.pathname+location.search}})}>使用指南</Button>}
         {!user?.force_reset_password && <NotificationBell icon={campusStaff ? <StaffPixelIcon name="bell" /> : undefined} />}
         <Button
           type="text"

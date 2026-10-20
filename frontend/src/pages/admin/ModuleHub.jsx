@@ -3,7 +3,7 @@ import ApplicationInbox from '../mentor/ApplicationInbox';
 import {Button,Card,Space,Tabs} from 'antd';
 import {Link,useParams,useSearchParams} from 'react-router-dom';
 import SchoolAccounts from '../mentor/SchoolAccounts';
-import SchoolApplications from '../organization/SchoolApplications';
+import SchoolGrants from '../organization/SchoolGrants';
 import StudentList from '../students/List';
 import Dashboard from '../dashboard/Index';
 const links={
@@ -13,7 +13,7 @@ const links={
 const moduleIcon=url=>url.includes('feedback')?'message':url.includes('students')||url.includes('observer')?'team':url.includes('review')?'report':url.includes('archives')?'learning':url.includes('ai')?'settings':'book';
 export default function ModuleHub(){
  const {module}=useParams(),[search,setSearch]=useSearchParams();
- if(module==='organization')return <section className="staff-module-hub"><h1>账号与组织</h1><Tabs activeKey={search.get('section')||'accounts'} onChange={section=>setSearch({section})} items={[{key:'accounts',label:'账号管理',children:<StudentList/>},{key:'schools',label:'学校与班级',children:<Dashboard organization/>},{key:'requests',label:'申请会话与审核',children:<ApplicationInbox/>},{key:'school-accounts',label:'学校办学账号',children:<SchoolAccounts/>},{key:'applications',label:'导师学校申请',children:<SchoolApplications/>}]}/></section>;
+ if(module==='organization')return <section className="staff-module-hub"><h1>账号与组织</h1><Tabs destroyOnHidden activeKey={search.get('section')==='applications'?'requests':search.get('section')||'accounts'} onChange={section=>{const next=new URLSearchParams(search);next.set('section',section);setSearch(next);}} items={[{key:'accounts',label:'账号管理',children:<StudentList/>},{key:'schools',label:'学校与班级',children:<Dashboard organization/>},{key:'requests',label:'申请会话与审核',children:<ApplicationInbox/>},{key:'school-grants',label:'学校管理授权',children:<SchoolGrants/>},{key:'school-accounts',label:'学校办学账号',children:<SchoolAccounts/>}]}/></section>;
  const title=module==='teaching'?'教学与成长':'平台设置';
  return <section className="staff-module-hub"><h1>{title}</h1><div className="maintenance-list">{(links[module]||[]).map(([name,url,note])=><Card key={url} className="staff-module-tile" title={<span className="staff-module-title"><StaffPixelIcon name={moduleIcon(url)}/><span>{name}</span></span>}><p>{note}</p><Link className="ant-btn ant-btn-default" to={url}>进入{name}</Link></Card>)}</div>{module==='teaching'&&<Space><Button href="/mentor/reviews">查看待评报告</Button><Link to="/courses">进入课程管理维护教材</Link></Space>}</section>;
 }

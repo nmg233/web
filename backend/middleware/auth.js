@@ -42,7 +42,7 @@ function requireAuth(req, res, next) {
       'SELECT id, is_active, archived_at, auth_version, role, school_id, force_reset_password FROM users WHERE id = ?'
     ).get(decoded.id);
   } catch (err) {
-    console.error('认证中间件数据库查询错误:', err);
+    console.error('认证中间件数据库查询错误:',require('../helpers/safeLogger').errorSummary(err));
     return res.status(500).json({ error: '服务器内部错误', message: '请稍后重试' });
   }
 
@@ -88,7 +88,7 @@ function requirePasswordChanged(req, res, next) {
   try {
     row = db.prepare('SELECT force_reset_password FROM users WHERE id = ?').get(req.user.id);
   } catch (err) {
-    console.error('检查强制改密状态错误:', err);
+    console.error('检查强制改密状态错误:',require('../helpers/safeLogger').errorSummary(err));
     return res.status(500).json({ error: '服务器内部错误', message: '请稍后重试' });
   }
 

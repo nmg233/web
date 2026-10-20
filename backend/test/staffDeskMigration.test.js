@@ -1,0 +1,18 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),Database=require('better-sqlite3'),{runMigrations}=require('../database/migrate');
+const {backup}=require('../../scripts/lesson-maintenance/backup.cjs'),{verify,restoreCopy}=require('../../scripts/lesson-maintenance/verify-backup.cjs');
+for(const version of [1034,1035])test(version+'既有库备份、1036增量、重复升级与原数据恢复',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'staff-desk-migrate-')),code=path.join(dir,'old/backend/database'),uploads=path.join(dir,'uploads');fs.mkdirSync(path.join(code,'migrations'),{recursive:true});fs.mkdirSync(path.join(dir,'old/backend/helpers'),{recursive:true});fs.mkdirSync(uploads);
+ try{
+  for(const n of ['migrate.js','schema.sql','migrationBridge.js'])fs.copyFileSync(path.join(__dirname,'../database',n),path.join(code,n));fs.copyFileSync(path.join(__dirname,'../helpers/lessonVersions.js'),path.join(dir,'old/backend/helpers/lessonVersions.js'));
+  for(const n of fs.readdirSync(path.join(__dirname,'../database/migrations')).filter(n=>parseInt(n)<=version))fs.copyFileSync(path.join(__dirname,'../database/migrations',n),path.join(code,'migrations',n));
+  const db=new Database(path.join(dir,'teaching.db'));db.pragma('foreign_keys=ON');require(path.join(code,'migrate.js')).runMigrations(db);
+  db.exec("INSERT INTO users(id,username,password_hash,real_name,role) VALUES(1,'synthetic_admin','hash','合成管理','admin'),(2,'synthetic_mentor','hash','合成导师','academic_mentor');INSERT INTO schools(id,name) VALUES(1,'合成原校');INSERT INTO courses(id,title,grade_level,difficulty,created_by) VALUES(1,'保留人工课程。','junior','basic',2);INSERT INTO lessons(id,course_id,title) VALUES(1,1,'原人工课时。');");
+  fs.writeFileSync(path.join(uploads,'original.txt'),'保留原上传与人工改稿。');const before=db.prepare('SELECT * FROM courses').all(),oldMigrations=db.prepare('SELECT * FROM schema_migrations ORDER BY version').all(),snapshot=path.join(dir,'before');
+  await backup(db,{destination:snapshot,uploads});assert.equal(verify(snapshot).verified,true);runMigrations(db);
+  assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,1036);assert.equal(db.prepare('SELECT count(*) n FROM school_direct_grants').get().n,0);assert.deepEqual(db.prepare('SELECT * FROM courses').all(),before);
+  for(const row of oldMigrations)assert.deepEqual(db.prepare('SELECT * FROM schema_migrations WHERE version=?').get(row.version),row);
+  const after=db.prepare('SELECT * FROM schema_migrations ORDER BY version').all();runMigrations(db);assert.deepEqual(db.prepare('SELECT * FROM schema_migrations ORDER BY version').all(),after);assert.equal(db.pragma('integrity_check',{simple:true}),'ok');assert.deepEqual(db.pragma('foreign_key_check'),[]);db.close();
+  const restored=restoreCopy(snapshot,path.join(dir,'restored')),old=new Database(path.join(restored.restoredTo,'database.db'));assert.equal(old.prepare('SELECT MAX(version) v FROM schema_migrations').get().v,version);assert.deepEqual(old.prepare('SELECT * FROM courses').all(),before);assert.equal(fs.readFileSync(path.join(uploads,'original.txt'),'utf8'),'保留原上传与人工改稿。');old.close();
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('空库可启动，1036未产生默认学校授权或教学材料',()=>{const db=new Database(':memory:');runMigrations(db);assert.equal(db.prepare('SELECT count(*) n FROM school_direct_grants').get().n,0);assert.equal(db.prepare('SELECT count(*) n FROM courses').get().n,0);assert.equal(db.pragma('integrity_check',{simple:true}),'ok');assert.deepEqual(db.pragma('foreign_key_check'),[]);db.close();});

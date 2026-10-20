@@ -1,0 +1,345 @@
+{
+  "modules": {
+    "admin": [
+      {
+        "key": "/dashboard",
+        "label": "工作台",
+        "iconKey": "dashboard"
+      },
+      {
+        "key": "/courses",
+        "label": "课程管理",
+        "iconKey": "book"
+      },
+      {
+        "key": "/admin/teaching",
+        "label": "教学与成长",
+        "iconKey": "learning"
+      },
+      {
+        "key": "/admin/organization",
+        "label": "账号与组织",
+        "iconKey": "team"
+      },
+      {
+        "key": "/admin/settings",
+        "label": "平台设置",
+        "iconKey": "settings"
+      }
+    ],
+    "academic_mentor": [
+      {
+        "key": "/dashboard",
+        "label": "工作台",
+        "iconKey": "dashboard"
+      },
+      {
+        "key": "/courses",
+        "label": "课程管理",
+        "iconKey": "book"
+      },
+      {
+        "key": "/mentor/teaching",
+        "label": "教学与成长",
+        "iconKey": "learning"
+      },
+      {
+        "key": "/mentor/organization",
+        "label": "学校与账号",
+        "iconKey": "team"
+      },
+      {
+        "key": "/mentor/guide",
+        "label": "使用指引",
+        "iconKey": "guide"
+      }
+    ]
+  },
+  "categories": [
+    {
+      "key": "publications",
+      "label": "发布审批",
+      "icon": "guide",
+      "copyKey": null
+    },
+    {
+      "key": "reports",
+      "label": "待评报告",
+      "icon": "report",
+      "copyKey": "mentor.WorkspaceDashboard.a39a66e81ae5"
+    },
+    {
+      "key": "works",
+      "label": "待评作品",
+      "icon": "book",
+      "copyKey": "mentor.WorkspaceDashboard.049ba8ff0894"
+    },
+    {
+      "key": "feedback",
+      "label": "待处理反馈",
+      "icon": "message",
+      "copyKey": "mentor.WorkspaceDashboard.55c71e2d003b"
+    },
+    {
+      "key": "feedbackReplies",
+      "label": "反馈补充说明",
+      "icon": "message",
+      "copyKey": "mentor.WorkspaceDashboard.7bc041b77cba"
+    },
+    {
+      "key": "applicationReplies",
+      "label": "需要回复的申请",
+      "icon": "guide",
+      "copyKey": "mentor.WorkspaceDashboard.c5eac62c0f08"
+    },
+    {
+      "key": "applications",
+      "label": "待审申请",
+      "icon": "guide",
+      "copyKey": "mentor.WorkspaceDashboard.5efa802d6c9f"
+    },
+    {
+      "key": "gifts",
+      "label": "待发礼品",
+      "icon": "gift",
+      "copyKey": "mentor.WorkspaceDashboard.d680f564c1eb"
+    },
+    {
+      "key": "preparing",
+      "label": "课时准备",
+      "icon": "learning",
+      "copyKey": "mentor.WorkspaceDashboard.c0d6121442c7"
+    },
+    {
+      "key": "courses",
+      "label": "所管课程",
+      "icon": "book",
+      "copyKey": "mentor.WorkspaceDashboard.d724d03f659a"
+    },
+    {
+      "key": "schools",
+      "label": "获准学校",
+      "icon": "school",
+      "copyKey": "mentor.WorkspaceDashboard.2a10f86deade"
+    }
+  ],
+  "guideTopics": [
+    {
+      "id": "prepare",
+      "title": "建立与维护课程",
+      "path": "/courses",
+      "navigation": "课程管理 → 课程 → 课时与内容",
+      "permission": "管理员可维护全部课程；mentor仅限明确授予管理权的课程",
+      "steps": [
+        "新建草稿或进入课程，填写课程和课时的真实内容",
+        "正文保存、附件上传、知识卡片发布和课时开放分别确认",
+        "提交发布审批，管理员批准后按现有流程开放；准备中课时不会因为保存自动开放"
+      ],
+      "roles": [
+        "admin",
+        "academic_mentor"
+      ],
+      "icon": "book"
+    },
+    {
+      "id": "publish",
+      "title": "审核课程与课时发布",
+      "path": "/dashboard?category=publications",
+      "navigation": "工作台 → 发布审批 → 对应课程/课时",
+      "permission": "仅管理员作最终发布决定；保留快照、暂停及恢复规则",
+      "steps": [
+        "打开待办的具体课程或课时，核对申请版本和发布快照",
+        "审核通过或填写退回原因；修改教材后按版本重新核对",
+        "暂停与恢复沿原课时规则，不更改学生已绑定版本"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "icon": "learning"
+    },
+    {
+      "id": "review",
+      "title": "评审报告与作品",
+      "path": "/mentor/reviews?status=submitted&page=1",
+      "navigation": "教学与成长 → 报告评审 / 作品评审",
+      "permission": "管理员全局；mentor仅限所管课程，教师为只读观察",
+      "steps": [
+        "从工作台待办直接进入具体报告或作品",
+        "报告逐题反馈与作品版本分别维护，勿将两个业务对象混为一项",
+        "完成后使用返回入口回到原筛选页；退回修改仍按现有规则执行"
+      ],
+      "roles": [
+        "admin",
+        "academic_mentor"
+      ],
+      "icon": "report"
+    },
+    {
+      "id": "grant-school",
+      "title": "授予已有学校管理权",
+      "path": "/admin/organization?section=school-grants",
+      "navigation": "账号与组织 → 学校管理授权 → 授予已有学校管理权",
+      "permission": "仅管理员；学校管理权不等于课程权或已有学生账号管理权",
+      "steps": [
+        "选择已有学校和有效mentor，填写授权原因后确认",
+        "导师可在该校建班和建立自己负责的学生账号",
+        "课程管理在课程中单独授予；已有学生需在本校明确委托，不自动扩大范围",
+        "直接授权与申请批准记录分别保留；撤销后实时核验，不删除教学记录"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "icon": "school"
+    },
+    {
+      "id": "applications",
+      "title": "申请会话与审批记录",
+      "path": "/mentor/requests",
+      "navigation": "账号与组织 / 学校与账号 → 申请会话与审核",
+      "permission": "申请人只能查看自己的申请；管理员可审核全平台",
+      "steps": [
+        "学校、既有课程管理、自主开发方案统一在原申请会话提交",
+        "补充说明和附件留在同一会话，状态、修订与审核记录可追溯",
+        "管理员授予已有学校管理权用直接授权入口，无需为此伪造学校申请"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "icon": "guide"
+    },
+    {
+      "id": "school-application",
+      "title": "申请学校或课程管理",
+      "path": "/mentor/requests?filterKind=school",
+      "navigation": "学校与账号 → 申请会话与审核 → 新建申请",
+      "permission": "外部mentor保留学校申请；课程申请须管理员提供准确课程标识",
+      "steps": [
+        "按用途选择学校、既有课程或开发方案，不重复创建相同待审申请",
+        "在原会话补充真实说明与附件，关注需要本人回复的事项",
+        "获准学校只解决学校职责；课程权、账号权仍分别确认"
+      ],
+      "roles": [
+        "academic_mentor"
+      ],
+      "icon": "school"
+    },
+    {
+      "id": "accounts",
+      "title": "建立班级、学生与观察教师",
+      "path": "/mentor/organization?section=accounts",
+      "navigation": "学校与账号 → 学校办学账号 → 选择获准学校",
+      "permission": "mentor仅限获准学校和本人建立或明确委托的账号；观察授权还须对应课程管理权",
+      "steps": [
+        "先选择获准学校及本校班级，再建立学生账号",
+        "初始凭据私下交付，首次登录需改密；凭据不可写入教材或公开截图",
+        "给教师分配明确学生及课程，学校/课程/账号授权撤销后观察权限随之核验"
+      ],
+      "roles": [
+        "academic_mentor"
+      ],
+      "icon": "team"
+    },
+    {
+      "id": "admin-accounts",
+      "title": "维护学校与已有账号",
+      "path": "/admin/organization?section=schools",
+      "navigation": "账号与组织 → 学校与班级 / 账号管理",
+      "permission": "仅管理员进行全平台维护；避免越过独立学校、课程和账号授权",
+      "steps": [
+        "查看学校、班级和账号的真实归属",
+        "学生账号委托与学校管理授权分别维护，跨校变更使用现有确认流程",
+        "停用、转校、归档保持原有历史保护，不清空教学数据"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "icon": "team"
+    },
+    {
+      "id": "packages",
+      "title": "导入及恢复课程包",
+      "path": "/courses/import",
+      "navigation": "课程管理 → 导入课程包 → 检查 → 预演 → 提交",
+      "permission": "管理员全局；mentor必须有目标课程管理权及当前学校范围",
+      "steps": [
+        "先检查包与附件，预演新建或追加，不直接执行包内交互代码",
+        "核对目标课程修订、当前学校和原教材；冲突时输入与上传队列保留",
+        "丢失响应或刷新后从导入记录恢复，不重复新增；撤权后不能读取包和附件"
+      ],
+      "roles": [
+        "admin",
+        "academic_mentor"
+      ],
+      "icon": "book"
+    },
+    {
+      "id": "feedback",
+      "title": "处理反馈与通知",
+      "path": "/feedback",
+      "navigation": "顶部帮助与反馈 / 通知；教学与成长 → 课程反馈",
+      "permission": "工作人员按原课程受理范围；学生看不到内部备注",
+      "steps": [
+        "打开具体反馈，先领取、回复或补充工作人员说明",
+        "转交后沿原会话继续，内部备注与学生回复分开",
+        "通知已读不会清除真实待办；图片和附件始终使用鉴权入口"
+      ],
+      "roles": [
+        "admin",
+        "academic_mentor"
+      ],
+      "icon": "message",
+      "adminPath": "/feedback/manage"
+    },
+    {
+      "id": "rewards",
+      "title": "维护礼品、勋章及发放",
+      "path": "/reward-management",
+      "navigation": "课程管理 → 课程 → 课程奖励",
+      "permission": "管理员可管理全局；mentor仅维护所管课程奖励，不能给自己兑换",
+      "steps": [
+        "在对应课程维护真实礼品、库存与课时勋章",
+        "学生金币及兑换规则保持原样，实物发放后按订单标记",
+        "平台统一徽章与课程勋章分类保留，不复制演示余额"
+      ],
+      "roles": [
+        "admin"
+      ],
+      "icon": "gift"
+    },
+    {
+      "id": "course-rewards",
+      "title": "维护所管课程奖励",
+      "path": "/courses",
+      "navigation": "课程管理 → 选择课程 → 课程奖励",
+      "permission": "mentor仅限所管课程；金币与兑换由现有服务器规则判定",
+      "steps": [
+        "进入具体课程后维护礼品与课时勋章，不绕过课程归属",
+        "查看具体兑换订单，线下发放后记录状态",
+        "课程撤权后不能再管理相关礼品、订单或素材"
+      ],
+      "roles": [
+        "academic_mentor"
+      ],
+      "icon": "gift"
+    },
+    {
+      "id": "tools",
+      "title": "实验与助手工具",
+      "path": "/glider",
+      "navigation": "使用指南 → 实验工具 / 现有助手入口",
+      "permission": "沿用当前角色、课程授权和实际启用状态，不新增模型能力",
+      "steps": [
+        "滑翔机工具使用原参数和仿真结果，试飞不自动提交作品或完成课时",
+        "原有助手入口保留；能力以服务器配置为准，不代写学生作业",
+        "返回课程时保留原课程、课时及学习阶段"
+      ],
+      "roles": [
+        "admin",
+        "academic_mentor"
+      ],
+      "icon": "learning",
+      "secondaryPath": "/dashboard/ai",
+      "secondaryLabel": "已有助手工具"
+    }
+  ]
+}

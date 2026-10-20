@@ -1,10 +1,5 @@
-export const adminModules=[
- {key:'/dashboard',label:'工作台',iconKey:'dashboard'},
- {key:'/courses',label:'课程管理',iconKey:'book'},
- {key:'/admin/teaching',label:'教学与成长',iconKey:'learning'},
- {key:'/admin/organization',label:'账号与组织',iconKey:'team'},
- {key:'/admin/settings',label:'平台设置',iconKey:'settings'},
-];
+import registry from '../../../../shared/staffWorkspace.json' with {type:'json'};
+export const adminModules=registry.modules.admin;
 export function adminModuleFor(path){
  if(/^\/(students|dashboard\/schools|admin\/organization|mentor\/(organization|requests))(\/|$)/.test(path))return '/admin/organization';
  if(/^\/(works|tasks|archives|observer|mentor\/(reviews|feedback|teaching)|admin\/teaching)(\/|$)/.test(path))return '/admin/teaching';
