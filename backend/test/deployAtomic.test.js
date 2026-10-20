@@ -25,15 +25,18 @@ test('发布和两类备份脚本通过 Bash 语法检查', () => {
 for (const failure of ['build','backup','health','none']) test(`发布模拟：${failure}`, (t) => {
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pbl-atomic-'));
   t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
-  for(const folder of ['repo','previous/backend','releases','data/uploads','data/private','template/backend','template/frontend','template/scripts']) fs.mkdirSync(path.join(dir,folder),{recursive:true});
+  for(const folder of ['repo','previous/backend','releases','data/uploads','data/private','template/backend','template/frontend/dist','template/scripts']) fs.mkdirSync(path.join(dir,folder),{recursive:true});
   fs.copyFileSync(source,path.join(dir,'deploy.sh'));
   fs.writeFileSync(path.join(dir,'data/data.db'),'database remains external');
   fs.writeFileSync(path.join(dir,'backend.env'),'test-only');
   for(const script of ['backup-db.sh','backup-uploads.sh']) fs.writeFileSync(path.join(dir,'template/scripts',script),'#!/usr/bin/env bash\necho backup >> "$MOCK_LOG"\nif [[ "$MOCK_FAILURE" == backup ]]; then exit 1; fi\n');
+  fs.writeFileSync(path.join(dir,'template/frontend/dist/index.html'),'<html>isolated deployment fixture</html>');
   const mock=String.raw`
 git() { case "$*" in *archive*) command tar -c -C "$MOCK_TEMPLATE" .;; *rev-parse*) printf '%s\n' "$MOCK_SHA";; *) return 0;; esac; }
 npm() { echo "npm:$*" >> "$MOCK_LOG"; if [[ "$MOCK_FAILURE" == build && "$*" == 'run build' ]]; then return 1; fi; }
 python() { return 0; }
+id() { return 0; }
+sudo() { if [[ "$*" == *'test -r'* ]]; then return 0; fi; return 1; }
 flock() { return 0; }
 node() {
   if [[ "$*" == *'for(const key of'* ]]; then printf '%s\n' "$DATA_ROOT/data.db" "$DATA_ROOT/uploads" "$DATA_ROOT/private" "$DATA_ROOT/maintenance.lock";
@@ -42,7 +45,7 @@ node() {
 }
 sqlite3() { local target; target=$(printf '%s' "$2" | command sed "s/^\\.backup '//;s/'$//"); command cp "$1" "$target"; }
 systemctl() { echo "service:$1" >> "$MOCK_LOG"; if [[ "$1" == show ]]; then echo "$CURRENT_LINK/backend"; fi; }
-curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":1026}' "$MOCK_SHA"; }
+curl() { if [[ "$MOCK_FAILURE" == health ]]; then return 22; fi; printf '{"status":"ok","database":"ready","release":"%s","schema_version":1035}' "$MOCK_SHA"; }
 sleep() { return 0; }
 readlink() { if [[ "$2" == "$CURRENT_LINK" ]]; then command cat "$CURRENT_LINK"; else command readlink "$@"; fi; }
 ln() { printf '%s\n' "$3" > "$4"; echo switch >> "$MOCK_LOG"; }
@@ -51,7 +54,7 @@ function [() { if [[ "$1" == '!' && "$2" == -L && "$3" == "$CURRENT_LINK" ]]; th
   fs.writeFileSync(path.join(dir,'mock.sh'),mock);
   const result=spawnSync(bash,['-c',String.raw`
 export APP_DIR="$PWD/repo" RELEASE_ROOT="$PWD/releases" CURRENT_LINK="$PWD/current" ENV_FILE="$PWD/backend.env" DATA_ROOT="$PWD/data"
-export MOCK_TEMPLATE="$PWD/template" MOCK_LOG="$PWD/log" PYTHON=python SYSTEMCTL_SUDO=0
+export MOCK_TEMPLATE="$PWD/template" MOCK_LOG="$PWD/log" PYTHON=python SYSTEMCTL_SUDO=0 NGINX_USER=isolated-worker
 printf '%s\n' "$PWD/previous" > "$CURRENT_LINK"
 exec bash deploy.sh main
 `],{cwd:dir,encoding:'utf8',timeout:20000,env:{...process.env,BASH_ENV:path.join(dir,'mock.sh').replaceAll('\\','/'),MOCK_FAILURE:failure,MOCK_SHA:sha,REAL_NODE:process.execPath.replaceAll('\\','/')}});
