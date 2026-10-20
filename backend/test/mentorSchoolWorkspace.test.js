@@ -27,7 +27,7 @@ test('共管课程范围按修订合并，不清空其他导师学校，并发�
  assert.equal((await call(1,`/courses/${course}/managers`,{mentorId:3,active:true,expectedRevision:0,reason:'共管',request_key:key()})).status,200);
  assert.equal((await scope(3,course,[12])).status,200);assert.equal((await scope(2,course,[11],2)).status,200);
  const data=(await call(2,`/mentor-workspace/courses/${course}/schools`)).data;assert.deepEqual(data.scopes.map(s=>s.school_id).sort(),[11,12]);assert.equal(data.scopes.find(s=>s.school_id===12).editable,false);
- assert.equal((await scope(2,course,[],1)).status,409);assert.equal((await call(2,`/courses/${course}`,{status:'published'},'PUT')).status,200);
+ assert.equal((await scope(2,course,[],1)).status,409);const publication=require('../services/publicationService'),actor={id:1,role:'admin'},p=publication.submit(actor,course,{reason:'隔离发布'});publication.decide(actor,course,p.id,{decision:'approved',reason:'核对批准'});
 });
 test('本校幂等建学生与教师，角色注入拒绝，admin真实操作者可建号',async()=>{
  student=(await call(2,'/school-applications/schools/11/students',{class_id:11,real_name:'范围同学',request_key:key()})).data.id;assert.ok(student);
@@ -48,7 +48,7 @@ test('招生需课程、上线学校、本人账号交集；同校/他课关系�
 });
 test('教师只读被授学生指定课程：列表、档案、过滤、预览无跨课数据',async()=>{
  const c2=(await call(2,'/courses',{title:'不得看到的第二课',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;
- assert.equal((await scope(2,c2,[11])).status,200);assert.equal((await call(2,`/courses/${c2}`,{status:'published'},'PUT')).status,200);assert.equal((await call(2,`/courses/${c2}/enroll`,{student_ids:[student]})).status,200);
+ assert.equal((await scope(2,c2,[11])).status,200);require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},c2);assert.equal((await call(2,`/courses/${c2}/enroll`,{student_ids:[student]})).status,200);
  for(const cid of[course,c2])db.prepare('INSERT INTO lessons(course_id,title) VALUES(?,?)').run(cid,'课程课时'+cid);
  const body={teacherId:teacher,studentId:student,courseId:course,active:true,expectedRevision:0,reason:'只观察这一课',request_key:key()};assert.equal((await call(2,'/mentor-workspace/schools/11/observers',body)).status,200);
  const list=(await call(teacher,'/observer/students')).data;assert.equal(list.pagination.total,1);assert.deepEqual(list.items[0].courses.map(c=>c.id),[course]);assert.deepEqual(list.filters.courses.map(c=>c.value),[course]);

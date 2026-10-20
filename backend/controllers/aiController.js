@@ -79,6 +79,7 @@ exports.indexResource = (req, res) => {
   try {
     const resource = db.prepare('SELECT id, course_id FROM resources WHERE id = ?').get(req.params.resourceId);
     if (!resource || !canManageKnowledge(req.user, resource.course_id)) return res.status(404).json({ error: '资料不存在' });
+    if(db.prepare('SELECT status FROM courses WHERE id=?').get(resource.course_id)?.status==='archived')return res.status(409).json({error:'已归档课程不能修改 AI 资料'});
     const document = documentService.registerResource(resource.id);
     res.json({ status: document.status, error_message: document.error_message });
   } catch (err) { fail(res, err); }
@@ -88,6 +89,7 @@ exports.setDocumentEnabled = (req, res) => {
   try {
     const doc = db.prepare('SELECT id, course_id, status FROM ai_documents WHERE id = ?').get(req.params.documentId);
     if (!doc || !canManageKnowledge(req.user, doc.course_id)) return res.status(404).json({ error: '资料不存在' });
+    if(db.prepare('SELECT status FROM courses WHERE id=?').get(doc.course_id)?.status==='archived')return res.status(409).json({error:'已归档课程不能修改 AI 资料'});
     if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ error: 'enabled 必须是布尔值' });
     if (req.body.enabled && doc.status === 'unsupported') return res.status(400).json({ error: documentService.UNSUPPORTED_MESSAGE });
     db.prepare('UPDATE ai_documents SET enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(Number(req.body.enabled), doc.id);

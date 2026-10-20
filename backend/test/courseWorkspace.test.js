@@ -49,6 +49,7 @@ test('自动地图上限失败原子回滚；未改变顺序的教材保存保�
  const created=await call(1,'/courses',{title:'隔离容量验证',grade_level:'junior',difficulty:'basic',request_key:crypto.randomUUID()});assert.equal(created.status,200);const id=created.data.id;
  const insert=db.prepare("INSERT INTO lessons(course_id,title,sort_order,content_state) VALUES(?,?,?,'preparing')");for(let i=1;i<=100;i++)insert.run(id,'合成容量课时'+i,i);require('../services/automaticCourseMap').sync(db,id);const nodes=db.prepare('SELECT * FROM course_plan_nodes WHERE course_id=? ORDER BY position').all(id);
  const key=crypto.randomUUID(),failed=await call(1,`/courses/${id}/lessons`,{title:'不能多建的第101课',request_key:key});assert.equal(failed.status,409);assert.equal(db.prepare('SELECT count(*) n FROM lessons WHERE course_id=?').get(id).n,100);assert.deepEqual(db.prepare('SELECT * FROM course_plan_nodes WHERE course_id=? ORDER BY position').all(id),nodes);assert.equal(db.prepare('SELECT count(*) n FROM request_results WHERE request_key=?').get(key).n,0);
+ require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},id,nodes[0].lesson_id);
  assert.equal((await call(1,`/courses/${id}/maintenance/lessons/${nodes[0].lesson_id}`,{description:'更新教材不改变路线'},'PUT')).status,200);assert.deepEqual(db.prepare('SELECT * FROM course_plan_nodes WHERE course_id=? ORDER BY position').all(id),nodes);
 });
 test('主题图片联合备份与副本恢复可读取，旧引用文件不会删除',async()=>{

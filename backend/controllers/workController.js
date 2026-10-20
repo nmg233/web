@@ -44,7 +44,7 @@ exports.pendingTasks = (req, res) => {
       e.id AS enrollment_id FROM enrollments e JOIN courses c ON c.id=e.course_id
       JOIN lessons l ON l.course_id=c.id JOIN tasks t ON t.lesson_id=l.id
       WHERE e.student_id=? AND e.status='active' AND c.status='published'
-      AND l.status != 'cancelled' AND t.status = 'active'
+      AND l.status != 'cancelled' AND l.publication_state IN ('legacy','published') AND t.status = 'active'
       AND (
         NOT EXISTS (SELECT 1 FROM works w WHERE w.student_id=e.student_id AND w.task_id=t.id)
         OR (SELECT w.review_status FROM works w
@@ -129,7 +129,7 @@ exports.list = (req, res) => {
     res.json({ title: '作品管理', works, courses, filters: req.query });
   } catch (err) {
     console.error('作品列表错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 
@@ -148,7 +148,7 @@ exports.showUpload = (req, res) => {
     res.json({ title: '上传作品', enrollments, courseOptions, students: [] });
   } catch (err) {
     console.error('加载上传页错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 
@@ -212,6 +212,7 @@ exports.upload = (req, res) => {
         removeUploadedFile(req.file);
         return res.status(409).json({ error: '该任务当前不可提交' });
       }
+      try{require('../helpers/lessonPublication').assertStudentOpen(db,task.lesson_id);}catch(error){removeUploadedFile(req.file);throw error;}
       const taskEnrollment = db.prepare(
         `SELECT e.id FROM enrollments e
          JOIN courses c ON c.id = e.course_id
@@ -316,7 +317,7 @@ exports.upload = (req, res) => {
   } catch (err) {
     console.error('上传作品错误:', err);
     if (!committed) removeUploadedFile(req.file);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 
@@ -353,7 +354,7 @@ exports.detail = (req, res) => {
     res.json({ title: work.title, work: toFileDto(work), review, versions });
   } catch (err) {
     console.error('作品详情错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 
@@ -429,7 +430,7 @@ exports.delete = (req, res) => {
     res.json({ message: '作品已删除' });
   } catch (err) {
     console.error('删除作品错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 
@@ -466,7 +467,7 @@ exports.reject = (req, res) => {
     res.json({ message: '作品已打回' });
   } catch (err) {
     console.error('打回作品错误:', err);
-    res.status(500).json({ error: '操作失败，请稍后重试' });
+    res.status(err.status||500).json({ error: err.status?err.message:'操作失败，请稍后重试' });
   }
 };
 

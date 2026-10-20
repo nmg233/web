@@ -2119,7 +2119,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.c2214999f69ce78a": {
-    "text": "请选择回放视频文件（mp4/webm，≤500MB）",
+    "text": "请选择回放视频文件（mp4/webm，≤1.5GB）",
     "enabled": true,
     "optional": false,
     "page": "pages/courses/Detail",
@@ -3263,7 +3263,7 @@ export const systemCopy = {
     "futureTeacher": false
   },
   "site.c9e0b965e5d43561": {
-    "text": "选择视频（mp4/webm，≤500MB）",
+    "text": "选择视频（mp4/webm，≤1.5GB）",
     "enabled": true,
     "optional": false,
     "page": "pages/courses/Detail",

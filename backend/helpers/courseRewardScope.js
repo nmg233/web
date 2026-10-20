@@ -12,4 +12,5 @@ function imageVisible(user,imageId){if(user.role==='admin')return true;if(user.r
  if(db.prepare('SELECT 1 FROM reward_orders WHERE image_id=? AND student_id=? UNION ALL SELECT 1 FROM student_badge_grants WHERE image_id=? AND student_id=? LIMIT 1').get(imageId,user.id,imageId,user.id))return true;
  return !!db.prepare(`SELECT 1 FROM reward_gifts g JOIN courses c ON c.id=g.course_id JOIN enrollments e ON e.course_id=c.id WHERE g.image_id=? AND g.published=1 AND c.status='published' AND e.student_id=? AND e.status='active' UNION ALL SELECT 1 FROM lesson_badge_definitions b JOIN lessons l ON l.id=b.lesson_id JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE b.image_id=? AND b.enabled=1 AND trim(b.name)!='' AND trim(b.description)!='' AND l.status!='cancelled' AND c.lesson_badges_enabled=1 AND c.status='published' AND e.student_id=? AND e.status='active' LIMIT 1`).get(imageId,user.id,imageId,user.id);
 }
-module.exports={actor,manage,accessible,courses,imageManage,imageVisible,fail};
+function writable(id,courseId){const c=manage(id,courseId);if(c?.status==='archived')fail('已归档课程只允许查看历史及处理既有订单履约',409);return c;}
+module.exports={actor,manage,writable,accessible,courses,imageManage,imageVisible,fail};

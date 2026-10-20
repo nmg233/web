@@ -20,6 +20,7 @@ router.delete('/manage/exercises/:exerciseId', requireRole('admin', 'academic_me
 
 router.get('/lessons/:lessonId/preview', requireRole('admin', 'academic_mentor', 'teacher'), controller.preview);
 router.get('/lessons/:lessonId', requireRole('student'), controller.lesson);
+router.get('/lessons/:lessonId/availability', requireRole('student'), controller.availability);
 router.post('/lessons/:lessonId/review-complete', requireRole('student'), controller.completeReview);
 router.post('/exercises/:exerciseId/submit', requireRole('student'), controller.submitExercise);
 router.post('/cards/:cardId/complete', requireRole('student'), controller.completeCard);

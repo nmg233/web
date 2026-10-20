@@ -141,10 +141,11 @@ exports.simulate = async (req, res) => {
         return res.status(400).json({ error: '请选择已报名且已发布的课程' });
       }
       if (lessonId) {
-        const lesson = db.prepare('SELECT id FROM lessons WHERE id = ? AND course_id = ?').get(lessonId, courseId);
+        const lesson = db.prepare("SELECT id FROM lessons WHERE id = ? AND course_id = ? AND status!='cancelled'").get(lessonId, courseId);
         if (!lesson) {
-          return res.status(400).json({ error: '课时不属于所选课程' });
+          return res.status(400).json({ error: '课时不属于所选课程或已取消' });
         }
+        require('../helpers/lessonPublication').assertStudentOpen(db,lessonId);
       }
     }
 
@@ -154,6 +155,7 @@ exports.simulate = async (req, res) => {
       return res.status(503).json({ error: '模拟引擎不可用，请稍后再试或联系管理员检查引擎环境' });
     }
 
+    if(lessonId)require('../helpers/lessonPublication').assertStudentOpen(db,lessonId);
     const active = db.prepare("SELECT COUNT(*) AS c FROM glider_simulations WHERE status = 'running'").get().c;
     if (active >= GLIDER_MAX_ACTIVE) {
       return res.status(429).json({ error: `当前有 ${active} 个模拟任务正在运行，请稍后再试` });
@@ -269,6 +271,7 @@ exports.simulate = async (req, res) => {
     return res.json({ id, status: 'running', message: '模拟已开始，请稍候查看结果' });
   } catch (err) {
     console.error('启动滑翔机模拟错误:', err);
+    if(err.status)return res.status(err.status).json({error:err.message});
     return res.status(500).json({ error: '启动模拟失败，请稍后重试' });
   }
 };

@@ -47,6 +47,8 @@ function reportPayload(baseId, suffix = '一') {
     reflection: { difficulty: `遇到困难${suffix}`, solution: `解决方式${suffix}`, improvement: `改进${suffix}`, new_question: `问题${suffix}` },
   };
 }
+const pub=require('./helpers/publicationFixture.cjs'),adminActor={id:1,role:'admin'};
+const closeLesson=(lessonId=1)=>pub.close(adminActor,1,lessonId),publishLesson=()=>pub.publish(adminActor,1,1);
 const reports = () => db.prepare('SELECT * FROM lesson_learning_reports WHERE lesson_id = 1 ORDER BY version').all();
 
 before(async () => {
@@ -145,7 +147,8 @@ test('旧014摘要迁移记录与结构不一致时停止升级，不错误覆�
   } finally { old.close(); }
 });
 
-test('回放可先上传视频，随后单独添加、更改或清空摘要，其余信息保留', async () => {
+test('关闭后上传视频，随后单独添加、更改或清空摘要，其余信息保留', async () => {
+  closeLesson();
   assert.equal((await api('/courses/1/replays','POST',replayForm(),'mentor')).status,200);
   const created = await api('/courses/1/replays','POST',replayForm(),'admin');
   assert.equal(created.status,200);
@@ -168,7 +171,7 @@ test('上传时可附带Markdown课程纪要，列表和学生课时接口原样
   const summary = '## 课程纪要\n\n**重点知识**\n\n- 课堂活动\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
   const created = await api('/courses/1/replays','POST',replayForm(`  ${summary}  `),'admin');
   assert.equal(created.status,200);
-  const list = await api('/courses/1/replays');
+  publishLesson();const list = await api('/courses/1/replays');
   assert.equal(list.body.replays.find((item) => item.id === created.body.id).summary.replace(/\r\n/g,'\n'),summary);
   assert.equal(Object.hasOwn(list.body.replays[0],'video_path'),false);
   const lesson = await api('/learning/lessons/1');
@@ -179,13 +182,14 @@ test('上传时可附带Markdown课程纪要，列表和学生课时接口原样
 });
 
 test('摘要长度和类型异常返回400且不修改数据，上传失败清理视频文件', async () => {
+  closeLesson();
   const before = db.prepare('SELECT * FROM course_replays WHERE id=1').get();
   for (const summary of ['长'.repeat(10001),null,{},123]) assert.equal((await api('/courses/replays/1','PUT',{summary},'admin')).status,400);
   assert.deepEqual(db.prepare('SELECT * FROM course_replays WHERE id=1').get(),before);
   const files = fs.readdirSync(path.join(dir,'uploads/course-replays')).sort();
   assert.equal((await api('/courses/1/replays','POST',replayForm('长'.repeat(10001)),'admin')).status,400);
   assert.deepEqual(fs.readdirSync(path.join(dir,'uploads/course-replays')).sort(),files);
-  assert.equal((await api('/courses/replays/1','PUT',{summary:'字'.repeat(10000)},'admin')).status,200);
+  assert.equal((await api('/courses/replays/1','PUT',{summary:'字'.repeat(10000)},'admin')).status,200);publishLesson();
 });
 
 test('摘要管理和读取遵守课程与角色权限', async () => {
@@ -197,14 +201,15 @@ test('摘要管理和读取遵守课程与角色权限', async () => {
   assert.deepEqual(db.prepare('SELECT * FROM course_replays WHERE id=1').get(),original);
 });
 
-test('Markdown知识卡片源码完整保存，草稿隐藏，发布后学生获得相同内容', async () => {
+test('Markdown知识卡片源码完整保存，草稿隐藏，审批后新学生获得相同内容', async () => {
+  closeLesson();
   const markdown = '## 升力\n\n**核心概念**\n\n- 流速\n- 压力\n\n```js\nconst lift = 1;\n```\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
   const created = await api('/learning/manage/lessons/1/cards','POST',{title:'Markdown卡片',content:markdown,status:'draft'},'admin');
   assert.equal(created.status,201);
-  assert.equal((await api('/learning/lessons/1')).body.cards.some((item) => item.id === created.body.id),false);
+  assert.equal((await api('/learning/lessons/1')).status,409,'关闭期间不能继续学习');
   await api(`/learning/manage/cards/${created.body.id}/exercises`,'POST',{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'},'admin');
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{status:'published'},'admin')).status,200);
-  assert.equal((await api('/learning/lessons/1','GET',undefined,'newstudent')).body.cards.find((item) => item.id === created.body.id).content,markdown);
+  publishLesson();assert.equal((await api('/learning/lessons/1','GET',undefined,'newstudent')).body.cards.find((item) => item.id === created.body.id).content,markdown);
   assert.equal((await api('/learning/lessons/1')).body.cards.some((item) => item.id === created.body.id),false,'旧版不加入新卡');
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{content:markdown+'\n\n> 继续探究'},'othermentor')).status,403);
   assert.equal(db.prepare('SELECT content FROM knowledge_cards WHERE id=?').get(created.body.id).content,markdown);
@@ -276,6 +281,7 @@ test('再次通过后最新版本完成课时，旧版本意见与反思保留�
 });
 
 test('指定课时回放上传重试幂等，同一请求标识不能提交不同文件内容', async () => {
+  closeLesson(2);
   const form=(bytes)=>{
     const value=new FormData();
     value.append('file',new Blob([bytes],{type:'video/mp4'}),'same.mp4');
@@ -305,6 +311,7 @@ test('导师视频上传精确绑定课时，跨课程、取消课时、归档�
   db.prepare("INSERT INTO courses (id,title,grade_level,difficulty,status,created_by) VALUES (9001,'课时上传验收','primary','basic','published',2),(9002,'另一课程','primary','basic','published',2)").run();
   db.prepare("INSERT INTO lessons (id,course_id,title,status) VALUES (9001,9001,'第一课时','completed'),(9002,9001,'第二课时','completed'),(9003,9002,'跨课程课时','completed'),(9004,9001,'取消课时','cancelled')").run();
   const form = (lessonId) => { const body = replayForm(); body.set('lesson_id', String(lessonId)); return body; };
+  db.prepare("UPDATE lessons SET publication_state='draft' WHERE course_id=9001 AND status!='cancelled'").run();
   const created = await api('/courses/9001/replays', 'POST', form(9002), 'mentor');
   assert.equal(created.status, 200);
   const row = db.prepare('SELECT course_id,lesson_id FROM course_replays WHERE id=?').get(created.body.id);

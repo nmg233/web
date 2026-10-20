@@ -1,4 +1,5 @@
 import defaultClient from './client';
+import uploadPolicy from '../../../shared/uploadPolicy.json' with {type:'json'};
 
 export function createAPIs(client) {
 
@@ -41,9 +42,9 @@ const courseAPI = {
   deleteResource: (resourceId) => client.delete(`/courses/resources/${resourceId}`),
   listReplays: (courseId) => client.get(`/courses/${courseId}/replays`),
   replayUploadResult: (courseId, key) => client.get(`/courses/${courseId}/replay-requests/${key}`),
-  uploadReplay: (courseId, formData, onUploadProgress, signal) => client.post(`/courses/${courseId}/replays`, formData, {
+  uploadReplay: (courseId, formData, onUploadProgress, signal) => client.post(`/courses/${courseId}/lessons/${encodeURIComponent(formData.get('lesson_id'))}/replays`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 30 * 60 * 1000, onUploadProgress, signal,
+    timeout: uploadPolicy.replayTimeoutMs, onUploadProgress, signal,
   }),
   updateReplay: (replayId, data) => client.put(`/courses/replays/${replayId}`, data),
   deleteReplay: (replayId) => client.delete(`/courses/replays/${replayId}`),
@@ -167,6 +168,7 @@ const notificationAPI = {
 };
 
 const learningAPI = {
+  availability: lessonId=>client.get(`/learning/lessons/${lessonId}/availability`,{silent:true}),
   preview: (lessonId) => client.get(`/learning/lessons/${lessonId}/preview`),
 
   lesson: (lessonId) => client.get(`/learning/lessons/${lessonId}`),

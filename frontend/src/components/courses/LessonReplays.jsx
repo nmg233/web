@@ -4,11 +4,13 @@ import SignedReplayPlayer from '../common/SignedReplayPlayer';
 
 export default function LessonReplays({ lesson, replays, canEdit, playing, onUpload, onEdit, onDelete, onPlay }) {
   const bound = replays.filter((replay) => Number(replay.lesson_id) === Number(lesson.id));
-  const writable = canEdit && lesson.status !== 'cancelled';
+  const formal=['legacy','published'].includes(lesson.publication_state);
+  const writable = canEdit && lesson.status !== 'cancelled' && !formal;
   return (
     <section aria-label={`${lesson.title}的课时视频`} style={{ marginTop: 12 }}>
       <Space wrap>
         <Typography.Text strong>本课时视频（{bound.length}）</Typography.Text>
+        {canEdit&&formal&&<Typography.Text type="secondary">正式课时需先在内容维护中“关闭并编辑”，再上传或修改视频。</Typography.Text>}
         {writable && <Button size="small" icon={<UploadOutlined />} onClick={() => onUpload(lesson)}>上传本课时视频</Button>}
       </Space>
       {!bound.length && <div><Typography.Text type="secondary">暂无绑定到本课时的视频；课程共享回放不替代本课时视频。</Typography.Text></div>}

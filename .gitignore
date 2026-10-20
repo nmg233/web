@@ -1,4 +1,5 @@
 .vscode/
+/.codex/artifacts/
 node_modules/
 .env
 .env.*
@@ -116,6 +117,8 @@ docs/next-version/step-02/browser-first/
 
 # Upstream maintenance documentation and local tools
 !docs/部署与恢复.md
+!docs/整改执行总清单_2026-10-20.md
+!docs/发布审批与大视频部署验收.md
 !docs/本轮整改验收记录_2026-10-08.md
 !docs/整改总清单实现差距复核_2026-10-11.md
 .trae/

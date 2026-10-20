@@ -43,12 +43,14 @@ function save(user,courseId,body){return db.transaction(()=>{
  const result={saved:true,revision:c.school_scope_revision+1,preserved:affected.length};requests.save(db,identity,result);return result;
  }).immediate();}
 function delegate(user,schoolId,body){return db.transaction(()=>{
- active(user,'admin');school(user,schoolId);
+ active(user,'admin');
  if(Object.keys(body).some(k=>!['mentorId','studentId','active','expectedRevision','reason','request_key'].includes(k)))fail('账号委托字段无效');
  if(typeof body.active!=='boolean'||!Number.isSafeInteger(body.expectedRevision)||typeof body.reason!=='string'||!body.reason.trim()||body.reason.length>1000)fail('请填写状态、修订与原因');
  const target=db.prepare("SELECT * FROM users WHERE id=? AND role='academic_mentor' AND is_active=1 AND archived_at IS NULL").get(body.mentorId);
- if(!target)fail('导师不可用');school({...target,auth_version:target.auth_version},schoolId);
+ const recorded=db.prepare('SELECT * FROM organization_account_delegations WHERE student_id=? AND mentor_id=?').get(body.studentId,body.mentorId);
+ if(body.active){school(user,schoolId);if(!target)fail('导师不可用');school({...target,auth_version:target.auth_version},schoolId);
  if(!db.prepare("SELECT 1 FROM users WHERE id=? AND role='student' AND school_id=?").get(body.studentId,schoolId))fail('学生不属于该校');
+ }else if(!recorded||recorded.school_id!==Number(schoolId))fail('当前学校的历史委托不存在',404);
  const identity=requests.identity(user,'organization-delegate:'+schoolId,body);if(!identity)fail('缺少请求编号');const prior=requests.existing(db,identity);if(prior)return prior;
  const old=db.prepare('SELECT revision FROM organization_account_delegations WHERE student_id=? AND mentor_id=?').get(body.studentId,body.mentorId);if((old?.revision||0)!==body.expectedRevision)fail('委托已变化，请核对最新记录',409);
  db.prepare('INSERT INTO organization_account_delegations(student_id,mentor_id,school_id,active,actor_id,reason) VALUES(?,?,?,?,?,?) ON CONFLICT(student_id,mentor_id) DO UPDATE SET school_id=excluded.school_id,active=excluded.active,actor_id=excluded.actor_id,reason=excluded.reason,revision=organization_account_delegations.revision+1').run(body.studentId,body.mentorId,schoolId,body.active?1:0,user.id,body.reason.trim());

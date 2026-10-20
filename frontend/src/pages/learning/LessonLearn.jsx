@@ -19,7 +19,7 @@ import { draftKey } from '../../student/model';
 import LessonWorks from '../../student/LessonWorks';
 import AssociatedExperiments from '../../student/AssociatedExperiments';
 import { availableCardIndex, learningStage } from '../../student/experimentContext';
-import { PixelButton as Button } from '../../student/visual/PixelUI';
+import { PixelButton as Button, PixelPanel } from '../../student/visual/PixelUI';
 import LessonTemplate from '../../student/space/LessonTemplate';
 import {isCopyPreview} from '../../copy-review/previewMode';
 
@@ -63,6 +63,7 @@ function LessonLearnEditor() {
   const [draftFailed, setDraftFailed] = useState(false);
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [paused,setPaused]=useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeStage, setActiveStage] = useState(0);
@@ -112,7 +113,7 @@ function LessonLearnEditor() {
       const payload = await learningAPI.lesson(lessonId);
       if(!current())return;reportIdentity.current=payload.report?.id??null;
       if (String(payload.course.id) !== String(courseId)) throw new Error(copyText('system.learning.031'));
-      setData(payload);
+      setData(payload);setPaused('');
       if(!payload.preview)window.dispatchEvent(new Event(COIN_LEARNING_CHANGED));
       const requestedStage = Number(searchParams.get('stage'));
       // 已有报告可从原评审页回看；资料调整后的学习阶段不能吞掉档案的只读跳转。
@@ -160,6 +161,22 @@ function LessonLearnEditor() {
   useEffect(() => { load({ restorePosition: true }); }, [courseId, lessonId, searchParams]);
 
   useEffect(()=>{if(!activeReplayId)return;const timer=setInterval(()=>void playReplay(activeReplayId,true),480000);return()=>clearInterval(timer);},[activeReplayId,page]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(()=>{
+    if(isCopyPreview())return;
+    let live=true,running=false;
+    const check=async()=>{
+      if(running||document.hidden)return;running=true;
+      try{
+        const result=await learningAPI.availability(lessonId);if(!live)return;
+        if(!result.open){video.current?.pause();setReplayUrl('');reportDialog.current?.destroy();setPaused(result.reason||'课时暂停学习，作答及草稿已保留，请待审批通过后恢复。');}
+        else setPaused('');
+      }catch(e){if(live&&[401,403,404].includes(e.response?.status)){video.current?.pause();setReplayUrl('');reportDialog.current?.destroy();setPaused('当前课程或报名已不可访问，请返回课程页核对。');}}
+      finally{running=false;}
+    };
+    void check();const timer=setInterval(check,15000);window.addEventListener('focus',check);document.addEventListener('visibilitychange',check);
+    return()=>{live=false;clearInterval(timer);window.removeEventListener('focus',check);document.removeEventListener('visibilitychange',check);};
+  },[lessonId,learningAPI]);
 
   const finishReview = async () => {
     if(data?.read_only||mutating.current||!onPage())return;mutating.current=true;
@@ -218,6 +235,8 @@ function LessonLearnEditor() {
       },
     });
   };
+
+  if(paused)return <PageContainer><PixelPanel aria-labelledby="lesson-paused-title"><h2 id="lesson-paused-title">本课时暂停学习</h2><p role="status">{paused}</p><p>原作答、报告和浏览器草稿均保留。恢复后点击重新读取继续学习。</p><Space wrap><Button onClick={()=>void load()}>重新读取</Button><Button onClick={()=>navigate(`/courses/${courseId}`)}>返回总课题</Button></Space></PixelPanel></PageContainer>;
 
   if (!data || data.lesson.id!==Number(lessonId)) return <PageContainer title={copyText('system.learning.050')} extra={<Button onClick={() => navigate('/tasks')}>{<StudentCopyText id={'system.learning.051'}/>}</Button>} data-copy-bindings={JSON.stringify(['system.learning.050'])}><AsyncPageState loading={loading} error={error} onRetry={load}><Empty /></AsyncPageState></PageContainer>;
 

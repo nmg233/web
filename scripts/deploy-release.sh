@@ -8,10 +8,15 @@ CURRENT_LINK="${CURRENT_LINK:-/opt/pbl-platform/current}"
 ENV_FILE="${ENV_FILE:-/etc/pbl-platform/backend.env}"
 SERVICE="${SERVICE:-pbl-backend}"
 HEALTH_URL="${HEALTH_URL:-http://127.0.0.1:3000/api/health}"
+FRONTEND_URL="${FRONTEND_URL:-http://127.0.0.1/}"
+# Explicit worker identity avoids assuming nginx/www-data on different distributions.
+NGINX_USER="${NGINX_USER:-}"
 PYTHON="${PYTHON:-/usr/bin/python3.11}"
 DATA_ROOT="${DATA_ROOT:-/var/lib/pbl-platform}"
 export PYTHON npm_config_python="$PYTHON"
-for command in git npm node tar curl sqlite3 flock; do command -v "$command" >/dev/null; done
+for command in git npm node tar curl sqlite3 flock find chmod; do command -v "$command" >/dev/null; done
+if [ -z "$NGINX_USER" ]; then echo "请设置 NGINX_USER 为实际 Nginx worker 用户（例如 nginx），先核对 nginx 配置" >&2; exit 1; fi
+id "$NGINX_USER" >/dev/null
 "$PYTHON" -c 'import sys; assert sys.version_info >= (3, 9)'
 git -C "$APP_DIR" check-ref-format --branch "$BRANCH" >/dev/null
 APP_DIR=$(cd "$APP_DIR" && pwd -P)
@@ -65,6 +70,11 @@ printf '%s\n' "$SHA" > "$STAGE/.release-sha"
 CHECK_DIR=$(mktemp -d "$STAGE/.release-check.XXXXXX")
 (cd "$STAGE/backend" && NODE_ENV=test JWT_SECRET=release-check-only AI_CONFIG_SECRET=$(printf 'c%.0s' {1..64}) MAINTENANCE_FILE="$CHECK_DIR/maintenance.lock" DB_PATH="$CHECK_DIR/test.db" UPLOAD_PATH="$CHECK_DIR/uploads" FEEDBACK_UPLOAD_PATH="$CHECK_DIR/private" npm test)
 (cd "$STAGE/frontend" && npm ci && npm run lint && npm test && npm run build)
+# mktemp creates a 0700 root: permit traversal only, not reading backend secrets.
+# Only public built assets are made world-readable. External DB/uploads are untouched.
+chmod o+x "$STAGE" "$STAGE/frontend"
+find "$STAGE/frontend/dist" -type d -exec chmod 755 {} +
+find "$STAGE/frontend/dist" -type f -exec chmod 644 {} +
 # 先在一致性数据库副本上执行迁移与完整性检查，不修改正在服务的数据库。
 SMOKE_DB="$STAGE/backend/.deployment-smoke.db"
 sqlite3 "${DATA_PATHS[0]}" ".backup '$SMOKE_DB'"
@@ -73,6 +83,7 @@ rm -f -- "$SMOKE_DB" "$SMOKE_DB-wal" "$SMOKE_DB-shm"
 RELEASE="$RELEASE_ROOT/$SHA-$(date +%Y%m%d-%H%M%S)"
 if [ -e "$RELEASE" ]; then echo "发行目录已存在，未进行切换" >&2; exit 1; fi
 mv -- "$STAGE" "$RELEASE"
+sudo -n -u "$NGINX_USER" test -r "$RELEASE/frontend/dist/index.html" || { echo "Nginx worker 无法读取新发行版，尚未切换；检查父目录遍历权限" >&2; exit 1; }
 SWITCHED=0
 STOPPED=0
 MAINTENANCE_OWNED=0
@@ -115,15 +126,17 @@ service_op start "$SERVICE"
 HEALTHY=0
 for ((attempt=0; attempt<30; attempt++)); do
   if body=$(curl --max-time 3 -fsS "$HEALTH_URL"); then
-    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || !Number.isInteger(h.schema_version) || h.schema_version<1026)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
+    if EXPECTED_SHA="$SHA" node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const h=JSON.parse(s);if(h.status!=="ok" || h.database!=="ready" || h.release!==process.env.EXPECTED_SHA || !Number.isInteger(h.schema_version) || h.schema_version<1035)process.exit(1)}catch{process.exit(1)}})' <<< "$body"; then HEALTHY=1; break; fi
   fi
   sleep 1
 done
 if [ "$HEALTHY" != 1 ]; then echo "健康检查失败，开始回滚链接" >&2; false; fi
+# HTTP 200 alone is insufficient: compare index and referenced JS/CSS through Nginx.
+node "$RELEASE/scripts/probe-frontend.mjs" "$RELEASE/frontend/dist" "$FRONTEND_URL"
 rm -- "$MAINTENANCE_FILE"
 MAINTENANCE_OWNED=0
 trap - ERR INT TERM
 STOPPED=0
 echo "发布成功：$SHA；前一版本：$PREVIOUS"
-if ! node "$RELEASE/scripts/cleanup-files.js" "${DATA_PATHS[1]}"; then echo "警告：清理队列需检查" >&2; fi
+if ! node --env-file="$ENV_FILE" "$RELEASE/scripts/cleanup-files.js" "${DATA_PATHS[1]}"; then echo "警告：清理队列需检查" >&2; fi
 echo "数据库及两类附件仍保留在 /var/lib/pbl-platform，发行目录不会自动清理。"

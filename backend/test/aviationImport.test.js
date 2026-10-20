@@ -87,6 +87,7 @@ test('API：真实管理接口、重复导入、部分失败重试、管理员�
   const { token } = await login.json();
   const course = db.prepare("INSERT INTO courses (title,grade_level,difficulty,created_by) VALUES ('API目标','junior','basic',?)").run(adminId);
   const lesson = db.prepare("INSERT INTO lessons (course_id,title) VALUES (?,'API课时')").run(course.lastInsertRowid);
+  db.prepare("UPDATE lessons SET publication_state='draft' WHERE id=?").run(lesson.lastInsertRowid);
   const apiEnv = { PBL_IMPORT_MODE: 'api', PBL_IMPORT_API_URL: base, PBL_IMPORT_ADMIN_TOKEN: token, PBL_IMPORT_COURSE_ID: String(course.lastInsertRowid), PBL_IMPORT_LESSON_ID: String(lesson.lastInsertRowid) };
   db.exec("CREATE TRIGGER reject_api BEFORE INSERT ON knowledge_cards WHEN NEW.title LIKE '%02%' BEGIN SELECT RAISE(ABORT, 'injected failure'); END");
   await assert.rejects(run(apiEnv), /500/);

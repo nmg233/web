@@ -17,6 +17,7 @@ function imageBytes(buffer){
 }
 function upload(db,user,courseId,lessonId,buffer,key,uploadRoot){
  managed(db,user,courseId,true);if(!/^[\w-]{8,100}$/.test(key||''))fail('上传编号无效');
+ if(lessonId)require('../helpers/lessonPublication').assertEditable(db,lessonId);
  if(lessonId&&!db.prepare("SELECT 1 FROM lessons WHERE id=? AND course_id=? AND status!='cancelled'").get(lessonId,courseId))fail('课时不属于此课程或已取消',404);
  const {mime,ext,digest}=imageBytes(buffer),old=db.prepare('SELECT * FROM lesson_map_images WHERE uploaded_by=? AND course_id=? AND upload_key=?').get(user.id,courseId,key);
  if(old){if(old.digest!==digest||String(old.lesson_id||'')!==String(lessonId||''))fail('上传编号已用于其他文件或课时',409);return dto(old);}
@@ -44,6 +45,7 @@ function bind(db,lesson){if(lesson.map_image_id)db.prepare('UPDATE lesson_map_im
 function canRead(db,user,courseId,image){
  const course=db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);if(!course||!image||image.course_id!==Number(courseId))return false;
  if(canManageCourse(user,course,db))return true;
- return user?.role==='student'&&course.status==='published'&&Boolean(db.prepare("SELECT 1 FROM enrollments e JOIN lessons l ON l.course_id=e.course_id WHERE e.student_id=? AND e.course_id=? AND e.status='active' AND l.status!='cancelled' AND l.map_image_id=?").get(user.id,courseId,image.id));
+ if(user?.role!=='student'||course.status!=='published'||!db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(user.id,courseId))return false;
+ return db.prepare("SELECT id FROM lessons WHERE course_id=? AND status!='cancelled' AND publication_state IN ('legacy','published')").all(courseId).some(l=>require('../helpers/lessonPublication').studentContent(db,user.id,l.id).lesson.map_image_id===image.id);
 }
 module.exports={managed,imageBytes,upload,dto,fields,bind,canRead,fail,contentRevision};

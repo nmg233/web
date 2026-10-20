@@ -267,6 +267,7 @@ test('退回报告可创建新版本，已提交版本不可原地覆盖', async
 });
 
 test('导师评审和内容管理严格按课程归属授权', async () => {
+  require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
   const second = db.prepare('SELECT id FROM lesson_learning_reports WHERE version = 2').get();
   const queue = await api('/mentor-reviews?status=submitted', { token: tokens.mentor });
   assert.equal(queue.status, 200);
@@ -328,6 +329,7 @@ test('服务层也拒绝无关导师写题库，负责导师编辑接口可获�
 });
 
 test('受邀执行导师可完成题库七个编辑操作，旧作答和学习快照保留', async () => {
+  require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},3,3);
   const request = (url, method, body) => api(url, { method, body, token: tokens.othermentor });
   const card = await request('/learning/manage/lessons/3/cards', 'POST', { title:'导师新卡片',content:'正文',status:'draft' });
   assert.equal(card.status,201);

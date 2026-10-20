@@ -11,11 +11,11 @@ test('新视频始终绑定入口课时，忽略表单伪造的课时且不生�
   assert.equal(lessonReplayFields(10, lessons, lessons[0], { title: '视频' }).lesson_id, '1');
   for (const lesson of [null, { id: 999 }, lessons[2], lessons[3]]) assert.throws(() => lessonReplayFields(10, lessons, lesson, {}), /该课时已不可上传/);
 });
-test('上传前校验视频扩展名、空文件及500MB边界', () => {
+test('上传前校验视频扩展名、空文件及1.5GB边界', () => {
   assert.match(replayFileError(null), /请选择/);
   assert.match(replayFileError({ name: 'video.txt', size: 20 }), /仅支持/);
   assert.match(replayFileError({ name: 'video.mp4', size: 0 }), /空视频/);
-  assert.match(replayFileError({ name: 'video.webm', size: 500 * 1024 * 1024 + 1 }), /500MB/);
-  assert.equal(replayFileError({ name: 'video.MP4', size: 500 * 1024 * 1024 }), '');
+  assert.match(replayFileError({ name: 'video.webm', size: 1_500_000_000 + 1 }), /1\.5GB/);
+  assert.equal(replayFileError({ name: 'video.MP4', size: 1_500_000_000 }), '');
   assert.equal(replayFileError({ name: 'video.webm', size: 20 }), '');
 });

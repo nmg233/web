@@ -73,7 +73,7 @@ function validateGift(body,actor,courseId){
 function saveGift(actor,id,body){return db.transaction(()=>{
  const old=id?db.prepare('SELECT * FROM reward_gifts WHERE id=?').get(strictId(id)):null;
  if(id&&!old)invalid('礼品不存在',404);
- const courseId=old?.course_id??(body.courseId==null?null:strictId(body.courseId));scope.manage(actor,courseId);if(!old&&courseId==null)invalid('请从真实课程内新增礼品');if(old&&body.courseId!=null&&Number(body.courseId)!==old.course_id)invalid('礼品不能转移课程，请创建独立礼品',409);
+ const courseId=old?.course_id??(body.courseId==null?null:strictId(body.courseId));scope.writable(actor,courseId);if(!old&&courseId==null)invalid('请从真实课程内新增礼品');if(old&&body.courseId!=null&&Number(body.courseId)!==old.course_id)invalid('礼品不能转移课程，请创建独立礼品',409);
  const b=validateGift(body,actor,courseId);
  const request=body.requestKey?require('../helpers/requestResults').identity({id:actor},'course-gift-create',{...body,request_key:key(body.requestKey)}):null;const replay=!id&&request&&require('../helpers/requestResults').existing(db,request);if(replay)return replay;
  if(old&&(!Number.isSafeInteger(b.revision)||b.revision!==old.revision))invalid('礼品或库存已变化，请刷新后重新编辑',409);

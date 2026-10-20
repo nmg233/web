@@ -124,6 +124,7 @@ function deleteSchool(id) {
   const users = db.prepare('SELECT COUNT(*) c FROM users WHERE school_id = ?').get(id).c;
   const classes = db.prepare('SELECT COUNT(*) c FROM classes WHERE school_id = ?').get(id).c;
   if (users || classes) throw Object.assign(new Error('学校仍关联账号或班级，请先迁移；可停用学校保留历史'), { status: 409 });
+  require('../helpers/deletionProtection').assertNoReferences(db,'schools',id,'学校存在申请、授权或建号历史，请停用并保留历史');
   db.prepare('DELETE FROM schools WHERE id = ?').run(id);
   return true;
 }
@@ -142,6 +143,7 @@ function deleteClass(id) {
   if (db.prepare('SELECT 1 FROM users WHERE class_id = ? LIMIT 1').get(id)) {
     throw Object.assign(new Error('班级仍关联账号，请先迁移学生，不能直接删除'), { status: 409 });
   }
+  require('../helpers/deletionProtection').assertNoReferences(db,'classes',id,'班级存在建号或迁移历史，不能直接删除，请保留历史班级');
   db.prepare('DELETE FROM classes WHERE id = ?').run(id);
   return true;
 }

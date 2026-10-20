@@ -196,7 +196,8 @@ test('新学生/教师/导师改密后配置职责、建课、选课与访问课
   const course=await api('/courses',{title:'账号闭环课程',grade_level:'primary',difficulty:'basic'},sessions.mentor);assert.equal(course.status,200);
   assert.equal((await api(`/courses/${course.body.id}/lessons`,{title:'第一课',instructor_id:mentor.id},sessions.mentor)).status,200);
   require('./helpers/explicitScopeFixture.cjs').admissions(db);
-  assert.equal((await api(`/courses/${course.body.id}`,{status:'published'},sessions.mentor,'PUT')).status,200);
+  const publication=require('../services/publicationService'),adminActor=db.prepare("SELECT * FROM users WHERE id=1").get();
+  const publicationRequest=publication.submit(adminActor,course.body.id,{reason:'账号闭环课程发布申请'});publication.decide(adminActor,course.body.id,publicationRequest.id,{decision:'approved',reason:'管理员批准'});
   assert.equal((await api(`/courses/${course.body.id}/enroll`,{student_ids:[student.id]},sessions.mentor)).status,200);
   require('./helpers/explicitScopeFixture.cjs').observers(db);
   assert.equal((await api(`/courses/${course.body.id}`,undefined,sessions.student)).status,200);

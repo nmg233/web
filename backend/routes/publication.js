@@ -1,0 +1,10 @@
+const router=require('express').Router({mergeParams:true});
+const service=require('../services/publicationService');
+const {requireRole}=require('../middleware/auth');
+const action=fn=>(req,res,next)=>{try{res.set('Cache-Control','no-store').json(fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message});next(e);}};
+router.use(requireRole('admin','academic_mentor'));
+router.get('/',action(r=>service.read(r.user,r.params.id)));
+router.post('/',action(r=>service.submit(r.user,r.params.id,r.body)));
+router.post('/:requestId/decision',requireRole('admin'),action(r=>service.decide(r.user,r.params.id,r.params.requestId,r.body)));
+router.post('/lessons/:lessonId/close',action(r=>service.close(r.user,r.params.id,r.params.lessonId,r.body)));
+module.exports=router;
