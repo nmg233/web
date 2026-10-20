@@ -117,7 +117,7 @@ function validateUploadedFiles(req, _res, next) {
     for (const file of uploadedFiles(req)) {
       const ext = path.extname(file.originalname).toLowerCase();
       if (!MAGIC_CHECKED_EXT.has(ext)) continue;
-      // 只读取签名需要的字节；500 MB 视频不能整体读入 API 进程。
+      // 只读取签名需要的字节；1.5GB 视频不能整体读入 API 进程。
       const descriptor = fs.openSync(file.path, 'r');
       const head = Buffer.alloc(16);
       let bytes;
@@ -164,7 +164,7 @@ const uploadReplay = multer({
     }
     return fileFilter(req, file, cb);
   },
-  limits: { fileSize: 500 * 1024 * 1024 }
+  limits: { fileSize: require('../../shared/uploadPolicy.json').replayMaxBytes, files:1, fields:20, fieldSize:100*1024 }
 });
 
 // 批量导入用：内存存储，接收 .csv / .xlsx / .xls

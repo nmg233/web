@@ -1,0 +1,6 @@
+{
+  "replayMaxBytes": 1500000000,
+  "replayMaxLabel": "1.5GB",
+  "replayTimeoutMs": 7200000,
+  "replayConcurrentUploads": 4
+}

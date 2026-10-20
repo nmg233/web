@@ -1,8 +1,9 @@
+import policy from '../../../shared/uploadPolicy.json' with {type:'json'};
 export function replayFileError(file) {
   if (!file) return '请选择回放视频文件';
   if (!/\.(mp4|webm)$/i.test(file.name)) return '仅支持 MP4 或 WebM 视频';
   if (!file.size) return '不能上传空视频文件';
-  if (file.size > 500 * 1024 * 1024) return '视频不能超过 500MB';
+  if (file.size > policy.replayMaxBytes) return `视频不能超过 ${policy.replayMaxLabel}`;
   return '';
 }
 
@@ -12,6 +13,7 @@ export function lessonReplayFields(courseId, lessons, targetLesson, values) {
   if (!lesson || Number(lesson.course_id) !== Number(courseId) || lesson.status === 'cancelled') {
     throw new Error('该课时已不可上传，请刷新课程后重试');
   }
+  if(['legacy','published'].includes(lesson.publication_state))throw new Error('正式课时须先关闭再上传，请进入课时内容维护选择“关闭并编辑”');
   return {
     lesson_id: String(lesson.id), title: values.title,
     description: values.description || '', summary: values.summary || '',
