@@ -1,0 +1,6 @@
+.mentor-profile{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start;min-width:0}
+.mentor-profile-identity{text-align:center}.mentor-profile-monogram{display:grid;place-items:center;width:88px;height:88px;margin:0 auto 16px;border:3px solid #34566a;background:#e1eff5;font-size:40px;color:#234459}
+.mentor-profile-main{min-width:0;display:grid;gap:16px}.mentor-profile .ant-tag{white-space:normal;overflow-wrap:anywhere}.mentor-profile .ant-descriptions-item-content{overflow-wrap:anywhere}
+.mentor-profile .ant-card{min-width:0}.mentor-profile .ant-descriptions-item-label{width:112px;white-space:nowrap}.mentor-profile .ant-descriptions-view table{table-layout:fixed}
+@media(min-width:1200px){.mentor-profile{grid-template-columns:minmax(220px,280px) minmax(0,1fr)}}
+@media(max-width:760px){.mentor-profile{grid-template-columns:minmax(0,1fr)}.mentor-profile-identity .ant-card-body{padding:16px}.mentor-profile-monogram{width:64px;height:64px;font-size:30px}}

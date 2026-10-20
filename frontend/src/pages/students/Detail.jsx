@@ -7,6 +7,8 @@ import { studentAPI, authAPI, archiveAPI } from '../../api';
 import { useAuth } from '../../store/AuthContext';
 import TempPasswordModal from '../../components/TempPasswordModal';
 import {requestKey} from '../../utils/requestKey';
+import MentorProfile from './MentorProfile';
+import MentorEditFields from './MentorEditFields';
 
 const { Title } = Typography;
 
@@ -33,6 +35,7 @@ function StudentDetailContent() {
   const [editOpen, setEditOpen] = useState(false), [editing, setEditing] = useState(false);
   const [editSchools, setEditSchools] = useState([]), [editClasses, setEditClasses] = useState([]);
   const [editForm] = Form.useForm();
+  const editRole=Form.useWatch('role',editForm);
   const [options, setOptions] = useState({ schools: [], teachers: [], mentors: [] });
   const [classes, setClasses] = useState([]);
   const [resetResult, setResetResult] = useState(null);
@@ -112,7 +115,7 @@ function StudentDetailContent() {
   // 管理员重置用户密码：临时密码仅通过弹窗返回给管理员，由管理员线下转告
   const openEdit = async () => {
     try {
-    const opts = await studentAPI.getAssignOptions(); setEditSchools(opts.schools);
+    const opts = student.role==='academic_mentor'?{schools:[]}:await studentAPI.getAssignOptions(); setEditSchools(opts.schools);
     const cls = student.school_id ? await studentAPI.getClasses(student.school_id) : { classes: [] };
     setEditClasses(cls.classes); editForm.setFieldsValue({ real_name: student.real_name, role: student.role,
       school_id: student.school_id, class_id: student.class_id, email: student.email, phone: student.phone, profile: student.profile });
@@ -194,7 +197,7 @@ function StudentDetailContent() {
           <Button icon={<FormOutlined />} onClick={() => { evalForm.resetFields(); setEvalOpen(true); }}>{siteText("site.e49d0491c312a888")}</Button>
         )}
       </Space>
-      <Card>
+      {student.role==='academic_mentor'?<MentorProfile mentor={student} detail={detail} isAdmin={isAdmin} onSaved={load}/>:<Card>
         <Descriptions column={2} bordered size="small">
           <Descriptions.Item label="登录账号">{student.username}</Descriptions.Item>
           <Descriptions.Item label="真实姓名">{student.real_name}</Descriptions.Item>
@@ -209,7 +212,7 @@ function StudentDetailContent() {
             {student.archived_at && <span>{siteText("site.f3746c0fda1d1105")}{student.archived_at}（UTC）</span>}
           </Descriptions.Item>
         </Descriptions>
-      </Card>
+      </Card>}
 
       {isAdmin && detail.statusEvents?.length > 0 && <Card title="账号状态记录" style={{ marginTop: 16 }}>
         {detail.statusEvents.map((event, index) => <p key={index}>
@@ -223,10 +226,10 @@ function StudentDetailContent() {
           {' · '}原账号：{event.context.username}，原导师 ID：{event.context.mentor_id || '未分配'}（保持不变）
         </p>)}
       </Card>}
-      {!isStudentTarget && ((detail.taughtCourses?.length > 0) || (detail.managedCourses?.length > 0)) && (
+      {student.role==='teacher' && detail.taughtCourses?.length > 0 && (
         <Card title={student.role === 'teacher' ? siteText("site.b267745f6076fe28") : siteText("site.358882b58c684bd6")} style={{ marginTop: 16 }}>
           <Space wrap>
-            {(detail.taughtCourses || detail.managedCourses || []).map((c) => (
+            {(detail.taughtCourses || []).map((c) => (
               <Link key={c.id} to={`/courses/${c.id}`}>
                 <Tag color={c.status === 'published' ? 'green' : 'orange'}>{c.title}</Tag>
               </Link>
@@ -235,15 +238,16 @@ function StudentDetailContent() {
         </Card>
       )}
 
-      <Modal title="编辑账号资料" open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => editForm.submit()} confirmLoading={editing} closable={!editing} maskClosable={!editing} cancelButtonProps={{disabled:editing}}>
+      <Modal title={student.role==='academic_mentor'?'编辑执行导师资料':'编辑账号资料'} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => editForm.submit()} confirmLoading={editing} closable={!editing} maskClosable={!editing} cancelButtonProps={{disabled:editing}}>
         <Form form={editForm} layout="vertical" onFinish={saveEdit}>
+          {student.role==='academic_mentor'?<MentorEditFields/>:<>
           <Form.Item name="real_name" label="姓名" rules={[{required:true,whitespace:true}]}><Input maxLength={80}/></Form.Item>
           <Form.Item name="role" label="身份" rules={[{required:true}]}><Select options={[{value:'student',label:siteText("site.c5ec741fa7352b9f")},{value:'teacher',label:siteText("site.1f503f9e99226e71")},{value:'academic_mentor',label:'导师'}]} onChange={value=>{if(value==='academic_mentor'){editForm.setFieldsValue({school_id:null,class_id:null});setEditClasses([]);}}}/></Form.Item>
-          <Form.Item name="school_id" label="学校" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择学校'})]}><Select disabled={student.role==='student'} allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
-          <Form.Item name="class_id" label="班级" dependencies={['role']} rules={[({getFieldValue})=>({required:getFieldValue('role')!=='academic_mentor',message:'学生/教师必须选择班级'})]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item>
+          {(editRole||student.role)!=='academic_mentor'&&<><Form.Item name="school_id" label="学校" rules={[{required:true,message:'学生/教师必须选择学校'}]}><Select disabled={student.role==='student'} allowClear options={editSchools.map(s=>({value:s.id,label:s.name}))} onChange={async sid=>{editForm.setFieldsValue({class_id:null});setEditClasses([]);if(sid)setEditClasses((await studentAPI.getClasses(sid)).classes);}}/></Form.Item>
+          <Form.Item name="class_id" label="班级" rules={[{required:true,message:'学生/教师必须选择班级'}]}><Select allowClear options={editClasses.map(c=>({value:c.id,label:`${c.grade || ''} ${c.name}`}))}/></Form.Item></>}
           <Form.Item name="email" label="邮箱"><Input/></Form.Item><Form.Item name="phone" label="手机号"><Input/></Form.Item><Form.Item name="profile" label="简介"><Input.TextArea/></Form.Item>
           <p>修改姓名不修改原用户名或现有密码；重置后使用新姓名拼音@123。已有业务历史的账号不能随意更改身份。</p>
-          {student.role==='student' && <p>学生跨校请使用“编辑分配”，指定目标学校新教师并填写原因。</p>}
+          {student.role==='student' && <p>学生跨校请使用“编辑分配”，指定目标学校新教师并填写原因。</p>}</>}
         </Form>
       </Modal>
       <Modal title={siteText("site.6f7866258bd17991")} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={() => form.submit()} confirmLoading={assignSaving} closable={!assignSaving} maskClosable={!assignSaving} cancelButtonProps={{disabled:assignSaving}} width={500}>

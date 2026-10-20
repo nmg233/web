@@ -582,6 +582,10 @@ exports.detail = (req, res) => {
         user: safeTarget,
         taughtCourses,
         managedCourses,
+        ...(viewer.role==='admin'&&target.role==='academic_mentor'?{
+          managementRelations:db.prepare('SELECT m.*,c.title,u.is_active FROM course_managers m JOIN courses c ON c.id=m.course_id JOIN users u ON u.id=m.mentor_id WHERE m.mentor_id=? ORDER BY m.active DESC,c.id').all(target.id),
+          managementHistory:db.prepare('SELECT e.*,c.title course_title FROM course_manager_events e JOIN courses c ON c.id=e.course_id WHERE e.mentor_id=? ORDER BY e.id DESC LIMIT 100').all(target.id),
+        }:{}),
         statusEvents: db.prepare(`SELECT e.action,e.reason,e.created_at,u.username AS actor_username
           FROM account_status_events e JOIN users u ON u.id=e.actor_id WHERE e.user_id=? ORDER BY e.id DESC`).all(id),
       });

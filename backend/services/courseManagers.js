@@ -4,7 +4,7 @@ function active(user,role){const row=db.prepare('SELECT * FROM users WHERE id=?'
 function read(user,courseId){
  if(user.role!=='admin'&&!require('../helpers/courseScope').courseBelongsToMentor(user.id,courseId))fail('课程管理授权已失效',403);
  if(!db.prepare('SELECT 1 FROM courses WHERE id=?').get(courseId))fail('课程不存在',404);
- return{managers:db.prepare('SELECT m.*,u.username,u.real_name,u.is_active,a.real_name grantor_name,r.real_name revoker_name FROM course_managers m JOIN users u ON u.id=m.mentor_id LEFT JOIN users a ON a.id=m.granted_by LEFT JOIN users r ON r.id=m.revoked_by WHERE m.course_id=? ORDER BY m.active DESC,m.mentor_id').all(courseId),
+ return{managers:db.prepare('SELECT m.*,u.username,u.real_name,u.is_active,u.archived_at,a.real_name grantor_name,r.real_name revoker_name FROM course_managers m JOIN users u ON u.id=m.mentor_id LEFT JOIN users a ON a.id=m.granted_by LEFT JOIN users r ON r.id=m.revoked_by WHERE m.course_id=? ORDER BY m.active DESC,m.mentor_id').all(courseId),
  candidates:user.role==='admin'?db.prepare("SELECT id,username,real_name FROM users WHERE role='academic_mentor' AND is_active=1 AND archived_at IS NULL ORDER BY real_name,id").all():[],
  history:user.role==='admin'?db.prepare('SELECT e.*,u.real_name actor_name FROM course_manager_events e LEFT JOIN users u ON u.id=e.actor_id WHERE course_id=? ORDER BY id DESC LIMIT 100').all(courseId):[]};
 }
