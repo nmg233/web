@@ -21,10 +21,15 @@ function fixture() {
     article_blocks,review_content,report_guidance,location,duration) VALUES(?,'原课时','completed',2,'learning','ready',?,'原课堂回顾','原报告提示','原地点',45)`)
     .run(course,JSON.stringify([{id:'p1',type:'paragraph',text:'原人工教材'}])).lastInsertRowid);
   for (const id of [3,4]) db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(?,?,'active')").run(id,course);
+  db.prepare("UPDATE lessons SET publication_state='draft' WHERE id=?").run(lesson);
   const card = learning.createCard(admin,lesson,{title:'原卡片',content:'原正文',status:'published'}).id;
   const exercise = learning.createExercise(admin,card,{question_type:'true_false',prompt:'原问题',answer:true,explanation:'原解析'}).id;
+  // Historical fixture, not an application authoring bypass.
+  db.prepare("UPDATE lessons SET publication_state='legacy' WHERE id=?").run(lesson);
   return { course, lesson, card, exercise };
 }
+const pub=require('./helpers/publicationFixture.cjs');
+const close=f=>pub.close(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
 function submit(f, student=3) {
   learning.lessonPackage(student,f.lesson);
   learning.completeReview(student,f.lesson);
@@ -50,9 +55,9 @@ test('人工改稿只影响新学生，已绑定文章卡题和报告指导冻�
   learning.lessonPackage(3,f.lesson);
   db.prepare("UPDATE lessons SET article_blocks=?,report_guidance='新报告提示',location='新地点' WHERE id=?")
     .run(JSON.stringify([{id:'p1',type:'paragraph',text:'新人工教材'}]),f.lesson);
-  learning.updateCard(admin,f.card,{content:'新正文'});
+  close(f);learning.updateCard(admin,f.card,{content:'新正文'});
   learning.updateExercise(admin,f.exercise,{answer:false,explanation:'新解析'});
-  const old=learning.lessonPackage(3,f.lesson), fresh=learning.lessonPackage(4,f.lesson);
+  publish(f);const old=learning.lessonPackage(3,f.lesson), fresh=learning.lessonPackage(4,f.lesson);
   assert.equal(old.lesson.article_blocks[0].text,'原人工教材');
   assert.equal(old.lesson.report_guidance,'原报告提示');
   assert.equal(old.cards[0].content,'原正文');
@@ -92,7 +97,7 @@ test('旧快照升级补充不改原文，资源只补快照既有ID，后续编
 
 test('负责导师与管理员可编排卡题，独立教学预览不泄漏答案或产生作答', () => {
   const f=fixture();
-  learning.updateCard(mentor,f.card,{content:'负责导师正文'});
+  close(f);learning.updateCard(mentor,f.card,{content:'负责导师正文'});
   learning.updateExercise(mentor,f.exercise,{explanation:'负责导师解析'});
   const cards=learning.listManagedCards(mentor,f.lesson);
   assert.equal(cards[0].exercises[0].explanation,'负责导师解析');
@@ -124,11 +129,11 @@ test('开放反思、历史报告与习题反馈保留，原首次评分金币�
   assert.equal(learning.lessonPackage(3,f.lesson).course_completion.completed,true);
 });
 
-test('版本绑定不绕过撤回或报名权限，教材准备中仍不可标记回顾/提交报告', () => {
+test('版本绑定不绕过撤回或报名权限，关闭准备改稿期间不可标记回顾/提交报告', () => {
   const f=fixture();learning.lessonPackage(3,f.lesson);
-  db.prepare("UPDATE lessons SET content_state='preparing' WHERE id=?").run(f.lesson);
-  assert.throws(()=>learning.completeReview(3,f.lesson),e=>e.code==='CONTENT_PREPARING');
-  assert.throws(()=>learning.submitReport(3,f.lesson,{}),e=>e.code==='CONTENT_PREPARING');
+  close(f);db.prepare("UPDATE lessons SET content_state='preparing' WHERE id=?").run(f.lesson);
+  assert.throws(()=>learning.completeReview(3,f.lesson),e=>e.status===409);
+  assert.throws(()=>learning.submitReport(3,f.lesson,{}),e=>e.status===409);
   db.prepare("UPDATE enrollments SET status='removed' WHERE course_id=? AND student_id=3").run(f.course);
   assert.throws(()=>learning.lessonPackage(3,f.lesson),e=>e.status===404);
 });
@@ -139,7 +144,7 @@ test('奖励按已绑定教材判定：新卡题不追溯阻断，需补学报�
   reviews.review(mentor,report.id,{status:'approved',score:77});
   db.prepare("INSERT INTO lesson_badge_definitions(lesson_id,name,art_id,description) VALUES(?,'隔离徽章','theory','隔离说明')").run(f.lesson);
   db.prepare('UPDATE courses SET lesson_badges_enabled=1 WHERE id=(SELECT course_id FROM lessons WHERE id=?)').run(f.lesson);
-  learning.updateCard(admin,f.card,{status:'archived'});
+  close(f);learning.updateCard(admin,f.card,{status:'archived'});
   const added=learning.createCard(admin,f.lesson,{title:'后来新增卡',content:'新教材',status:'published'}).id;
   learning.createExercise(admin,added,{question_type:'true_false',prompt:'新增题',answer:true,explanation:'新解析'});
   assert.equal(require('../helpers/rewardEligibility').taskEligibility(3,f.lesson).eligible,true);
@@ -188,7 +193,7 @@ test('完整文章旧快照不会因无视频被误修复，真正缺少回顾�
   const originalJson=broken.content_json;
   db.prepare("UPDATE lessons SET review_content='管理员补齐的真实回顾',article_blocks=? WHERE id=?")
     .run(JSON.stringify([{id:'new-paragraph',type:'paragraph',text:'补齐教材'}]),missing.lesson);
-  const fixed=learning.repairLegacy(admin,missing.lesson,3,'补齐历史缺少的真实回顾');
+  close(missing);const fixed=learning.repairLegacy(admin,missing.lesson,3,'补齐历史缺少的真实回顾');
   assert.notEqual(fixed.new_version_id,broken.id);
   assert.equal(versions.boundVersion(db,3,missing.lesson).content.lesson.review_content,'管理员补齐的真实回顾');
   assert.equal(db.prepare('SELECT content_json FROM lesson_content_versions WHERE id=?').get(broken.id).content_json,originalJson);
@@ -206,7 +211,7 @@ test('真实缺失的视频旧快照仍可定向补齐，原快照保留且完�
     db.prepare('INSERT INTO student_lesson_versions(student_id,lesson_id,content_version_id) VALUES(3,?,?)').run(f.lesson,old.id);
     const video=path.join(dir,'actual.mp4');fs.writeFileSync(video,'0000ftypisom0000');
     db.prepare("INSERT INTO course_replays(course_id,lesson_id,title,description,video_path,created_by) VALUES(?,?,'真实新视频','真实视频介绍',?,1)").run(f.course,f.lesson,video);
-    const repaired=learning.repairLegacy(admin,f.lesson,3,'补齐历史缺失的视频');
+    close(f);const repaired=learning.repairLegacy(admin,f.lesson,3,'补齐历史缺失的视频');
     assert.notEqual(repaired.new_version_id,old.id);
     assert.equal(versions.boundVersion(db,3,f.lesson).content.replays[0].file_path,video);
     assert.deepEqual(JSON.parse(db.prepare('SELECT content_json FROM lesson_content_versions WHERE id=?').get(old.id).content_json).replays,[]);

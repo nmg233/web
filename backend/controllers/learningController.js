@@ -1,7 +1,7 @@
 const learningService = require('../services/learningService');
 
 function sendError(res, err) {
-  if (err instanceof learningService.LearningError) {
+  if (err instanceof learningService.LearningError || (Number.isInteger(err.status)&&err.status>=400&&err.status<500)) {
     return res.status(err.status).json({ error: err.message, code: err.code });
   }
   console.error('学习流程错误:', err);
@@ -19,6 +19,12 @@ function action(handler, successStatus = 200) {
 }
 
 exports.lesson = action((req) => learningService.lessonPackage(req.user.id, req.params.lessonId));
+exports.availability = action(req=>{
+ const db=require('../config/database');
+ const row=db.prepare(`SELECT l.id,l.publication_state,l.closure_reason FROM lessons l JOIN courses c ON c.id=l.course_id JOIN enrollments e ON e.course_id=c.id WHERE l.id=? AND e.student_id=? AND e.status='active' AND c.status='published' AND l.status!='cancelled'`).get(req.params.lessonId,req.user.id);
+ if(!row)throw Object.assign(new Error('课程或报名已不可访问'),{status:404});
+ return {id:row.id,open:['legacy','published'].includes(row.publication_state),state:row.publication_state,reason:row.closure_reason||null};
+});
 exports.preview = action((req) => learningService.previewLesson(req.user, req.params.lessonId));
 exports.completeReview = action((req) => ({ progress: learningService.completeReview(req.user.id, req.params.lessonId) }));
 exports.submitExercise = action((req) => learningService.submitExercise(req.user.id, req.params.exerciseId, req.body.answer));

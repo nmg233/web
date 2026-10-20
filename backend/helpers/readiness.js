@@ -1,12 +1,14 @@
-const MIN_SCHEMA_VERSION=1034;
+const MIN_SCHEMA_VERSION=1035;
 const checks={
+ lesson_publication_events:'course_id,lesson_id,actor_id,action,content_version_id,reason',
+ publication_requests:'course_id,lesson_id,content_version_id,fingerprint,status',course_content_audit:'course_id,actor_id,before_json,after_json',
  course_module_options:"course_id,settings_json,revision",development_qualifications:"mentor_id,course_id,active,revision",course_package_uploads:"id,actor_id,digest",course_package_imports:"id,course_id,result_json",
  feedback_reception_events:'feedback_id,actor_id,action',application_conversations:'kind,application_id,revision,needs_reply',application_messages:'id,kind,application_id,sender_id',course_access_applications:'id,applicant_id,course_id,status',development_applications:'id,applicant_id,status',
  course_school_scopes:'course_id,school_id,created_by',teacher_observation_grants:'teacher_id,student_id,course_id,active,revision',enrollment_access_confirmations:'enrollment_id,school_id,source',school_created_teachers:'teacher_id,actor_id,fingerprint',
  lesson_badge_definitions:"lesson_id,enabled,image_id,revision",student_badge_grants:"id,image_id",
  course_managers:'course_id,mentor_id,active,revision',course_manager_events:'course_id,mentor_id,actor_id,action',school_applications:'applicant_id,status,revision',school_managers:'school_id,mentor_id,active,revision',school_created_accounts:'student_id,actor_id,fingerprint',school_management_events:'school_id,actor_id,action',
   users:'id,role,school_id,teacher_id,auth_version,force_reset_password,archived_at',
-  schools:'id,is_active', classes:'id,school_id',courses:'id,status,learning_objectives,automatic_map,background_opacity,theme_revision,lesson_badges_enabled,badge_revision',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y',
+  schools:'id,is_active', classes:'id,school_id',courses:'id,status,learning_objectives,automatic_map,background_opacity,theme_revision,lesson_badges_enabled,badge_revision',lessons:'id,course_id,status,map_image_id,map_art_preset,landing_x,landing_y,publication_state,published_version_id,closure_reason',
   enrollments:'id,student_id,course_id,status,completed_at',course_replays:'id,lesson_id,video_path',resources:'id,lesson_id,file_path',
   knowledge_cards:'id,lesson_id,status',card_exercises:'id,card_id,answer_json,rubric',
   student_card_progress:'student_id,card_id,completed_at',card_exercise_attempts:'student_id,exercise_id,attempt_no',

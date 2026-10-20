@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "node --test",
+    "test": "node --test --test-concurrency=4",
     "db:init": "node database/init.js",
     "db:reset": "node database/init.js --force",
     "db:provision": "node database/provision.js"

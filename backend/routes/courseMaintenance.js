@@ -71,6 +71,7 @@ router.delete('/chapters/:chapterId',action(req=>{
 }));
 router.put('/lessons/:lessonId',action(req=>{
  const row=object('lessons',req.params.lessonId,req.params.id);if(row.status==='cancelled')v.invalid('课时已取消，不能修改教学内容',409);
+ require('../helpers/lessonPublication').assertEditable(db,row.id);
  fields(req.body,['title','description','teaching_tip','chapter_id','presentation_type','content_state','article_url','article_title','moments_note','review_content','report_guidance','experiment_guidance','article_blocks','duration','sort_order','start_at','end_at','location','instructor_id','map_image_id','map_art_preset','landing_x','landing_y']);const data=require('../services/lessonMapImages').fields(db,req.params.id,row.id,req.body);
  for(const [key,max,required]of[['title',120,true],['description',10000,false],['teaching_tip',2000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);
  for(const [key,values]of [['presentation_type',['learning','visit','theory','experiment']],['content_state',['ready','preparing']]])if(v.own(req.body,key)){if(!values.includes(req.body[key]))v.invalid('课时模板状态无效');data[key]=req.body[key];}
@@ -95,6 +96,7 @@ router.put('/plan',action(req=>{
 }));
 router.put('/tasks/:taskId',action(req=>{
  const row=object('tasks',req.params.taskId,req.params.id);if(row.lesson_status==='cancelled'||row.status!=='active')v.invalid('任务或课时已取消，不能修改',409);
+ require('../helpers/lessonPublication').assertEditable(db,row.lesson_id);
  fields(req.body,['title','description','task_type','deadline','require_upload']);const data={};for(const[key,max,required]of[['title',120,true],['description',10000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);
  const invalid=require('../helpers/teachingInput').validateTeachingInput(req.body,'task',row);if(invalid)v.invalid(invalid);
  if(v.own(req.body,'task_type'))data.task_type=req.body.task_type;
@@ -107,20 +109,22 @@ function experiment(body,courseId){
  const lesson=v.lessonId(body.lessonId,courseId),stage=v.integer(body.stage,'学习阶段',{nullable:true,max:3}),card=v.integer(body.cardId,'卡片',{min:1,nullable:true});
  if(!lesson&&(stage!=null||card))v.invalid('自由入口不能指定学习阶段或卡片');
  if(card&&(stage!==1||!db.prepare('SELECT id FROM knowledge_cards WHERE id=? AND lesson_id=?').get(card,lesson)))v.invalid('卡片必须属于所选课时，且阶段为知识卡片');
+ if(lesson)require('../helpers/lessonPublication').assertEditable(db,lesson);
  if(body.enabled!==undefined&&typeof body.enabled!=='boolean')v.invalid('启用状态无效');
  return {experiment_id:'glider',lesson_id:lesson,stage,card_id:card,label:v.text(body.label,'关联名称',120,true),enabled:body.enabled===false?0:1};
 }
 router.post('/experiments',action(req=>{const data=experiment(req.body,req.params.id),r=db.prepare(`INSERT INTO course_experiments(course_id,${Object.keys(data).join(',')}) VALUES(${Array(Object.keys(data).length+1).fill('?').join(',')})`).run(req.params.id,...Object.values(data));return{id:Number(r.lastInsertRowid),saved:true,content_revision:hash(revisionRow('course_experiments',r.lastInsertRowid))};}));
-router.put('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);return update('course_experiments',row.id,experiment(req.body,req.params.id));}));
-router.delete('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);db.prepare('DELETE FROM course_experiments WHERE id=?').run(row.id);return{deleted:true};}));
+router.put('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);if(row.lesson_id)require('../helpers/lessonPublication').assertEditable(db,row.lesson_id);return update('course_experiments',row.id,experiment(req.body,req.params.id));}));
+router.delete('/experiments/:experimentId',action(req=>{const row=object('course_experiments',req.params.experimentId,req.params.id);if(row.lesson_id)require('../helpers/lessonPublication').assertEditable(db,row.lesson_id);db.prepare('DELETE FROM course_experiments WHERE id=?').run(row.id);return{deleted:true};}));
 router.put('/resources/:resourceId',action(req=>{
  const row=object('resources',req.params.resourceId,req.params.id);
+ if(row.lesson_id)require('../helpers/lessonPublication').assertEditable(db,row.lesson_id);
  const assertEditableLesson=id=>{if(id&&db.prepare("SELECT status FROM lessons WHERE id=? AND course_id=?").get(id,req.params.id)?.status==='cancelled')v.invalid('课时已取消，资料只允许查看历史',409);};
  assertEditableLesson(row.lesson_id);
  fields(req.body,['title','description','lesson_id','resource_type','display_order']);const data={};
  if(v.own(req.body,'title'))data.title=v.text(req.body.title,'资料名称',120,true);
  if(v.own(req.body,'description'))data.description=v.text(req.body.description,'资料说明',10000);
- if(v.own(req.body,'lesson_id')){data.lesson_id=v.lessonId(req.body.lesson_id,req.params.id);assertEditableLesson(data.lesson_id);if(data.lesson_id!==row.lesson_id&&db.prepare("SELECT l.id FROM lessons l,json_each(l.article_blocks) b WHERE json_extract(b.value,'$.resourceId')=? LIMIT 1").get(row.id))v.invalid('图片正在文章中使用，请先移除文章引用再更改归属',409);}
+ if(v.own(req.body,'lesson_id')){data.lesson_id=v.lessonId(req.body.lesson_id,req.params.id);assertEditableLesson(data.lesson_id);if(data.lesson_id)require('../helpers/lessonPublication').assertEditable(db,data.lesson_id);if(data.lesson_id!==row.lesson_id&&db.prepare("SELECT l.id FROM lessons l,json_each(l.article_blocks) b WHERE json_extract(b.value,'$.resourceId')=? LIMIT 1").get(row.id))v.invalid('图片正在文章中使用，请先移除文章引用再更改归属',409);}
  if(v.own(req.body,'display_order'))data.display_order=v.integer(req.body.display_order,'图片/资料排序',{max:10000});
  if(v.own(req.body,'resource_type')){if(!['lesson_plan','guide_card','template','courseware','video','other'].includes(req.body.resource_type))v.invalid('资料类型无效');data.resource_type=req.body.resource_type;}
  return update('resources',row.id,data);

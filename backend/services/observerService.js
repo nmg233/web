@@ -110,7 +110,7 @@ function students(user, query = {}, all = false) {
     const summaries = courseRows.map((course) => {
       const completion = versions.courseState(db, row.id, course.id);
       const lessons = db.prepare("SELECT id,title,status FROM lessons WHERE course_id=? ORDER BY sort_order,id").all(course.id)
-        .filter((l) => completion.completed ? completion.lesson_ids.includes(l.id) : l.status !== 'cancelled')
+        .filter((l) => completion.lesson_ids.includes(l.id))
         .map((l) => ({ ...l, ...learningGate.getLessonLearningState(row.id, l.id) }));
       const actionable = !completion.completed && course.status === 'published' ? lessons.filter((l) => l.status !== 'cancelled') : [];
       const current = actionable.find((l) => !l.completed);
@@ -188,7 +188,7 @@ function studentDetail(user, studentId) {
   `).all(student.id).map((course) => {
     const completion = versions.courseState(db, student.id, course.id);
     const lessons = db.prepare('SELECT id, title, status FROM lessons WHERE course_id = ? ORDER BY sort_order, id').all(course.id)
-      .filter((l) => completion.completed ? completion.lesson_ids.includes(l.id) : l.status !== 'cancelled');
+      .filter((l) => completion.lesson_ids.includes(l.id));
     return { ...course, completion, lessons, lesson_count: lessons.length,
       completed_lessons: completion.completed ? lessons.length : lessons.filter((l) => learningGate.getLessonLearningState(student.id, l.id).completed).length };
   });
@@ -208,7 +208,7 @@ function studentDetail(user, studentId) {
     WHERE enrollment.student_id = ? AND enrollment.status = 'active' ORDER BY c.id, l.sort_order, l.id
   `).all(student.id).filter(l=>user.role!=='teacher'||require('./teacherObservations').can(user,student.id,l.course_id)).filter((l) => {
     const state = versions.courseState(db, student.id, l.course_id);
-    return state.completed ? state.lesson_ids.includes(l.lesson_id) : db.prepare('SELECT status FROM lessons WHERE id=?').get(l.lesson_id).status !== 'cancelled';
+    return state.lesson_ids.includes(l.lesson_id);
   }).map((l) => ({ ...l, progress: learningGate.getLessonLearningState(student.id,l.lesson_id).percent, original_report_status:l.report_status,
     report_status:learningGate.getLessonLearningState(student.id,l.lesson_id).report_status,
     stages: learningGate.getLessonLearningState(student.id, l.lesson_id),

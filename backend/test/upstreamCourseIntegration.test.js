@@ -13,6 +13,9 @@ before(async()=>{
  db.prepare("INSERT INTO course_chapters(id,course_id,title,sort_order) VALUES(1,1,'已录章节',1)").run();
  db.prepare("INSERT INTO lessons(id,course_id,title,chapter_id,location,duration,start_at,instructor_id) VALUES(1,1,'有安排的课时',1,'原教室',45,'2026-10-20T15:00',2),(2,2,'不可见课时',NULL,NULL,NULL,NULL,2),(3,3,'待评课时',NULL,NULL,NULL,NULL,2)").run();
  db.prepare("INSERT INTO course_plan_nodes(course_id,position,lesson_id,state) VALUES(1,1,1,'linked')").run();
+ // A formally re-approved normal lesson requires complete teaching content.
+ db.prepare("INSERT INTO knowledge_cards(id,lesson_id,title,content,status,created_by) VALUES(1,1,'隔离卡片','真实教材','published',2)").run();
+ db.prepare("INSERT INTO card_exercises(card_id,question_type,prompt,answer_json,explanation) VALUES(1,'true_false','判断题','true','参考详解')").run();
  db.prepare("INSERT INTO lesson_learning_reports(student_id,lesson_id,enrollment_id,summary,key_points,application,difficulties,next_plan,status,score) VALUES(3,1,1,'报告正文','关键知识','应用记录','困难记录','下一步','approved',91),(3,2,2,'无权报告',NULL,NULL,NULL,NULL,'approved',90),(3,3,3,'待评报告',NULL,NULL,NULL,NULL,'submitted',NULL)").run();
   require('./helpers/explicitScopeFixture.cjs').observers(db);
  server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port+'/api';
@@ -27,10 +30,12 @@ test('课程详情保留章节计划、教学安排与上游完成状态，观�
  const a=archive.loadStudentArchive(3,{id:3,role:'student'},1);assert.deepEqual(a.learningReports.map(r=>r.lesson_id),[1]);assert.equal(a.learningReports[0].summary,'报告正文');assert.ok(!archive.loadStudentArchive(3,{id:3,role:'student'}).learningReports.some(r=>r.lesson_id===2));
 });
 test('回放保存摘要、字节幂等与部分修改，非管理角色不可通过任一写入口修改',async()=>{
+ require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
  const one=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(one.status,200,JSON.stringify(one.body));const id=one.body.id;
  const duplicate=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(duplicate.status,200);assert.equal(duplicate.body.id,id);assert.equal(db.prepare('SELECT COUNT(*) n FROM course_replays').get().n,1);
  const changed=await api('/courses/1/replays','POST',replayForm('replay_merge_123','different'));assert.equal(changed.status,409);
  const updated=await api('/courses/replays/'+id,'PUT',{summary:'修改后的摘要'});assert.equal(updated.status,200);const stored=db.prepare('SELECT * FROM course_replays WHERE id=?').get(id);assert.equal(stored.title,'真实回放');assert.equal(stored.description,'视频简介');assert.equal(stored.summary,'修改后的摘要');assert.equal(stored.lesson_id,1);
+ require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},1,1);
  const list=await api('/courses/1/replays','GET',undefined,3);assert.equal(list.body.replays[0].summary,'修改后的摘要');assert.equal(list.body.replays[0].video_path,undefined);
  const maintenance=await api('/courses/1/maintenance');assert.equal(maintenance.body.replays[0].summary,'修改后的摘要');
  for(const [url,method,body]of [['/courses/1/replays','POST',replayForm('mentor_replay_123')],['/courses/replays/'+id,'PUT',{title:'越权'}],['/courses/replays/'+id,'DELETE',undefined],['/courses/1/maintenance/replays/'+id,'PUT',{title:'旁路越权'}],['/courses/1/maintenance/replays/'+id,'DELETE',undefined]])assert.equal((await api(url,method,body,4)).status,403);
@@ -48,6 +53,7 @@ test('原课程外观维护仍保存，有历史禁止撤回、待评禁止关�
 });
 
 test('资料上传保留原始文件名与可恢复标识，跨课程或取消课时不能挂接，文章引用不能误删',async()=>{
+ require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
  const form=(lessonId,title='资料说明')=>{const f=new FormData();f.append('title',title);f.append('resource_type','other');f.append('lesson_id',String(lessonId));f.append('upload_token','12345678-1234-1234-1234-123456789abc');f.append('file',new Blob([Buffer.from('实际教材资料')],{type:'text/markdown'}),'original.md');return f;};
  const one=await api('/courses/1/resources','POST',form(1),2);assert.equal(one.status,200,JSON.stringify(one.body));
  const two=await api('/courses/1/resources','POST',form(1),2);assert.equal(two.status,200);assert.equal(two.body.id,one.body.id);assert.equal(two.body.reused,true);

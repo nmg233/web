@@ -142,7 +142,7 @@ app.use((err, req, res, _next) => {
   // 避免前端把客户端错误展示成「服务器内部错误」。
   const isClientError = status < 500;
   res.status(status).json({
-    error: status === 404 ? '文件不存在'
+    error: err.code==='LIMIT_FILE_SIZE'?(/^\/api\/courses\/\d+\/(?:lessons\/\d+\/)?replays(?:\?|$)/.test(req.originalUrl)?'课时视频不能超过 1.5GB':'文件超过当前上传入口的大小上限，请核对该入口提示'):status === 404 ? '文件不存在'
       : isClientError ? (err.message || '请求参数错误')
       : '服务器内部错误',
     message: status === 404 ? undefined : (process.env.NODE_ENV === 'development' ? err.message : (isClientError ? (err.message || '请检查请求') : '请稍后重试')),
@@ -152,10 +152,11 @@ app.use((err, req, res, _next) => {
 if (require.main === module) {
   // 启动即核验结构与写入能力，禁止缺表的实例先接受业务流量。
   require('./helpers/readiness').assertReady(require('./config/database'));
-  app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
+  const server=app.listen(PORT, process.env.HOST || '127.0.0.1', () => {
     console.log(`🚀 PBL API 服务器启动: http://localhost:${PORT}${API_PREFIX}`);
     console.log(`📝 前端开发地址: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
   });
+  server.requestTimeout=require('../shared/uploadPolicy.json').replayTimeoutMs;
 }
 
 module.exports = app;

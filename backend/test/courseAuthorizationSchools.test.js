@@ -17,6 +17,7 @@ test('授权前拒绝、管理员幂等并发授权、多导师各课隔离、�
  assert.equal((await call(2,'/courses/1/maintenance')).status,404);
  const body={mentorId:2,active:true,expectedRevision:0,reason:'授予',request_key:key()},results=await Promise.all(Array.from({length:8},()=>call(1,'/courses/1/managers',body)));assert.ok(results.every(r=>r.status===200));assert.equal(db.prepare("SELECT count(*) n FROM course_manager_events WHERE course_id=1 AND action='grant'").get().n,1);
  assert.equal((await grant(2,3)).status,200);assert.equal((await call(2,'/courses/1/maintenance')).status,200);assert.equal((await call(2,'/courses/2/maintenance')).status,404);assert.equal((await call(3,'/courses/1')).status,403);assert.equal((await call(2,'/courses/1/managers',body)).status,403);assert.equal((await call(4,'/courses/1/maintenance')).status,403);
+ require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
  assert.equal((await call(2,'/courses/1/maintenance/lessons/1',{title:'导师维护'},'PUT')).status,200);
 });
 test('导师范围文案与受控学生预览；全局文案、他课、平台密钥和建管理员拒绝',async()=>{

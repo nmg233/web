@@ -288,6 +288,7 @@ exports.submitReflection = (req, res) => {
       }
     }
 
+    if(lesson_id)require('../helpers/lessonPublication').assertStudentOpen(db,lesson_id);
     const submit = db.transaction((studentId) => {
       const todayStr = todayInBeijing();
       // created_at 存储为 UTC：+8 小时后取日期即为北京时间日期，保证“每日限1篇”边界是北京零点

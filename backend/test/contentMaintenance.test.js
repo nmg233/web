@@ -7,6 +7,7 @@ let server,url;const tokens={};
 async function request(role,p,method='GET',body){const r=await fetch(url+'/api'+p,{method,headers:{Authorization:'Bearer '+tokens[role],...(body instanceof FormData?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body)});let value;try{value=await r.json();}catch{}return{status:r.status,body:value};}
 async function file(role,course,name,bytes,mime='application/octet-stream',fields={},kind='resources'){const body=new FormData();body.append('file',new Blob([bytes],{type:mime}),name);for(const[k,v]of Object.entries(fields))if(v!=null)body.append(k,String(v));return request(role,'/courses/'+course+'/'+kind,'POST',body);}
 const files=()=>!fs.existsSync(process.env.UPLOAD_PATH)?[]:fs.readdirSync(process.env.UPLOAD_PATH,{recursive:true}).filter(n=>fs.statSync(path.join(process.env.UPLOAD_PATH,n)).isFile()).sort();
+const pub=require('./helpers/publicationFixture.cjs'),admin={id:4,role:'admin'},close=(id=1)=>pub.close(admin,id,id),publish=()=>pub.publish(admin,1,1);
 const route=(p,course=1)=>'/courses/'+course+'/maintenance'+p;
 async function freshStudent(id){const hash=require('bcryptjs').hashSync('test123',4);db.prepare("INSERT INTO users(id,username,password_hash,real_name,role) VALUES(?,?,?,'隔离新学生','student')").run(id,'u'+id,hash);db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(?,1,'active')").run(id);tokens[id]=(await fetch(url+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'u'+id,password:'test123'})}).then(r=>r.json())).token;}
 const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8pAAAAAASUVORK5CYII=','base64');
@@ -29,6 +30,7 @@ test('维护角色与上传前授权：只读教师、学生、新媒体、他�
  assert.equal(files().length,n);assert.equal((await request(4,route(''))).status,200);assert.equal((await request(1,'/courses/upload-formats')).body.formats.length,22);
 });
 test('真实章节排序、课时归属与文字清空：不改原学习、报告、作品记录',async()=>{
+ close();
  const a=(await request(1,route('/chapters'),'POST',{title:'观察（测试）'})).body.id,b=(await request(1,route('/chapters'),'POST',{title:'实践（测试）'})).body.id;
  const foreign=(await request(1,route('/chapters',2),'POST',{title:'另一课章节'})).body.id;
  for(const ids of[[a,a],[a],[a,foreign]])assert.equal((await request(1,route('/chapters/order'),'PUT',{ids})).status,400);
@@ -47,9 +49,9 @@ test('真实章节排序、课时归属与文字清空：不改原学习、报�
  for(const values of [{task_type:'invalid'},{deadline:'not-a-time'},{require_upload:'false'}])assert.equal((await request(1,route('/tasks/1'),'PUT',values)).status,400);
  assert.equal((await request(1,route('/lessons/1'),'PUT',{description:'',teaching_tip:''})).status,200);
  assert.equal((await request(1,route('/lessons/1'),'PUT',{title:'保留课时'})).status,200);
- const detail=(await request(2,'/course-spaces/1/courses/1')).body;assert.equal(detail.lessons[0].description,null);assert.equal(detail.lessons[0].teaching_tip,null);assert.deepEqual(detail.chapters.map(c=>c.id),[b,a]);assert.equal(detail.tasks[0].description,'新要求');
+ publish();const detail=(await request(2,'/course-spaces/1/courses/1')).body;assert.equal(detail.lessons[0].description,null);assert.equal(detail.lessons[0].teaching_tip,null);assert.deepEqual(detail.chapters.map(c=>c.id),[b,a]);assert.equal(detail.tasks[0].description,'新要求');
  assert.equal(db.prepare('SELECT progress FROM lesson_progress WHERE student_id=2 AND lesson_id=1').get().progress,35);assert.equal(db.prepare('SELECT description FROM works WHERE id=1').get().description,'保留历史');assert.equal(db.prepare('SELECT summary FROM lesson_learning_reports WHERE student_id=2 AND lesson_id=1').get().summary,'保留报告');
- assert.equal((await request(1,route('/lessons/1'),'PUT',{chapter_id:null})).status,200);assert.equal((await request(1,route('/chapters/'+a),'DELETE')).status,200);
+ close();assert.equal((await request(1,route('/lessons/1'),'PUT',{chapter_id:null})).status,200);assert.equal((await request(1,route('/chapters/'+a),'DELETE')).status,200);
 });
 test('受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/解除不改变历史',async()=>{
  db.prepare("UPDATE courses SET presentation_theme='voyage',public_theme=NULL WHERE id=1").run(); // Explicit pre-existing voyage fixture; new courses cannot select it.
@@ -59,11 +61,12 @@ test('受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/�
  for(const body of[{...values,lessonId:2},{...values,cardId:2},{...values,stage:2},{...values,experiment:'other'},{...values,url:'/x'}])assert.equal((await request(1,route('/experiments'),'POST',body)).status,400);
  const result=await request(1,route('/experiments'),'POST',values);assert.equal(result.status,200);const id=result.body.id;
  assert.equal((await request(1,route('/experiments'),'POST',values)).status,409);assert.equal((await request(1,route('/experiments/'+id,2),'PUT',values)).status,404);
- assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments[0].cardId,1);
+ assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0,'关闭时不开放实验');publish();
+ assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments[0].cardId,1);close();
  await request(1,route('/experiments/'+id),'PUT',{...values,enabled:false});assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0);
  await request(1,route('/experiments/'+id),'DELETE');assert.equal(db.prepare('SELECT count(*) n FROM works').get().n,1);
  // Existing legitimate IDs must not acquire an arbitrary one-million ceiling.
- db.prepare("INSERT INTO lessons(id,course_id,title) VALUES(2000001,1,'大编号旧课时')").run();assert.equal((await request(1,route('/experiments'),'POST',{experiment:'glider',lessonId:2000001,stage:0,cardId:null,label:'合法大编号来源',enabled:true})).status,200);
+ db.prepare("INSERT INTO lessons(id,course_id,title,publication_state) VALUES(2000001,1,'大编号课时草稿','draft')").run();assert.equal((await request(1,route('/experiments'),'POST',{experiment:'glider',lessonId:2000001,stage:0,cardId:null,label:'合法大编号来源',enabled:true})).status,200);
 });
 test('受邀课时导师、停用/强制改密/匿名与回放对象链均遵循真实权限',async()=>{
  db.prepare('UPDATE lessons SET instructor_id=5 WHERE id=2').run();assert.equal((await request(5,route('',2))).status,404);db.prepare("INSERT INTO course_managers(course_id,mentor_id,source,granted_by) VALUES(2,5,'admin',4)").run();assert.equal((await request(5,route('',2))).status,200);assert.equal((await request(5,route('/chapters',2),'POST',{title:'授课导师可维护'})).status,200);
@@ -84,19 +87,19 @@ test('新增四种真实资料、中文文件名、字段、课时过滤、幂�
  assert.equal((await file(1,1,'说明.md','changed','text/markdown',{title:'changed',upload_token:token})).status,409);
  const another=await file(1,1,'其他课时.txt','other','text/plain',{lesson_id:null,title:'公共'});const r=await request(1,route('/resources/'+another.body.id),'PUT',{lesson_id:1,description:''});assert.equal(r.status,200);
  const data=(await request(1,route(''))).body;assert.equal(data.resources.find(r=>r.id===first).file_name,'说明.md');assert.ok(!JSON.stringify(data).includes(process.env.UPLOAD_PATH));
- const download=await fetch(url+'/api/courses/resources/'+first+'/download',{headers:{Authorization:'Bearer '+tokens[2]}});assert.equal(download.status,200);assert.match(decodeURIComponent(download.headers.get('Content-Disposition')),/说明\.md/);assert.equal(await download.text(),list[0][1].toString());
+ publish();const download=await fetch(url+'/api/courses/resources/'+first+'/download',{headers:{Authorization:'Bearer '+tokens[2]}});assert.equal(download.status,200);assert.match(decodeURIComponent(download.headers.get('Content-Disposition')),/说明\.md/);assert.equal(await download.text(),list[0][1].toString());
  assert.equal((await request(3,'/courses/resources/'+first+'/download')).status,404);
- const before=files().length;assert.equal((await file(1,1,'不允许.md','# x','text/markdown',{lesson_id:2})).status,400);assert.equal(files().length,before);
+ close();const before=files().length;assert.equal((await file(1,1,'不允许.md','# x','text/markdown',{lesson_id:2})).status,400);assert.equal(files().length,before);
  assert.equal((await request(1,route('/resources/'+first,2),'DELETE')).status,404);assert.equal((await request(1,route('/resources/'+first),'PUT',{lesson_id:2})).status,400);
  assert.equal((await request(1,route('/resources/'+first+'/download',2))).status,404);
- const publicResource=await file(1,1,'公共.txt','public','text/plain',{title:'公共资料'});const foreignLesson=db.prepare("INSERT INTO lessons(course_id,title) VALUES(1,'第二课时')").run().lastInsertRowid;const foreignResource=await file(1,1,'另一课时.txt','other','text/plain',{lesson_id:foreignLesson,title:'另一课时专属'});
- const pkg=(await request(2,'/course-spaces/1/learning/lessons/1')).body;assert.ok(pkg.resources.some(r=>r.id===first));assert.ok(pkg.resources.some(r=>r.id===publicResource.body.id));assert.ok(!pkg.resources.some(r=>r.id===foreignResource.body.id));
+ close();const publicResource=await file(1,1,'公共.txt','public','text/plain',{title:'公共资料'});const foreignLesson=db.prepare("INSERT INTO lessons(course_id,title,publication_state) VALUES(1,'第二课时','draft')").run().lastInsertRowid;const foreignResource=await file(1,1,'另一课时.txt','other','text/plain',{lesson_id:foreignLesson,title:'另一课时专属'});
+ publish();const pkg=(await request(2,'/course-spaces/1/learning/lessons/1')).body;assert.ok(pkg.resources.some(r=>r.id===first));assert.ok(pkg.resources.some(r=>r.id===publicResource.body.id));assert.ok(!pkg.resources.some(r=>r.id===foreignResource.body.id));
 });
 test('旧资源白名单样本及删除清理兼容，附件仅下载，不扩大为可执行预览',async()=>{
  const zip=await new JSZip().file('readme.txt','synthetic only').generateAsync({type:'nodebuffer'});
  const samples=[['图片.png',image,'image/png'],['讲义.pdf',Buffer.from('%PDF-1.4\n% synthetic sample\n%%EOF'),'application/pdf'],['资料.zip',zip,'application/zip'],['模型.obj','v 0 0 0\n','model/obj'],['模型.gltf','{"asset":{"version":"2.0"},"scenes":[]}','model/gltf+json'],['模型.stl','solid empty\nendsolid empty','model/stl']];
  for(const[name,bytes,mime]of samples){const result=await file(1,1,name,bytes,mime);assert.equal(result.status,200,name);const pathSaved=db.prepare('SELECT file_path FROM resources WHERE id=?').get(result.body.id).file_path;assert.ok(fs.existsSync(pathSaved));assert.equal((await request(1,route('/resources/'+result.body.id),'DELETE')).status,200);assert.ok(!fs.existsSync(pathSaved));assert.equal((await request(2,'/courses/resources/'+result.body.id+'/download')).status,404);}
- const legacyFile=path.join(process.env.UPLOAD_PATH,'legacy.txt');fs.writeFileSync(legacyFile,'old content');const legacy=db.prepare("INSERT INTO resources(course_id,resource_type,title,file_path,upload_by) VALUES(1,'other','旧资料',?,1)").run(legacyFile).lastInsertRowid;assert.equal((await request(1,route(''))).body.resources.find(r=>r.id===legacy).title,'旧资料');assert.equal((await request(2,'/courses/resources/'+legacy+'/download')).status,200);
+ const legacyFile=path.join(process.env.UPLOAD_PATH,'legacy.txt');fs.writeFileSync(legacyFile,'old content');const legacy=db.prepare("INSERT INTO resources(course_id,resource_type,title,file_path,upload_by) VALUES(1,'other','旧资料',?,1)").run(legacyFile).lastInsertRowid;assert.equal((await request(1,route(''))).body.resources.find(r=>r.id===legacy).title,'旧资料');assert.equal((await request(2,'/courses/resources/'+legacy+'/download')).status,404,'新资源未进入学生旧快照');assert.equal((await request(1,'/courses/resources/'+legacy+'/download')).status,200);
 });
 test('伪装/MIME/超限和落库失败均拒绝并清理本次孤立文件；不扩大作品/回放',async()=>{
  const badZip=await new JSZip().file('a.txt','hello').generateAsync({type:'nodebuffer'}),before=files().length;
@@ -147,6 +150,7 @@ test('未授权角色回放上传在文件解析前拒绝，旧及嵌套入口�
  assert.deepEqual(files(),old);assert.equal(db.prepare('SELECT count(*) n FROM course_replays').get().n,count);
 });
 test('维护课时安排与版本冲突保护，跨课授课人及日期无效不写入',async()=>{
+ close();
  const first=(await request(1,route(''))).body,lesson=first.lessons.find(l=>l.id===1);
  const values={location:'隔离验收教室',duration:45,start_at:'2026-10-20T09:00',end_at:'2026-10-20T09:45',instructor_id:1,sort_order:2};
  assert.equal((await request(1,route('/lessons/1'),'PUT',{...values,expected_revision:lesson.content_revision})).status,200);
@@ -162,7 +166,7 @@ test('卡片管理版本使用同一原始对象，首次更新成功且过期�
 
 test('新增实验关联真实 ID 与版本返回，同一已知版本只能更新一次',async()=>{const first=await request(1,route('/experiments'),'POST',{experiment:'glider',lessonId:1,stage:0,label:'隔离版本关联',enabled:true});assert.equal(first.status,200);assert.equal(typeof first.body.content_revision,'string');const values={experiment:'glider',lessonId:1,stage:0,label:'隔离更新关联',enabled:true,expected_revision:first.body.content_revision};assert.equal((await request(1,route('/experiments/'+first.body.id),'PUT',values)).status,200);assert.equal((await request(1,route('/experiments/'+first.body.id),'PUT',values)).status,409);});
 
-test('新增练习保存真实版本，后续更新拒绝旧版本且不改作答次数',async()=>{assert.equal((await request(1,'/learning/manage/cards/1/exercises','POST',{question_type:'true_false',prompt:'合法导师题',answer:true,explanation:'解析'})).status,201);await freshStudent(7);const first=await request(4,'/learning/manage/cards/1/exercises','POST',{question_type:'true_false',prompt:'隔离版本题',answer:true,explanation:'隔离解释'});assert.equal(first.status,201);assert.equal(typeof first.body.content_revision,'string');const value={prompt:'隔离二次更新',expected_revision:first.body.content_revision};assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',value)).status,200);assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',value)).status,409);assert.equal(db.prepare('SELECT max_attempts FROM card_exercises WHERE id=?').get(first.body.id).max_attempts,1);const managed=(await request(1,'/learning/manage/lessons/1/cards')).body.cards.find(c=>c.id===1).exercises.find(e=>e.id===first.body.id);assert.equal(managed.content_revision,require('../helpers/contentRevision').contentRevision(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(first.body.id)));const student=(await request(7,'/learning/lessons/1')).body.cards.find(c=>c.id===1).exercises.find(e=>e.id===first.body.id);assert.equal(Object.hasOwn(student,'content_revision'),false);assert.equal(Object.hasOwn(student,'answer_json'),false);assert.equal(student.correct_answer,null);assert.equal(student.explanation,null);const edit={prompt:'从维护读取的修订更新',expected_revision:managed.content_revision};assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',edit)).status,200);assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',edit)).status,409);});
+test('新增练习保存真实版本，后续更新拒绝旧版本且不改作答次数',async()=>{assert.equal((await request(1,'/learning/manage/cards/1/exercises','POST',{question_type:'true_false',prompt:'合法导师题',answer:true,explanation:'解析'})).status,201);await freshStudent(7);const first=await request(4,'/learning/manage/cards/1/exercises','POST',{question_type:'true_false',prompt:'隔离版本题',answer:true,explanation:'隔离解释'});assert.equal(first.status,201);assert.equal(typeof first.body.content_revision,'string');const value={prompt:'隔离二次更新',expected_revision:first.body.content_revision};assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',value)).status,200);assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',value)).status,409);assert.equal(db.prepare('SELECT max_attempts FROM card_exercises WHERE id=?').get(first.body.id).max_attempts,1);const managed=(await request(1,'/learning/manage/lessons/1/cards')).body.cards.find(c=>c.id===1).exercises.find(e=>e.id===first.body.id);assert.equal(managed.content_revision,require('../helpers/contentRevision').contentRevision(db.prepare('SELECT * FROM card_exercises WHERE id=?').get(first.body.id)));publish();const student=(await request(7,'/learning/lessons/1')).body.cards.find(c=>c.id===1).exercises.find(e=>e.id===first.body.id);assert.equal(Object.hasOwn(student,'content_revision'),false);assert.equal(Object.hasOwn(student,'answer_json'),false);assert.equal(student.correct_answer,null);assert.equal(student.explanation,null);close();const edit={prompt:'从维护读取的修订更新',expected_revision:managed.content_revision};assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',edit)).status,200);assert.equal((await request(4,'/learning/manage/exercises/'+first.body.id,'PUT',edit)).status,409);});
 
 test('真实教材字段和有序文章统一修订保存，旧说明回退且不改变学生记录',async()=>{
  const tables=['lesson_progress','student_card_progress','card_exercise_attempts','lesson_learning_reports','works','reflections','student_coin_ledger','student_coin_checkins','student_badge_grants'];
@@ -171,14 +175,15 @@ test('真实教材字段和有序文章统一修订保存，旧说明回退且�
  const lesson=(await request(1,route(''))).body.lessons.find(l=>l.id===1),blocks=[{id:'p1',type:'paragraph',text:'保留原稿。\n第二行'},{id:'i1',type:'image',resourceId:r.body.id,title:'原图',caption:'说明'},{id:'p2',type:'paragraph',text:'下一段。'},{id:'i2',type:'image',resourceId:r.body.id,title:'同图再出现',caption:''}];
  const saved=await request(1,route('/lessons/1'),'PUT',{article_title:'站内文章',article_blocks:blocks,review_content:'独立回顾',report_guidance:'报告指导',experiment_guidance:'实验指导',expected_revision:lesson.content_revision});assert.equal(saved.status,200);
  assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks:[],expected_revision:lesson.content_revision})).status,409);
- await freshStudent(8);const old=(await request(2,'/learning/lessons/1')).body;assert.notDeepEqual(old.lesson.article_blocks,blocks);const actual=(await request(8,'/learning/lessons/1')).body;assert.deepEqual(actual.lesson.article_blocks,blocks);assert.equal(actual.lesson.review_content,'独立回顾');assert.equal(actual.lesson.report_guidance,'报告指导');assert.equal(actual.lesson.experiment_guidance,'实验指导');
+ publish();await freshStudent(8);const old=(await request(2,'/learning/lessons/1')).body;assert.notDeepEqual(old.lesson.article_blocks,blocks);const actual=(await request(8,'/learning/lessons/1')).body;assert.deepEqual(actual.lesson.article_blocks,blocks);assert.equal(actual.lesson.review_content,'独立回顾');assert.equal(actual.lesson.report_guidance,'报告指导');assert.equal(actual.lesson.experiment_guidance,'实验指导');
  // Student package recalculates updated_at; authoring itself must not create answers/rewards.
  const afterRead=snapshot();await request(1,route(''));await request(1,'/learning/manage/lessons/1/cards');assert.equal(snapshot(),afterRead);assert.equal(db.prepare('SELECT count(*) n FROM student_coin_ledger').get().n,0);
- assert.ok(before.length);assert.equal((await request(1,route('/resources/'+r.body.id),'DELETE')).status,409);assert.equal((await request(1,route('/resources/'+r.body.id),'PUT',{lesson_id:null})).status,409);
+ close();assert.ok(before.length);assert.equal((await request(1,route('/resources/'+r.body.id),'DELETE')).status,409);assert.equal((await request(1,route('/resources/'+r.body.id),'PUT',{lesson_id:null})).status,409);
  assert.equal((await request(1,'/courses/resources/'+r.body.id,'PUT',{lesson_id:null})).status,409);
  const fresh=(await request(1,route(''))).body.lessons.find(l=>l.id===1);assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks:[],expected_revision:fresh.content_revision})).status,200);assert.equal((await request(1,route('/resources/'+r.body.id),'DELETE')).status,409);assert.ok(fs.existsSync(db.prepare('SELECT file_path FROM resources WHERE id=?').get(r.body.id).file_path));
 });
 test('文章安全白名单、课时图片归属及维护授权由服务端强制检查',async()=>{
+ close(2);
  const foreign=(await file(1,2,'异课.png',image,'image/png',{title:'另一课图',lesson_id:2})).body.id;
  const rejected=[[{id:'a',type:'html',html:'<script>1</script>'}],[{id:'a',type:'paragraph',text:'<iframe src=x>'}],[{id:'a',type:'paragraph',text:'javascript:alert(1)'}],[{id:'a',type:'image',resourceId:foreign,title:'',caption:''}],[{id:'a',type:'image',resourceId:foreign,url:'https://evil.invalid/x'}],[{id:'a',type:'paragraph',text:'x'},{id:'a',type:'paragraph',text:'y'}],Array.from({length:201},(_,i)=>({id:String(i),type:'paragraph',text:'x'}))];
  for(const article_blocks of rejected)assert.equal((await request(1,route('/lessons/1'),'PUT',{article_blocks})).status,400);

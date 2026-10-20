@@ -2,6 +2,10 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+// Migration bridges also execute this module against pre-publication schemas.
+// Do not reference future columns/helpers until migration 1035 has run.
+function hasPublication(db){return db.pragma('table_info(lessons)').some(c=>c.name==='publication_state');}
+
 function usableVideo(replay) {
   if (!String(replay.description || '').trim() || !replay.file_path) return false;
   let descriptor;
@@ -53,7 +57,8 @@ function currentContent(db, lessonId) {
     WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL) ORDER BY sort_order, id`).all(lesson.course_id, lessonId);
   const resources = db.prepare(`SELECT *
     FROM resources WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL) ORDER BY id`).all(lesson.course_id, lessonId);
-  return { lesson: { ...lesson }, cards, replays, resources };
+  const experiments=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='course_experiments'").get()?db.prepare('SELECT * FROM course_experiments WHERE course_id=? AND lesson_id=? ORDER BY id').all(lesson.course_id,lessonId):[];
+  return { lesson: { ...lesson }, cards, replays, resources, experiments };
 }
 
 function hasAuthoredReview(lesson) {
@@ -63,8 +68,8 @@ function hasAuthoredReview(lesson) {
     || (String(lesson.article_title || '').trim() && /^https:\/\//.test(lesson.article_url || '')));
 }
 
-function readiness(db, lessonId) {
-  const content = currentContent(db, lessonId);
+function readiness(db, lessonId, source = null) {
+  const content = source || currentContent(db, lessonId);
   const issues = [];
   const lesson = content.lesson;
   if (lesson.content_state === 'preparing') issues.push('教学内容尚未准备完成');
@@ -118,7 +123,9 @@ function bind(db, studentId, lessonId) {
   return db.transaction(() => {
     const existing = boundVersion(db, studentId, lessonId);
     if (existing) return existing;
-    const version = saveVersion(db, lessonId);
+    if(hasPublication(db))require('./lessonPublication').assertStudentOpen(db,lessonId);
+    const formal=hasPublication(db)?db.prepare('SELECT published_version_id FROM lessons WHERE id=?').get(lessonId):null;
+    const version = formal?.published_version_id ? db.prepare('SELECT * FROM lesson_content_versions WHERE id=?').get(formal.published_version_id) : saveVersion(db, lessonId);
     db.prepare('INSERT INTO student_lesson_versions (student_id, lesson_id, content_version_id) VALUES (?, ?, ?)').run(studentId, lessonId, version.id);
     return boundVersion(db, studentId, lessonId);
   }).immediate();
@@ -127,7 +134,8 @@ function bind(db, studentId, lessonId) {
 function studentCards(db, studentId, lessonId, contentVersionId = null) {
   const row = contentVersionId ? db.prepare('SELECT * FROM lesson_content_versions WHERE id = ? AND lesson_id = ?').get(contentVersionId,lessonId) : null;
   const version = row ? withSupplement(db, row) : boundVersion(db, studentId, lessonId);
-  const cards = version ? version.content.cards : currentContent(db, lessonId).cards;
+  const formal=hasPublication(db)?require('./lessonPublication').formalContent(db,lessonId):null;
+  const cards = version ? version.content.cards : (formal||currentContent(db, lessonId)).cards;
   return cards.map((card) => {
     const p = db.prepare('SELECT * FROM student_card_progress WHERE student_id = ? AND card_id = ?').get(studentId, card.id);
     const exercises = card.exercises.map((e) => {
@@ -174,11 +182,14 @@ function courseState(db, studentId, courseId, persist = false) {
   if (!enrollment) return { percent: 0, completed: false, completed_at: null, lesson_ids: [] };
   const closure = db.prepare('SELECT * FROM enrollment_completions WHERE enrollment_id = ?').get(enrollment.id);
   if (closure) return { percent: 100, completed: true, completed_at: closure.completed_at, lesson_ids: JSON.parse(closure.lesson_manifest_json) };
-  const lessons = db.prepare("SELECT id FROM lessons WHERE course_id = ? AND status != 'cancelled' ORDER BY sort_order, id").all(courseId);
+  const required=hasPublication(db)?require('./lessonPublication').requiredSql('l',studentId):"l.status!='cancelled'";
+  const lessons = db.prepare(`SELECT l.id FROM lessons l WHERE l.course_id = ? AND ${required} ORDER BY l.sort_order, l.id`).all(courseId);
   const states = lessons.map((l) => completionEvidence(db,studentId,l.id));
-  const completed = lessons.length > 0 && states.every((s) => s.completed);
+  const allPassed = lessons.length > 0 && states.every((s) => s.completed);
   const lessonIds = lessons.map((l) => l.id);
-  if (persist && completed) {
+  const temporarilyClosed=hasPublication(db)&&db.prepare(`SELECT 1 FROM lessons l WHERE course_id=? AND publication_state='closed' AND ${required} LIMIT 1`).get(courseId);
+  const completed = allPassed && !temporarilyClosed;
+  if (persist && completed && !temporarilyClosed) {
     db.prepare('INSERT OR IGNORE INTO enrollment_completions (enrollment_id, lesson_manifest_json) VALUES (?, ?)').run(enrollment.id, JSON.stringify(lessonIds));
     db.prepare('UPDATE enrollments SET completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP) WHERE id = ?').run(enrollment.id);
   }

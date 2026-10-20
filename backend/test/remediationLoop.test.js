@@ -31,15 +31,20 @@ function fixture(type = 'single_choice', answer = 'A', options = ['A','B']) {
   for (const student of [3,4]) db.prepare("INSERT INTO enrollments (student_id,course_id,status) VALUES (?,?,'active')").run(student,course);
   const file = path.join(tmp,`video-${course}.mp4`); fs.writeFileSync(file, '0000ftypisom0000');
   db.prepare("INSERT INTO course_replays (course_id,lesson_id,title,description,video_path,created_by) VALUES (?,?,'回放','视频简介',?,2)").run(course,lesson,file);
+  db.prepare("UPDATE lessons SET publication_state='draft' WHERE id=?").run(lesson);
   const card = learning.createCard(admin, lesson, { title:'卡片',content:'正文',status:'published' }).id;
   const exercise = learning.createExercise(admin, card, { question_type:type,prompt:'问题',options,answer,explanation:'旧详解',points:2 }).id;
   require('./helpers/explicitScopeFixture.cjs').observers(db);
+  // Historical fixture: already-formal legacy content predates publication approval.
+  db.prepare("UPDATE lessons SET publication_state='legacy' WHERE id=?").run(lesson);
   return { course, lesson, card, exercise };
 }
 function runController(handler, req) {
   const res = { code:200, status(code) { this.code=code; return this; }, json(body) { this.body=body; return this; } };
   handler({ user:admin,params:{},body:{},...req },res); return res;
 }
+const pub=require('./helpers/publicationFixture.cjs');
+const close=f=>pub.close(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
 function finish(f, student = 3, answer = 'A') {
   learning.lessonPackage(student,f.lesson); learning.completeReview(student,f.lesson);
   learning.submitExercise(student,f.exercise,answer); learning.completeCard(student,f.card);
@@ -93,24 +98,27 @@ test('填空题多空多答案，只忽略首尾空格；简答提交即完成�
 });
 test('服务端强制卡片顺序，不能先答第二张卡或直接完成空卡片', () => {
   const f=fixture();
+  close(f);
   const card=learning.createCard(admin,f.lesson,{title:'第二张',content:'内容',status:'published'}).id;
   const exercise=learning.createExercise(admin,card,{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'}).id;
+  publish(f);
   learning.lessonPackage(3,f.lesson); learning.completeReview(3,f.lesson);
   assert.throws(()=>learning.submitExercise(3,exercise,true),e=>e.code==='CARD_ORDER_REQUIRED');
   assert.throws(()=>learning.completeCard(3,card),e=>e.code==='CARD_ORDER_REQUIRED');
 });
 test('开始后改题、新增卡片及删除题库不改变旧版本；新学生使用新版本', () => {
-  const f=fixture(); const old=learning.lessonPackage(3,f.lesson);
+  const f=fixture(); const old=learning.lessonPackage(3,f.lesson);close(f);
   learning.updateExercise(admin,f.exercise,{answer:'B',explanation:'新详解',prompt:'新题目'});
-  const fresh=learning.lessonPackage(4,f.lesson);
+  publish(f);const fresh=learning.lessonPackage(4,f.lesson);
   assert.notEqual(old.content_version.id,fresh.content_version.id);
   learning.completeReview(3,f.lesson);
   const answer=learning.submitExercise(3,f.exercise,'A');
   assert.equal(answer.correct,true); assert.equal(answer.explanation,'旧详解');
-  learning.deleteExercise(admin,f.exercise);
+  close(f);learning.deleteExercise(admin,f.exercise);
+  learning.createExercise(admin,f.card,{question_type:'true_false',prompt:'替代题',answer:true,explanation:'新教材解析'});publish(f);
   learning.completeCard(3,f.card);
   assert.equal(learning.lessonPackage(3,f.lesson).cards[0].exercises[0].student_answer,'A');
-  assert.equal(learning.listManagedCards(mentor,f.lesson)[0].exercises.length,0);
+  assert.equal(learning.listManagedCards(mentor,f.lesson)[0].exercises.length,1,'当前版本保留补齐后的替代题，原题已退役');
   assert.equal(learning.lessonPackage(4,f.lesson).cards[0].exercises.length,1);
 });
 test('逐题查看与反馈按课程授权，反馈学生可见且不增加答题机会', () => {
@@ -139,6 +147,8 @@ test('队列只显示最新版本，待评与待修改阻止关闭，全部通�
   assert.equal(added.code,200);
   assert.deepEqual(versions.courseState(db,3,f.course),closed,'已结课结果及原课时范围不变');
   assert.equal(versions.courseState(db,4,f.course).completed,false);
+  assert.ok(!versions.courseState(db,4,f.course).lesson_ids.includes(added.body.id),'新建草稿暂不计入结课');
+  db.prepare("UPDATE lessons SET publication_state='legacy' WHERE id=?").run(added.body.id); // Explicit historical formal-lesson fixture.
   assert.ok(versions.courseState(db,4,f.course).lesson_ids.includes(added.body.id));
 });
 test('任何学习痕迹均阻止移除报名，作品与成长事件同事务回滚', () => {
@@ -204,17 +214,18 @@ test('数据库完整性与外键检查通过', () => {
 
 test('历史缺题定向修复只影响指定学生，不重置已有作答、分数或报告快照', () => {
   const f=fixture();
-  const second=learning.createCard(admin,f.lesson,{title:'旧缺题卡',content:'内容',status:'published'}).id;
+  close(f);const second=learning.createCard(admin,f.lesson,{title:'旧缺题卡',content:'内容',status:'published'}).id;
   const old=versions.saveVersion(db,f.lesson,true);
+  db.prepare("UPDATE lessons SET publication_state='legacy' WHERE id=?").run(f.lesson); // Historical incomplete snapshot setup.
   for(const student of [3,4]) db.prepare('INSERT INTO student_lesson_versions (student_id,lesson_id,content_version_id) VALUES (?,?,?)').run(student,f.lesson,old.id);
   learning.completeReview(3,f.lesson);
   learning.submitExercise(3,f.exercise,'B'); learning.completeCard(3,f.card);
   const attempt=db.prepare('SELECT * FROM card_exercise_attempts WHERE student_id=3 AND exercise_id=?').get(f.exercise);
   const report=Number(db.prepare("INSERT INTO lesson_learning_reports (student_id,lesson_id,enrollment_id,summary,status,version) VALUES (3,?,?, '历史报告','rejected',1)").run(f.lesson,db.prepare('SELECT id FROM enrollments WHERE student_id=3 AND course_id=?').get(f.course).id).lastInsertRowid);
   db.prepare('INSERT INTO report_content_versions (report_id,content_version_id) VALUES (?,?)').run(report,old.id);
-  const added=learning.createExercise(admin,second,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
+  close(f);const added=learning.createExercise(admin,second,{question_type:'true_false',prompt:'补齐题',answer:true,explanation:'详解'}).id;
   assert.throws(()=>learning.repairLegacy({id:999,role:'academic_mentor'},f.lesson,3,'补齐'),e=>e.status===403);
-  const repaired=learning.repairLegacy(mentor,f.lesson,3,'历史缺题修复');
+  const repaired=learning.repairLegacy(mentor,f.lesson,3,'历史缺题修复');publish(f);
   assert.notEqual(repaired.new_version_id,old.id);
   assert.equal(versions.boundVersion(db,4,f.lesson).id,old.id);
   assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts WHERE student_id=3 AND exercise_id=?').get(f.exercise),attempt);
@@ -275,9 +286,9 @@ test('通知事件入队失败时报告业务一起回滚，而投递失败时�
 
 test('简答评价要点随版本冻结，作答前隐藏，提交后可见且仍只有一次机会', () => {
   const f=fixture('short_answer','参考',[]);
-  learning.updateExercise(mentor,f.exercise,{rubric:'旧版评价要点'});
+  close(f);learning.updateExercise(mentor,f.exercise,{rubric:'旧版评价要点'});publish(f);
   assert.equal(learning.lessonPackage(3,f.lesson).cards[0].exercises[0].rubric,null);
-  learning.updateExercise(mentor,f.exercise,{rubric:'新版评价要点'});
+  close(f);learning.updateExercise(mentor,f.exercise,{rubric:'新版评价要点'});publish(f);
   learning.completeReview(3,f.lesson);
   const result=learning.submitExercise(3,f.exercise,'学生回答');
   assert.equal(result.correct,null); assert.equal(result.rubric,'旧版评价要点');
@@ -295,10 +306,10 @@ test('资料改绑定和说明保留旧快照及文件，不能跨课程或绕�
   const file=path.join(tmp,'old-resource.txt'); fs.writeFileSync(file,'旧资料');
   const id=Number(db.prepare("INSERT INTO resources(course_id,lesson_id,title,file_path,resource_type,upload_by) VALUES (?,?,'旧标题',?,'courseware',2)").run(f.course,f.lesson,file).lastInsertRowid);
   const old=learning.lessonPackage(3,f.lesson).resources.find(r=>r.id===id);
-  const change={user:mentor,params:{resource_id:id},body:{title:'新标题',description:'新说明',lesson_id:added}};
+  close(f);const change={user:mentor,params:{resource_id:id},body:{title:'新标题',description:'新说明',lesson_id:added}};
   assert.equal(runController(courses.updateResource,change).code,200);
   assert.equal(db.prepare('SELECT lesson_id FROM resources WHERE id=?').get(id).lesson_id,added);
-  assert.deepEqual(learning.lessonPackage(3,f.lesson).resources.find(r=>r.id===id),old);
+  publish(f);assert.deepEqual(learning.lessonPackage(3,f.lesson).resources.find(r=>r.id===id),old);
   assert.equal(runController(courses.updateResource,{...change,body:{lesson_id:other.lesson}}).code,400);
   assert.equal(runController(courses.updateResource,{...change,user:{id:6,role:'academic_mentor'}}).code,404);
   assert.equal(runController(courses.deleteResource,{params:{resource_id:id}}).code,409);
@@ -306,7 +317,7 @@ test('资料改绑定和说明保留旧快照及文件，不能跨课程或绕�
 });
 
 test('课时和独立任务可维护，无效输入返回400，取消与归档只读且无关导师无权', () => {
-  const f=fixture(); const taskController=require('../controllers/taskController');
+  const f=fixture();close(f); const taskController=require('../controllers/taskController');
   for(const body of [{title:' '},{start_at:'2026-10-12T12:00',end_at:'2026-10-11T12:00'},{duration:-1}]) assert.equal(runController(courses.updateLesson,{params:{lessonId:f.lesson},body}).code,400);
   assert.equal(runController(courses.updateLesson,{user:mentor,params:{lessonId:f.lesson},body:{title:'新课时'}}).code,200);
   const t=runController(courses.addTask,{user:mentor,params:{lesson_id:f.lesson},body:{title:'展示',task_type:'presentation'}});

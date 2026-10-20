@@ -47,6 +47,7 @@ function taskQuery(user) {
   const scopeConditions = [];
   const scopeParams = [];
   if (user.role === 'student') {
+    scopeConditions.push("l.publication_state IN ('published','legacy')");
     scopeConditions.push('EXISTS (SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.student_id = ? AND e.status = ?)');
     scopeParams.push(user.id, 'active');
   } else if (user.role === 'academic_mentor') {
@@ -82,7 +83,7 @@ exports.list = (req, res) => {
       (SELECT status FROM lesson_learning_reports r WHERE r.student_id = ? AND r.lesson_id = l.id ORDER BY version DESC, id DESC LIMIT 1) AS report_status
       FROM enrollments e JOIN courses c ON c.id = e.course_id JOIN lessons l ON l.course_id = c.id
       LEFT JOIN lesson_progress lp ON lp.student_id = e.student_id AND lp.lesson_id = l.id
-      WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published' AND l.status != 'cancelled'
+      WHERE e.student_id = ? AND e.status = 'active' AND c.status = 'published' AND l.status != 'cancelled' AND l.publication_state IN ('published','legacy')
       ORDER BY c.id, l.sort_order, l.id`).all(req.user.id, req.user.id).map((l) => {
         const state = require('../helpers/learningGate').getLessonLearningState(req.user.id, l.id);
         return { ...l, kind: 'learning', learning_progress: state.percent, report_status: state.report_status,
@@ -116,6 +117,7 @@ exports.detail = (req, res) => {
       ? db.prepare('SELECT id FROM enrollments WHERE student_id = ? AND course_id = ? AND status = ?').get(userId, task.course_id, 'active')
       : null;
     if (userId && !enrollment) return res.status(404).json({ error: '任务不存在' });
+    if(userId)require('../helpers/lessonPublication').assertStudentOpen(db,task.lesson_id);
     if (req.user.role === 'academic_mentor' && !canManageTask(req.user, task.id)) {
       return res.status(404).json({ error: '任务不存在' });
     }
@@ -131,7 +133,7 @@ exports.detail = (req, res) => {
     res.json({ task: { ...task, task_status:task.status, can_manage:canManage, can_write:canManage && taskWritable(task.id), enrollment_id: enrollment?.id || null, status: taskStatus(task, userId) }, works });
   } catch (err) {
     console.error('任务详情错误:', err);
-    res.status(500).json({ error: '加载任务详情失败' });
+    res.status(err.status||500).json({ error: err.status?err.message:'加载任务详情失败' });
   }
 };
 
@@ -141,6 +143,7 @@ exports.update = (req, res) => {
       return res.status(403).json({ error: '无权管理该任务' });
     }
     if (!taskWritable(req.params.id)) return res.status(409).json({ error: '已归档或取消的任务只允许查看历史' });
+    require('../helpers/lessonPublication').assertEditable(db,db.prepare('SELECT lesson_id FROM tasks WHERE id=?').get(req.params.id).lesson_id);
     const invalid = validateTeachingInput(req.body, 'task');
     if (invalid) return res.status(400).json({ error:invalid });
     const fields = ['title', 'description', 'task_type', 'require_upload', 'deadline'];
@@ -160,7 +163,7 @@ exports.update = (req, res) => {
     res.json({ message: '任务更新成功' });
   } catch (err) {
     console.error('更新任务错误:', err);
-    res.status(500).json({ error: '更新任务失败' });
+    res.status(err.status||500).json({ error: err.status?err.message:'更新任务失败' });
   }
 };
 
