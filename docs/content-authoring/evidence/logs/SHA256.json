@@ -1,0 +1,192 @@
+[
+  {
+    "file": "api-tools-release-final.log",
+    "sha256": "691919e1c2cf90b1aa17202a2d0974aa426d18e96d18b8bd834481792f23963c",
+    "bytes": 2755
+  },
+  {
+    "file": "backend-final.log",
+    "sha256": "cb1d3f69113d71be2e8ed31e97749aa1092c2c8fcd7e4eb9a75b3ba07cd7db8a",
+    "bytes": 63790
+  },
+  {
+    "file": "backend-regression-first.log",
+    "sha256": "1e3b02d057f15c6ad425051115fd04f291d2443539440cd7fdceed4ddd374c13",
+    "bytes": 82843
+  },
+  {
+    "file": "backend-regression-second.log",
+    "sha256": "81d36e8a29eecdc4a8213b793d755f6c912c089101c4c33318be9cf0c3285ef5",
+    "bytes": 70434
+  },
+  {
+    "file": "backend-release-confirmed.log",
+    "sha256": "40fd947ce62c0ed68fed3cb45877040bd224cdddf08adb5847b2120e3f038617",
+    "bytes": 80553
+  },
+  {
+    "file": "backend-release-final.log",
+    "sha256": "0b615e15b43c1edb7289feb52615e293dd69981d7f98723e12d8f9b14b750d81",
+    "bytes": 81708
+  },
+  {
+    "file": "browser-compat.log",
+    "sha256": "8f7919c91cfe14987f637980e2cd1e7b777d09b784f5ae815ba06b851737c392",
+    "bytes": 491
+  },
+  {
+    "file": "browser-delivery.log",
+    "sha256": "4b2e0a7a49aa46d1f00f753533ef9ea617d655715494e7eaff66085dbee6f260",
+    "bytes": 1484
+  },
+  {
+    "file": "browser-extended-fifth.log",
+    "sha256": "44f38f2e7c3eab8f35555ef7e801df85b8c503f9a52590658a2a80753fd7afb1",
+    "bytes": 1375
+  },
+  {
+    "file": "browser-extended-first.log",
+    "sha256": "652b9822f010f7e3486720ac078847fb928d5c1bca770c875c13033b4431270b",
+    "bytes": 3210
+  },
+  {
+    "file": "browser-extended-fourth.log",
+    "sha256": "25cc450d637b32b0fa35d6e97a109619f0ea45db4dbcc46d7eb8e5d6c59e81c2",
+    "bytes": 3236
+  },
+  {
+    "file": "browser-extended-second.log",
+    "sha256": "e95d0de1190b5c2205303b5676dd00c8c29456987625676699fdce8175ad9269",
+    "bytes": 3275
+  },
+  {
+    "file": "browser-extended-third.log",
+    "sha256": "13579abee011444d2f8906d2b33713a9de84e018a1e996ba8f3dca1166adce8c",
+    "bytes": 3290
+  },
+  {
+    "file": "browser-final-learning.log",
+    "sha256": "e3d4ab7462a85eb73fb0fcb181ac25e87eaae25c4abdd73cd577353aa91f87ed",
+    "bytes": 2341
+  },
+  {
+    "file": "browser-first.log",
+    "sha256": "56cff5f5d39c7ff6fa904b22bb30d172f362b3aefa07800f24de5e9a630a5218",
+    "bytes": 2693
+  },
+  {
+    "file": "browser-handoff.log",
+    "sha256": "8d78d738526a6a61c84e8814058e372cbe16a952556c25761536a282ee0306da",
+    "bytes": 1590
+  },
+  {
+    "file": "browser-second.log",
+    "sha256": "8d6abce3b2e6eb58149501936ca3b6e616d6958ff2e39abfb23b07fe6b858332",
+    "bytes": 993
+  },
+  {
+    "file": "build-compat.log",
+    "sha256": "13bea2d8fadfdc67eb1d2542bf9059fe0caac6082ada5682850e97127cd9863d",
+    "bytes": 18581
+  },
+  {
+    "file": "build-delivery.log",
+    "sha256": "ad77430906ddde1a8a40d22ba8c0157d85ba7b641aa1731b736bac1aa6a14b0f",
+    "bytes": 18581
+  },
+  {
+    "file": "build-handoff.log",
+    "sha256": "3e3aff4026a9d0cdf0464d6a7c0bff1d61d39b3fc9d6696f325b0a32ef529a56",
+    "bytes": 18581
+  },
+  {
+    "file": "course-overview-browser-second.log",
+    "sha256": "d02ee8a0d3d32812048db2673197001b106b09d700b311ae6a96a49eb9ffad1b",
+    "bytes": 510
+  },
+  {
+    "file": "course-overview-browser.log",
+    "sha256": "b82228f2cdce25d12f043e15f3f4c619296b89f90f0b586f670911ff745da5e7",
+    "bytes": 829
+  },
+  {
+    "file": "legacy-browser-focused-second.log",
+    "sha256": "69670b47f3784660cffc6f2df9e478a1166af4087c125f136b988fb8df2ed65c",
+    "bytes": 3292
+  },
+  {
+    "file": "legacy-browser-focused-third.log",
+    "sha256": "d82116c60cc3e2cb63b513d022144b5b87929bca6754fc5ee8a07c21244da08e",
+    "bytes": 515
+  },
+  {
+    "file": "legacy-browser-focused.log",
+    "sha256": "98fc89a27e9e9bcdbb447583d1b0aa3bfae8db6c73dde8a36a0cc4f6e3b1a609",
+    "bytes": 2212
+  },
+  {
+    "file": "legacy-repair-final.log",
+    "sha256": "0319a90ea2549bd1f15e2e384363050debc93da12f17fc2afaf674aba514d96c",
+    "bytes": 2878
+  },
+  {
+    "file": "lint-compat.log",
+    "sha256": "b6f6e8f55c3684ea7131fe5d7e29cbbdb825661afc1f7af5a000681d871813ed",
+    "bytes": 111
+  },
+  {
+    "file": "lint-delivery.log",
+    "sha256": "b6f6e8f55c3684ea7131fe5d7e29cbbdb825661afc1f7af5a000681d871813ed",
+    "bytes": 111
+  },
+  {
+    "file": "lint-final.log",
+    "sha256": "132c256156aa2bda8f81e21255d216509b6735f05d498ae505f135ad717c05ea",
+    "bytes": 314
+  },
+  {
+    "file": "old-learning-browser-second.log",
+    "sha256": "357c9784aee22c63e049f3e264061ac7e7df309e6717216365fdfb4e627bb40d",
+    "bytes": 14724
+  },
+  {
+    "file": "old-learning-browser.log",
+    "sha256": "ee52a35d309a3ec89050e8ac274a7e1b1c35cf2926705d09d3e41653cb2d1d49",
+    "bytes": 14886
+  },
+  {
+    "file": "policy-red-actual.log",
+    "sha256": "bdf648e537d0e723e88ea6b3b397e8aedf5c6cb8e222180cc43331b36f8766ba",
+    "bytes": 2800
+  },
+  {
+    "file": "policy-red.log",
+    "sha256": "ab4dfdbb13dba6977f8ed7932a54793e1b493bf834d58e3304831d0c02c13d5b",
+    "bytes": 3399
+  },
+  {
+    "file": "real-article-link.log",
+    "sha256": "e85faa96c39b986594bd19d9143773b0430acab517c30819f978bad3b2ac6e98",
+    "bytes": 129
+  },
+  {
+    "file": "scope-package-regression.log",
+    "sha256": "4df65726b7e0b174aa7b0171a589cfdaa2bffb0a83cec43ae989df259b7e79f3",
+    "bytes": 10625
+  },
+  {
+    "file": "teaching-rehearsal.log",
+    "sha256": "f9a2912077839d419dcc8f0ae7f18523e1a255f056b7bf92e5b1852ef7089e06",
+    "bytes": 1949
+  },
+  {
+    "file": "tools-final-materials.log",
+    "sha256": "2cd7d6480b94ba1e3db5b9bcffcc2aaa28e4055764530cb9d6f9a76f5480f798",
+    "bytes": 1827
+  },
+  {
+    "file": "unit-release.log",
+    "sha256": "3231389dd694c89d3eb5ce6f70ad39c72a0dff4d3630cc0c35e907dbde728008",
+    "bytes": 14863
+  }
+]

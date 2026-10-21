@@ -12144,7 +12144,7 @@
     "futureTeacher": false
   },
   "maintenance.upload.videoNote": {
-    "text": "MP4/WebM，最多 500 MB；学生在公共或对应课时课堂回顾中播放",
+    "text": "支持 MP4、WebM，单个视频最大 1.5GB",
     "enabled": true,
     "page": "课程内容维护",
     "position": "upload.videoNote",
@@ -18837,7 +18837,7 @@
     "futureTeacher": false
   },
   "site.c2214999f69ce78a": {
-    "text": "请选择回放视频文件（mp4/webm，≤500MB）",
+    "text": "请选择回放视频文件（支持 MP4、WebM，单个视频最大 1.5GB）",
     "enabled": true,
     "optional": false,
     "page": "pages/courses/Detail",
@@ -19981,7 +19981,7 @@
     "futureTeacher": false
   },
   "site.c9e0b965e5d43561": {
-    "text": "选择视频（mp4/webm，≤500MB）",
+    "text": "选择视频（支持 MP4、WebM，单个视频最大 1.5GB）",
     "enabled": true,
     "optional": false,
     "page": "pages/courses/Detail",

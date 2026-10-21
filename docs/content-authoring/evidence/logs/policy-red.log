@@ -1,0 +1,44 @@
+✖ 旧课时仍要求卡片；新显式非卡片模板仍须真实内容和报告评审 (65.7646ms)
+✖ 卡片要求随教材版本冻结；重复命名升级不修改数字迁移和既有字段 (25.0336ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 565.3879
+
+✖ failing tests:
+
+test at backend\test\contentAuthoringPolicy.test.js:5:1
+✖ 旧课时仍要求卡片；新显式非卡片模板仍须真实内容和报告评审 (65.7646ms)
+  Error [SqliteError]: duplicate column name: status
+      at Database.exec (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\wrappers.js:9:14)
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:82:10
+      at sqliteTransaction (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\transaction.js:65:24)
+      at migrate (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:86:7)
+      at sqliteTransaction.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:10:30)
+      at sqliteTransaction (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\transaction.js:65:24)
+      at Object.runMigrations (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:10:43)
+      at fixture (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\test\contentAuthoringPolicy.test.js:4:164)
+      at TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\test\contentAuthoringPolicy.test.js:5:51)
+      at Test.runInAsyncScope (node:async_hooks:226:14) {
+    code: 'SQLITE_ERROR'
+  }
+
+test at backend\test\contentAuthoringPolicy.test.js:6:1
+✖ 卡片要求随教材版本冻结；重复命名升级不修改数字迁移和既有字段 (25.0336ms)
+  Error [SqliteError]: duplicate column name: status
+      at Database.exec (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\wrappers.js:9:14)
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:82:10
+      at sqliteTransaction (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\transaction.js:65:24)
+      at migrate (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:86:7)
+      at sqliteTransaction.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:10:30)
+      at sqliteTransaction (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\transaction.js:65:24)
+      at Object.runMigrations (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\database\migrate.js:10:43)
+      at fixture (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\test\contentAuthoringPolicy.test.js:4:164)
+      at TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\test\contentAuthoringPolicy.test.js:6:53)
+      at Test.runInAsyncScope (node:async_hooks:226:14) {
+    code: 'SQLITE_ERROR'
+  }

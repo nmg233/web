@@ -1,0 +1,147 @@
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-packages-7PMmFi\test.db
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":404}
+✔ 四主题注册与ZIP样包完整校验，所有未授权角色及他人暂存拒绝 (259.5724ms)
+{"event":"api_response","method":"GET","route":"/imports/:id","status":404}
+✔ 网页新建草稿事务：并发同请求只创建一次，卡片/课时不发布，无学校报名或奖励 (147.6031ms)
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":404}
+{"event":"api_response","method":"GET","route":"/imports/:id","status":404}
+✔ 追加只新增对象；目标修订与学校权限变化先拒绝，版本和原文保留 (150.6671ms)
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+✔ 异常版本/未知字段/跨课数据库ID/伪装图/执行文件/未注册实验导入前拒绝 (189.4395ms)
+✔ 受控ZIP拒绝穿越、链接、重复大小写、炸弹、损坏CRC，暂存篡改不写教材 (55.9585ms)
+服务器错误: { name: 'Error', code: 'SQLITE_CONSTRAINT_TRIGGER' }
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":500}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":409}
+✔ 事务末端故障补偿所有新素材，不覆盖旧数据；取消仅删暂存，结果仍跨设备可读 (73.7097ms)
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+✔ 新课不能绕过选voyage，存量保留；默认关卡受主题限制；模块配置可逆且不改学习数据 (53.6912ms)
+{"event":"api_response","method":"POST","route":"/qualifications","status":403}
+✔ 开发资格仅管理员真实授予/撤销，审计与到期，不授课程权也不存在代码运行 (42.5083ms)
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":410}
+✔ 同一内容重新压缩仍复用原导入；同身份改稿必须升版本，暂存过期不落库 (95.5421ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-glider-40016-1792572844957.db
+✔ 试飞记录列表按角色授权 (880.795ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id","status":404}
+{"event":"api_response","method":"GET","route":"/simulations/:id","status":404}
+✔ 试飞记录详情按课程授权 (14.5438ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id/trace","status":404}
+{"event":"api_response","method":"GET","route":"/simulations/:id/trace","status":404}
+✔ 轨迹数据接口：读库返回最小向量（JSON / 二进制） (19.7798ms)
+✔ 轨迹数据接口：扩展列（CL/CD）随 JSON 与二进制一起返回 (150.5364ms)
+{"event":"api_response","method":"POST","route":"/simulate","status":403}
+{"event":"api_response","method":"POST","route":"/simulate","status":400}
+{"event":"api_response","method":"POST","route":"/simulate","status":400}
+✔ 模拟提交校验：角色、课程报名与课时归属 (16.6755ms)
+✔ 引擎能力探测返回结构化结果 (2056.0812ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":403}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+✔ 滑翔机签名受账号版本、强制改密、停用和归档约束，Bearer 不能绕过 (88.2614ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 1031旧库升级：只冻结现有报名与教师课程，旧数据不变，重跑/中断/恢复安全 (628.9583ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-mentor-students-UHewOb\test.db
+{"event":"api_response","method":"GET","route":"/","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":404}
+✔ 导师工作台统计限于负责课程；新媒体只能读取已发布课程列表 (236.6044ms)
+✔ 导师列表仅有课程相关学生，历史/归档关系保留，多课程不重复，搜索无法扩大权限 (53.0458ms)
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+✔ 直接访问无关学生详情及档案返回403，相关学生允许 (82.1448ms)
+✔ 档案树、学校/班级批量导出和搜索均应用相同关系限制 (46.669ms)
+{"event":"api_response","method":"POST","route":"/growth-records","status":403}
+{"event":"api_response","method":"POST","route":"/:id/enroll","status":403}
+{"event":"api_response","method":"GET","route":"/:id/enroll/candidates","status":403}
+✔ 无关学生不能添加成长记录；课程候选只包含合法负责学生 (30.1488ms)
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+✔ 管理员全量、教师明确分配范围、学生本人档案 (58.4762ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5821.8579

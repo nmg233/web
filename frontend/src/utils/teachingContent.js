@@ -5,5 +5,5 @@ export function hasTeachingValue(value){
 }
 export function validArticleBlocks(value,resources){
  let blocks;try{blocks=typeof value==='string'?JSON.parse(value):value;}catch{return [];}
- return Array.isArray(blocks)?blocks.filter(b=>b?.type==='paragraph'?hasTeachingValue(b.text):['image','file'].includes(b?.type)&&Number.isSafeInteger(b.resourceId)&&(!resources||resources.some(r=>r.id===b.resourceId&&r.has_file!==false))):[];
+ return Array.isArray(blocks)?blocks.filter(b=>b?.type==='rich'?hasTeachingValue(b.html)||b.resourceIds?.length:b?.type==='paragraph'?hasTeachingValue(b.text):['image','file'].includes(b?.type)&&Number.isSafeInteger(b.resourceId)&&(!resources||resources.some(r=>r.id===b.resourceId&&r.has_file!==false))):[];
 }

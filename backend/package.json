@@ -18,12 +18,14 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "express-validator": "^7.2.0",
+    "htmlparser2": "12.0.0",
     "jsonwebtoken": "^9.0.3",
     "jszip": "^3.10.2",
     "mammoth": "^1.12.3",
     "multer": "^2.4.0",
     "pdf-parse": "^2.4.5",
     "pinyin-pro": "^3.29.3",
+    "sanitize-html": "2.18.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "overrides": {

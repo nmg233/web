@@ -45,7 +45,6 @@ function CourseDetailPage() {
   const [replayUrl, setReplayUrl] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [teachers, setTeachers] = useState([]);
   const lessonRequest=useRef(crypto.randomUUID()),creationLock=useRef(false),[creating,setCreating]=useState(false);
   const [lessonModal, setLessonModal] = useState(false);
   const [mapBusy,setMapBusy]=useState(false),[mapSession,setMapSession]=useState(0),creationDraft=useRef(new Set()),creationUploads=useRef(new Set());
@@ -92,7 +91,6 @@ function CourseDetailPage() {
       courseAPI.listReplays(id).then((replayRes) => {if(revision===requestRevision.current)setReplays(replayRes.replays || []);}).catch(() => {});
       setEnrollments(res.enrollments || []);
       setTasks(res.tasks || []);
-      setTeachers(res.teachers || []);
     } catch (err) {
       if(revision!==requestRevision.current)return;
       setCourse(null);
@@ -517,21 +515,13 @@ function CourseDetailPage() {
       {course.can_manage?<ContentMaintenance creationDraft={creationDraft} creationUploads={creationUploads} key={id} id={id} onCreateTask={lesson=>{setActiveLesson(lesson);setTaskModal(true);}} refreshVersion={workspaceVersion} onCreateLesson={()=>setLessonModal(true)} students={tabItems.find(t=>t.key==='students')?.children} legacyReplays={tabItems.find(t=>t.key==='replays')?.children} legacyLessons={tabItems.find(t=>t.key==='lessons')?.children}/>:<Tabs activeKey={tabItems.some(item=>item.key===search.get('tab'))?search.get('tab'):tabItems[0].key} onChange={key=>setSearch({tab:key},{replace:true})} items={tabItems} destroyOnHidden={false}/>}
 
       {/* 添加课时 Modal */}
-      <Modal title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating||mapBusy} closable={!creating&&!mapBusy} maskClosable={!creating&&!mapBusy} onCancel={closeCreation} cancelButtonProps={{'aria-label':'取消'}} okButtonProps={{'aria-label':'确定'}} onOk={() => lessonForm.submit()}>
+      <Modal className="content-authoring-ui" title={siteText("site.5196dad269ecb896")} open={lessonModal} confirmLoading={creating||mapBusy} closable={!creating&&!mapBusy} maskClosable={!creating&&!mapBusy} onCancel={closeCreation} cancelButtonProps={{'aria-label':'取消'}} okButtonProps={{'aria-label':'确定'}} onOk={() => lessonForm.submit()}>
         <Form name="course-add-lesson" form={lessonForm} layout="vertical" initialValues={{presentation_type:'learning'}} onValuesChange={markCreation} onFinish={handleAddLesson}>
           <Form.Item name="presentation_type" label="课时模板（创建时选择）" rules={[{required:true}]}><Select options={lessonTemplates.map(({value,label})=>({value,label}))}/></Form.Item>
           <Form.Item noStyle shouldUpdate>{()=> <Alert type="info" title={lessonTemplates.find(t=>t.value===lessonForm.getFieldValue('presentation_type'))?.help} description="以上为管理员填写提示，不保存成学生教材；保存为准备中，不自动发布卡片、关联实验或发币。"/>}</Form.Item>
           <LessonMapImageField course={course} key={mapSession} courseId={id} form={lessonForm} disabled={creating} onDirty={markCreation} onBusyChange={value=>{setMapBusy(value);value?creationUploads.current.add('image'):creationUploads.current.delete('image');}}/>
           <Form.Item name="title" label={siteText("site.aeab0b361a5b12cd")} rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="description" label={siteText("site.11d1ce5aaed10e89")}><Input.TextArea rows={2} /></Form.Item>
-          <Form.Item name="duration" label={siteText("site.8e7a7f1c84586481")}><Input type="number" /></Form.Item>
-          <Form.Item name="start_at" label={siteText("site.4f022f7e3f45379e")}><Input type="datetime-local" /></Form.Item>
-          <Form.Item name="end_at" label={siteText("site.e430a5bb677f246f")}><Input type="datetime-local" /></Form.Item>
-          <Form.Item name="location" label={siteText("site.54e6311a084c22d6")}><Input placeholder={siteText("site.c9dfa057df4ffef5")} /></Form.Item>
-          <Form.Item name="instructor_id" label={siteText("site.4d2fcd604d171006")}>
-            <Select allowClear placeholder={siteText("site.6fbb320ac590c0a7")}
-              options={teachers.map((t) => ({ value: t.id, label: `${t.real_name}${t.role === 'academic_mentor' ? siteText("site.93acd22f8d8d1880") : ''}` }))} />
-          </Form.Item>
+          <Form.Item name="description" label="选填介绍" extra="可写时间、地点、时长、授课人及参与说明；留空时学生不显示本区域"><Input.TextArea rows={2} /></Form.Item>
         </Form>
       </Modal>
 

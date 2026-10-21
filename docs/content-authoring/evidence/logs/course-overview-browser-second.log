@@ -1,0 +1,12 @@
+Evidence: docs\content-authoring\evidence\browser\2026-10-21T09-05-03-819Z
+▶ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室
+  ✔ 课程简介集中保存、重新登录与学生同步，旧故事和难度不覆盖 (6224.9206ms)
+✔ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (13147.55ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14091.7098

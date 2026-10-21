@@ -1,3 +1,5 @@
+import {useCoursePresentation} from './space/CoursePresentation';
+import ThemeImage from './space/CourseThemeImage';
 import ConfigCopyText from '../content/ConfigText';
 import StudentCopyText from '../content/ManagedText';
 import Alert from '../student/visual/StudentAlert';
@@ -17,15 +19,15 @@ import Sentence from '../content/Sentence';
 
 const steps = new Proxy([],{get(_target,property){const current=[[copyText('system.lab.001'), copyText('system.lab.002')], [copyText('system.lab.003'), copyText('system.lab.004')], [copyText('system.lab.005'), copyText('system.lab.006')], [copyText('system.lab.007'), copyText('system.lab.008')]];const item=Reflect.get(current,property);return typeof item==='function'?item.bind(current):item;}});
 export default function Lab() {
-  const location = useLocation();
+  const location = useLocation(),look=useCoursePresentation(),available=look.id?experiments.filter(x=>look.experiments.some(e=>e.experiment===x.id)):experiments,settings=look.data?.labSettings;
   return <PageContainer><div className="study-workspace lab-workspace">
     <StudyHeader eyebrow={<><PixelIcon name="lab" size={20} />OBSERVATORY / LAB</>} title={copyText('system.lab.009')} description={copyText('system.lab.010')}  data-copy-bindings={JSON.stringify(['system.lab.009','system.lab.010'])}/>
     {location.state?.experimentNotice && <Alert type="warning" showIcon title={location.state.experimentNotice} />}
     <ol className="lab-cycle">{steps.map(([title, description], index) => <li key={title}><span className="lab-cycle-number">0{index + 1}</span><div><strong>{title}</strong><Sentence>{description}</Sentence></div>{index < 3 && <PixelIcon name="continue" size={20} />}</li>)}</ol>
-    <div className="lab-catalog-heading"><h3>{<StudentCopyText id={'system.lab.011'}/>}</h3><span>{experiments.length}{<StudentCopyText id={'system.lab.012'}/>}</span></div>
-    <div className="lab-catalog">{experiments.map((experiment) => <PixelPanel className="lab-experiment" key={experiment.id}>
-      <PixelImage className="lab-experiment-cover" src={patchAsset(experiment.cover.name)} srcSet={`${patchAsset(experiment.cover.name,480)} 480w, ${patchAsset(experiment.cover.name,960)} 960w`} sizes="(max-width:767px) 100vw, 260px" alt={experiment.cover.alt} width={experiment.cover.width} height={experiment.cover.height} imageStyle={{objectPosition:experiment.cover.position}} fallback={<PixelIcon name="lab" size={64}/>}/>
-      <div className="lab-experiment-content"><PixelTag>{<StudentCopyText id={'system.lab.013'}/>}</PixelTag><h2><ConfigCopyText object={experiment} field="title" value={experiment.title}/></h2><Sentence><ConfigCopyText sentence object={experiment} field="description" value={experiment.description}/></Sentence>
+    <div className="lab-catalog-heading"><h3>{<StudentCopyText id={'system.lab.011'}/>}</h3><span>{available.length}{<StudentCopyText id={'system.lab.012'}/>}</span></div>
+    <div className="lab-catalog">{!available.length&&<PixelPanel><p>本课程尚未关联实验工具</p><Link to="/lab">进入独立实验室自由使用</Link></PixelPanel>}{available.map((experiment) => <PixelPanel className="lab-experiment" key={experiment.id}>
+      <div className="lab-cover-stack"><PixelImage className="lab-experiment-cover" src={patchAsset(experiment.cover.name)} srcSet={`${patchAsset(experiment.cover.name,480)} 480w, ${patchAsset(experiment.cover.name,960)} 960w`} sizes="(max-width:767px) 100vw, 260px" alt={experiment.cover.alt} width={experiment.cover.width} height={experiment.cover.height} imageStyle={{objectPosition:experiment.cover.position}} fallback={<PixelIcon name="lab" size={64}/>}/><ThemeImage image={settings?.cover} alt={settings?.title||experiment.title} className="lab-configured-cover"/></div>
+      <div className="lab-experiment-content"><PixelTag>{<StudentCopyText id={'system.lab.013'}/>}</PixelTag><h2>{settings?.title||<ConfigCopyText object={experiment} field="title" value={experiment.title}/>}</h2>{(!settings?.revision||settings.introduction)&&<Sentence>{settings?.revision?settings.introduction:<ConfigCopyText sentence object={experiment} field="description" value={experiment.description}/>}</Sentence>}
         {experiment.id === 'glider' && <dl><div><dt>{<StudentCopyText id={'system.lab.014'}/>}</dt><dd>{<StudentCopyText id={'system.lab.015'}/>}</dd></div><div><dt>{<StudentCopyText id={'system.lab.016'}/>}</dt><dd>{<StudentCopyText id={'system.lab.017'}/>}</dd></div></dl>}
         <Link to={experiment.path} className="pixel-link-button lab-start-link"><PixelIcon name="continue" />{<StudentCopyText id={'system.lab.018'}/>}</Link>
       </div>

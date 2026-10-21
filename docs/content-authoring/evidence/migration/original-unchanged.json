@@ -1,0 +1,32 @@
+[
+  {
+    "sourceIndex": 0,
+    "originalStillMatchesBackup": {
+      "users": true,
+      "courses": true,
+      "lessons": true,
+      "enrollments": true,
+      "works": true,
+      "lesson_learning_reports": true,
+      "student_coin_ledger": true,
+      "student_badge_grants": true
+    },
+    "integrity": "ok",
+    "foreignKeyErrors": 0
+  },
+  {
+    "sourceIndex": 1,
+    "originalStillMatchesBackup": {
+      "users": true,
+      "courses": true,
+      "lessons": true,
+      "enrollments": true,
+      "works": true,
+      "lesson_learning_reports": true,
+      "student_coin_ledger": true,
+      "student_badge_grants": true
+    },
+    "integrity": "ok",
+    "foreignKeyErrors": 0
+  }
+]

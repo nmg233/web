@@ -160,7 +160,7 @@ function lessonPackage(studentId, lessonId) {
     course: { id: lesson.course_id, title: lesson.course_title },
     lesson: {
       id: lesson.id, title: teaching.title, description: teaching.description, teaching_tip: teaching.teaching_tip,
-      presentation_type: teaching.presentation_type, content_state: teaching.content_state,
+      presentation_type: teaching.presentation_type, content_state: teaching.content_state, cards_required: teaching.cards_required,
       publication_state: lesson.publication_state,
       article_url: teaching.article_url, article_title: teaching.article_title, moments_note: teaching.moments_note,
       review_content: teaching.review_content, report_guidance: teaching.report_guidance,

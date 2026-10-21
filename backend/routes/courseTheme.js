@@ -41,7 +41,7 @@ router.get('/images/:imageId',(req,res,next)=>{
  try{
   res.set('Cache-Control','private, no-store');const c=db.prepare('SELECT * FROM courses WHERE id=?').get(req.params.id),i=db.prepare('SELECT * FROM course_theme_images WHERE id=? AND course_id=?').get(req.params.imageId,req.params.id);
   const manager=c&&require('../policies/coursePolicy').canManageCourse(req.user,c,db);
-  const student=c?.status==='published'&&req.user.role==='student'&&db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(req.user.id,c.id)&&i&&db.prepare('SELECT 1 FROM course_theme_bindings WHERE course_id=? AND image_id=?').get(c.id,i.id);
+  const student=c?.status==='published'&&req.user.role==='student'&&db.prepare("SELECT 1 FROM enrollments WHERE student_id=? AND course_id=? AND status='active'").get(req.user.id,c.id)&&i&&(db.prepare('SELECT 1 FROM course_theme_bindings WHERE course_id=? AND image_id=?').get(c.id,i.id)||db.prepare("SELECT 1 FROM course_lab_settings s WHERE s.course_id=? AND (s.cover_image_id=? OR s.background_image_id=?) AND EXISTS(SELECT 1 FROM course_experiments e LEFT JOIN lessons l ON l.id=e.lesson_id WHERE e.course_id=s.course_id AND e.enabled=1 AND (e.lesson_id IS NULL OR (l.status!='cancelled' AND l.publication_state IN ('legacy','published'))))").get(c.id,i.id,i.id));
   if(!i||(!manager&&!student)||!fs.existsSync(i.file_path))return res.status(404).json({error:'主题图片不存在或不可访问'});
   res.type(i.mime_type).sendFile(path.resolve(i.file_path));
  }catch(e){next(e);}

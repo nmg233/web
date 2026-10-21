@@ -7,6 +7,7 @@ import {useCourseApis} from '../useCourseApis';
 import {copyText} from '../../content/copy';
 
 import './article-content.css';
+import RichArticle from './RichArticle';
 import {validArticleBlocks,hasTeachingValue} from '../../utils/teachingContent';
 export function articleBlocks(value){return validArticleBlocks(value);}
 export function ProtectedPhoto({resource,download,title,caption}){
@@ -23,5 +24,5 @@ function ArticleFile({resource,download,title,caption}){
 }
 export default function ArticleContent({blocks,resources,download}){
  const visible=validArticleBlocks(blocks,resources);if(!visible.length)return null;
- return <article className="lesson-article" data-testid="lesson-article">{visible.map(block=>block.type==='paragraph'?<p key={block.id} className="study-prose">{block.text}</p>:(()=>{const resource=resources.find(r=>r.id===block.resourceId);return block.type==='file'?<ArticleFile key={block.id} resource={resource} download={download} title={block.title} caption={block.caption}/>:<ProtectedPhoto key={block.id} resource={resource} download={download} title={block.title} caption={block.caption}/>;})())}</article>;
+ return <article className="lesson-article" data-testid="lesson-article">{visible.map(block=>block.type==='rich'?<RichArticle key={block.id} html={block.html} resources={resources} download={download}/>:block.type==='paragraph'?<p key={block.id} className="study-prose">{block.text}</p>:(()=>{const resource=resources.find(r=>r.id===block.resourceId);return block.type==='file'?<ArticleFile key={block.id} resource={resource} download={download} title={block.title} caption={block.caption}/>:<ProtectedPhoto key={block.id} resource={resource} download={download} title={block.title} caption={block.caption}/>;})())}</article>;
 }

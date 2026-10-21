@@ -1,0 +1,14 @@
+
+> star-voyage-student@0.1.0 lint
+> npm --prefix frontend run lint
+
+
+> frontend@0.0.0 lint
+> eslint .
+
+
+C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\frontend\src\pages\courses\ContentMaintenance.jsx
+  49:389  error  Empty block statement  no-empty
+
+✖ 1 problem (1 error, 0 warnings)
+

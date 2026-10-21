@@ -44,6 +44,8 @@ router.get('/',action(req=>{
   cards:db.prepare('SELECT k.id,k.lesson_id,k.title,k.status FROM knowledge_cards k JOIN lessons l ON l.id=k.lesson_id WHERE l.course_id=? ORDER BY k.sort_order,k.id').all(id),
   replays:db.prepare('SELECT id,course_id,lesson_id,title,description,summary,duration_seconds,recording_date,sort_order FROM course_replays WHERE course_id=? ORDER BY sort_order,id').all(id).map(r=>revisionDto('course_replays',r))};
 }));
+router.get('/lab',action(req=>require('../services/courseLabSettings').read(req.params.id)));
+router.put('/lab',action(req=>require('../services/courseLabSettings').save(req.user,Number(req.params.id),req.body)));
 router.get('/badges',action(req=>require('../services/courseBadges').settings(req.user.id,req.params.id)));
 router.put('/badges/settings',action(req=>require('../services/courseBadges').toggle(req.user.id,req.params.id,req.body)));
 router.get('/lessons/:lessonId/diagnostics',action(req=>{
@@ -69,13 +71,16 @@ router.delete('/chapters/:chapterId',action(req=>{
  if(db.prepare('SELECT id FROM lessons WHERE chapter_id=? LIMIT 1').get(req.params.chapterId))v.invalid('请先将本章课时移到其他章节或未分组，再删除空章节',409);
  db.prepare('DELETE FROM course_chapters WHERE id=?').run(req.params.chapterId);return{deleted:true};
 }));
+const articleUpload=require('multer')({storage:require('multer').memoryStorage(),limits:{fileSize:20*1024*1024,files:1,fields:4}}).single('article');
+router.post('/lessons/:lessonId/article-import',(req,res,next)=>{try{object('lessons',req.params.lessonId,req.params.id);require('../helpers/lessonPublication').assertEditable(db,req.params.lessonId);next();}catch(e){next(e);}},articleUpload,action(req=>require('../services/articleImport').importArticle(req.user,Number(req.params.id),Number(req.params.lessonId),{...req.body,file:req.file})));
 router.put('/lessons/:lessonId',action(req=>{
  const row=object('lessons',req.params.lessonId,req.params.id);if(row.status==='cancelled')v.invalid('课时已取消，不能修改教学内容',409);
  require('../helpers/lessonPublication').assertEditable(db,row.id);
- fields(req.body,['title','description','teaching_tip','chapter_id','presentation_type','content_state','article_url','article_title','moments_note','review_content','report_guidance','experiment_guidance','article_blocks','duration','sort_order','start_at','end_at','location','instructor_id','map_image_id','map_art_preset','landing_x','landing_y']);const data=require('../services/lessonMapImages').fields(db,req.params.id,row.id,req.body);
+ fields(req.body,['title','description','teaching_tip','chapter_id','presentation_type','content_state','article_url','article_title','moments_note','review_content','report_guidance','experiment_guidance','article_blocks','cards_required','duration','sort_order','start_at','end_at','location','instructor_id','map_image_id','map_art_preset','landing_x','landing_y']);const data=require('../services/lessonMapImages').fields(db,req.params.id,row.id,req.body);
  for(const [key,max,required]of[['title',120,true],['description',10000,false],['teaching_tip',2000,false]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max,required);
  for(const [key,values]of [['presentation_type',['learning','visit','theory','experiment']],['content_state',['ready','preparing']]])if(v.own(req.body,key)){if(!values.includes(req.body[key]))v.invalid('课时模板状态无效');data[key]=req.body[key];}
  for(const [key,max]of [['article_title',120],['moments_note',10000],['review_content',10000],['report_guidance',10000],['experiment_guidance',10000]])if(v.own(req.body,key))data[key]=v.text(req.body[key],key,max);
+ if(v.own(req.body,'cards_required')){if(typeof req.body.cards_required!=='boolean')v.invalid('卡片前置要求须为布尔值');data.cards_required=req.body.cards_required?1:0;}
  if(v.own(req.body,'article_blocks'))data.article_blocks=JSON.stringify(require('../services/articleBlocks').validate(req.body.article_blocks,req.params.id,row.id));
  if(v.own(req.body,'article_url')){const value=v.text(req.body.article_url,'文章地址',2000);if(value){let url;try{url=new URL(value);}catch{v.invalid('文章地址无效');}if(url.protocol!=='https:'||url.username||url.password)v.invalid('文章地址须为 HTTPS');}data.article_url=value;}
  for(const key of ['duration','sort_order'])if(v.own(req.body,key))data[key]=v.integer(req.body[key],key,{nullable:key==='duration',max:10000});

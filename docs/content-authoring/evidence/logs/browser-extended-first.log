@@ -1,0 +1,47 @@
+▶ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室
+  ✔ 结构化与原位文字共用草稿；保存失败保留，再真实保存及重登读取 (5187.2142ms)
+  ✔ 待上传队列不被正文保存或学生效果切换清除；失败后重试 (2160.8502ms)
+  ✔ 并发冲突保留本页文字，人工核对后保存 (1401.7455ms)
+  ✔ 课程、课时、实验室三尺寸可滚动，旧输入取消，按钮6px且无场景动效 (16914.2789ms)
+  ✔ 部分图片替换只更新指定用途，其他背景和标识保持不变 (3124.0936ms)
+Evidence: docs\content-authoring\evidence\browser\2026-10-21T08-39-27-589Z
+  ✖ 四模板切换与文章待导入来源保护，预览不丢选择 (14160.8044ms)
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (49669.4052ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50569.6122
+
+✖ failing tests:
+
+test at tests\content-authoring.browser.test.js:12:51
+✖ 四模板切换与文章待导入来源保护，预览不丢选择 (14160.8044ms)
+  locator.waitFor: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByText('文章导入来源尚未处理；请先导入或清除选择，再保存课时', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:52:548
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:50:3) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByText('文章导入来源尚未处理；请先导入或清除选择，再保存课时', { exact: true }) to be visible" ]
+  }
+
+test at tests\content-authoring.browser.test.js:5:1
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (49669.4052ms)
+  locator.waitFor: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByText('文章导入来源尚未处理；请先导入或清除选择，再保存课时', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:52:548
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:50:3) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByText('文章导入来源尚未处理；请先导入或清除选择，再保存课时', { exact: true }) to be visible" ]
+  }

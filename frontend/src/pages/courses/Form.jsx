@@ -1,9 +1,10 @@
+import './authoring.css';
 import PublicThemePicker from './PublicThemePicker';
 import {maintenanceAPI as maintenance} from './maintenanceApi';
 import useTeachingLeaveGuard from './useTeachingLeaveGuard';
 import {copyText as siteText} from "../../content/copy";
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Alert,Card, Form, Input, Select, Button, Typography, message, Space,Modal } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { courseAPI } from '../../api';
@@ -12,7 +13,8 @@ import {maintenanceText as c} from './maintenanceCopy';
 
 const { Title } = Typography;
 
-export default function CourseForm() {
+export default function CourseForm(){const{id}=useParams();return id?<Navigate to={'/courses/'+id+'?tab=overview'} replace/>:<CourseCreationForm/>;}
+function CourseCreationForm() {
   const { id } = useParams();
   const isEdit = !!id;
   const navigate = useNavigate();
@@ -68,14 +70,14 @@ export default function CourseForm() {
   if (isEdit && editableId !== id) return readError?<Alert type="error" title={readError} action={<Button onClick={()=>setAttempt(n=>n+1)}>{c('retryRead')}</Button>}/>:<p>{siteText("site.39bfa026fb882acf")}</p>;
 
   return (
-    <div style={{ maxWidth: 700 }}>
+    <div className="content-authoring-ui" style={{ maxWidth: 900 }}>
       <Space style={{ marginBottom: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => {if(!dirty.current||window.confirm(c('discard')))navigate('/courses');}}>{siteText("site.00f8cce00054f186")}</Button>
         <Title level={4} style={{ margin: 0 }}>{isEdit ? siteText("site.16a1ed1919717f2d") : siteText("site.4b59127ba4857134")}</Title>
       </Space>
       {readError&&<Alert type="warning" title={readError} description="当前输入保留；可另开本课程概览核对字段差异，不能直接覆盖他人修改。" action={isEdit?<Button disabled={loading} onClick={inspectLatest}>核对最新修订（保留输入）</Button>:null}/>}
       <Card>
-        <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={()=>{dirty.current=true;unsaved.current.add('course');}} disabled={loading} initialValues={{public_theme:'campus'}}>
+        <Form form={form} layout="vertical" onFinish={onFinish} onValuesChange={()=>{dirty.current=true;unsaved.current.add('course');}} disabled={loading} initialValues={{public_theme:'campus',grade_level:'junior'}}>
           <Form.Item name="title" label={siteText("site.c266f61dfb37f71d")} rules={[{ required: true, message: siteText("site.d911ed4f250de1c0") }]}>
             <Input maxLength={120}/>
           </Form.Item>
@@ -84,15 +86,9 @@ export default function CourseForm() {
           <Form.Item name="description" label={siteText("site.95dc1aa6970c76bb")}><Input.TextArea maxLength={10000} showCount rows={3} /></Form.Item>
           <Form.Item name="driving_question" label={siteText("site.48867c629ac7d0f5")}><Input maxLength={1000} showCount placeholder={siteText("site.50a0856d01e03c88")} /></Form.Item>
           <Form.Item name="learning_objectives" label="学习目标（发布前检查）"><Input.TextArea maxLength={10000} rows={3}/></Form.Item>
-          <Form.Item name="story_line" label={siteText("site.7c00a522354ec631")}><Input.TextArea maxLength={10000} showCount rows={2} /></Form.Item>
-          <Form.Item name="grade_level" label={siteText("site.1620890a8ec34510")} rules={[{ required: true }]}>
+          <Form.Item name="grade_level" label={siteText("site.1620890a8ec34510")}>
             <Select options={[
               { label: siteText("site.767e43d1f758efdc"), value: 'primary' }, { label: siteText("site.ed2b0e04ed9e1ae0"), value: 'junior' }, { label: siteText("site.433bcd13f48de0b7"), value: 'senior' },
-            ]} />
-          </Form.Item>
-          <Form.Item name="difficulty" label={siteText("site.044520583daa04bc")} rules={[{ required: true }]}>
-            <Select options={[
-              { label: siteText("site.12e48a9f785aac07"), value: 'basic' }, { label: siteText("site.9b34d3d2de702b00"), value: 'advanced' }, { label: siteText("site.493d6670cfe1182f"), value: 'challenge' },
             ]} />
           </Form.Item>
           <Form.Item name="total_hours" label={siteText("site.c1ded6174eae4fd6")}><Input type="number" min={0} max={10000} step={1} placeholder={siteText("site.66bd8bb988566ddf")} /></Form.Item>

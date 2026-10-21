@@ -135,8 +135,8 @@ exports.create = (req, res) => {
     const { title, theme, description, driving_question, story_line,
             grade_level, difficulty, materials_needed } = req.body;
 
-    if (!title || !grade_level || !difficulty) {
-      return res.status(400).json({ error: '课程名称、适用学段和难度等级为必填项' });
+    if (!title) {
+      return res.status(400).json({ error: '请填写课程名称，其他教学内容可稍后补充' });
     }
 
     const identity=requests.identity(req.user,'course:create',req.body);
@@ -148,7 +148,7 @@ exports.create = (req, res) => {
         grade_level, difficulty, total_hours, materials_needed, status, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`
     ).run(validated.title, theme || null, description || null, driving_question || null,
-         story_line || null, grade_level, difficulty, validated.total_hours ?? null,
+         story_line || null, validated.grade_level, validated.difficulty, validated.total_hours ?? null,
          materials_needed || null, req.user.id);
     db.prepare("UPDATE courses SET presentation_theme=?,public_theme=?,cover_image=?,learning_objectives=?,automatic_map=1,map_mode='plan' WHERE id=?").run('campus',validated.public_theme||'campus',validated.cover_image||null,validated.learning_objectives??null,result.lastInsertRowid);
     const response={ message: '课程创建成功（草稿），补充课时后即可发布', id: Number(result.lastInsertRowid) };requests.save(db,identity,response);return response;}).immediate();
@@ -413,7 +413,7 @@ exports.addLesson = (req, res) => {
     ).run(id, title.trim(), description || null, duration === '' ? null : duration ?? null, sortOrder,
           start_at || null, end_at || null, location || null, instructor_id || null);
     const fields=Object.entries(mapFields);if(fields.length)db.prepare(`UPDATE lessons SET ${fields.map(([k])=>k+'=?').join(',')} WHERE id=?`).run(...fields.map(([,v])=>v),result.lastInsertRowid);
-    db.prepare("UPDATE lessons SET presentation_type=?,content_state=?,publication_state='draft' WHERE id=?").run(type,req.body.content_state??'ready',result.lastInsertRowid);
+    db.prepare("UPDATE lessons SET presentation_type=?,content_state=?,publication_state='draft',cards_required=? WHERE id=?").run(type,req.body.content_state??'preparing',type==='experiment'||type==='visit'?0:1,result.lastInsertRowid);
     require('../services/lessonMapImages').bind(db,db.prepare('SELECT * FROM lessons WHERE id=?').get(result.lastInsertRowid));require('../services/automaticCourseMap').sync(db,id);
     requests.save(db,identity,{message:'课时添加成功',id:Number(result.lastInsertRowid)});return result;}).immediate();
 

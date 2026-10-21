@@ -19,7 +19,7 @@ function courseFields(body,create=false,current=null){
  if(own(body,'presentation_theme')&&body.presentation_theme==='voyage'&&(create||require('./publicThemes').effective(current)!=='voyage'))invalid('新建、复制或导入不开放远航预设；存量远航可维护');
  for(const [key,max,required] of [['title',120,true],['theme',120,false],['description',10000,false],['driving_question',1000,false],['learning_objectives',10000,false],['story_line',10000,false],['materials_needed',10000,false]])if(own(body,key)||create&&required)result[key]=text(body[key],key,max,required);
  for(const [key,values] of [['presentation_theme',['campus','voyage']],['grade_level',['primary','junior','senior']],['difficulty',['basic','advanced','challenge']],['status',['draft','published','archived']]]){
-  if(own(body,key)||create&&['grade_level','difficulty'].includes(key)){if(!values.includes(body[key]))invalid(`${key}选项无效`);result[key]=body[key];}
+  if(own(body,key)||create&&['grade_level','difficulty'].includes(key)){const value=body[key]??(key==='grade_level'?'junior':key==='difficulty'?'basic':undefined);if(!values.includes(value))invalid(`${key}选项无效`);result[key]=value;}
  }
  if(own(body,'total_hours'))result.total_hours=integer(body.total_hours,'总课时',{nullable:true,max:10000});
  if(own(body,'cover_image')){

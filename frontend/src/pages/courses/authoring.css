@@ -1,0 +1,17 @@
+.content-authoring-ui label{display:block;margin:16px 0;font-size:16px;line-height:1.75}
+.content-authoring-ui label small{display:block;color:#526974;line-height:1.7}
+.content-authoring-ui label>.ant-select{width:100%}
+.authoring-section{scroll-margin-top:110px;background:#fff9e9;border:2px solid #b6ae95;padding:20px;margin:18px 0;min-width:0}
+.staff-campus-ui .content-authoring-ui .course-workspace-context{position:static}
+.content-authoring-ui :is(.authoring-section,#course-info,#course-visual,#course-modules){scroll-margin-top:calc(var(--staff-header-height,72px) + 16px)}
+.authoring-section h2,.authoring-section h3{color:#17354d}
+.authoring-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.authoring-grid>*{min-width:0}
+.authoring-anchor{display:flex;gap:12px;flex-wrap:wrap;padding:12px;background:#fff9e9;border-bottom:2px solid #b6ae95}
+.authoring-anchor a{display:inline-flex;align-items:center;min-height:40px;color:#087f78}
+.authoring-save-bar{position:sticky;bottom:8px;z-index:5;background:#fff9e9;padding:14px;border:2px solid #17354d;box-shadow:3px 3px #17354d33;margin:16px 0}
+.content-authoring-ui :is(button,.ant-btn,.pixel-button){border-radius:6px!important}
+.content-authoring-ui .rich-article{background:#fffdf5;padding:12px;border:1px solid #b6ae95;min-height:100px}
+.content-authoring-ui details{padding:12px 0}
+.content-authoring-ui [hidden]{display:none!important}
+@media(max-width:767px){.authoring-grid{grid-template-columns:1fr}.authoring-section{padding:12px}.authoring-save-bar{position:static}.authoring-anchor{gap:8px}.content-authoring-ui input[type=file]{max-width:100%}.authoring-section .ant-space{flex-wrap:wrap}}

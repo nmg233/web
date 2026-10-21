@@ -1,0 +1,33 @@
+{
+  "scope": "Operator handoff; requires full matching branch deployed first",
+  "baseCommit": "7e55e6568908e749dbabf5871fce092ca333a2f1",
+  "branch": "feat/content-authoring-20261021",
+  "privateDataIncluded": false,
+  "extraArtImportRequired": false,
+  "files": [
+    {
+      "path": "scripts/content-authoring-migrate.cjs",
+      "sha256": "92db30939d80b3d16a42123a639e9f2e28115515a6336ef324da4c23cc6a5155"
+    },
+    {
+      "path": "scripts/restore-voyage-theme.cjs",
+      "sha256": "381c8621b14ce1b13bd4d6da624682a9757b1cb5dafd091f5b05449e72ea5f79"
+    },
+    {
+      "path": "scripts/build-article-import-package.mjs",
+      "sha256": "a8a5ab2b0801f313ef868cc46d84f0e7d7bff672b902433ee665b296a355f1f1"
+    },
+    {
+      "path": "docs/content-authoring/GUIDE.md",
+      "sha256": "643ae56290b5748dd2a128afa777eace10fd4ee2fee0554abcd7f7078da4f6c2"
+    },
+    {
+      "path": "docs/content-authoring/SERVER.md",
+      "sha256": "ff1115e6e0ee21a67036bedf1a200e1eeb3e4f37e952de04642efd5c0b8d1bc7"
+    },
+    {
+      "path": "docs/content-authoring/VALIDATION.md",
+      "sha256": "5d1967451b90384650684103dd0bb39cbb01310aa15b0fec18edfa987b53c6a0"
+    }
+  ]
+}
