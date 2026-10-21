@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:4241/",
+  "observedHttpStatus": 200,
+  "indexMatchesVerifiedBuild": true,
+  "indexSha256": "bf01324de3cf6b55d5161e7350a4e8ff87b29a48e0e94f28369cc097cbea47e8",
+  "backendRestarted": false,
+  "previewDataReset": false,
+  "productionAccessed": false
+}

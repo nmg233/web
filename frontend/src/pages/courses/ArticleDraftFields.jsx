@@ -10,15 +10,17 @@ export default function ArticleDraftFields({lesson,resources,refresh,disabled,on
  useEffect(()=>{const check=()=>pending.current?Promise.reject(new Error('文章导入来源尚未处理；请先导入或清除选择，再保存课时')):Promise.resolve();d.validators.current.add(check);return()=>d.validators.current.delete(check);},[d.validators]);
  const blocks=d.values.article_blocks||[],images=resources.filter(r=>r.lesson_id===lesson.id&&['jpg','jpeg','png','webp','gif'].includes(r.file_type));
  const download=useCallback(id=>api.download(d.courseId,id),[d.courseId]);
- const update=fn=>d.patch({article_blocks:fn(blocks)});
+ const update=fn=>d.patch(current=>{const before=current.article_blocks||[],next=fn(before);return next===before?null:{article_blocks:next};});
  const run=async method=>{
-  if(busy)return;setBusy(true);onBusyChange?.(true);setError('');
+  if(busy)return;const sourceAtStart=d.values.article_url;setBusy(true);onBusyChange?.(true);setError('');
   try{
    const latest=(await api.read(d.courseId)).lessons.find(l=>l.id===lesson.id);
    const body=new FormData();body.append('expected_revision',latest.content_revision);body.append('requestKey',key.current);
    if(method==='url')body.append('url',url);else if(file)body.append('article',file);else throw Error('请选择文章 HTML 或 ZIP');
    const r=await client.post(`/courses/${d.courseId}/maintenance/lessons/${lesson.id}/article-import`,body,{headers:{'Content-Type':undefined},silent:true,timeout:240000});
-   update(list=>[...list,r.block]);d.patch({article_url:r.sourceUrl||d.values.article_url});setNotice(r);pending.current=false;setFile(null);setUrl('');if(fileInput.current)fileInput.current.value='';key.current=crypto.randomUUID();await refresh();
+   update(list=>list.some(block=>block.id===r.block.id)?list:[...list,r.block]);
+   if(r.sourceUrl)d.patch(current=>current.article_url===sourceAtStart?{article_url:r.sourceUrl}:null);
+   setNotice(r);pending.current=false;setFile(null);setUrl('');if(fileInput.current)fileInput.current.value='';key.current=crypto.randomUUID();await refresh();
   }catch(e){setError(requestError(e));}finally{setBusy(false);onBusyChange?.(false);}
  };
  return <section id="lesson-article-editor" className="authoring-section"><h3>课堂文章 · 导入与可视化修改</h3><p>参观体验优先导入文章。本站保存正文和图片；保留安全的段落、对齐、颜色、字号、表格和边框，移除脚本、全局样式、外部字体、背景图及嵌入视频/音频。视频可另行上传。</p><label>微信公众号文章链接<Input aria-label="微信公众号文章链接" value={url} onChange={e=>{setUrl(e.target.value);pending.current=Boolean(e.target.value||file);d.patch({});key.current=crypto.randomUUID();}} placeholder="https://mp.weixin.qq.com/s/…" disabled={disabled||busy}/></label><Button disabled={disabled||busy||!url} loading={busy} onClick={()=>void run('url')}>读取公众号正文和图片</Button><details><summary>链接失败：导入 HTML＋图片包</summary><p>选择 UTF-8 HTML（无图片时）或 ≤20MiB ZIP：唯一 HTML、相对路径图片，可选 image-map.json。包内图片全部核验后才提交；缺图明确失败。每张图片 ≤5MB，每次最多40张。不运行网页或脚本。</p><input ref={fileInput} aria-label="文章 HTML 或图片包" type="file" accept=".html,.htm,.zip" disabled={disabled||busy} onChange={e=>{setFile(e.target.files?.[0]||null);pending.current=Boolean(e.target.files?.[0]||url);d.patch({});key.current=crypto.randomUUID();}}/><Button disabled={disabled||busy||!file} loading={busy} onClick={()=>void run('file')}>导入本站文章草稿</Button></details><Button disabled={disabled||busy} onClick={()=>{pending.current=false;setFile(null);setUrl('');if(fileInput.current)fileInput.current.value='';}}>清除尚未导入的来源选择</Button>{error&&<Alert type="error" title={error}/>} {notice&&<Alert type={notice.complete?'info':'warning'} title={notice.message} description={notice.warnings.join('；')||'正文和图片已核对；请继续预览及保存本课时，不等于发布。'}/>}

@@ -1,0 +1,8 @@
+
+> star-voyage-student@0.1.0 lint
+> npm --prefix frontend run lint
+
+
+> frontend@0.0.0 lint
+> eslint .
+

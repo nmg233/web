@@ -1,0 +1,186 @@
+{
+  "baseCommit": "35bfa8f17ef137b09a75d331cbde31caf291ea48",
+  "reviewSource": "C:\\Users\\shr\\Desktop\\nmg前端\\deliverables\\课程课时实验室集中填写方案-2026-10-20\\独立复核-35bfa8f\\独立复核结论.md",
+  "reviewSha256": "34cabdb49305c8e0f2193225d55e0597cf0c8200b360b417802a5b1cf38ad8d2",
+  "oldHandoffFiles": [
+    {
+      "path": "scripts/content-authoring-migrate.cjs",
+      "matches": true
+    },
+    {
+      "path": "scripts/restore-voyage-theme.cjs",
+      "matches": true
+    },
+    {
+      "path": "scripts/build-article-import-package.mjs",
+      "matches": true
+    },
+    {
+      "path": "docs/content-authoring/GUIDE.md",
+      "matches": true
+    },
+    {
+      "path": "docs/content-authoring/SERVER.md",
+      "matches": true
+    },
+    {
+      "path": "docs/content-authoring/VALIDATION.md",
+      "matches": true
+    }
+  ],
+  "oldLogs": [
+    {
+      "file": "api-tools-release-final.log",
+      "matches": true
+    },
+    {
+      "file": "backend-final.log",
+      "matches": true
+    },
+    {
+      "file": "backend-regression-first.log",
+      "matches": true
+    },
+    {
+      "file": "backend-regression-second.log",
+      "matches": true
+    },
+    {
+      "file": "backend-release-confirmed.log",
+      "matches": true
+    },
+    {
+      "file": "backend-release-final.log",
+      "matches": true
+    },
+    {
+      "file": "browser-compat.log",
+      "matches": true
+    },
+    {
+      "file": "browser-delivery.log",
+      "matches": true
+    },
+    {
+      "file": "browser-extended-fifth.log",
+      "matches": true
+    },
+    {
+      "file": "browser-extended-first.log",
+      "matches": true
+    },
+    {
+      "file": "browser-extended-fourth.log",
+      "matches": true
+    },
+    {
+      "file": "browser-extended-second.log",
+      "matches": true
+    },
+    {
+      "file": "browser-extended-third.log",
+      "matches": true
+    },
+    {
+      "file": "browser-final-learning.log",
+      "matches": true
+    },
+    {
+      "file": "browser-first.log",
+      "matches": true
+    },
+    {
+      "file": "browser-handoff.log",
+      "matches": true
+    },
+    {
+      "file": "browser-second.log",
+      "matches": true
+    },
+    {
+      "file": "build-compat.log",
+      "matches": true
+    },
+    {
+      "file": "build-delivery.log",
+      "matches": true
+    },
+    {
+      "file": "build-handoff.log",
+      "matches": true
+    },
+    {
+      "file": "course-overview-browser-second.log",
+      "matches": true
+    },
+    {
+      "file": "course-overview-browser.log",
+      "matches": true
+    },
+    {
+      "file": "legacy-browser-focused-second.log",
+      "matches": true
+    },
+    {
+      "file": "legacy-browser-focused-third.log",
+      "matches": true
+    },
+    {
+      "file": "legacy-browser-focused.log",
+      "matches": true
+    },
+    {
+      "file": "legacy-repair-final.log",
+      "matches": true
+    },
+    {
+      "file": "lint-compat.log",
+      "matches": true
+    },
+    {
+      "file": "lint-delivery.log",
+      "matches": true
+    },
+    {
+      "file": "lint-final.log",
+      "matches": true
+    },
+    {
+      "file": "old-learning-browser-second.log",
+      "matches": true
+    },
+    {
+      "file": "old-learning-browser.log",
+      "matches": true
+    },
+    {
+      "file": "policy-red-actual.log",
+      "matches": true
+    },
+    {
+      "file": "policy-red.log",
+      "matches": true
+    },
+    {
+      "file": "real-article-link.log",
+      "matches": true
+    },
+    {
+      "file": "scope-package-regression.log",
+      "matches": true
+    },
+    {
+      "file": "teaching-rehearsal.log",
+      "matches": true
+    },
+    {
+      "file": "tools-final-materials.log",
+      "matches": true
+    },
+    {
+      "file": "unit-release.log",
+      "matches": true
+    }
+  ],
+  "oldHandoffZipSha256": "068001e41b8228ac1dd37e4bdef4b181872c2a26fd0481e18fd5b9472079e742"
+}

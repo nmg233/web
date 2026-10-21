@@ -1,0 +1,187 @@
+✔ 公众号正文清洗保留安全排版、本站图片，移除脚本事件与危险样式 (12.5629ms)
+✔ 缺图明确失败；不支持的嵌入媒体返回非完整导入标记 (2.4381ms)
+✔ 复杂文章深度与节点数受限，不递归耗尽服务进程 (34.529ms)
+✔ 空白实体不是教材正文；公众号验证页不能冒充真实文章 (2.3306ms)
+✔ 远程主机、路径、端口与私网地址严格拒绝 (12.8141ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 旧课时仍要求卡片；新显式非卡片模板仍须真实内容和报告评审 (167.6666ms)
+✔ 卡片要求随教材版本冻结；重复命名升级不修改数字迁移和既有字段 (117.6465ms)
+✔ 历史缺卡快照仍可显式补学修复，不改变原卡片前置或销毁旧版本 (123.7069ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\course-rewards-VHdV2k\test.db
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/gifts","status":403}
+{"event":"api_response","method":"POST","route":"/management/images","status":403}
+{"event":"api_response","method":"POST","route":"/management/gifts","status":404}
+{"event":"api_response","method":"POST","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+✔ 两个课程管理员与显式导师同权，学生礼品/图片范围隔离且不能注入归属 (239.8974ms)
+{"event":"api_response","method":"GET","route":"/management/orders/:id","status":404}
+{"event":"api_response","method":"GET","route":"/management/orders/:id","status":404}
+✔ 新建请求丢响应重试不重复礼品；统一余额真实扣款，通知当前课程管理者 (30.8809ms)
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+{"event":"api_response","method":"POST","route":"/management/notifications/retry","status":404}
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+✔ 撤回课程/失效报名阻断新兑换但本人历史与图片保留，导师仍能履约且重复只记一次 (105.6214ms)
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/orders","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"/management/images","status":404}
+{"event":"api_response","method":"POST","route":"/management/orders/:id/fulfill","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+✔ 导师撤销后旧令牌列表/图片/上传/发放拒绝，不使用创建者授课人回退 (23.0297ms)
+{"event":"api_response","method":"PUT","route":"/badges/settings","status":400}
+{"event":"api_response","method":"PUT","route":"/badges/:lessonId","status":409}
+✔ 新课程默认关；空/不完整勋章无提示无授予；完整上传图定义开启后仍须原通关条件 (43.7956ms)
+✔ 完整条件补授幂等、上传图快照保存；关闭不删历史或影响金币，重新开启不重授/重播 (39.2067ms)
+{"event":"api_response","method":"POST","route":"/orders","status":409}
+✔ 兑换徽章独立于通关开关，保留课程快照；撤回后未获不泄露，历史不删除 (24.5444ms)
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":400}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":403}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":409}
+{"event":"api_response","method":"DELETE","route":"/:id","status":409}
+✔ 未知存量不猜课程；管理员逐项带版本绑定、旧订单不重扣、绑定后禁止转移 (76.975ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 关闭不计结课的参观课时不阻断其他正式课时结课 (115.4978ms)
+✔ 正式课时改为参观模板后，旧学生仍可按原学习版本作答 (43.5037ms)
+✔ 总课题可先批准介绍；无正式课时不结课，草稿课时不允许学习 (9.876ms)
+✔ 正式版发布前校验卡题；参观课时可无卡题正式发布且不计结课 (21.0969ms)
+✔ 未授权导师无权查看申请或关闭，导师不能审批；已发布内容须先关闭 (14.9795ms)
+✔ 提交后改稿不能批准未审内容；驳回保留草稿，再提批准才开放 (16.4182ms)
+✔ 关闭暂停全部学习提交；保留旧版本旧答案及一次作答，新学生使用审批新版 (62.4931ms)
+✔ 关闭期间按旧报告评审、退回；重提等待恢复，不改写旧报告历史 (75.3828ms)
+✔ 申请人撤权后不能批准，重复提交和重复审批不生成重复正式版本 (14.6872ms)
+✔ 已结课不回退；未结课学生新增草稿不计分母，正式发布后纳入要求 (59.435ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-real-coins-nAdyhv\coins.db
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/ledger","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+✔ 正式账户0起步；GET不发币；query/body白名单与本人角色权限 (366.8968ms)
+✔ 无徽章定义仍按全部任务及评分结算；并发仅一条，快照不可重算 (543.7895ms)
+✔ 报告通过但作品最新退回/待审不发；练习只要求原有作答；最后通过后发一次 (218.7031ms)
+✔ 合法0分也只结算一次；空/越界/小数分未结算可重试，不能用进度或徽章代替任务 (255.4877ms)
+✔ 回顾/卡片/报告新版本/内容准备/参观/撤回/课时取消分别阻止新奖励；已有历史不追扣 (262.169ms)
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":403}
+✔ 原评分入口拒绝null/空/布尔/非整数，合法0及负责导师/管理员权限保留 (211.009ms)
+✔ 服务端北京连续1/2/5/6/7天、上限10、中断重置、午夜/跨年/闰日及同日幂等 (24.9986ms)
+✔ 并发今日签到/响应丢失后重试不重复；故障事务整体回滚；余额等于流水SUM (110.2967ms)
+✔ 演示兑换消息、重置不进真实账；有限游标无重复/他人数据；数据库唯一与金额约束 (13.5702ms)
+服务器错误: { name: 'Error', code: 'SQLITE_CONSTRAINT_TRIGGER' }
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":500}
+✔ 课时事务插入故障整体回滚，恢复后首次核对补结算；明细分页覆盖多页无重复 (136.248ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4936.862
