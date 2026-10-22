@@ -23,7 +23,7 @@ test('旧班级入口及学校目录只返回当前获准学校，admin包含全
  assert.equal((await call(1,'/auth/classes?school_id=12')).status,200);
 });
 test('共管课程范围按修订合并，不清空其他导师学校，并发修订拒绝',async()=>{
- course=(await call(2,'/courses',{title:'共同课程',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;
+ course=(await call(2,'/courses',{title:'共同课程',description:'两位导师共同组织学生观察、记录并交流实验结果',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;
  assert.equal((await call(1,`/courses/${course}/managers`,{mentorId:3,active:true,expectedRevision:0,reason:'共管',request_key:key()})).status,200);
  assert.equal((await scope(3,course,[12])).status,200);assert.equal((await scope(2,course,[11],2)).status,200);
  const data=(await call(2,`/mentor-workspace/courses/${course}/schools`)).data;assert.deepEqual(data.scopes.map(s=>s.school_id).sort(),[11,12]);assert.equal(data.scopes.find(s=>s.school_id===12).editable,false);
@@ -47,7 +47,7 @@ test('招生需课程、上线学校、本人账号交集；同校/他课关系�
  assert.equal((await call(1,`/courses/${course}/enroll`,{student_ids:[other]})).status,200);
 });
 test('教师只读被授学生指定课程：列表、档案、过滤、预览无跨课数据',async()=>{
- const c2=(await call(2,'/courses',{title:'不得看到的第二课',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;
+ const c2=(await call(2,'/courses',{title:'不得看到的第二课',description:'本课程独立开展设计实践与学习反思',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;
  assert.equal((await scope(2,c2,[11])).status,200);require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},c2);assert.equal((await call(2,`/courses/${c2}/enroll`,{student_ids:[student]})).status,200);
  for(const cid of[course,c2])db.prepare('INSERT INTO lessons(course_id,title) VALUES(?,?)').run(cid,'课程课时'+cid);
  const body={teacherId:teacher,studentId:student,courseId:course,active:true,expectedRevision:0,reason:'只观察这一课',request_key:key()};assert.equal((await call(2,'/mentor-workspace/schools/11/observers',body)).status,200);
@@ -95,7 +95,7 @@ test('管理员直接授予学校不伪造申请，并发幂等及修订保护�
  assert.ok([403,404].includes((await call(4,`/courses/${course}/maintenance`)).status));
  const students=(await call(4,'/mentor-workspace/schools/11/observers')).data.students;assert.ok(!students.some(s=>s.id===student));
  const created=await call(4,'/school-applications/schools/11/students',{class_id:11,real_name:'直接授权本人新建学生',request_key:key()});assert.equal(created.status,200);directStudent=created.data.id;
- directCourse=(await call(4,'/courses',{title:'直接学校授权课程',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;assert.equal((await scope(4,directCourse,[11])).status,200);require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},directCourse);assert.equal((await call(4,`/courses/${directCourse}/enroll`,{student_ids:[directStudent]})).status,200);
+ directCourse=(await call(4,'/courses',{title:'直接学校授权课程',description:'面向获准学校学生的观察、讨论与实践课程',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;assert.equal((await scope(4,directCourse,[11])).status,200);require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},directCourse);assert.equal((await call(4,`/courses/${directCourse}/enroll`,{student_ids:[directStudent]})).status,200);
  directTeacher=(await call(4,'/mentor-workspace/schools/11/teachers',{class_id:11,real_name:'直接学校授权观察教师',request_key:key()})).data.id;db.prepare('UPDATE users SET force_reset_password=0 WHERE id=?').run(directTeacher);tokens[directTeacher]=jwt.sign({id:directTeacher,role:'teacher',auth_version:0,school_id:11},process.env.JWT_SECRET);assert.equal((await call(4,'/mentor-workspace/schools/11/observers',{teacherId:directTeacher,studentId:directStudent,courseId:directCourse,active:true,expectedRevision:0,reason:'仅本课观察',request_key:key()})).status,200);assert.equal((await call(directTeacher,'/observer/students')).data.pagination.total,1);
  assert.equal((await call(1,'/mentor-workspace/school-grants',{...body,active:false,request_key:key()})).status,409);
 });

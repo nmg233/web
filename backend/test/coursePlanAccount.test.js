@@ -33,7 +33,28 @@ test('模板字段按维护范围保存、空值不补素材；HTTPS 文章无�
  assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',body)).status,200);pub.publish(admin,1,1);{const readonly=await req(2,'/learning/lessons/1');assert.equal(readonly.status,200);assert.equal(readonly.data.read_only,true);assert.equal(readonly.data.learning_available,false);assert.equal(readonly.data.content_version.id,null);assert.equal(db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n,0);assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress').get().n,0);}const lesson=(await req(1,'/courses/1/maintenance')).data.lessons.find(l=>l.id===1);assert.equal(lesson.description,body.description);assert.equal(lesson.article_url,body.article_url);
  pub.close(admin,1,1);
  for(const url of ['javascript:alert(1)','http://example.com','https://user:pass@example.com'])assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{article_url:url})).status,400);
- assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{article_url:'',article_title:'',moments_note:''})).status,200);const empty=(await req(1,'/courses/1/maintenance')).data;assert.equal(empty.lessons.find(l=>l.id===1).article_url,null);assert.equal(empty.cards.length,0);assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_learning_reports').get().n,0);assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress WHERE progress=100').get().n,0);pub.publish(admin,1,1);{const readonly=await req(2,'/learning/lessons/1');assert.equal(readonly.status,200);assert.equal(readonly.data.read_only,true);assert.equal(readonly.data.learning_available,false);assert.equal(readonly.data.content_version.id,null);assert.equal(db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n,0);assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress').get().n,0);}
+ assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{article_url:'',article_title:'',moments_note:''})).status,200);
+ const empty=(await req(1,'/courses/1/maintenance')).data;
+ assert.equal(empty.lessons.find(l=>l.id===1).article_url,null);
+ assert.equal(empty.cards.length,0);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_learning_reports').get().n,0);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress WHERE progress=100').get().n,0);
+ const requestsBefore=db.prepare('SELECT count(*) n FROM publication_requests').get().n;
+ assert.throws(()=>pub.publish(admin,1,1),e=>e.status===409&&/教学内容不完整/.test(e.message));
+ assert.equal(db.prepare('SELECT count(*) n FROM publication_requests').get().n,requestsBefore);
+ assert.equal(db.prepare('SELECT publication_state FROM lessons WHERE id=1').get().publication_state,'closed');
+ assert.equal((await req(2,'/learning/lessons/1')).status,409);
+ // Restore real teaching text before publishing; optional links stay empty.
+ assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{review_content:'参观时观察实验设备，记录问题并与讲解老师交流'})).status,200);
+ pub.publish(admin,1,1);
+ const readonly=await req(2,'/learning/lessons/1');
+ assert.equal(readonly.status,200);
+ assert.equal(readonly.data.read_only,true);
+ assert.equal(readonly.data.learning_available,false);
+ assert.equal(readonly.data.content_version.id,null);
+ assert.equal(db.prepare('SELECT article_url FROM lessons WHERE id=1').get().article_url,null);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n,0);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress').get().n,0);
 });
 test('教师学生不可维护，撤回/报名移除不返回新字段和计划，归档不可写',async()=>{
  for(const id of[2,3])for(const tail of ['/plan','/lessons/1'])assert.equal((await req(id,'/courses/1/maintenance'+tail,'PUT',tail==='/plan'?{nodes:[{position:1,lessonId:1}]}:{moments_note:'拒绝'})).status,403);

@@ -197,6 +197,11 @@ test('新学生/教师/导师改密后配置职责、建课、选课与访问课
   assert.equal((await api(`/courses/${course.body.id}/lessons`,{title:'第一课',instructor_id:mentor.id},sessions.mentor)).status,200);
   require('./helpers/explicitScopeFixture.cjs').admissions(db);
   const publication=require('../services/publicationService'),adminActor=db.prepare("SELECT * FROM users WHERE id=1").get();
+  const requestsBefore=db.prepare('SELECT count(*) n FROM publication_requests').get().n;
+  assert.throws(()=>publication.submit(adminActor,course.body.id,{reason:'空简介不得发布'}),e=>e.status===409&&/课程简介/.test(e.message));
+  assert.equal(db.prepare('SELECT count(*) n FROM publication_requests').get().n,requestsBefore);
+  assert.equal(db.prepare('SELECT status FROM courses WHERE id=?').get(course.body.id).status,'draft');
+  assert.equal((await api(`/courses/${course.body.id}`,{description:'通过本课程练习课堂观察、记录与成果交流'},sessions.mentor,'PUT')).status,200);
   const publicationRequest=publication.submit(adminActor,course.body.id,{reason:'账号闭环课程发布申请'});publication.decide(adminActor,course.body.id,publicationRequest.id,{decision:'approved',reason:'管理员批准'});
   assert.equal((await api(`/courses/${course.body.id}/enroll`,{student_ids:[student.id]},sessions.mentor)).status,200);
   require('./helpers/explicitScopeFixture.cjs').observers(db);
