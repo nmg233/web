@@ -29,7 +29,7 @@ function fixture() {
   return { course, lesson, card, exercise };
 }
 const pub=require('./helpers/publicationFixture.cjs');
-const close=f=>pub.close(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
+const close=f=>pub.edit(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
 function submit(f, student=3) {
   learning.lessonPackage(student,f.lesson);
   learning.completeReview(student,f.lesson);
@@ -50,7 +50,7 @@ test('文章/课堂回顾课程保留真实阅读媒介，未配置传统课时�
   assert.equal(versions.boundVersion(db,4,f.lesson),null);
 });
 
-test('人工改稿只影响新学生，已绑定文章卡题和报告指导冻结，安排信息实时更新', () => {
+test('人工改稿审批后才影响新学生，已绑定文章卡题、指导和安排信息全部冻结', () => {
   const f=fixture();
   learning.lessonPackage(3,f.lesson);
   db.prepare("UPDATE lessons SET article_blocks=?,report_guidance='新报告提示',location='新地点' WHERE id=?")
@@ -61,7 +61,8 @@ test('人工改稿只影响新学生，已绑定文章卡题和报告指导冻�
   assert.equal(old.lesson.article_blocks[0].text,'原人工教材');
   assert.equal(old.lesson.report_guidance,'原报告提示');
   assert.equal(old.cards[0].content,'原正文');
-  assert.equal(old.lesson.location,'新地点');
+  assert.equal(old.lesson.location,'原地点');
+  assert.equal(fresh.lesson.location,'新地点');
   assert.equal(fresh.lesson.article_blocks[0].text,'新人工教材');
   assert.equal(fresh.cards[0].content,'新正文');
   learning.completeReview(3,f.lesson);
@@ -129,10 +130,11 @@ test('开放反思、历史报告与习题反馈保留，原首次评分金币�
   assert.equal(learning.lessonPackage(3,f.lesson).course_completion.completed,true);
 });
 
-test('版本绑定不绕过撤回或报名权限，关闭准备改稿期间不可标记回顾/提交报告', () => {
+test('版本绑定不绕过报名权限，准备中草稿不影响旧正式版继续回顾，未完成卡题仍不能交报告', () => {
   const f=fixture();learning.lessonPackage(3,f.lesson);
   close(f);db.prepare("UPDATE lessons SET content_state='preparing' WHERE id=?").run(f.lesson);
-  assert.throws(()=>learning.completeReview(3,f.lesson),e=>e.status===409);
+  learning.completeReview(3,f.lesson);
+  assert.equal(learning.lessonPackage(3,f.lesson).progress.review_completed,true);
   assert.throws(()=>learning.submitReport(3,f.lesson,{}),e=>e.status===409);
   db.prepare("UPDATE enrollments SET status='removed' WHERE course_id=? AND student_id=3").run(f.course);
   assert.throws(()=>learning.lessonPackage(3,f.lesson),e=>e.status===404);

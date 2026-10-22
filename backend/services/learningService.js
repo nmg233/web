@@ -140,7 +140,7 @@ function lessonPackage(studentId, lessonId) {
        ORDER BY w.version DESC, w.id DESC LIMIT 1) AS work_status
     FROM tasks t WHERE t.lesson_id = ? AND t.status = 'active'
     ORDER BY t.sort_order, t.id
-  `).all(studentId, studentId, lessonId);
+  `).all(studentId, studentId, lessonId).map(t=>{const official=require('../helpers/lessonPublication').publishedTask(db,t.id);return official?{...t,...official}:null;}).filter(Boolean);
   const originalReport = learningGate.latestReport(studentId, lessonId);
   const repair = versions.replacement(db,originalReport?.id);
   const report = repair ? { ...originalReport, original_status:originalReport.status, status:'rejected',
@@ -165,8 +165,8 @@ function lessonPackage(studentId, lessonId) {
       article_url: teaching.article_url, article_title: teaching.article_title, moments_note: teaching.moments_note,
       review_content: teaching.review_content, report_guidance: teaching.report_guidance,
       experiment_guidance: teaching.experiment_guidance, article_blocks: require('./articleBlocks').parse(teaching.article_blocks),
-      location: lesson.location, instructor_name: db.prepare('SELECT real_name FROM users WHERE id=?').get(lesson.instructor_id)?.real_name || null,
-      duration: lesson.duration, start_at: lesson.start_at, end_at: lesson.end_at,
+      location: teaching.location, instructor_name: db.prepare('SELECT real_name FROM users WHERE id=?').get(teaching.instructor_id)?.real_name || null,
+      duration: teaching.duration, start_at: teaching.start_at, end_at: teaching.end_at,
     },
     read_only: readOnly,
     learning_available: !readOnly,
@@ -686,7 +686,7 @@ module.exports = {
     const lesson = assertManageLesson(user, lessonId);
     return { lesson_id:lesson.id, course_id:lesson.course_id,
       publication_state:lesson.publication_state,
-      read_only:!['admin', 'academic_mentor'].includes(user.role) || lesson.course_status === 'archived' || lesson.status === 'cancelled' || ['published','legacy'].includes(lesson.publication_state) };
+      read_only:!['admin', 'academic_mentor'].includes(user.role) || lesson.course_status === 'archived' || lesson.status === 'cancelled' };
   },
   repairLegacy(user, lessonId, studentId, reason) {
     assertWritableLesson(user,lessonId);

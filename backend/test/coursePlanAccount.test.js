@@ -28,10 +28,10 @@ test('真实节点配置与排序，仅同课对象；空未来节点不造课�
  assert.equal(db.prepare('SELECT count(*) n FROM course_plan_nodes').get().n,10);
 });
 test('模板字段按维护范围保存、空值不补素材；HTTPS 文章无脚本注入',async()=>{
- const pub=require('./helpers/publicationFixture.cjs'),admin={id:4,role:'admin'};pub.close(admin,1,1);
+ const pub=require('./helpers/publicationFixture.cjs'),admin={id:4,role:'admin'};pub.edit(admin,1,1);
  const body={description:'真实测试文字。',moments_note:'说明',article_title:'文章',article_url:'https://example.com/source',presentation_type:'visit',content_state:'preparing'};
  assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',body)).status,200);pub.publish(admin,1,1);{const readonly=await req(2,'/learning/lessons/1');assert.equal(readonly.status,200);assert.equal(readonly.data.read_only,true);assert.equal(readonly.data.learning_available,false);assert.equal(readonly.data.content_version.id,null);assert.equal(db.prepare('SELECT COUNT(*) n FROM student_lesson_versions').get().n,0);assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_progress').get().n,0);}const lesson=(await req(1,'/courses/1/maintenance')).data.lessons.find(l=>l.id===1);assert.equal(lesson.description,body.description);assert.equal(lesson.article_url,body.article_url);
- pub.close(admin,1,1);
+ pub.edit(admin,1,1);
  for(const url of ['javascript:alert(1)','http://example.com','https://user:pass@example.com'])assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{article_url:url})).status,400);
  assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{article_url:'',article_title:'',moments_note:''})).status,200);
  const empty=(await req(1,'/courses/1/maintenance')).data;
@@ -42,8 +42,8 @@ test('模板字段按维护范围保存、空值不补素材；HTTPS 文章无�
  const requestsBefore=db.prepare('SELECT count(*) n FROM publication_requests').get().n;
  assert.throws(()=>pub.publish(admin,1,1),e=>e.status===409&&/教学内容不完整/.test(e.message));
  assert.equal(db.prepare('SELECT count(*) n FROM publication_requests').get().n,requestsBefore);
- assert.equal(db.prepare('SELECT publication_state FROM lessons WHERE id=1').get().publication_state,'closed');
- assert.equal((await req(2,'/learning/lessons/1')).status,409);
+ assert.equal(db.prepare('SELECT publication_state FROM lessons WHERE id=1').get().publication_state,'published');
+ assert.equal((await req(2,'/learning/lessons/1')).status,200,'不完整草稿不能发布，但原正式课时仍可学习');
  // Restore real teaching text before publishing; optional links stay empty.
  assert.equal((await req(1,'/courses/1/maintenance/lessons/1','PUT',{review_content:'参观时观察实验设备，记录问题并与讲解老师交流'})).status,200);
  pub.publish(admin,1,1);

@@ -30,7 +30,7 @@ test('课程详情保留章节计划、教学安排与上游完成状态，观�
  const a=archive.loadStudentArchive(3,{id:3,role:'student'},1);assert.deepEqual(a.learningReports.map(r=>r.lesson_id),[1]);assert.equal(a.learningReports[0].summary,'报告正文');assert.ok(!archive.loadStudentArchive(3,{id:3,role:'student'}).learningReports.some(r=>r.lesson_id===2));
 });
 test('回放保存摘要、字节幂等与部分修改，非管理角色不可通过任一写入口修改',async()=>{
- require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
+ require('./helpers/publicationFixture.cjs').edit({id:1,role:'admin'},1,1);
  const one=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(one.status,200,JSON.stringify(one.body));const id=one.body.id;
  const duplicate=await api('/courses/1/replays','POST',replayForm('replay_merge_123'));assert.equal(duplicate.status,200);assert.equal(duplicate.body.id,id);assert.equal(db.prepare('SELECT COUNT(*) n FROM course_replays').get().n,1);
  const changed=await api('/courses/1/replays','POST',replayForm('replay_merge_123','different'));assert.equal(changed.status,409);
@@ -53,7 +53,7 @@ test('原课程外观维护仍保存，有历史禁止撤回、待评禁止关�
 });
 
 test('资料上传保留原始文件名与可恢复标识，跨课程或取消课时不能挂接，文章引用不能误删',async()=>{
- require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},1,1);
+ require('./helpers/publicationFixture.cjs').edit({id:1,role:'admin'},1,1);
  const form=(lessonId,title='资料说明')=>{const f=new FormData();f.append('title',title);f.append('resource_type','other');f.append('lesson_id',String(lessonId));f.append('upload_token','12345678-1234-1234-1234-123456789abc');f.append('file',new Blob([Buffer.from('实际教材资料')],{type:'text/markdown'}),'original.md');return f;};
  const one=await api('/courses/1/resources','POST',form(1),2);assert.equal(one.status,200,JSON.stringify(one.body));
  const two=await api('/courses/1/resources','POST',form(1),2);assert.equal(two.status,200);assert.equal(two.body.id,one.body.id);assert.equal(two.body.reused,true);

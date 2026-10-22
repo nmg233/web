@@ -29,7 +29,15 @@ function textTerms(value) {
   return [...new Set([...han, ...english])].slice(0, 16);
 }
 
-function relevantFiles(courseId, question) {
+function relevantFiles(courseId, question, user) {
+  // Draft uploads may already be indexed, but must not enter a student's prompt.
+  const publication = require('../helpers/lessonPublication');
+  const visible = user?.role === 'student' ? new Map(db.prepare('SELECT * FROM resources WHERE course_id=?').all(courseId).map(r => {
+    const official = r.lesson_id == null ? r : publication.studentAsset(db,user.id,courseId,'resource',r.id);
+    return official ? [r.id,official] : null;
+  }).filter(Boolean)) : null;
+  const scopeSql = visible ? ' AND r.id IN (SELECT value FROM json_each(?))' : '';
+  const scopeParams = visible ? [JSON.stringify([...visible.keys()])] : [];
   const terms = textTerms(question);
   if (!terms.length) return [];
   const fullTerms = terms.filter(term => term.length >= 3);
@@ -41,8 +49,8 @@ function relevantFiles(courseId, question) {
     JOIN ai_documents d ON d.id = c.document_id
     JOIN resources r ON r.id = d.resource_id
     WHERE ai_chunks_fts MATCH ? AND c.course_id = ? AND d.enabled = 1 AND d.status = 'ready'
-      AND d.course_id = c.course_id AND r.course_id = c.course_id
-    ORDER BY score LIMIT 5`).all(query, courseId) : [];
+      AND d.course_id = c.course_id AND r.course_id = c.course_id${scopeSql}
+    ORDER BY score LIMIT 5`).all(query, courseId, ...scopeParams) : [];
   const shortTerms = terms.filter(term => /^[\p{Script=Han}]{2}$/u.test(term));
   // FTS5 trigram 无法检索两字术语（例如“升力”），在已授权课程内补充精确片段匹配。
   const rows = hits.length || !shortTerms.length ? hits : db.prepare(`
@@ -51,10 +59,10 @@ function relevantFiles(courseId, question) {
     JOIN resources r ON r.id = d.resource_id
     WHERE d.course_id = ? AND c.course_id = d.course_id AND r.course_id = d.course_id
       AND d.enabled = 1 AND d.status = 'ready'
-      AND (${shortTerms.map(() => 'instr(c.text, ?) > 0').join(' OR ')})
-    ORDER BY d.resource_id, c.chunk_index LIMIT 5`).all(courseId, ...shortTerms);
+      AND (${shortTerms.map(() => 'instr(c.text, ?) > 0').join(' OR ')})${scopeSql}
+    ORDER BY d.resource_id, c.chunk_index LIMIT 5`).all(courseId, ...shortTerms, ...scopeParams);
   return rows.map((row) => ({
-    type: 'resource', id: row.resource_id, title: row.title, locator: row.locator, text: row.text,
+    type: 'resource', id: row.resource_id, title: visible?.get(row.resource_id)?.title ?? row.title, locator: row.locator, text: row.text,
   }));
 }
 
@@ -78,12 +86,12 @@ function buildContext(sources) {
   return { numbered, context: blocks.join('\n\n') };
 }
 
-function assertContextCurrent(courseId, question, numbered, settings) {
+function assertContextCurrent(courseId, question, numbered, settings, user) {
   const currentSettings = readSettings();
   if (!currentSettings.enabled) throw Object.assign(new Error('AI 助手已停用，请联系管理员'), { status: 503, code: 'AI_DISABLED' });
   const currentCourse = db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId);
-  const current = currentCourse ? [...structuredSources(currentCourse, question),
-    ...(currentSettings.retrieval_enabled ? relevantFiles(courseId, question) : [])] : [];
+  const current = currentCourse ? [...structuredSources(currentCourse, question, user),
+    ...(currentSettings.retrieval_enabled ? relevantFiles(courseId, question, user) : [])] : [];
   // 同一资源可能命中多个片段，不能按 resource_id 覆盖后只比较最后一段。
   const changed = settings.retrieval_enabled !== currentSettings.retrieval_enabled || numbered.some(source =>
     !current.some(latest => latest.type === source.type && latest.id === source.id &&
@@ -91,14 +99,23 @@ function assertContextCurrent(courseId, question, numbered, settings) {
   if (changed) throw Object.assign(new Error('课程资料已更新或停用，请重新提问'), { status: 409, code: 'AI_CONTEXT_CHANGED' });
 }
 
-function structuredSources(course, question) {
+function structuredSources(course, question, user) {
   const courseId = course.id;
   const result = [{ type: 'course', id: courseId, title: `课程《${course.title}》`, locator: '课程概况',
     text: [course.description, course.driving_question && `驱动问题：${course.driving_question}`,
       course.story_line, course.materials_needed].filter(Boolean).join('\n').slice(0, 1400) }];
-  const lessons = db.prepare("SELECT id, title, description, start_at, end_at, location FROM lessons WHERE course_id = ? AND status != 'cancelled' ORDER BY sort_order, id").all(courseId);
-  const tasks = db.prepare("SELECT t.id, t.title, t.description, t.deadline FROM tasks t JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ? AND l.status != 'cancelled' AND t.status = 'active' ORDER BY t.id").all(courseId);
-  const cards = db.prepare("SELECT k.id, k.title, k.summary, k.content FROM knowledge_cards k JOIN lessons l ON l.id = k.lesson_id WHERE l.course_id = ? AND l.status != 'cancelled' AND k.status = 'published' ORDER BY k.id").all(courseId);
+  let lessons = db.prepare("SELECT * FROM lessons WHERE course_id = ? AND status != 'cancelled' ORDER BY sort_order, id").all(courseId);
+  let tasks, cards;
+  if (user?.role === 'student') {
+    const publication = require('../helpers/lessonPublication');
+    const editions = lessons.filter(l => ['legacy','published'].includes(l.publication_state)).map(l => publication.studentContent(db,user.id,l.id));
+    lessons = editions.map(v => v.lesson);
+    cards = editions.flatMap(v => v.cards);
+    tasks = db.prepare("SELECT t.id FROM tasks t JOIN lessons l ON l.id=t.lesson_id WHERE l.course_id=? AND t.status='active' ORDER BY t.id").all(courseId).map(t=>publication.publishedTask(db,t.id)).filter(Boolean);
+  } else {
+    tasks = db.prepare("SELECT t.id, t.title, t.description, t.deadline FROM tasks t JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ? AND l.status != 'cancelled' AND t.status = 'active' ORDER BY t.id").all(courseId);
+    cards = db.prepare("SELECT k.id, k.title, k.summary, k.content FROM knowledge_cards k JOIN lessons l ON l.id = k.lesson_id WHERE l.course_id = ? AND l.status != 'cancelled' AND k.status = 'published' ORDER BY k.id").all(courseId);
+  }
   const candidates = [
     ...lessons.map((row) => ({ type: 'lesson', id: row.id, title: `课时：${row.title}`, locator: '课时安排',
       text: [row.description, row.start_at && `开始：${row.start_at}`, row.end_at && `结束：${row.end_at}`, row.location && `地点：${row.location}`].filter(Boolean).join('\n') })),
@@ -122,8 +139,8 @@ async function ask(user, course, question) {
   checkRate(user.id);
   const apiKey = decryptKey(settings.api_key_encrypted);
   if (!apiKey) throw Object.assign(new Error('灵境小智尚未配置 API Key'), { status: 503 });
-  const structured = structuredSources(course, question);
-  const files = settings.retrieval_enabled ? relevantFiles(course.id, question) : [];
+  const structured = structuredSources(course, question, user);
+  const files = settings.retrieval_enabled ? relevantFiles(course.id, question, user) : [];
   const sources = [...structured, ...files].filter((source) => source.text);
   const { numbered, context } = buildContext(sources);
   const expansion = {
@@ -184,7 +201,7 @@ async function ask(user, course, question) {
     if (!verified.length && parsed.scope === 'core') {
       answer = `当前课程资料中未找到可核对的相关信息。以下仅供一般性学习参考：\n${answer}`;
     }
-    assertContextCurrent(course.id, question, numbered, settings);
+    assertContextCurrent(course.id, question, numbered, settings, user);
     usageService.finish(requestId, { status: 'succeeded', payload, duration: Date.now() - started });
     return { answer, scope: parsed.scope, sources: parsed.scope !== 'unrelated' && settings.show_sources ? verified : [],
       origin: 'provider', request_id: requestId, model: settings.model };

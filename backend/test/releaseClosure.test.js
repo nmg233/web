@@ -32,7 +32,7 @@ function fixture(withExercise=true){
   return {course,lesson,replay,card,exercise,file};
 }
 const pub=require('./helpers/publicationFixture.cjs');
-const close=f=>pub.close(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
+const close=f=>pub.edit(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
 function finish(f){learning.lessonPackage(3,f.lesson);learning.completeReview(3,f.lesson);learning.submitExercise(3,f.exercise,'A');learning.completeCard(3,f.card);return learning.submitReport(3,f.lesson,{report:{summary:'报告'},reflection:{difficulty:'反思'}});}
 
 test('N01/N02：旧入口拒绝不完整迁校，完整迁移保留账号密码导师及学习记录，重试只有一份审计',()=>{

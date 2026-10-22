@@ -12,13 +12,18 @@ function notify(id,status,actor){
  const recipients=status==='pending'?db.prepare("SELECT id FROM users WHERE role='admin' AND is_active=1 AND archived_at IS NULL").all().map(u=>u.id):[p.applicant_id];
  require('./notificationService').safeCreateForUsers({eventKey:'course.publication',dedupeKey:'publication:'+id+':'+status,title:status==='pending'?'收到发布审批申请':status==='approved'?'发布申请已批准':'发布申请已驳回',content:status==='approved'?'提交版本已正式发布；原有学生学习版本和作答保留。':'请在对应总课题中查看提交内容及审批意见。',category:'course',actionUrl:'/courses/'+p.course_id,createdBy:actor.id},recipients);
 }
-function snapshot(courseId,lessonId){
- if(!lessonId)return db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);
- const content=versions.currentContent(db,lessonId);
+function cleanContent(content){
  for(const key of ['publication_state','published_version_id','closure_reason'])delete content.lesson[key];
  return content;
 }
-function read(user,id){course(user,id);return {events:db.prepare('SELECT e.*,u.real_name actor_name,l.title lesson_title FROM lesson_publication_events e JOIN users u ON u.id=e.actor_id JOIN lessons l ON l.id=e.lesson_id WHERE e.course_id=? ORDER BY e.id DESC LIMIT 100').all(id),introHistory:db.prepare('SELECT a.*,u.real_name actor_name FROM course_content_audit a JOIN users u ON u.id=a.actor_id WHERE a.course_id=? ORDER BY a.id DESC LIMIT 100').all(id),requests:db.prepare(`SELECT p.*,u.real_name applicant_name,a.real_name approver_name,l.title lesson_title FROM publication_requests p JOIN users u ON u.id=p.applicant_id LEFT JOIN users a ON a.id=p.decided_by LEFT JOIN lessons l ON l.id=p.lesson_id WHERE p.course_id=? ORDER BY p.id DESC`).all(id).map(({snapshot_json,...r})=>({...r,snapshot:JSON.parse(snapshot_json)}))};}
+function snapshot(courseId,lessonId){
+ if(!lessonId)return db.prepare('SELECT * FROM courses WHERE id=?').get(courseId);
+ return cleanContent(versions.currentContent(db,lessonId));
+}
+function read(user,id){course(user,id);return {lessons:db.prepare('SELECT id,published_version_id FROM lessons WHERE course_id=?').all(id).map(l=>{
+ const formal=publication.formalContent(db,l.id);
+ return {lesson_id:l.id,published_version_id:l.published_version_id,draft_changed:!formal||hash(cleanContent(formal))!==hash(snapshot(id,l.id))};
+}),recoveries:db.prepare('SELECT * FROM lesson_authoring_recoveries WHERE lesson_id IN (SELECT id FROM lessons WHERE course_id=?) ORDER BY restored_at DESC').all(id),events:db.prepare('SELECT e.*,u.real_name actor_name,l.title lesson_title FROM lesson_publication_events e JOIN users u ON u.id=e.actor_id JOIN lessons l ON l.id=e.lesson_id WHERE e.course_id=? ORDER BY e.id DESC LIMIT 100').all(id),introHistory:db.prepare('SELECT a.*,u.real_name actor_name FROM course_content_audit a JOIN users u ON u.id=a.actor_id WHERE a.course_id=? ORDER BY a.id DESC LIMIT 100').all(id),requests:db.prepare(`SELECT p.*,u.real_name applicant_name,a.real_name approver_name,l.title lesson_title FROM publication_requests p JOIN users u ON u.id=p.applicant_id LEFT JOIN users a ON a.id=p.decided_by LEFT JOIN lessons l ON l.id=p.lesson_id WHERE p.course_id=? ORDER BY p.id DESC`).all(id).map(({snapshot_json,...r})=>({...r,snapshot:JSON.parse(snapshot_json)}))};}
 function submit(user,courseId,body){return db.transaction(()=>{
  fields(body,['lesson_id','reason']);
  const c=course(user,courseId);if(c.status==='archived')fail('已归档课程不能申请发布',409);
@@ -44,6 +49,7 @@ function decide(user,courseId,requestId,body){return db.transaction(()=>{
  if(p.status!=='pending'){if(p.status===body.decision)return {id:p.id,status:p.status,replayed:true};fail('申请已处理，请读取最新状态',409);}
  if(c.status==='archived')fail('课程已归档',409);
  if(body.decision==='approved'){
+ if(p.lesson_id&&!Array.isArray(JSON.parse(p.snapshot_json).tasks))fail('此申请提交于不停课修订升级前，未包含独立成果任务快照；请驳回后重新提交完整版本',409);
  const applicant=db.prepare('SELECT * FROM users WHERE id=?').get(p.applicant_id);
  if(!applicant?.is_active||applicant.archived_at||applicant.force_reset_password||!canManageCourse(applicant,c))fail('申请人已失去管理权限，请驳回并由当前管理者重新申请',409);
  if(hash(snapshot(courseId,p.lesson_id))!==p.fingerprint)fail('提交后内容已变化，请驳回旧申请并重新提交，不能批准未审内容',409);
@@ -56,15 +62,9 @@ function decide(user,courseId,requestId,body){return db.transaction(()=>{
  notify(p.id,body.decision,user);
  return {id:p.id,status:body.decision};
 }).immediate();}
-function close(user,courseId,lessonId,body){return db.transaction(()=>{
- fields(body,['reason']);
- const c=course(user,courseId);if(c.status==='archived')fail('课程已归档',409);
- const l=db.prepare('SELECT * FROM lessons WHERE id=? AND course_id=?').get(lessonId,courseId);if(!l)fail('课时不属于当前总课题',404);
- if(l.status==='cancelled'||l.publication_state==='draft')fail('该课时不是可关闭的正式课时',409);
- const why=reason(body.reason);if(l.publication_state==='closed')return {closed:true};
- const version=l.published_version_id||versions.saveVersion(db,l.id,true).id;
- db.prepare("UPDATE lessons SET publication_state='closed',published_version_id=?,closure_reason=? WHERE id=?").run(version,why,l.id);
- db.prepare("INSERT INTO lesson_publication_events(course_id,lesson_id,actor_id,action,content_version_id,reason) VALUES(?,?,?,'close',?,?)").run(courseId,l.id,user.id,version,why);
- return {closed:true,published_version_id:version};
-}).immediate();}
+function close(user,courseId,lessonId){
+ course(user,courseId);
+ if(!db.prepare('SELECT id FROM lessons WHERE id=? AND course_id=?').get(lessonId,courseId))fail('课时不属于当前总课题',404);
+ fail('编辑前关闭课时功能已移除；请直接保存草稿并提交管理员审批，原正式版继续开放',410);
+}
 module.exports={read,submit,decide,close,snapshot};

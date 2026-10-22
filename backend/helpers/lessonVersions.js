@@ -58,7 +58,8 @@ function currentContent(db, lessonId) {
   const resources = db.prepare(`SELECT *
     FROM resources WHERE course_id = ? AND (lesson_id = ? OR lesson_id IS NULL) ORDER BY id`).all(lesson.course_id, lessonId);
   const experiments=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='course_experiments'").get()?db.prepare('SELECT * FROM course_experiments WHERE course_id=? AND lesson_id=? ORDER BY id').all(lesson.course_id,lessonId):[];
-  return { lesson: { ...lesson }, cards, replays, resources, experiments };
+  const tasks=db.prepare('SELECT * FROM tasks WHERE lesson_id=? ORDER BY sort_order,id').all(lessonId);
+  return { lesson: { ...lesson }, cards, replays, resources, experiments, tasks };
 }
 
 function hasAuthoredReview(lesson) {

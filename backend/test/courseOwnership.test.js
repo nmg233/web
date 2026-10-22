@@ -89,7 +89,7 @@ test('本人课程及管理员跨课程管理仍可用，候选学生按显式�
   for (const [id,token] of [[1,tokens.mentor_a],[2,tokens.mentor_b],[3,tokens.admin]]) {
     if(id===2){db.prepare('UPDATE users SET mentor_id=3 WHERE id=5').run();require('./helpers/explicitScopeFixture.cjs').admissions(db);}
     db.prepare('INSERT OR IGNORE INTO course_school_scopes(course_id,school_id,created_by) VALUES(?,1,1)').run(id);
-    require('./helpers/publicationFixture.cjs').close({id:1,role:'admin'},id,id);
+    require('./helpers/publicationFixture.cjs').edit({id:1,role:'admin'},id,id);
     assert.equal((await api(`/courses/${id}`,'PUT',{title:'合法编辑'},token)).status,200);
     assert.equal((await api(`/courses/${id}/lessons`,'POST',{title:'合法课时'},token)).status,200);
     assert.equal((await api(`/courses/lessons/${id}/tasks`,'POST',{title:'合法任务'},token)).status,200);

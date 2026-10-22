@@ -48,7 +48,7 @@ function reportPayload(baseId, suffix = '一') {
   };
 }
 const pub=require('./helpers/publicationFixture.cjs'),adminActor={id:1,role:'admin'};
-const closeLesson=(lessonId=1)=>pub.close(adminActor,1,lessonId),publishLesson=()=>pub.publish(adminActor,1,1);
+const closeLesson=(lessonId=1)=>pub.edit(adminActor,1,lessonId),publishLesson=()=>pub.publish(adminActor,1,1);
 const reports = () => db.prepare('SELECT * FROM lesson_learning_reports WHERE lesson_id = 1 ORDER BY version').all();
 
 before(async () => {
@@ -206,7 +206,7 @@ test('Markdown知识卡片源码完整保存，草稿隐藏，审批后新学生
   const markdown = '## 升力\n\n**核心概念**\n\n- 流速\n- 压力\n\n```js\nconst lift = 1;\n```\n\n| 参数 | 含义 |\n| --- | --- |\n| L | 升力 |';
   const created = await api('/learning/manage/lessons/1/cards','POST',{title:'Markdown卡片',content:markdown,status:'draft'},'admin');
   assert.equal(created.status,201);
-  assert.equal((await api('/learning/lessons/1')).status,409,'关闭期间不能继续学习');
+  assert.equal((await api('/learning/lessons/1')).status,200,'编辑草稿期间原正式版继续学习');
   await api(`/learning/manage/cards/${created.body.id}/exercises`,'POST',{question_type:'true_false',prompt:'判断',answer:true,explanation:'详解'},'admin');
   assert.equal((await api(`/learning/manage/cards/${created.body.id}`,'PUT',{status:'published'},'admin')).status,200);
   publishLesson();assert.equal((await api('/learning/lessons/1','GET',undefined,'newstudent')).body.cards.find((item) => item.id === created.body.id).content,markdown);

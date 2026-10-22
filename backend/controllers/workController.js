@@ -51,7 +51,7 @@ exports.pendingTasks = (req, res) => {
         WHERE w.student_id=e.student_id AND w.task_id=t.id
         ORDER BY w.version DESC, w.created_at DESC, w.id DESC LIMIT 1) = 'rejected'
       )
-      ORDER BY t.created_at DESC`).all(req.user.id);
+      ORDER BY t.created_at DESC`).all(req.user.id).map(t=>{const official=require('../helpers/lessonPublication').publishedTask(db,t.id);return official?{...t,...official}:null;}).filter(Boolean);
     res.json({ tasks });
   } catch (err) { res.status(500).json({ error: '加载待办任务失败' }); }
 };
@@ -102,7 +102,7 @@ exports.list = (req, res) => {
 
     sql += ' ORDER BY w.created_at DESC';
 
-    const works = db.prepare(sql).all(...params).map(toFileDto);
+    const works = db.prepare(sql).all(...params).map(w=>req.user.role==='student'?{...w,task_title:require('../helpers/lessonPublication').formalTask(db,w.task_id)?.title||null}:w).map(toFileDto);
     let courses = [];
     if (req.user.role === 'admin') {
       courses = db.prepare('SELECT id, title FROM courses ORDER BY title').all();
@@ -213,6 +213,7 @@ exports.upload = (req, res) => {
         return res.status(409).json({ error: '该任务当前不可提交' });
       }
       try{require('../helpers/lessonPublication').assertStudentOpen(db,task.lesson_id);}catch(error){removeUploadedFile(req.file);throw error;}
+      if(!require('../helpers/lessonPublication').publishedTask(db,task.id)){removeUploadedFile(req.file);return res.status(409).json({error:'任务尚未审批发布，暂不能提交'});}
       const taskEnrollment = db.prepare(
         `SELECT e.id FROM enrollments e
          JOIN courses c ON c.id = e.course_id
@@ -347,6 +348,7 @@ exports.detail = (req, res) => {
     }
 
     const review = db.prepare(`SELECT r.*, u.real_name reviewer_name FROM work_reviews r JOIN users u ON u.id=r.reviewer_id WHERE r.work_id=?`).get(work.id);
+    if(req.user.role==='student')work.task_title=require('../helpers/lessonPublication').formalTask(db,work.task_id)?.title||null;
     work.read_only = isHistoricalWork(work.id);
     work.file_name = decodeOriginalName(work.file_name);
     const rootId = work.parent_work_id || work.id;

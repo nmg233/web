@@ -46,11 +46,12 @@ test('017旧库增量迁移保留错题、成绩、报告和答题次数，兼�
     assert.equal(db.prepare('SELECT content_version_id FROM report_content_versions').get().content_version_id,version.id);
     const closed=db.prepare('SELECT * FROM enrollment_completions').get(); assert.equal(closed,undefined);
     assert.equal(db.prepare('SELECT completed_at FROM enrollments WHERE id=1').get().completed_at,null);
+    const versionCount=db.prepare('SELECT COUNT(*) n FROM lesson_content_versions').get().n;
     runMigrations(db);
     assert.deepEqual(db.prepare('SELECT * FROM enrollment_completions').get(),closed);
     assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts').all(),attempts);
     assert.deepEqual(db.prepare('SELECT * FROM lesson_learning_reports').all(),reports);
-    assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_content_versions').get().n,1);
+    assert.equal(db.prepare('SELECT COUNT(*) n FROM lesson_content_versions').get().n,versionCount,'重复启动不重复冻结正式版');
     for(const table of [...newTables,'schools']) {
       // ALTER ADD COLUMN 的物理列序号不同；比较名字、类型、默认值及约束语义。
       const columns=(database)=>database.prepare(`PRAGMA table_info(${table})`).all().map(({cid,...column})=>column).sort((a,b)=>a.name.localeCompare(b.name));
@@ -123,7 +124,7 @@ test('xzx-2真实021评价要点迁移身份不被main徽章编号21覆盖，增
   assert.equal(db.prepare('SELECT rubric FROM card_exercises WHERE id=1').get().rubric,'原评价要点');
   assert.deepEqual(db.prepare('SELECT * FROM card_exercise_attempts').all(),attempts);
   assert.deepEqual(db.prepare('SELECT * FROM lesson_learning_reports').all(),reports);
-  assert.deepEqual(db.prepare('SELECT content_json FROM lesson_content_versions').all(),content);
+  assert.deepEqual(db.prepare('SELECT content_json FROM lesson_content_versions ORDER BY id').all().slice(0,content.length),content,'升级可新增正式版快照，但不能改写已有历史快照');
   assert.equal(db.pragma('integrity_check',{simple:true}),'ok');assert.deepEqual(db.pragma('foreign_key_check'),[]);
  } finally {db.close();}
 });

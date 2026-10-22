@@ -44,7 +44,7 @@ function runController(handler, req) {
   handler({ user:admin,params:{},body:{},...req },res); return res;
 }
 const pub=require('./helpers/publicationFixture.cjs');
-const close=f=>pub.close(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
+const close=f=>pub.edit(admin,f.course,f.lesson),publish=f=>pub.publish(admin,f.course,f.lesson);
 function finish(f, student = 3, answer = 'A') {
   learning.lessonPackage(student,f.lesson); learning.completeReview(student,f.lesson);
   learning.submitExercise(student,f.exercise,answer); learning.completeCard(student,f.card);

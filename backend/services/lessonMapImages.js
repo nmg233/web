@@ -17,8 +17,8 @@ function imageBytes(buffer){
 }
 function upload(db,user,courseId,lessonId,buffer,key,uploadRoot){
  managed(db,user,courseId,true);if(!/^[\w-]{8,100}$/.test(key||''))fail('上传编号无效');
- if(lessonId)require('../helpers/lessonPublication').assertEditable(db,lessonId);
  if(lessonId&&!db.prepare("SELECT 1 FROM lessons WHERE id=? AND course_id=? AND status!='cancelled'").get(lessonId,courseId))fail('课时不属于此课程或已取消',404);
+ if(lessonId)require('../helpers/lessonPublication').assertEditable(db,lessonId);
  const {mime,ext,digest}=imageBytes(buffer),old=db.prepare('SELECT * FROM lesson_map_images WHERE uploaded_by=? AND course_id=? AND upload_key=?').get(user.id,courseId,key);
  if(old){if(old.digest!==digest||String(old.lesson_id||'')!==String(lessonId||''))fail('上传编号已用于其他文件或课时',409);return dto(old);}
  const id=crypto.randomUUID(),root=path.resolve(uploadRoot,'lesson-map-images');fs.mkdirSync(root,{recursive:true});const file=path.join(root,id+ext);fs.writeFileSync(file,buffer,{flag:'wx'});
