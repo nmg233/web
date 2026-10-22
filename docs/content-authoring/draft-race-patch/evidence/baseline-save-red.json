@@ -1,0 +1,11 @@
+{
+  "scope": "Synthetic SQLite + real API; held actual responses, no fake save/import success",
+  "records": [
+    {
+      "name": "保存响应等待：最新文字仍为dirty，再保存真正写入，队列与切换保护保留",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'SAVE-A'\n- 'EDIT-B-WHILE-SAVING'\n"
+    }
+  ],
+  "pageErrors": []
+}

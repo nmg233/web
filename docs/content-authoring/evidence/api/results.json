@@ -1,0 +1,37 @@
+{
+  "records": [
+    {
+      "name": "仅标题保存课程草稿；不绑定实验，不填难度和独立故事",
+      "status": "passed"
+    },
+    {
+      "name": "四模板草稿仅名称可保存；无内容不能发布参观课",
+      "status": "passed"
+    },
+    {
+      "name": "旧字段不拼接覆盖；修订冲突及跨课程 mentor 拒绝",
+      "status": "passed"
+    },
+    {
+      "name": "用户已有公众号 HTML 与9张图片真实导入本站；重试不重复上传",
+      "status": "passed"
+    },
+    {
+      "name": "缺图、SSRF地址、恶意HTML和他课资源不伪装保存成功",
+      "status": "passed"
+    },
+    {
+      "name": "文章审批后学生读取本站图文；参观仍只读，不写完成或金币",
+      "status": "passed"
+    },
+    {
+      "name": "实践关闭卡片前置仍需回顾和报告；正式内容与学生历史版本冻结",
+      "status": "passed"
+    },
+    {
+      "name": "实验室真实保存与冲突核验，不自动关联、不修改课程封面",
+      "status": "passed"
+    }
+  ],
+  "scope": "Real local HTTP; synthetic SQLite; private user article imported only into isolated fixture, never committed"
+}

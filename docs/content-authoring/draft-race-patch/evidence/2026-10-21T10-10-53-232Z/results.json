@@ -1,0 +1,28 @@
+{
+  "scope": "Synthetic SQLite + real API; held actual responses, no fake save/import success",
+  "records": [
+    {
+      "name": "保存响应等待：最新文字仍为dirty，再保存真正写入，队列与切换保护保留",
+      "status": "passed"
+    },
+    {
+      "name": "导入响应等待：合并最新增删排序，不覆盖段落或标题",
+      "status": "passed"
+    },
+    {
+      "name": "回读等待失败：新输入与来源仍受保护，后续409核对不丢稿",
+      "status": "passed"
+    },
+    {
+      "name": "导入响应丢失重试：同请求编号只追加一次，保存失败和清除来源保留草稿",
+      "status": "passed"
+    },
+    {
+      "name": "成功回读等待：仅新增文章来源也保持dirty，清除后不重复写入正文",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "routingErrors": [],
+  "historyUnchanged": true
+}

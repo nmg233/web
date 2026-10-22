@@ -1,0 +1,13 @@
+▶ 真实延迟响应：课时保存与文章导入不丢最新草稿
+  ✔ 保存响应等待：最新文字仍为dirty，再保存真正写入，队列与切换保护保留 (5674.4ms)
+Evidence: docs\content-authoring\draft-race-patch\evidence\2026-10-21T10-03-44-242Z
+  ✔ 导入响应等待：合并最新增删排序，不覆盖段落或标题 (6331.5066ms)
+✔ 真实延迟响应：课时保存与文章导入不丢最新草稿 (15278.0044ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16100.4556

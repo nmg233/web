@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "name": "结构化与原位文字共用草稿；保存失败保留，再真实保存及重登读取",
+      "status": "passed"
+    },
+    {
+      "name": "待上传队列不被正文保存或学生效果切换清除；失败后重试",
+      "status": "passed"
+    },
+    {
+      "name": "并发冲突保留本页文字，人工核对后保存",
+      "status": "passed"
+    },
+    {
+      "name": "课程、课时、实验室三尺寸可滚动，旧输入取消，按钮6px且无场景动效",
+      "status": "passed"
+    },
+    {
+      "name": "部分图片替换只更新指定用途，其他背景和标识保持不变",
+      "status": "passed"
+    },
+    {
+      "name": "四模板切换与文章待导入来源保护，预览不丢选择",
+      "status": "passed"
+    },
+    {
+      "name": "公众号9图从页面导入、可视化改字、保存真实图文",
+      "status": "passed"
+    },
+    {
+      "name": "实验室真实保存并重新读取；无绑定不伪造课程配套实验",
+      "status": "passed"
+    },
+    {
+      "name": "实验室图片失败保留并重试；独立工具不受无关联影响",
+      "status": "passed"
+    },
+    {
+      "name": "真实发布审批、历史版本与学生图文同步；空选填整区隐藏",
+      "status": "passed"
+    },
+    {
+      "name": "旧默认卡片前置、一次作答、错题完成及报告本地草稿与真实提交",
+      "status": "passed"
+    },
+    {
+      "name": "课程简介集中保存、重新登录与学生同步，旧故事和难度不覆盖",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge, synthetic temporary DB; private article images not committed"
+}

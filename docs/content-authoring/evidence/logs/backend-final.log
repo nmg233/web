@@ -1,0 +1,1313 @@
+✔ 公众号正文清洗保留安全排版、本站图片，移除脚本事件与危险样式 (9.432ms)
+✔ 缺图明确失败；不支持的嵌入媒体返回非完整导入标记 (1.1847ms)
+✔ 复杂文章深度与节点数受限，不递归耗尽服务进程 (33.7899ms)
+✔ 远程主机、路径、端口与私网地址严格拒绝 (13.3124ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 旧课时仍要求卡片；新显式非卡片模板仍须真实内容和报告评审 (187.2511ms)
+✔ 卡片要求随教材版本冻结；重复命名升级不修改数字迁移和既有字段 (121.0819ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\pbl-maintenance-NgUfE1\content.db
+✖ 维护角色与上传前授权：只读教师、学生、新媒体、他课导师均拒绝，管理员可维护 (41.469ms)
+✖ 真实章节排序、课时归属与文字清空：不改原学习、报告、作品记录 (1.2006ms)
+✖ 受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/解除不改变历史 (0.248ms)
+✖ 受邀课时导师、停用/强制改密/匿名与回放对象链均遵循真实权限 (0.2882ms)
+✖ 新增四种真实资料、中文文件名、字段、课时过滤、幂等失败重试与原下载鉴权 (1.1965ms)
+✖ 旧资源白名单样本及删除清理兼容，附件仅下载，不扩大为可执行预览 (0.3703ms)
+✖ 伪装/MIME/超限和落库失败均拒绝并清理本次孤立文件；不扩大作品/回放 (0.1678ms)
+✖ 私有封面真实保存/替换、下载范围、失效清除与安全公共封面切换 (0.0994ms)
+✖ 016真实旧库、全新库及重复启动迁移保护现有账号和业务记录 (0.7273ms)
+✖ 未授权角色回放上传在文件解析前拒绝，旧及嵌套入口不落盘 (0.5817ms)
+✖ 维护课时安排与版本冲突保护，跨课授课人及日期无效不写入 (0.3313ms)
+✖ 卡片管理版本使用同一原始对象，首次更新成功且过期版本拒绝 (0.7533ms)
+✖ 新增实验关联真实 ID 与版本返回，同一已知版本只能更新一次 (0.2818ms)
+✖ 新增练习保存真实版本，后续更新拒绝旧版本且不改作答次数 (0.2292ms)
+✖ 真实教材字段和有序文章统一修订保存，旧说明回退且不改变学生记录 (0.5519ms)
+✖ 文章安全白名单、课时图片归属及维护授权由服务端强制检查 (0.2746ms)
+✖ 文章文件块复用当前课时真实附件，禁止外部嵌入与跨课程或文件伪装图片 (0.0901ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\course-rewards-QKPdvK\test.db
+✖ 两个课程管理员与显式导师同权，学生礼品/图片范围隔离且不能注入归属 (46.4049ms)
+✖ 新建请求丢响应重试不重复礼品；统一余额真实扣款，通知当前课程管理者 (1.4853ms)
+✖ 撤回课程/失效报名阻断新兑换但本人历史与图片保留，导师仍能履约且重复只记一次 (0.2249ms)
+✖ 导师撤销后旧令牌列表/图片/上传/发放拒绝，不使用创建者授课人回退 (0.1653ms)
+✖ 新课程默认关；空/不完整勋章无提示无授予；完整上传图定义开启后仍须原通关条件 (0.1701ms)
+✖ 完整条件补授幂等、上传图快照保存；关闭不删历史或影响金币，重新开启不重授/重播 (0.1321ms)
+✖ 兑换徽章独立于通关开关，保留课程快照；撤回后未获不泄露，历史不删除 (0.1211ms)
+✖ 未知存量不猜课程；管理员逐项带版本绑定、旧订单不重扣、绑定后禁止转移 (0.1183ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\pbl-learning-flow-11XEDL\test.db
+✖ 只读预览按角色和课程归属授权，学生和新媒体不可访问 (44.0795ms)
+✖ 教师预览权限实时检查学生分配、有效报名及学生生命周期 (2.0825ms)
+✖ 预览只返回已发布内容，不泄漏答案、解析或学生记录且不写数据库 (0.2569ms)
+✖ 旧进度接口只保存播放位置，不能由客户端伪造课时完成 (0.1197ms)
+✖ 学生学习包校验报名和发布状态，且不泄漏答案 (0.2126ms)
+✖ 课堂回顾和知识卡片必须按顺序显式完成，加载页面不会自动完成 (0.252ms)
+✖ 报告与反思保持原子提交，且不再依赖单独的综合成果阶段 (0.248ms)
+✖ 退回报告可创建新版本，已提交版本不可原地覆盖 (0.137ms)
+✖ 导师评审和内容管理严格按课程归属授权 (0.3655ms)
+✖ 题库七个写接口拒绝无关导师、教师和学生且不改变历史数据 (0.261ms)
+✖ 服务层也拒绝无关导师写题库，负责导师编辑接口可获取答案与解析 (0.1304ms)
+✖ 受邀执行导师可完成题库七个编辑操作，旧作答和学习快照保留 (0.1122ms)
+✖ 管理员仍可创建、修改、排序和删除知识卡片与练习 (0.0458ms)
+✖ 内容编排中心列出导师创建或受邀授课课程的课时 (0.0483ms)
+✖ 教师观察端仅返回明确分配学生且所有学习写接口均拒绝教师 (0.0371ms)
+✖ 报告通过并评分后完成课时并只写一条成长记录 (0.0821ms)
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 017旧库增量迁移保留错题、成绩、报告和答题次数，兼容版本及结课重复启动幂等 (391.6541ms)
+✔ 兼容快照回填失败时整个018迁移回滚，修复故障后可重试且不删旧答案 (234.8085ms)
+✔ 旧库已有结课时间仅补兼容闭包，不更改原时间或纳入后加未完成课时 (207.0394ms)
+✔ 020旧库及main扩展库补评价要点，重复迁移保留原题和作答 (234.0344ms)
+✔ xzx-2真实021评价要点迁移身份不被main徽章编号21覆盖，增量合并不改答案和成绩 (222.9964ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 预检仅打开明确目标库，不因授权辅助模块初始化DB_PATH指向的其他库 (687.5389ms)
+✔ 错绑卡片已有学习记录或进入教材快照均停止，不迁移历史进度 (318.8829ms)
+✔ JSON导入检测未发布人工草稿与缺失基线；通过的计划只保存草稿不发布 (511.4217ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 上游当前旧库增量升级保留前三关外观和全部旧字段；重复迁移不重写记录，新课时默认岩石 (1018.8192ms)
+✔ 空库结构与新旧应用字段兼容；备份路径嵌套和未知目标均拒绝 (378.2445ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 图片计划默认零写入，显式执行只改目标新字段；重复执行保留后续人工改稿与原附件 (681.5317ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 错目标、内容变化、错误素材与写中故障停止；回滚新行并保留原教学数据 (708.4233ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 经确认的未使用错绑资料只修复归属，原附件保留 (451.5301ms)
+✔ WAL中未checkpoint的数据进入独立备份，源库模式不变且备份校验不产生未登记侧文件 (521.6555ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 1033旧库升级1034保留voyage/人工教材/上传绑定，联合备份、中断、重复迁移和恢复可验证 (959.772ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\pbl-publication-http-0gdWpc\isolated.db
+✖ 指定课时上传在接收文件前拒绝正式课时和未授权导师，不生成孤立文件 (92.1224ms)
+✖ 课时关闭覆盖旧学习、课域转发、任务、实验和反思提交；恢复只走管理员审批 (14.636ms)
+✖ 地图与学习页按学生已绑定的教材检查就绪，不被新版参观/准备中模板覆盖 (5.5727ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 关闭不计结课的参观课时不阻断其他正式课时结课 (130.993ms)
+✔ 正式课时改为参观模板后，旧学生仍可按原学习版本作答 (59.9075ms)
+✔ 总课题可先批准介绍；无正式课时不结课，草稿课时不允许学习 (12.9766ms)
+✔ 正式版发布前校验卡题；参观课时可无卡题正式发布且不计结课 (22.5908ms)
+✔ 未授权导师无权查看申请或关闭，导师不能审批；已发布内容须先关闭 (17.6755ms)
+✔ 提交后改稿不能批准未审内容；驳回保留草稿，再提批准才开放 (19.2307ms)
+✔ 关闭暂停全部学习提交；保留旧版本旧答案及一次作答，新学生使用审批新版 (74.1384ms)
+✔ 关闭期间按旧报告评审、退回；重提等待恢复，不改写旧报告历史 (69.6617ms)
+✔ 申请人撤权后不能批准，重复提交和重复审批不生成重复正式版本 (14.585ms)
+✔ 已结课不回退；未结课学生新增草稿不计分母，正式发布后纳入要求 (71.7085ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\pbl-real-coins-V8gtb0\coins.db
+✖ 正式账户0起步；GET不发币；query/body白名单与本人角色权限 (35.2894ms)
+✖ 无徽章定义仍按全部任务及评分结算；并发仅一条，快照不可重算 (1.0057ms)
+✖ 报告通过但作品最新退回/待审不发；练习只要求原有作答；最后通过后发一次 (0.107ms)
+✖ 合法0分也只结算一次；空/越界/小数分未结算可重试，不能用进度或徽章代替任务 (0.0825ms)
+✖ 回顾/卡片/报告新版本/内容准备/参观/撤回/课时取消分别阻止新奖励；已有历史不追扣 (0.0999ms)
+✖ 原评分入口拒绝null/空/布尔/非整数，合法0及负责导师/管理员权限保留 (0.112ms)
+✖ 服务端北京连续1/2/5/6/7天、上限10、中断重置、午夜/跨年/闰日及同日幂等 (0.1474ms)
+✖ 并发今日签到/响应丢失后重试不重复；故障事务整体回滚；余额等于流水SUM (0.2191ms)
+✖ 演示兑换消息、重置不进真实账；有限游标无重复/他人数据；数据库唯一与金额约束 (0.2044ms)
+✖ 课时事务插入故障整体回滚，恢复后首次核对补结算；明细分页覆盖多页无重复 (0.2516ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: C:\Users\shr\AppData\Local\Packages\sandbox.{af2d42cb-7333-4b9e-9c37-8c3620a19c88}\AC\Temp\pbl-next-rewards-CzJ7Jk\test.db
+✖ 服务器北京日期只读，无客户日期、他人账号或 coin ledger (34.6395ms)
+✖ 无配置、空模板、参观缺记录、他课和其他学生不能凭空获得 (1.2932ms)
+✖ 回顾、知识卡片、原必做练习和最新报告分别约束资格；不要求练习正确率 (0.2019ms)
+✖ 所有活跃文字/附件任务都检查，旧 approved 不能掩盖新 pending/rejected 版本 (0.1328ms)
+✖ 事务颁发唯一稳定记录、快照、重复/并发请求、展示去重及跨学生隔离 (0.1395ms)
+✖ 维护权限与受控素材，不允许老师/学生/新媒体伪造颁发或外部图像 (0.1276ms)
+✖ 数字/实物演示事件与管理员通知原子幂等，同编号换商品409，不信任身份或文案 (0.1104ms)
+✖ 通知写入失败事务回滚无孤儿；停用/强制改密沿用原拦截 (0.1452ms)
+ℹ tests 93
+ℹ suites 0
+ℹ pass 31
+ℹ fail 62
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12259.4456
+
+✖ failing tests:
+
+test at backend\test\contentMaintenance.test.js:27:1
+✖ 维护角色与上传前授权：只读教师、学生、新媒体、他课导师均拒绝，管理员可维护 (41.469ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:32:1
+✖ 真实章节排序、课时归属与文字清空：不改原学习、报告、作品记录 (1.2006ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:56:1
+✖ 受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/解除不改变历史 (0.248ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:71:1
+✖ 受邀课时导师、停用/强制改密/匿名与回放对象链均遵循真实权限 (0.2882ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:81:1
+✖ 新增四种真实资料、中文文件名、字段、课时过滤、幂等失败重试与原下载鉴权 (1.1965ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:98:1
+✖ 旧资源白名单样本及删除清理兼容，附件仅下载，不扩大为可执行预览 (0.3703ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:104:1
+✖ 伪装/MIME/超限和落库失败均拒绝并清理本次孤立文件；不扩大作品/回放 (0.1678ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:111:1
+✖ 私有封面真实保存/替换、下载范围、失效清除与安全公共封面切换 (0.0994ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:122:1
+✖ 016真实旧库、全新库及重复启动迁移保护现有账号和业务记录 (0.7273ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:147:1
+✖ 未授权角色回放上传在文件解析前拒绝，旧及嵌套入口不落盘 (0.5817ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:152:1
+✖ 维护课时安排与版本冲突保护，跨课授课人及日期无效不写入 (0.3313ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:165:1
+✖ 卡片管理版本使用同一原始对象，首次更新成功且过期版本拒绝 (0.7533ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:167:1
+✖ 新增实验关联真实 ID 与版本返回，同一已知版本只能更新一次 (0.2818ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:169:1
+✖ 新增练习保存真实版本，后续更新拒绝旧版本且不改作答次数 (0.2292ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:171:1
+✖ 真实教材字段和有序文章统一修订保存，旧说明回退且不改变学生记录 (0.5519ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:185:1
+✖ 文章安全白名单、课时图片归属及维护授权由服务端强制检查 (0.2746ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\contentMaintenance.test.js:195:1
+✖ 文章文件块复用当前课时真实附件，禁止外部嵌入与跨课程或文件伪装图片 (0.0901ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62347
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62347
+    }
+  }
+
+test at backend\test\courseRewards.test.js:21:1
+✖ 两个课程管理员与显式导师同权，学生礼品/图片范围隔离且不能注入归属 (46.4049ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:29:1
+✖ 新建请求丢响应重试不重复礼品；统一余额真实扣款，通知当前课程管理者 (1.4853ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:36:1
+✖ 撤回课程/失效报名阻断新兑换但本人历史与图片保留，导师仍能履约且重复只记一次 (0.2249ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:44:1
+✖ 导师撤销后旧令牌列表/图片/上传/发放拒绝，不使用创建者授课人回退 (0.1653ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:48:1
+✖ 新课程默认关；空/不完整勋章无提示无授予；完整上传图定义开启后仍须原通关条件 (0.1701ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:56:1
+✖ 完整条件补授幂等、上传图快照保存；关闭不删历史或影响金币，重新开启不重授/重播 (0.1321ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:63:1
+✖ 兑换徽章独立于通关开关，保留课程快照；撤回后未获不泄露，历史不删除 (0.1211ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\courseRewards.test.js:66:1
+✖ 未知存量不猜课程；管理员逐项带版本绑定、旧订单不重扣、绑定后禁止转移 (0.1183ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62346
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62346
+    }
+  }
+
+test at backend\test\learningFlow.test.js:79:1
+✖ 只读预览按角色和课程归属授权，学生和新媒体不可访问 (44.0795ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:98:1
+✖ 教师预览权限实时检查学生分配、有效报名及学生生命周期 (2.0825ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:117:1
+✖ 预览只返回已发布内容，不泄漏答案、解析或学生记录且不写数据库 (0.2569ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:139:1
+✖ 旧进度接口只保存播放位置，不能由客户端伪造课时完成 (0.1197ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:155:1
+✖ 学生学习包校验报名和发布状态，且不泄漏答案 (0.2126ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:182:1
+✖ 课堂回顾和知识卡片必须按顺序显式完成，加载页面不会自动完成 (0.252ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:227:1
+✖ 报告与反思保持原子提交，且不再依赖单独的综合成果阶段 (0.248ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:248:1
+✖ 退回报告可创建新版本，已提交版本不可原地覆盖 (0.137ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:269:1
+✖ 导师评审和内容管理严格按课程归属授权 (0.3655ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:285:1
+✖ 题库七个写接口拒绝无关导师、教师和学生且不改变历史数据 (0.261ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:308:1
+✖ 服务层也拒绝无关导师写题库，负责导师编辑接口可获取答案与解析 (0.1304ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:331:1
+✖ 受邀执行导师可完成题库七个编辑操作，旧作答和学习快照保留 (0.1122ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:346:1
+✖ 管理员仍可创建、修改、排序和删除知识卡片与练习 (0.0458ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:360:1
+✖ 内容编排中心列出导师创建或受邀授课课程的课时 (0.0483ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:373:1
+✖ 教师观察端仅返回明确分配学生且所有学习写接口均拒绝教师 (0.0371ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\learningFlow.test.js:385:1
+✖ 报告通过并评分后完成课时并只写一条成长记录 (0.0821ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62398
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62398
+    }
+  }
+
+test at backend\test\publicationHttp.test.js:25:1
+✖ 指定课时上传在接收文件前拒绝正式课时和未授权导师，不生成孤立文件 (92.1224ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62459
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62459
+    }
+  }
+
+test at backend\test\publicationHttp.test.js:31:1
+✖ 课时关闭覆盖旧学习、课域转发、任务、实验和反思提交；恢复只走管理员审批 (14.636ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62459
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62459
+    }
+  }
+
+test at backend\test\publicationHttp.test.js:53:1
+✖ 地图与学习页按学生已绑定的教材检查就绪，不被新版参观/准备中模板覆盖 (5.5727ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62459
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62459
+    }
+  }
+
+test at backend\test\studentCoins.test.js:15:1
+✖ 正式账户0起步；GET不发币；query/body白名单与本人角色权限 (35.2894ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:16:1
+✖ 无徽章定义仍按全部任务及评分结算；并发仅一条，快照不可重算 (1.0057ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:17:1
+✖ 报告通过但作品最新退回/待审不发；练习只要求原有作答；最后通过后发一次 (0.107ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:18:1
+✖ 合法0分也只结算一次；空/越界/小数分未结算可重试，不能用进度或徽章代替任务 (0.0825ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:19:1
+✖ 回顾/卡片/报告新版本/内容准备/参观/撤回/课时取消分别阻止新奖励；已有历史不追扣 (0.0999ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:21:1
+✖ 原评分入口拒绝null/空/布尔/非整数，合法0及负责导师/管理员权限保留 (0.112ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:22:1
+✖ 服务端北京连续1/2/5/6/7天、上限10、中断重置、午夜/跨年/闰日及同日幂等 (0.1474ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:23:1
+✖ 并发今日签到/响应丢失后重试不重复；故障事务整体回滚；余额等于流水SUM (0.2191ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:24:1
+✖ 演示兑换消息、重置不进真实账；有限游标无重复/他人数据；数据库唯一与金额约束 (0.2044ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentCoins.test.js:26:1
+✖ 课时事务插入故障整体回滚，恢复后首次核对补结算；明细分页覆盖多页无重复 (0.2516ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62465
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62465
+    }
+  }
+
+test at backend\test\studentRewards.test.js:30:1
+✖ 服务器北京日期只读，无客户日期、他人账号或 coin ledger (34.6395ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:31:1
+✖ 无配置、空模板、参观缺记录、他课和其他学生不能凭空获得 (1.2932ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:32:1
+✖ 回顾、知识卡片、原必做练习和最新报告分别约束资格；不要求练习正确率 (0.2019ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:37:1
+✖ 所有活跃文字/附件任务都检查，旧 approved 不能掩盖新 pending/rejected 版本 (0.1328ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:44:1
+✖ 事务颁发唯一稳定记录、快照、重复/并发请求、展示去重及跨学生隔离 (0.1395ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:51:1
+✖ 维护权限与受控素材，不允许老师/学生/新媒体伪造颁发或外部图像 (0.1276ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:52:1
+✖ 数字/实物演示事件与管理员通知原子幂等，同编号换商品409，不信任身份或文案 (0.1104ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }
+
+test at backend\test\studentRewards.test.js:59:1
+✖ 通知写入失败事务回滚无孤儿；停用/强制改密沿用原拦截 (0.1452ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:62472
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 62472
+    }
+  }

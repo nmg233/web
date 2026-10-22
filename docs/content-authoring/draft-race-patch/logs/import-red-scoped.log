@@ -1,0 +1,37 @@
+Evidence: docs\content-authoring\draft-race-patch\evidence\2026-10-21T10-02-15-379Z
+▶ 真实延迟响应：课时保存与文章导入不丢最新草稿
+  ✖ 导入响应等待：合并最新增删排序，不覆盖段落或标题 (5688.0314ms)
+✖ 真实延迟响应：课时保存与文章导入不丢最新草稿 (8762.7022ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9601.5746
+
+✖ failing tests:
+
+test at tests\content-authoring-race.browser.test.js:51:13
+✖ 导入响应等待：合并最新增删排序，不覆盖段落或标题 (5688.0314ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'IMPORT-BASE'
+  - '待上移段落'
+  
+      at file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:80:16
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:51:60)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async scene (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:51:5)
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:72:5)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'IMPORT-BASE',
+    expected: '待上移段落',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

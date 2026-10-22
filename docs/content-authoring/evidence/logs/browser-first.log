@@ -1,0 +1,44 @@
+▶ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室
+  ✔ 结构化与原位文字共用草稿；保存失败保留，再真实保存及重登读取 (4773.0365ms)
+  ✔ 待上传队列不被正文保存或学生效果切换清除；失败后重试 (1407.9369ms)
+Evidence: docs\content-authoring\evidence\browser\2026-10-21T07-31-16-704Z
+  ✖ 并发冲突保留本页文字，人工核对后保存 (11158.6569ms)
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (23878.5033ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24945.1781
+
+✖ failing tests:
+
+test at tests\content-authoring.browser.test.js:12:51
+✖ 并发冲突保留本页文字，人工核对后保存 (11158.6569ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('dialog').getByRole('button', { name: '确定', exact: true })[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:31:480
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:30:3) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('dialog').getByRole('button', { name: '确定', exact: true })" ]
+  }
+
+test at tests\content-authoring.browser.test.js:5:1
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (23878.5033ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('dialog').getByRole('button', { name: '确定', exact: true })[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:31:480
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:12:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:30:3) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('dialog').getByRole('button', { name: '确定', exact: true })" ]
+  }

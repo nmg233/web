@@ -1,0 +1,26 @@
+{
+  "base": "http://127.0.0.1:4241",
+  "privateCredentialsNotLogged": true,
+  "results": [
+    {
+      "role": "admin",
+      "loginStatus": 200,
+      "readStatus": 200
+    },
+    {
+      "role": "mentor",
+      "loginStatus": 200,
+      "readStatus": 200
+    },
+    {
+      "role": "student",
+      "loginStatus": 200,
+      "readStatus": 200
+    }
+  ],
+  "course": {
+    "id": 91001,
+    "presentation_theme": "voyage",
+    "public_theme": null
+  }
+}

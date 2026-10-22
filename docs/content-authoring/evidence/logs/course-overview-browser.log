@@ -1,0 +1,25 @@
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (1210.3346ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3406.1262
+
+✖ failing tests:
+
+test at tests\content-authoring.browser.test.js:5:1
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (1210.3346ms)
+  Error: listen EADDRINUSE: address already in use 127.0.0.1:4623
+      at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EADDRINUSE',
+    errno: -4091,
+    syscall: 'listen',
+    address: '127.0.0.1',
+    port: 4623
+  }

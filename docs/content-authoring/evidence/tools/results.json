@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "name": "默认只读核对、缺少离线确认拒绝；旧库增量并保持数字迁移和人工字段",
+      "status": "passed"
+    },
+    {
+      "name": "重复升级不重复加列；备份恢复仅到新副本且内容相同",
+      "status": "passed"
+    },
+    {
+      "name": "定向预演零写入；新课程不能获得宇宙主题；执行保留封面与教材",
+      "status": "passed"
+    },
+    {
+      "name": "同一执行计划重放被拒绝；按回执回滚主题选择不改教材",
+      "status": "passed"
+    }
+  ],
+  "scope": "Synthetic legacy 7e55e65 migration source; no persistent source DB modified"
+}

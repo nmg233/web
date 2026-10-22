@@ -10,11 +10,11 @@ function taskEligibility(studentId,lessonId){
  if(lesson.presentation_type==='visit')add('visit_records',false,'参观尚无个人完成记录，暂不能判断通关');
  else{
   const state=gate.getLessonLearningState(studentId,lessonId);
-  add('configured',state.cards_total>0,'尚未配置已发布的学习卡片，不能按空任务通关');
+  add('configured',(!state.cards_required||state.cards_total>0),'尚未配置已发布的学习卡片，不能按空任务通关');
   add('review',state.review_completed,'请先完成课堂回顾');
   add('cards',state.cards_done,'请完成本课时已发布的知识卡片');
   // Original completion semantics: required exercises need an attempt, not a new score threshold.
-  const required=versions.studentCards(db,studentId,lessonId).flatMap(card=>card.exercises).filter(exercise=>exercise.is_required);
+  const required=state.cards_required?versions.studentCards(db,studentId,lessonId).flatMap(card=>card.exercises).filter(exercise=>exercise.is_required):[];
   add('exercises',required.every(e=>Boolean(e.attempt)),'请完成知识卡片中的必做练习');
   const report=gate.latestReport(studentId,lessonId);
   add('report',report?.status==='approved'&&!state.resubmission_required,state.resubmission_required||report?.status==='rejected'?'最新报告需要修改':report?.status==='submitted'?'最新报告仍待评审':'请提交学习报告并等待通过');

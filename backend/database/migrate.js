@@ -86,6 +86,8 @@ function migrate(db) {
     })();
     console.log(`✅ 数据库迁移 ${file} 已应用`);
   }
+  // Historical migration-only copies below the current base do not contain this extension.
+  if(db.prepare('SELECT MAX(version) n FROM schema_migrations').get().n>=1036)require('./contentAuthoringExtension').apply(db);
 }
 
 module.exports = { runMigrations };

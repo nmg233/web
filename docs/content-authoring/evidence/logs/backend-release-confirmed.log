@@ -1,0 +1,1053 @@
+✔ 公众号正文清洗保留安全排版、本站图片，移除脚本事件与危险样式 (18.9574ms)
+✔ 缺图明确失败；不支持的嵌入媒体返回非完整导入标记 (2.6794ms)
+✔ 复杂文章深度与节点数受限，不递归耗尽服务进程 (34.9652ms)
+✔ 空白实体不是教材正文；公众号验证页不能冒充真实文章 (2.2201ms)
+✔ 远程主机、路径、端口与私网地址严格拒绝 (14.0777ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 旧课时仍要求卡片；新显式非卡片模板仍须真实内容和报告评审 (196.8383ms)
+✔ 卡片要求随教材版本冻结；重复命名升级不修改数字迁移和既有字段 (124.4355ms)
+✔ 历史缺卡快照仍可显式补学修复，不改变原卡片前置或销毁旧版本 (166.5642ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-maintenance-QJVPTy\content.db
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"/","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"/","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"/","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"/","status":403}
+✔ 维护角色与上传前授权：只读教师、学生、新媒体、他课导师均拒绝，管理员可维护 (291.5758ms)
+{"event":"api_response","method":"PUT","route":"/chapters/order","status":400}
+{"event":"api_response","method":"PUT","route":"/chapters/order","status":400}
+{"event":"api_response","method":"PUT","route":"/chapters/order","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":404}
+{"event":"api_response","method":"DELETE","route":"/chapters/:chapterId","status":409}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":400}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":404}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":400}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":400}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":400}
+{"event":"api_response","method":"PUT","route":"/tasks/:taskId","status":400}
+✔ 真实章节排序、课时归属与文字清空：不改原学习、报告、作品记录 (202.1868ms)
+{"event":"api_response","method":"PUT","route":"/:id","status":400}
+{"event":"api_response","method":"PUT","route":"/:id","status":400}
+{"event":"api_response","method":"PUT","route":"/:id","status":400}
+{"event":"api_response","method":"PUT","route":"/:id","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":400}
+{"event":"api_response","method":"POST","route":"/experiments","status":409}
+{"event":"api_response","method":"PUT","route":"/experiments/:experimentId","status":404}
+✔ 受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/解除不改变历史 (136.3394ms)
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":401}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":401}
+{"event":"api_response","method":"POST","route":"unmatched","status":401}
+{"event":"api_response","method":"PUT","route":"/replays/:replayId","status":404}
+{"event":"api_response","method":"PUT","route":"/replays/:replayId","status":400}
+{"event":"api_response","method":"PUT","route":"/replays/:replayId","status":400}
+{"event":"api_response","method":"PUT","route":"/replays/:replayId","status":400}
+{"event":"api_response","method":"DELETE","route":"/replays/:replayId","status":404}
+✔ 受邀课时导师、停用/强制改密/匿名与回放对象链均遵循真实权限 (176.6538ms)
+{"event":"api_response","method":"POST","route":"/:id/resources","status":409}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"DELETE","route":"/resources/:resourceId","status":404}
+{"event":"api_response","method":"PUT","route":"/resources/:resourceId","status":400}
+{"event":"api_response","method":"GET","route":"/resources/:resourceId/download","status":404}
+✔ 新增四种真实资料、中文文件名、字段、课时过滤、幂等失败重试与原下载鉴权 (512.7729ms)
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+{"event":"api_response","method":"GET","route":"/resources/:resource_id/download","status":404}
+✔ 旧资源白名单样本及删除清理兼容，附件仅下载，不扩大为可执行预览 (178.0081ms)
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":400}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":400}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":400}
+{"event":"api_response","method":"POST","route":"/","status":400}
+上传资源错误: SqliteError: synthetic persistent failure
+    at exports.uploadResource (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\courseController.js:512:7)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at validateResource (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\services\courseUploadPolicy.js:43:88)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  code: 'SQLITE_CONSTRAINT_TRIGGER'
+}
+{"event":"api_response","method":"POST","route":"/:id/resources","status":500}
+✔ 伪装/MIME/超限和落库失败均拒绝并清理本次孤立文件；不扩大作品/回放 (578.1126ms)
+{"event":"api_response","method":"GET","route":"/","status":404}
+{"event":"api_response","method":"GET","route":"/","status":404}
+{"event":"api_response","method":"GET","route":"/","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":401}
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"GET","route":"/","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"unmatched","status":409}
+✅ 数据库迁移 016_replay_summary.sql 已应用
+✅ 数据库迁移 017_account_batches.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 私有封面真实保存/替换、下载范围、失效清除与安全公共封面切换 (199.9799ms)
+✔ 016真实旧库、全新库及重复启动迁移保护现有账号和业务记录 (1608.2865ms)
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"/:id/replays","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+✔ 未授权角色回放上传在文件解析前拒绝，旧及嵌套入口不落盘 (59.5436ms)
+{"event":"api_response","method":"PUT","route":"unmatched","status":409}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"unmatched","status":409}
+✔ 维护课时安排与版本冲突保护，跨课授课人及日期无效不写入 (88.9616ms)
+{"event":"api_response","method":"PUT","route":"/manage/cards/:cardId","status":409}
+✔ 卡片管理版本使用同一原始对象，首次更新成功且过期版本拒绝 (37.4823ms)
+{"event":"api_response","method":"PUT","route":"unmatched","status":409}
+✔ 新增实验关联真实 ID 与版本返回，同一已知版本只能更新一次 (23.5952ms)
+{"event":"api_response","method":"PUT","route":"/manage/exercises/:exerciseId","status":409}
+{"event":"api_response","method":"PUT","route":"/manage/exercises/:exerciseId","status":409}
+✔ 新增练习保存真实版本，后续更新拒绝旧版本且不改作答次数 (108.8226ms)
+{"event":"api_response","method":"PUT","route":"unmatched","status":409}
+{"event":"api_response","method":"DELETE","route":"/resources/:resourceId","status":409}
+{"event":"api_response","method":"PUT","route":"/resources/:resourceId","status":409}
+{"event":"api_response","method":"PUT","route":"/resources/:resource_id","status":409}
+{"event":"api_response","method":"DELETE","route":"/resources/:resourceId","status":409}
+✔ 真实教材字段和有序文章统一修订保存，旧说明回退且不改变学生记录 (175.4384ms)
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"unmatched","status":404}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"unmatched","status":409}
+✔ 文章安全白名单、课时图片归属及维护授权由服务端强制检查 (122.5056ms)
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+✔ 文章文件块复用当前课时真实附件，禁止外部嵌入与跨课程或文件伪装图片 (96.2417ms)
+课程资料索引失败: TypeError: The database connection is not open
+    at Database.prepare (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\wrappers.js:5:21)
+    at processResource (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\services\aiDocumentService.js:94:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Immediate.drain (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\services\aiDocumentService.js:47:13)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-packages-Mfpzc4\test.db
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":404}
+✔ 四主题注册与ZIP样包完整校验，所有未授权角色及他人暂存拒绝 (288.2614ms)
+{"event":"api_response","method":"GET","route":"/imports/:id","status":404}
+✔ 网页新建草稿事务：并发同请求只创建一次，卡片/课时不发布，无学校报名或奖励 (151.7323ms)
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":404}
+{"event":"api_response","method":"GET","route":"/imports/:id","status":404}
+✔ 追加只新增对象；目标修订与学校权限变化先拒绝，版本和原文保留 (173.9019ms)
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+{"event":"api_response","method":"POST","route":"/uploads","status":400}
+✔ 异常版本/未知字段/跨课数据库ID/伪装图/执行文件/未注册实验导入前拒绝 (243.4016ms)
+✔ 受控ZIP拒绝穿越、链接、重复大小写、炸弹、损坏CRC，暂存篡改不写教材 (42.1965ms)
+服务器错误: { name: 'Error', code: 'SQLITE_CONSTRAINT_TRIGGER' }
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":500}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":409}
+✔ 事务末端故障补偿所有新素材，不覆盖旧数据；取消仅删暂存，结果仍跨设备可读 (97.0219ms)
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"POST","route":"/","status":400}
+{"event":"api_response","method":"PUT","route":"/lessons/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+✔ 新课不能绕过选voyage，存量保留；默认关卡受主题限制；模块配置可逆且不改学习数据 (48.0977ms)
+{"event":"api_response","method":"POST","route":"/qualifications","status":403}
+✔ 开发资格仅管理员真实授予/撤销，审计与到期，不授课程权也不存在代码运行 (37.3158ms)
+{"event":"api_response","method":"POST","route":"/uploads/:id/commit","status":409}
+{"event":"api_response","method":"GET","route":"/uploads/:id","status":410}
+✔ 同一内容重新压缩仍复用原导入；同身份改稿必须升版本，暂存过期不落库 (129.8441ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\course-rewards-NSXvTu\test.db
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/gifts","status":403}
+{"event":"api_response","method":"POST","route":"/management/images","status":403}
+{"event":"api_response","method":"POST","route":"/management/gifts","status":404}
+{"event":"api_response","method":"POST","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+✔ 两个课程管理员与显式导师同权，学生礼品/图片范围隔离且不能注入归属 (310.0389ms)
+{"event":"api_response","method":"GET","route":"/management/orders/:id","status":404}
+{"event":"api_response","method":"GET","route":"/management/orders/:id","status":404}
+✔ 新建请求丢响应重试不重复礼品；统一余额真实扣款，通知当前课程管理者 (38.9874ms)
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+{"event":"api_response","method":"POST","route":"/management/notifications/retry","status":404}
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+✔ 撤回课程/失效报名阻断新兑换但本人历史与图片保留，导师仍能履约且重复只记一次 (76.5066ms)
+{"event":"api_response","method":"GET","route":"/management/gifts","status":404}
+{"event":"api_response","method":"GET","route":"/management/orders","status":404}
+{"event":"api_response","method":"GET","route":"unmatched","status":404}
+{"event":"api_response","method":"POST","route":"/management/images","status":404}
+{"event":"api_response","method":"POST","route":"/management/orders/:id/fulfill","status":404}
+{"event":"api_response","method":"GET","route":"/images/:id","status":404}
+✔ 导师撤销后旧令牌列表/图片/上传/发放拒绝，不使用创建者授课人回退 (25.8239ms)
+{"event":"api_response","method":"PUT","route":"/badges/settings","status":400}
+{"event":"api_response","method":"PUT","route":"/badges/:lessonId","status":409}
+✔ 新课程默认关；空/不完整勋章无提示无授予；完整上传图定义开启后仍须原通关条件 (68.1993ms)
+✔ 完整条件补授幂等、上传图快照保存；关闭不删历史或影响金币，重新开启不重授/重播 (69.4101ms)
+{"event":"api_response","method":"POST","route":"/orders","status":409}
+✔ 兑换徽章独立于通关开关，保留课程快照；撤回后未获不泄露，历史不删除 (39.8148ms)
+{"event":"api_response","method":"POST","route":"/orders","status":404}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":400}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":403}
+{"event":"api_response","method":"POST","route":"/management/gifts/:id/bind-course","status":409}
+{"event":"api_response","method":"DELETE","route":"/:id","status":409}
+✔ 未知存量不猜课程；管理员逐项带版本绑定、旧订单不重扣、绑定后禁止转移 (84.2644ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-glider-39504-1792573265072.db
+✔ 试飞记录列表按角色授权 (897.8702ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id","status":404}
+{"event":"api_response","method":"GET","route":"/simulations/:id","status":404}
+✔ 试飞记录详情按课程授权 (17.0384ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id/trace","status":404}
+{"event":"api_response","method":"GET","route":"/simulations/:id/trace","status":404}
+✔ 轨迹数据接口：读库返回最小向量（JSON / 二进制） (23.5242ms)
+✔ 轨迹数据接口：扩展列（CL/CD）随 JSON 与二进制一起返回 (165.0067ms)
+{"event":"api_response","method":"POST","route":"/simulate","status":403}
+{"event":"api_response","method":"POST","route":"/simulate","status":400}
+{"event":"api_response","method":"POST","route":"/simulate","status":400}
+✔ 模拟提交校验：角色、课程报名与课时归属 (13.746ms)
+✔ 引擎能力探测返回结构化结果 (407.8623ms)
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":403}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+{"event":"api_response","method":"GET","route":"/simulations/:id/files/:name","status":401}
+✔ 滑翔机签名受账号版本、强制改密、停用和归档约束，Bearer 不能绕过 (65.6323ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-learning-flow-a9HlHb\test.db
+{"event":"api_response","method":"GET","route":"unmatched","status":401}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":404}
+{"event":"api_response","method":"GET","route":"/students/:studentId","status":404}
+✔ 只读预览按角色和课程归属授权，学生和新媒体不可访问 (286.4423ms)
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId/preview","status":403}
+✔ 教师预览权限实时检查学生分配、有效报名及学生生命周期 (52.5949ms)
+✔ 预览只返回已发布内容，不泄漏答案、解析或学生记录且不写数据库 (49.6489ms)
+{"event":"api_response","method":"POST","route":"/:id/progress","status":403}
+{"event":"api_response","method":"POST","route":"/:id/progress","status":403}
+✔ 旧进度接口只保存播放位置，不能由客户端伪造课时完成 (28.8333ms)
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":404}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":404}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":409}
+{"event":"api_response","method":"POST","route":"/lessons/:lessonId/review-complete","status":409}
+{"event":"api_response","method":"POST","route":"/lessons/:lessonId/report","status":409}
+✔ 学生学习包校验报名和发布状态，且不泄漏答案 (70.8906ms)
+{"event":"api_response","method":"POST","route":"/exercises/:exerciseId/submit","status":409}
+{"event":"api_response","method":"POST","route":"/cards/:cardId/complete","status":409}
+{"event":"api_response","method":"POST","route":"/exercises/:exerciseId/submit","status":409}
+✔ 课堂回顾和知识卡片必须按顺序显式完成，加载页面不会自动完成 (79.5092ms)
+学习流程错误: SqliteError: reflection failed
+    at sqliteTransaction.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\services\learningService.js:464:8)
+    at sqliteTransaction (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\better-sqlite3\lib\methods\transaction.js:65:24)
+    at Object.submitReport (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\services\learningService.js:484:6)
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\learningController.js:32:67
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\learningController.js:14:45
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\middleware\auth.js:77:5
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13) {
+  code: 'SQLITE_CONSTRAINT_TRIGGER'
+}
+{"event":"api_response","method":"POST","route":"/lessons/:lessonId/report","status":500}
+✔ 报告与反思保持原子提交，且不再依赖单独的综合成果阶段 (25.5224ms)
+{"event":"api_response","method":"POST","route":"/lessons/:lessonId/report","status":409}
+✔ 退回报告可创建新版本，已提交版本不可原地覆盖 (38.5274ms)
+{"event":"api_response","method":"GET","route":"/:reportId","status":403}
+{"event":"api_response","method":"GET","route":"/manage/lessons/:lessonId/cards","status":403}
+{"event":"api_response","method":"GET","route":"/manage/lessons/:lessonId/cards","status":403}
+✔ 导师评审和内容管理严格按课程归属授权 (44.6509ms)
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards","status":403}
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards/reorder","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"POST","route":"/manage/cards/:cardId/exercises","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/exercises/:exerciseId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/exercises/:exerciseId","status":403}
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards","status":403}
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards/reorder","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"POST","route":"/manage/cards/:cardId/exercises","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/exercises/:exerciseId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/exercises/:exerciseId","status":403}
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards","status":403}
+{"event":"api_response","method":"POST","route":"/manage/lessons/:lessonId/cards/reorder","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/cards/:cardId","status":403}
+{"event":"api_response","method":"POST","route":"/manage/cards/:cardId/exercises","status":403}
+{"event":"api_response","method":"PUT","route":"/manage/exercises/:exerciseId","status":403}
+{"event":"api_response","method":"DELETE","route":"/manage/exercises/:exerciseId","status":403}
+✔ 题库七个写接口拒绝无关导师、教师和学生且不改变历史数据 (147.9663ms)
+✔ 服务层也拒绝无关导师写题库，负责导师编辑接口可获取答案与解析 (30.4443ms)
+✔ 受邀执行导师可完成题库七个编辑操作，旧作答和学习快照保留 (56.809ms)
+✔ 管理员仍可创建、修改、排序和删除知识卡片与练习 (52.851ms)
+{"event":"api_response","method":"GET","route":"/manage/lessons","status":403}
+✔ 内容编排中心列出导师创建或受邀授课课程的课时 (40.5745ms)
+{"event":"api_response","method":"GET","route":"/students/:studentId","status":404}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+✔ 教师观察端仅返回明确分配学生且所有学习写接口均拒绝教师 (91.5174ms)
+✔ 报告通过并评分后完成课时并只写一条成长记录 (20.9098ms)
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 018_learning_versions.sql 已应用
+✅ 数据库迁移 019_operations_safety.sql 已应用
+✅ 数据库迁移 020_release_closure.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 021_short_answer_rubric.sql 已应用
+✅ 数据库迁移 1016_course_avatar_preferences.sql 已应用
+✅ 数据库迁移 1017_course_content_maintenance.sql 已应用
+✅ 数据库迁移 1018_course_plan_templates_account_avatar.sql 已应用
+✅ 数据库迁移 1019_course_plan_detach_lesson.sql 已应用
+✅ 数据库迁移 1020_open_reflections.sql 已应用
+✅ 数据库迁移 1021_badges_demo_exchange.sql 已应用
+✅ 数据库迁移 1022_real_coins.sql 已应用
+✅ 数据库迁移 1023_lesson_authoring.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 017旧库增量迁移保留错题、成绩、报告和答题次数，兼容版本及结课重复启动幂等 (343.631ms)
+✔ 兼容快照回填失败时整个018迁移回滚，修复故障后可重试且不删旧答案 (217.0764ms)
+✔ 旧库已有结课时间仅补兼容闭包，不更改原时间或纳入后加未完成课时 (183.6672ms)
+✔ 020旧库及main扩展库补评价要点，重复迁移保留原题和作答 (217.6403ms)
+✔ xzx-2真实021评价要点迁移身份不被main徽章编号21覆盖，增量合并不改答案和成绩 (172.2379ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 预检仅打开明确目标库，不因授权辅助模块初始化DB_PATH指向的其他库 (543.3645ms)
+✔ 错绑卡片已有学习记录或进入教材快照均停止，不迁移历史进度 (278.5069ms)
+✔ JSON导入检测未发布人工草稿与缺失基线；通过的计划只保存草稿不发布 (321.4469ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 上游当前旧库增量升级保留前三关外观和全部旧字段；重复迁移不重写记录，新课时默认岩石 (543.0101ms)
+✔ 空库结构与新旧应用字段兼容；备份路径嵌套和未知目标均拒绝 (361.8123ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 图片计划默认零写入，显式执行只改目标新字段；重复执行保留后续人工改稿与原附件 (534.7092ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 错目标、内容变化、错误素材与写中故障停止；回滚新行并保留原教学数据 (483.1637ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 经确认的未使用错绑资料只修复归属，原附件保留 (353.2644ms)
+✔ WAL中未checkpoint的数据进入独立备份，源库模式不变且备份校验不产生未登记侧文件 (336.7092ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 1031旧库升级：只冻结现有报名与教师课程，旧数据不变，重跑/中断/恢复安全 (451.0365ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-mentor-students-CDvhFn\test.db
+{"event":"api_response","method":"GET","route":"/","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":404}
+✔ 导师工作台统计限于负责课程；新媒体只能读取已发布课程列表 (241.6811ms)
+✔ 导师列表仅有课程相关学生，历史/归档关系保留，多课程不重复，搜索无法扩大权限 (50.3237ms)
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+{"event":"api_response","method":"GET","route":"/:id","status":403}
+✔ 直接访问无关学生详情及档案返回403，相关学生允许 (112.6876ms)
+✔ 档案树、学校/班级批量导出和搜索均应用相同关系限制 (49.226ms)
+{"event":"api_response","method":"POST","route":"/growth-records","status":403}
+{"event":"api_response","method":"POST","route":"/:id/enroll","status":403}
+{"event":"api_response","method":"GET","route":"/:id/enroll/candidates","status":403}
+✔ 无关学生不能添加成长记录；课程候选只包含合法负责学生 (30.4419ms)
+{"event":"api_response","method":"GET","route":"/generate","status":403}
+✔ 管理员全量、教师明确分配范围、学生本人档案 (48.1039ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 1033旧库升级1034保留voyage/人工教材/上传绑定，联合备份、中断、重复迁移和恢复可验证 (621.4171ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-publication-http-6uqsDE\isolated.db
+{"event":"api_response","method":"POST","route":"/:id/lessons/:lessonId/replays","status":409}
+{"event":"api_response","method":"POST","route":"/:id/lessons/:lessonId/replays","status":403}
+✔ 指定课时上传在接收文件前拒绝正式课时和未授权导师，不生成孤立文件 (131.6904ms)
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":409}
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":409}
+任务详情错误: Error: 课时暂时关闭，学习记录已保留，请待管理员批准后恢复
+    at fail (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:1:55)
+    at Object.assertStudentOpen (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:3:109)
+    at exports.detail (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\taskController.js:120:55)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\index.js:284:15
+    at param (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\index.js:365:14)
+    at param (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\index.js:376:14) {
+  status: 409
+}
+{"event":"api_response","method":"GET","route":"/:id","status":409}
+{"event":"api_response","method":"POST","route":"/lessons/:lessonId/review-complete","status":409}
+启动滑翔机模拟错误: Error: 课时暂时关闭，学习记录已保留，请待管理员批准后恢复
+    at fail (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:1:55)
+    at Object.assertStudentOpen (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:3:109)
+    at exports.simulate (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\gliderController.js:148:49)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\middleware\auth.js:77:5
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5) {
+  status: 409
+}
+{"event":"api_response","method":"POST","route":"/simulate","status":409}
+提交反思错误: Error: 课时暂时关闭，学习记录已保留，请待管理员批准后恢复
+    at fail (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:1:55)
+    at Object.assertStudentOpen (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:3:109)
+    at exports.submitReflection (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\archiveController.js:291:58)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\middleware\auth.js:77:5
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5) {
+  status: 409
+}
+{"event":"api_response","method":"POST","route":"/reflection","status":409}
+上传作品错误: Error: 课时暂时关闭，学习记录已保留，请待管理员批准后恢复
+    at fail (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:1:55)
+    at Object.assertStudentOpen (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\helpers\lessonPublication.js:3:109)
+    at exports.upload (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\controllers\workController.js:215:51)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at validateUploadedFiles (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\middleware\upload.js:133:12)
+    at Layer.handle [as handle_request] (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\express\lib\router\route.js:149:13)
+    at AsyncResource.runInAsyncScope (node:async_hooks:226:14)
+    at next (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\backend\node_modules\multer\lib\make-middleware.js:73:16) {
+  status: 409
+}
+{"event":"api_response","method":"POST","route":"/","status":409}
+{"event":"api_response","method":"POST","route":"/:requestId/decision","status":403}
+✔ 课时关闭覆盖旧学习、课域转发、任务、实验和反思提交；恢复只走管理员审批 (205.4157ms)
+✔ 地图与学习页按学生已绑定的教材检查就绪，不被新版参观/准备中模板覆盖 (62.7719ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✔ 关闭不计结课的参观课时不阻断其他正式课时结课 (98.8616ms)
+✔ 正式课时改为参观模板后，旧学生仍可按原学习版本作答 (52.2318ms)
+✔ 总课题可先批准介绍；无正式课时不结课，草稿课时不允许学习 (9.3539ms)
+✔ 正式版发布前校验卡题；参观课时可无卡题正式发布且不计结课 (21.6941ms)
+✔ 未授权导师无权查看申请或关闭，导师不能审批；已发布内容须先关闭 (18.6819ms)
+✔ 提交后改稿不能批准未审内容；驳回保留草稿，再提批准才开放 (19.1561ms)
+✔ 关闭暂停全部学习提交；保留旧版本旧答案及一次作答，新学生使用审批新版 (57.5627ms)
+✔ 关闭期间按旧报告评审、退回；重提等待恢复，不改写旧报告历史 (86.4448ms)
+✔ 申请人撤权后不能批准，重复提交和重复审批不生成重复正式版本 (16.5136ms)
+✔ 已结课不回退；未结课学生新增草稿不计分母，正式发布后纳入要求 (66.3197ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-real-coins-CBft26\coins.db
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/calendar","status":400}
+{"event":"api_response","method":"GET","route":"/coins/ledger","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/checkin","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":400}
+✔ 正式账户0起步；GET不发币；query/body白名单与本人角色权限 (407.303ms)
+✔ 无徽章定义仍按全部任务及评分结算；并发仅一条，快照不可重算 (552.4202ms)
+✔ 报告通过但作品最新退回/待审不发；练习只要求原有作答；最后通过后发一次 (262.4793ms)
+✔ 合法0分也只结算一次；空/越界/小数分未结算可重试，不能用进度或徽章代替任务 (223.367ms)
+✔ 回顾/卡片/报告新版本/内容准备/参观/撤回/课时取消分别阻止新奖励；已有历史不追扣 (364.8599ms)
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":400}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"unmatched","status":403}
+{"event":"api_response","method":"POST","route":"/:reportId/review","status":403}
+✔ 原评分入口拒绝null/空/布尔/非整数，合法0及负责导师/管理员权限保留 (358.8092ms)
+✔ 服务端北京连续1/2/5/6/7天、上限10、中断重置、午夜/跨年/闰日及同日幂等 (56.0837ms)
+✔ 并发今日签到/响应丢失后重试不重复；故障事务整体回滚；余额等于流水SUM (102.2644ms)
+✔ 演示兑换消息、重置不进真实账；有限游标无重复/他人数据；数据库唯一与金额约束 (12.144ms)
+服务器错误: { name: 'Error', code: 'SQLITE_CONSTRAINT_TRIGGER' }
+{"event":"api_response","method":"POST","route":"/coins/reconcile","status":500}
+✔ 课时事务插入故障整体回滚，恢复后首次核对补结算；明细分页覆盖多页无重复 (150.4927ms)
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+✅ SQLite 数据库连接成功: D:\Temp\pbl-next-rewards-tPotvu\test.db
+{"event":"api_response","method":"GET","route":"unmatched","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+✔ 服务器北京日期只读，无客户日期、他人账号或 coin ledger (180.9396ms)
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":404}
+{"event":"api_response","method":"POST","route":"/badges/reconcile","status":400}
+✔ 无配置、空模板、参观缺记录、他课和其他学生不能凭空获得 (41.9081ms)
+✔ 回顾、知识卡片、原必做练习和最新报告分别约束资格；不要求练习正确率 (166.3442ms)
+✔ 所有活跃文字/附件任务都检查，旧 approved 不能掩盖新 pending/rejected 版本 (54.405ms)
+{"event":"api_response","method":"GET","route":"/lessons/:lessonId","status":404}
+✔ 事务颁发唯一稳定记录、快照、重复/并发请求、展示去重及跨学生隔离 (150.4674ms)
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"unmatched","status":403}
+{"event":"api_response","method":"PUT","route":"/badges/:lessonId","status":404}
+{"event":"api_response","method":"PUT","route":"/badges/:lessonId","status":400}
+{"event":"api_response","method":"PUT","route":"/badges/:lessonId","status":400}
+✔ 维护权限与受控素材，不允许老师/学生/新媒体伪造颁发或外部图像 (21.0368ms)
+{"event":"api_response","method":"POST","route":"/exchanges","status":409}
+{"event":"api_response","method":"POST","route":"/exchanges","status":409}
+{"event":"api_response","method":"POST","route":"/exchanges","status":400}
+{"event":"api_response","method":"POST","route":"/exchanges","status":400}
+{"event":"api_response","method":"POST","route":"/exchanges","status":400}
+{"event":"api_response","method":"POST","route":"/exchanges","status":400}
+{"event":"api_response","method":"POST","route":"/exchanges","status":400}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+✔ 数字/实物演示事件与管理员通知原子幂等，同编号换商品409，不信任身份或文案 (103.0763ms)
+服务器错误: { name: 'Error', code: 'SQLITE_CONSTRAINT_TRIGGER' }
+{"event":"api_response","method":"POST","route":"/exchanges","status":500}
+{"event":"api_response","method":"GET","route":"unmatched","status":403}
+{"event":"api_response","method":"GET","route":"unmatched","status":401}
+{"event":"api_response","method":"POST","route":"unmatched","status":401}
+✔ 通知写入失败事务回滚无孤儿；停用/强制改密沿用原拦截 (27.1387ms)
+ℹ tests 118
+ℹ suites 0
+ℹ pass 118
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18927.7745

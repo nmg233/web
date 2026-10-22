@@ -25,8 +25,9 @@ function submit(user,courseId,body){return db.transaction(()=>{
  const lessonId=body.lesson_id==null?null:Number(body.lesson_id);
  if(lessonId!==null&&(!Number.isSafeInteger(lessonId)||lessonId<1))fail('课时编号无效');
  if(lessonId){const l=db.prepare('SELECT * FROM lessons WHERE id=? AND course_id=?').get(lessonId,courseId);if(!l)fail('课时不属于当前总课题',404);publication.assertEditable(db,lessonId);
- if(l.presentation_type!=='visit'){const r=versions.readiness(db,lessonId);if(!r.ready)fail('教学内容不完整：'+r.issues.join('；'),409);}}
+ {const r=versions.readiness(db,lessonId);if(!r.ready)fail('教学内容不完整：'+r.issues.join('；'),409);}}
  else if(c.status!=='draft')fail('总课题已正式发布，介绍修改直接保存，无需重复申请',409);
+ if(!lessonId&&!String(c.description||'').trim())fail('发布前请填写真实课程简介；故事可写在简介中',409);
  const why=reason(body.reason),content=snapshot(courseId,lessonId),fingerprint=hash(content);
  const pending=db.prepare("SELECT * FROM publication_requests WHERE course_id=? AND lesson_id IS ? AND status='pending'").get(courseId,lessonId);
  if(pending){if(pending.fingerprint===fingerprint)return {id:pending.id,status:'pending',replayed:true};fail('已有待审批申请；请先由管理员处理后重新提交',409);}
@@ -46,7 +47,7 @@ function decide(user,courseId,requestId,body){return db.transaction(()=>{
  const applicant=db.prepare('SELECT * FROM users WHERE id=?').get(p.applicant_id);
  if(!applicant?.is_active||applicant.archived_at||applicant.force_reset_password||!canManageCourse(applicant,c))fail('申请人已失去管理权限，请驳回并由当前管理者重新申请',409);
  if(hash(snapshot(courseId,p.lesson_id))!==p.fingerprint)fail('提交后内容已变化，请驳回旧申请并重新提交，不能批准未审内容',409);
- if(p.lesson_id){const l=publication.assertEditable(db,p.lesson_id);if(l.presentation_type!=='visit'){const r=versions.readiness(db,l.id);if(!r.ready)fail('教材不完整：'+r.issues.join('；'),409);}
+ if(p.lesson_id){const l=publication.assertEditable(db,p.lesson_id);{const r=versions.readiness(db,l.id);if(!r.ready)fail('教材不完整：'+r.issues.join('；'),409);}
  db.prepare("UPDATE lessons SET publication_state='published',published_version_id=?,closure_reason=NULL WHERE id=?").run(p.content_version_id,p.lesson_id);
  db.prepare("INSERT INTO lesson_publication_events(course_id,lesson_id,actor_id,action,content_version_id,reason) VALUES(?,?,?,'publish',?,?)").run(courseId,p.lesson_id,user.id,p.content_version_id,why);
  }else{if(c.status!=='draft')fail('课程状态已变化',409);require('./mentorSchoolScope').assertPublish(user,courseId);db.prepare("UPDATE courses SET status='published',updated_at=CURRENT_TIMESTAMP WHERE id=?").run(courseId);}

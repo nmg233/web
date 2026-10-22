@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-21T09:00:36.503Z",
+  "summary": {
+    "info": 0,
+    "low": 0,
+    "moderate": 3,
+    "high": 3,
+    "critical": 0,
+    "total": 6
+  },
+  "items": [
+    {
+      "name": "argparse",
+      "severity": "moderate",
+      "baseline": "1.0.10",
+      "current": "1.0.10",
+      "sameAsBaseline": true
+    },
+    {
+      "name": "braces",
+      "severity": "high",
+      "baseline": "3.0.3",
+      "current": "3.0.3",
+      "sameAsBaseline": true
+    },
+    {
+      "name": "chokidar",
+      "severity": "high",
+      "baseline": "3.6.0",
+      "current": "3.6.0",
+      "sameAsBaseline": true
+    },
+    {
+      "name": "mammoth",
+      "severity": "moderate",
+      "baseline": "1.12.3",
+      "current": "1.12.3",
+      "sameAsBaseline": true
+    },
+    {
+      "name": "nodemon",
+      "severity": "high",
+      "baseline": "3.1.14",
+      "current": "3.1.14",
+      "sameAsBaseline": true
+    },
+    {
+      "name": "sprintf-js",
+      "severity": "moderate",
+      "baseline": "1.0.3",
+      "current": "1.0.3",
+      "sameAsBaseline": true
+    }
+  ],
+  "newImportDependenciesListed": false
+}

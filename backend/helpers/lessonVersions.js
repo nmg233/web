@@ -64,7 +64,7 @@ function currentContent(db, lessonId) {
 function hasAuthoredReview(lesson) {
   const blocks = (() => { try { const value = JSON.parse(lesson.article_blocks || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } })();
   return Boolean(String(lesson.review_content || '').trim()
-    || blocks.some((block) => block.type === 'paragraph' && String(block.text || '').trim())
+    || blocks.some((block) => (block.type === 'paragraph' && String(block.text || '').trim()) || (block.type === 'rich' && require('../services/articleHtml').plainText(block.html || '').trim()))
     || (String(lesson.article_title || '').trim() && /^https:\/\//.test(lesson.article_url || '')));
 }
 
@@ -72,14 +72,14 @@ function readiness(db, lessonId, source = null) {
   const content = source || currentContent(db, lessonId);
   const issues = [];
   const lesson = content.lesson;
-  if (lesson.content_state === 'preparing') issues.push('教学内容尚未准备完成');
+  if (lesson.content_state === 'preparing' && lesson.presentation_type !== 'visit') issues.push('教学内容尚未准备完成');
   // Article/text courses retain their supported review medium. Unconfigured traditional
   // lessons still require the upstream readable, lesson-specific video and introduction.
   if (!hasAuthoredReview(lesson) && !content.replays.some((replay) => replay.lesson_id === Number(lessonId) && usableVideo(replay))) {
     issues.push('至少为本课时绑定一个可读取的 MP4/WebM 视频并填写视频简介（课程共享视频不替代课时视频），或填写真实课堂回顾/文章');
   }
-  if (!content.cards.length) issues.push('至少发布一张知识卡片');
-  for (const card of content.cards) {
+  if (lesson.presentation_type !== 'visit' && lesson.cards_required !== 0 && !content.cards.length) issues.push('至少发布一张知识卡片');
+  for (const card of lesson.presentation_type === 'visit' || lesson.cards_required === 0 ? [] : content.cards) {
     if (!card.exercises.length) issues.push(`卡片「${card.title}」缺少配套习题`);
     for (const e of card.exercises) {
       if (!validReference(e) || !String(e.explanation || '').trim() || !String(e.prompt || '').trim()) {
@@ -165,13 +165,15 @@ function completionEvidence(db, studentId, lessonId) {
   const reviewCompleted = Boolean(db.prepare('SELECT 1 FROM lesson_review_completions WHERE student_id=? AND lesson_id=?').get(studentId,lessonId));
   const cards = studentCards(db,studentId,lessonId);
   const cardsCompleted = cards.filter(c=>c.completed_at).length;
-  const cardsDone = cards.length > 0 && cardsCompleted === cards.length;
+  const source = version?.content || (hasPublication(db) ? require('./lessonPublication').formalContent(db,lessonId) : null) || currentContent(db,lessonId);
+  const cardsRequired = source.lesson.cards_required !== 0;
+  const cardsDone = !cardsRequired || (cards.length > 0 && cardsCompleted === cards.length);
   const submitted = Boolean(report && ['submitted','approved'].includes(report.status) && !needsRevision);
   const approved = report?.status === 'approved' && !needsRevision;
   const completed = legacyCompleted || (reviewCompleted && cardsDone && approved);
-  const percent = legacyCompleted ? 100 : (reviewCompleted ? 25 : 0) + (cards.length ? Math.round(cardsCompleted/cards.length*35) : 0) + (submitted ? 25 : 0) + (approved ? 15 : 0);
+  const percent = legacyCompleted ? 100 : (reviewCompleted ? 25 : 0) + (!cardsRequired ? (reviewCompleted ? 35 : 0) : cards.length ? Math.round(cardsCompleted/cards.length*35) : 0) + (submitted ? 25 : 0) + (approved ? 15 : 0);
   return { percent, review_completed:reviewCompleted, cards_total:cards.length, cards_completed:cardsCompleted,
-    cards_done:cardsDone, cards_unlocked:reviewCompleted, report_unlocked:reviewCompleted && cardsDone,
+    cards_required:cardsRequired, cards_done:cardsDone, cards_unlocked:reviewCompleted, report_unlocked:reviewCompleted && cardsDone,
     report_status:needsRevision ? 'rejected' : report?.status || null, resubmission_required:needsRevision,
     status:completed ? 'completed' : needsRevision || report?.status === 'rejected' ? 'revision'
       : submitted ? 'reviewing' : cardsDone ? 'reporting' : reviewCompleted ? 'learning' : 'reviewing_lesson', completed };
@@ -247,7 +249,7 @@ function repairLegacy(db, actorId, studentId, lessonId, reason) {
           content.lesson[field] = current.lesson[field];
         }
         const blocks = (() => { try { const value = JSON.parse(current.lesson.article_blocks || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } })();
-        const imageIds = new Set(blocks.filter((block) => block.type === 'image').map((block) => block.resourceId));
+        const imageIds = new Set(blocks.flatMap(block => block.type === 'image' ? [block.resourceId] : block.type === 'rich' ? (block.resourceIds || []) : []));
         const oldIds = new Set(content.resources.map((resource) => resource.id));
         content.resources.push(...current.resources.filter((resource) => imageIds.has(resource.id) && !oldIds.has(resource.id)));
         changed = true;

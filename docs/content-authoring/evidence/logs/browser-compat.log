@@ -1,0 +1,12 @@
+Evidence: docs\content-authoring\evidence\browser\2026-10-21T09-14-16-688Z
+▶ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室
+  ✔ 兼容原位文案预览仍可修改并保存新的rich文章块 (3167.2734ms)
+✔ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (9604.6876ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10663.0709

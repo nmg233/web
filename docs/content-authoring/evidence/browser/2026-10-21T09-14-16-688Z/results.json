@@ -1,0 +1,10 @@
+{
+  "records": [
+    {
+      "name": "兼容原位文案预览仍可修改并保存新的rich文章块",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge, synthetic temporary DB; private article images not committed"
+}

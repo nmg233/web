@@ -119,7 +119,8 @@ function LessonLearnEditor() {
       // 已有报告可从原评审页回看；资料调整后的学习阶段不能吞掉档案的只读跳转。
       // 报告表单仍按 progress.report_unlocked 禁用，提交规则没有改变。
       const savedReportStage = payload.report && (requestedStage === 2 || requestedStage === 3);
-      const stage = restorePosition && searchParams.has('stage') && Number.isInteger(requestedStage) && requestedStage >= 0 && (requestedStage <= learningStage(payload) || savedReportStage) ? requestedStage : learningStage(payload);
+      let stage = restorePosition && searchParams.has('stage') && Number.isInteger(requestedStage) && requestedStage >= 0 && (requestedStage <= learningStage(payload) || savedReportStage) ? requestedStage : learningStage(payload);
+      if (stage === 1 && (payload.lesson.cards_required === false || payload.lesson.cards_required === 0) && !payload.cards.length) stage = learningStage(payload);
       const requestedCard = restorePosition ? searchParams.get('cardId') : null;
       if (requestedCard) {
         const index = availableCardIndex(payload.cards || [], requestedCard, payload.progress);
@@ -246,7 +247,7 @@ function LessonLearnEditor() {
   const cardExercisesDone = activeCard?.exercises?.every((exercise) => exercise.attempted) ?? false;
   if(data.lesson.presentation_type==='visit'||data.lesson.content_state==='preparing')return <LessonTemplate data={data}/>;
   const stageDone = [progress.review_completed, progress.cards_done, report && report.status !== 'rejected', report?.status === 'approved'];
-  const stageReasons = ['', copyText('system.learning.052'), copyText('system.learning.053'), copyText('system.learning.054')];
+  const stageReasons = ['', copyText('system.learning.052'), lesson.cards_required===0?copyText('system.learning.052'):copyText('system.learning.053'), copyText('system.learning.054')];
   const reportFields = getReportFields();
   const validationFailed = ({ errorFields }) => {
     if (errorFields.some(({ name }) => name[0] === 'reflection')) setReflectionOpen(['reflection']);

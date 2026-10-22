@@ -48,6 +48,7 @@ export default function LessonWorks({ courseId, lessonId }) {
     if (!loading && !error && data && location.hash === '#lesson-works') sectionRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
   }, [data, loading, error, location.hash]);
   const tasks = data?.tasks.filter((task) => String(task.lesson_id) === String(lessonId)) || [];
+  if(!loading&&!error&&data&&!tasks.length)return null;
   return <StudySection ref={sectionRef} id="lesson-works" className="lesson-works" number="W" title={siteText("site.422217ee612b1ccc")} description={siteText("site.3de0e858a9327c2c")} data-copy-bindings={JSON.stringify(["site.422217ee612b1ccc","site.3de0e858a9327c2c"])}>
     <Alert type="info" title={siteText("site.e8f9371af35069d9")}  data-copy-bindings={JSON.stringify(["site.e8f9371af35069d9"])}/>
     <AsyncPageState loading={loading} error={error} onRetry={retry}>{!tasks.length ? <Empty description={siteText("site.b72d32730ce31ed8")}  data-copy-bindings={JSON.stringify(["site.b72d32730ce31ed8"])}/> : tasks.map((task) => <WorkTask key={task.id} task={task} courseId={courseId} lessonId={lessonId} enrollmentId={data.enrollments[0]?.id} />)}</AsyncPageState>

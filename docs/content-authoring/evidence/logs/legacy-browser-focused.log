@@ -1,0 +1,36 @@
+Evidence: docs\content-authoring\evidence\browser\2026-10-21T08-55-34-053Z
+▶ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室
+  ✖ 旧默认卡片前置、一次作答、错题完成及报告本地草稿与真实提交 (15853.539ms)
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (22401.1008ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23428.7103
+
+✖ failing tests:
+
+test at tests\content-authoring.browser.test.js:14:140
+✖ 旧默认卡片前置、一次作答、错题完成及报告本地草稿与真实提交 (15853.539ms)
+  page.waitForResponse: Timeout 10000ms exceeded while waiting for event "response"
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:75:599
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:14:164)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:14:132)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:72:3) {
+    name: 'TimeoutError',
+    log: []
+  }
+
+test at tests\content-authoring.browser.test.js:5:1
+✖ 集中填写浏览器：同源草稿、上传恢复、公众号图文、主题与实验室 (22401.1008ms)
+  page.waitForResponse: Timeout 10000ms exceeded while waiting for event "response"
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:75:599
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:14:164)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:14:132)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\content-authoring.browser.test.js:72:3) {
+    name: 'TimeoutError',
+    log: []
+  }

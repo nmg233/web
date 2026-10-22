@@ -1,0 +1,38 @@
+▶ 真实延迟响应：课时保存与文章导入不丢最新草稿
+  ✔ 保存响应等待：最新文字仍为dirty，再保存真正写入，队列与切换保护保留 (5764.5227ms)
+  ✖ 导入响应等待：合并最新增删排序，不覆盖段落或标题 (6436.1722ms)
+  ✔ 回读等待失败：新输入与来源仍受保护，后续409核对不丢稿 (5399.4278ms)
+Evidence: docs\content-authoring\draft-race-patch\evidence\2026-10-21T10-05-17-767Z
+  ✔ 导入响应丢失重试：同请求编号只追加一次，保存失败和清除来源保留草稿 (3988.0854ms)
+✖ 真实延迟响应：课时保存与文章导入不丢最新草稿 (24766.4568ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25528.6686
+
+✖ failing tests:
+
+test at tests\content-authoring-race.browser.test.js:57:13
+✖ 导入响应等待：合并最新增删排序，不覆盖段落或标题 (6436.1722ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '' !== '9002'
+  
+      at file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:86:352
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:57:60)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async scene (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:57:5)
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/content-authoring-race.browser.test.js:78:5)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: '9002',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -17,6 +17,6 @@ function courseDisplay(courseId, student = false, studentId = null) {
     experiments=[...experiments.filter(e=>!e.lessonId),...frozen].sort((a,b)=>a.id-b.id);
   }
   const planNodes=db.prepare(`SELECT n.id,n.position,n.lesson_id,n.state FROM course_plan_nodes n LEFT JOIN lessons l ON l.id=n.lesson_id WHERE n.course_id=? AND (n.lesson_id IS NULL OR l.course_id=n.course_id) ${student?"AND (l.id IS NULL OR l.publication_state!='draft')":''} ORDER BY n.position,n.id`).all(courseId);
-  return {presentationOptions:require('./courseCustomization').config(courseId),chapters,experiments,planNodes,themeImages:require('./courseThemeImages').selected(db,courseId)};
+  return {labSettings:(!student||experiments.length)?require('./courseLabSettings').read(courseId):null,presentationOptions:require('./courseCustomization').config(courseId),chapters,experiments,planNodes,themeImages:require('./courseThemeImages').selected(db,courseId)};
 }
 module.exports={courseDisplay};

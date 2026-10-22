@@ -15,7 +15,7 @@ import CourseResourceDownload from '../CourseResourceDownload';
 import TemplateReplays from '../TemplateReplays';
 import {VisitSections,LessonDescription} from './TeachingSections';
 export function LessonTemplateView({data,region=(_key,children)=>children,download,replays,experiments,renderResource,maintenance=false}){
- const {lesson,course,resources}=data,visit=lesson.presentation_type==='visit',files=resources.filter(r=>r.has_file!==false&&!validArticleBlocks(lesson.article_blocks,resources).some(b=>b.resourceId===r.id));
+ const {lesson,course,resources}=data,visit=lesson.presentation_type==='visit',files=resources.filter(r=>r.has_file!==false&&!validArticleBlocks(lesson.article_blocks,resources).some(b=>b.resourceId===r.id||b.resourceIds?.includes(r.id)));
  const photos=resources.filter(r=>r.lesson_id===lesson.id&&['png','jpg','jpeg','webp'].includes(r.file_type));
  return <PageContainer><div className="study-workspace lesson-template" data-testid="lesson-template"><StudyHeader title={region("schedule",lesson.title)} description={copyText(visit?'next.visit.info':'next.template.preparing')} data-copy-bindings={JSON.stringify([visit?'next.visit.info':'next.template.preparing'])}/>
  {data.read_only_reason&&<Alert type="info" title={data.read_only_reason}/>}<Link to={'/courses/'+course.id+'?lesson='+lesson.id}>{<StudentCopyText id={'course.nav.return'}/>}</Link>

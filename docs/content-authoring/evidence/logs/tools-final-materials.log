@@ -1,0 +1,30 @@
+✅ 数据库迁移 1024_real_redemptions.sql 已应用
+✅ 数据库迁移 1025_legacy_lesson_supplements.sql 已应用
+✅ 数据库迁移 1026_student_guide_dismissals.sql 已应用
+✅ 数据库迁移 1027_lesson_map_assets.sql 已应用
+✅ 数据库迁移 1028_student_copy_publication.sql 已应用
+✅ 数据库迁移 1029_course_workspace.sql 已应用
+✅ 数据库迁移 1030_course_managers_schools.sql 已应用
+✅ 数据库迁移 1031_course_rewards.sql 已应用
+✅ 数据库迁移 1032_mentor_school_scope.sql 已应用
+✅ 数据库迁移 1033_mentor_feedback_conversations.sql 已应用
+✅ 数据库迁移 1034_public_themes_course_packages.sql 已应用
+✅ 数据库迁移 1035_publication_workflow.sql 已应用
+✅ 数据库迁移 1036_staff_desk_school_grants.sql 已应用
+请停止服务后明确 --offline-confirm；不在线迁移
+未核实这是存量远航课程。须提供带课程 ID、原提交 SHA 的旧配置证据及其 SHA-256；不能为新课开放专属主题
+回执目标已存在，请指定新 --receipt，未执行写入
+▶ 命名升级与定向宇宙修复：备份、旧库、重复、恢复副本和安全回滚
+  ✔ 默认只读核对、缺少离线确认拒绝；旧库增量并保持数字迁移和人工字段 (781.2519ms)
+  ✔ 重复升级不重复加列；备份恢复仅到新副本且内容相同 (610.2956ms)
+  ✔ 定向预演零写入；新课程不能获得宇宙主题；执行保留封面与教材 (932.7282ms)
+  ✔ 同一执行计划重放被拒绝；按回执回滚主题选择不改教材 (608.4872ms)
+✔ 命名升级与定向宇宙修复：备份、旧库、重复、恢复副本和安全回滚 (3359.0532ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3668.6194

@@ -1,3 +1,5 @@
+import {useCoursePresentation} from './space/CoursePresentation';
+import ThemeImage from './space/CourseThemeImage';
 import ConfigCopyText from '../content/ConfigText';
 import StudentCopyText from '../content/ManagedText';
 import FlightReplay3D from '../pages/glider/FlightReplay3D';
@@ -76,8 +78,9 @@ export default function StudentGliderWorkspace({ form, records, startSim, submit
     rules={[{ required: !!parameter.required, type: 'number', min: parameter.min, max: parameter.max, message: siteTemplate("site.99b8017af6c4b84a", {slot0: (parameter.title), slot1: (parameter.min), slot2: (parameter.max), slot3: (parameter.unit)}) }]}>
     <InputNumber min={parameter.min} max={parameter.max} step={parameter.step} style={{ width: '100%' }} suffix={parameter.unit} />
   </Form.Item>;
-  return <div className="study-workspace lab-workspace">
-    <StudyHeader eyebrow={<><PixelIcon name="lab" size={20} />{<StudentCopyText id={'system.flight.038'}/>}</>} title={copyText('system.flight.039')} description={copyText('system.flight.040')} data-copy-bindings={JSON.stringify(['system.flight.039','system.flight.040'])}>
+  const look=useCoursePresentation(),settings=look.experiments.some(e=>e.experiment==='glider')?look.data?.labSettings:null;
+  return <div className="study-workspace lab-workspace lab-configured-workspace"><ThemeImage image={settings?.background} className="lab-custom-background"/>
+    <StudyHeader eyebrow={<><PixelIcon name="lab" size={20} />{<StudentCopyText id={'system.flight.038'}/>}</>} title={settings?.title||copyText('system.flight.039')} description={settings?.revision?settings.introduction||undefined:copyText('system.flight.040')} data-copy-bindings={JSON.stringify(['system.flight.039','system.flight.040'])}>
       <PixelButton icon={<PixelIcon name="back" />} loading={returning} disabled={contextPending} onClick={returnToSource}>{returnsToCourse ? <StudentCopyText id={'flight.return.source'}/> : <StudentCopyText id={'system.flight.041'}/>}</PixelButton>
       {sourceCourse && returnsToCourse && <PixelButton onClick={returnToLab}>{<StudentCopyText id={'system.flight.042'}/>}</PixelButton>}
     </StudyHeader>

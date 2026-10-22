@@ -63,6 +63,7 @@ app.use((req, res, next) => {
 });
 app.use(express.urlencoded({ extended: true }));
 app.use(`${API_PREFIX}/student-copy`, express.json({limit:'2mb'}));
+app.use(`${API_PREFIX}/courses/:id/maintenance`, express.json({limit:'1mb'}));
 app.use(express.json());
 
 // Only allowlisted route/method/status metadata; never log queries or response bodies.

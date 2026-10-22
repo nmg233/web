@@ -37,8 +37,7 @@ function latestReport(studentId, lessonId) {
 }
 
 function areRequiredCardsCompleted(studentId, lessonId) {
-  const stats = cardStats(studentId, lessonId);
-  return stats.total > 0 && Number(stats.completed || 0) === stats.total;
+  return versions.completionEvidence(db,studentId,lessonId).cards_done;
 }
 
 function areConsolidationTasksSubmitted(studentId, lessonId) {

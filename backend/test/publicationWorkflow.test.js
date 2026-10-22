@@ -13,7 +13,7 @@ for(const [id,role]of [[1,'admin'],[2,'academic_mentor'],[3,'student'],[4,'stude
 db.prepare("INSERT INTO schools(id,name) VALUES(1,'隔离测试学校')").run();
 after(()=>db.close());
 test('关闭不计结课的参观课时不阻断其他正式课时结课',()=>{
- const f=fixture();open(f);const visit=Number(db.prepare("INSERT INTO lessons(course_id,title,publication_state,presentation_type) VALUES(?,'参观课时','draft','visit')").run(f.course).lastInsertRowid);approve({...f,lesson:visit});
+ const f=fixture();open(f);const visit=Number(db.prepare("INSERT INTO lessons(course_id,title,review_content,publication_state,presentation_type) VALUES(?,'参观课时','隔离参观的现场介绍','draft','visit')").run(f.course).lastInsertRowid);approve({...f,lesson:visit});
  publication.close(mentor,f.course,visit,{reason:'修改参观资料'});
  const report=finish(f);reviews.review(mentor,report.id,{status:'approved',score:90,comment:'通过'});
  assert.equal(versions.courseState(db,3,f.course,true).completed,true);
@@ -30,7 +30,7 @@ test('正式课时改为参观模板后，旧学生仍可按原学习版本作�
  const events=publication.read(admin,f.course).events;assert.equal(events.filter(e=>e.action==='close').length,1);assert.equal(events.filter(e=>e.action==='publish').length,2);
 });
 function fixture({visit=false}={}){
- const course=Number(db.prepare("INSERT INTO courses(title,grade_level,difficulty,created_by) VALUES('审批隔离课程','junior','basic',2)").run().lastInsertRowid);
+ const course=Number(db.prepare("INSERT INTO courses(title,description,grade_level,difficulty,created_by) VALUES('审批隔离课程','隔离发布验收的真实课程说明','junior','basic',2)").run().lastInsertRowid);
  db.prepare('INSERT INTO course_school_scopes(course_id,school_id,created_by) VALUES(?,1,1)').run(course);
  const lesson=Number(db.prepare("INSERT INTO lessons(course_id,title,publication_state,presentation_type,review_content) VALUES(?,'审批课时','draft',?,'真实人工回顾')").run(course,visit?'visit':'learning').lastInsertRowid);
  const card=learning.createCard(mentor,lesson,{title:'原卡片',content:'原正文',status:'published'}).id;
@@ -114,7 +114,7 @@ test('申请人撤权后不能批准，重复提交和重复审批不生成重�
 test('已结课不回退；未结课学生新增草稿不计分母，正式发布后纳入要求',()=>{
  const f=fixture();open(f);const report=finish(f);reviews.review(mentor,report.id,{status:'approved',score:90,comment:'通过'});
  assert.equal(versions.courseState(db,3,f.course,true).completed,true);
- const added=Number(db.prepare("INSERT INTO lessons(course_id,title,publication_state,presentation_type) VALUES(?,'新增参观','draft','visit')").run(f.course).lastInsertRowid);
+ const added=Number(db.prepare("INSERT INTO lessons(course_id,title,review_content,publication_state,presentation_type) VALUES(?,'新增参观','补充的参观现场记录','draft','visit')").run(f.course).lastInsertRowid);
  assert.deepEqual(versions.courseState(db,4,f.course).lesson_ids,[f.lesson]);
  approve({...f,lesson:added});assert.deepEqual(versions.courseState(db,4,f.course).lesson_ids,[f.lesson]);
  publication.close(mentor,f.course,f.lesson,{reason:'修订'});

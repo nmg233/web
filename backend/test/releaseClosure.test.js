@@ -18,7 +18,7 @@ db.prepare('UPDATE users SET school_id=2,class_id=2 WHERE id=5').run();
 after(()=>{db.close();fs.rmSync(tmp,{recursive:true,force:true});});
 function call(fn,request){const res={code:200,status(v){this.code=v;return this;},json(v){this.body=v;return this;}};fn({user:admin,params:{},body:{},...request},res);return res;}
 function fixture(withExercise=true){
-  const course=Number(db.prepare("INSERT INTO courses(title,grade_level,difficulty,status,created_by) VALUES('闭环','primary','basic','published',2)").run().lastInsertRowid);
+  const course=Number(db.prepare("INSERT INTO courses(title,description,grade_level,difficulty,status,created_by) VALUES('闭环','学生通过回顾、练习与报告记录探究过程','primary','basic','published',2)").run().lastInsertRowid);
   const lesson=Number(db.prepare("INSERT INTO lessons(course_id,title,status,instructor_id) VALUES(?,'课时','completed',2)").run(course).lastInsertRowid);
   db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(3,?,'active')").run(course);
   const file=path.join(tmp,course+'.mp4');fs.writeFileSync(file,'0000ftypisom0000');
