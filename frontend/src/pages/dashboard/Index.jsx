@@ -11,7 +11,8 @@ import { useAuth } from '../../store/AuthContext';
 
 const { Title, Text } = Typography;
 
-export default function Dashboard({organization=false}) {
+export default function Dashboard(props){const {user}=useAuth();return ['admin','academic_mentor'].includes(user?.role)&&!props.organization?<WorkspaceDashboard/>:<LegacyDashboard {...props}/>;}
+function LegacyDashboard({organization=false}) {
   const { user } = useAuth();
   const campusStaff = ['admin','academic_mentor'].includes(user?.role);
   const [data, setData] = useState(null);

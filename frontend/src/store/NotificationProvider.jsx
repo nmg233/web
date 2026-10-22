@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { notificationAPI } from '../api';
 import { useAuth } from './AuthContext';
 import NotificationContext from './notificationContext';
+import {visiblePolling} from '../utils/visiblePolling';
 import { requestError } from '../utils/requestError';
 
 function AccountNotifications({ enabled, children }) {
@@ -26,10 +27,9 @@ function AccountNotifications({ enabled, children }) {
   useEffect(() => {
     alive.current = true;
     if (!enabled) return () => { alive.current = false; };
-    const refresh = () => { void refreshUnread().catch(() => {}); };
-    const initial = setTimeout(refresh, 0), timer = setInterval(refresh, 60_000);
-    window.addEventListener('focus', refresh);
-    return () => { alive.current = false; invalidate(); clearTimeout(initial); clearInterval(timer); window.removeEventListener('focus', refresh); };
+    const refresh = () => refreshUnread().catch(() => {});
+    const stop=visiblePolling({run:refresh,interval:60_000});
+    return () => { alive.current = false; invalidate();stop(); };
   }, [enabled, refreshUnread, invalidate]);
   const value = useMemo(() => ({ unreadCount, countError, refreshUnread, reduceUnread }), [unreadCount, countError, refreshUnread, reduceUnread]);
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;

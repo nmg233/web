@@ -116,8 +116,13 @@ function enrollmentRows() {
 }
 
 test('新库迁移标记到最新版本', () => {
-  const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all().map((r) => r.version);
-  assert.deepEqual(versions, [...Array.from({length:21},(_,i)=>i+1),...Array.from({length:20},(_,i)=>1016+i)]);
+  const expected = fs.readdirSync(path.join(__dirname, '../database/migrations'))
+    .filter((name) => /^\d+_.*\.sql$/.test(name))
+    .map((name) => ({ version: parseInt(name, 10), name: parseInt(name, 10) === 1 ? 'baseline_schema' : name }))
+    .sort((a, b) => a.version - b.version);
+  assert.equal(new Set(expected.map((row) => row.version)).size, expected.length, '迁移文件编号不能重复');
+  const applied = db.prepare('SELECT version, name FROM schema_migrations ORDER BY version').all();
+  assert.deepEqual(applied, expected, '新库必须逐项记录所有迁移的编号和名称');
   const cols = db.prepare('PRAGMA table_info(enrollments)').all().map((c) => c.name);
   for (const col of ['status', 'enrolled_by', 'removed_at', 'removed_by', 'remove_reason']) {
     assert.ok(cols.includes(col), `缺少列 ${col}`);

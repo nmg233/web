@@ -1,0 +1,175 @@
+{
+  "records": [
+    {
+      "attempt": 1,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 2,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 3,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 4,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 5,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 6,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 7,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 8,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 9,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 10,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 11,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 12,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 13,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 14,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 15,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 16,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 17,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 18,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 19,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 20,
+      "mode": "pointer",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 21,
+      "mode": "keyboard",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 22,
+      "mode": "keyboard",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 23,
+      "mode": "keyboard",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    },
+    {
+      "attempt": 24,
+      "mode": "keyboard",
+      "school": 7001,
+      "mentor": 10007,
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "posts": [],
+  "scope": "Real Edge; synthetic isolated SQLite; normal motion enabled; no teaching data"
+}

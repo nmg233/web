@@ -1,0 +1,71 @@
+▶ 导师第二步：课程反馈和申请会话浏览器
+  ✔ 学生显式课程反馈，导师列表直达且领取后能回复 (4130.4718ms)
+  ✔ 公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交 (807.3684ms)
+  ✔ 内部原因转管理员与管理员转回，学生只见公开进展 (3373.5527ms)
+  ✔ 学校申请原会话追问与补充，不自动授权，工作台待办可刷新 (4628.0403ms)
+  ✔ 铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办 (4632.1292ms)
+  ✔ 三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问 (2382.067ms)
+✔ 导师第二步：课程反馈和申请会话浏览器 (27444.4183ms)
+▶ 导师第三步：四主题、网页导入及真实教学串联
+  ✔ 导师网页上传校验预览；确认回包丢失后查询原结果，不重复导入 (3392.725ms)
+  ✔ 恢复暂存并向原课程追加，保留原课时；admin可同样新建导入 (4069.7351ms)
+  ✔ 创建课程只有四公共主题；真实保存、默认关卡与本校授权报名 (10298.9621ms)
+  ✔ 四主题真实地图3/4/7课时，五尺寸、连线、键盘、站位与无宇航员串入 (17071.9188ms)
+  ✔ 主题桌面/手机预览、模块标题保存与空实验隐藏；原上传图优先及缺图降级 (5385.6732ms)
+  ✔ 导入教材原位编辑、卡片发布/课时就绪分开；本校学习、教师只读、导师评审金币仍沿原规则 (3032.119ms)
+  ✔ 管理员可真实授予并撤销开发资格，导师只读准确限制；无代码运行入口 (4551.9467ms)
+✔ 导师第三步：四主题、网页导入及真实教学串联 (56251.5848ms)
+▶ 校园管理端：作用域、吸顶、输入与portal交互
+  ✔ admin：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度 (13896.2681ms)
+  ✔ mentor：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度 (13595.7258ms)
+  ✔ hover/press/focus与减少运动；输入和disabled不缩放，真实弹窗Escape后回焦 (4325.5637ms)
+  ✔ 课程预览保留森林主题，通用后台始终校园；切换手机预览真实加载原图 (2925.4146ms)
+  ✔ 学生、教师与新媒体不挂管理端类名，退出后清除portal角色标志 (8671.3634ms)
+✔ 校园管理端：作用域、吸顶、输入与portal交互 (46538.929ms)
+▶ 校园书桌、角色指南与独立学校授权真实浏览器
+  ✔ admin：桌面/平板/手机、放大阅读和真实时钟，保留五项导航 (4774.1839ms)
+  ✔ mentor：桌面/平板/手机、放大阅读和真实时钟，保留五项导航 (4446.0485ms)
+  ✔ 报告与课程分页直达对象；返回保持队列和页码；不再请求旧重复统计 (5609.6957ms)
+  ✔ admin：角色指南权限、导航路径和去办理按钮 (2529.2961ms)
+  ✔ mentor：角色指南权限、导航路径和去办理按钮 (2427.3502ms)
+  ✔ 旧学校申请深链接与会话共用原对象，保留列表筛选 (4263.22ms)
+  ✖ 管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问 (15612.6605ms)
+✖ 校园书桌、角色指南与独立学校授权真实浏览器 (43405.4539ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 27
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 176732.6759
+
+✖ failing tests:
+
+test at tests\staff-desk.browser.test.js:6:51
+✖ 管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问 (15612.6605ms)
+  locator.waitFor: Timeout 12000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('dialog').getByText('隔离模拟保存暂时失败', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:36:340
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:6:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:6:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:34:2) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('dialog').getByText('隔离模拟保存暂时失败', { exact: true }) to be visible" ]
+  }
+
+test at tests\staff-desk.browser.test.js:3:1
+✖ 校园书桌、角色指南与独立学校授权真实浏览器 (43405.4539ms)
+  locator.waitFor: Timeout 12000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('dialog').getByText('隔离模拟保存暂时失败', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:36:340
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:6:75)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:6:43)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-desk.browser.test.js:34:2) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('dialog').getByText('隔离模拟保存暂时失败', { exact: true }) to be visible" ]
+  }

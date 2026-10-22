@@ -2,6 +2,8 @@ const router=require('express').Router(),{requireAuth,requirePasswordChanged,req
 const schools=require('../services/mentorSchoolScope'),teachers=require('../services/teacherObservations');
 router.use(requireAuth,requirePasswordChanged,requireRole('admin','academic_mentor'));
 const handle=fn=>async(req,res,next)=>{try{res.set('Cache-Control','no-store').json(await fn(req));}catch(e){if(e.status)return res.status(e.status).json({error:e.message,items:e.items});next(e);}};
+router.get('/school-grants',requireRole('admin'),handle(req=>require('../services/schoolDirectGrants').read(req.user)));
+router.post('/school-grants',requireRole('admin'),handle(req=>require('../services/schoolDirectGrants').write(req.user,req.body)));
 router.get('/dashboard',handle(req=>require('../services/mentorDashboard').read(req.user,req.query)));
 router.get('/schools',handle(req=>({schools:schools.schools(req.user)})));
 router.post('/schools/:id/account-delegations',requireRole('admin'),handle(req=>schools.delegate(req.user,req.params.id,req.body)));

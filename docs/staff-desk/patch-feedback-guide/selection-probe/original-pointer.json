@@ -1,0 +1,290 @@
+[
+  {
+    "i": 0,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 1,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 2,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 3,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 4,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 5,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 6,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 7,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 8,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 9,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 10,
+    "selected": true,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "合成验收noSchool #10007",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收noSchool #10007\">合成验收noSchool #10007<input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  },
+  {
+    "i": 11,
+    "selected": false,
+    "afterClick": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-focused ant-select-single ant-select-show-arrow ant-select-open\"><div class=\"ant-select-content\"><div class=\"ant-select-placeholder\"></div><input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"true\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\" aria-owns=\"mentorId_list\" aria-controls=\"mentorId_list\" aria-activedescendant=\"mentorId_list_3\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ],
+    "beforeSubmit": [
+      {
+        "text": "合成验收学校7001 #7001",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item ant-select-status-success css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content ant-select-content-has-value\" title=\"合成验收学校7001 #7001\">合成验收学校7001 #7001<input id=\"schoolId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      },
+      {
+        "text": "",
+        "html": "<div class=\"ant-select ant-select-outlined ant-select-in-form-item css-var-_r_1b_ ant-select-css-var css-viwxw0 ant-select-single ant-select-show-arrow\"><div class=\"ant-select-content\"><div class=\"ant-select-placeholder\"></div><input id=\"mentorId\" aria-required=\"true\" readonly=\"\" autocomplete=\"new-password\" class=\"ant-select-input\" role=\"combobox\" aria-expanded=\"false\" aria-haspopup=\"listbox\" aria-autocomplete=\"list\" type=\"text\" value=\"\"></div><div class=\"ant-select-suffix\"><span role=\"img\" aria-label=\"down\" class=\"anticon anticon-down\"><svg viewBox=\"64 64 896 896\" focusable=\"false\" data-icon=\"down\" width=\"1em\" height=\"1em\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z\"></path></svg></span></div></div>"
+      }
+    ]
+  }
+]

@@ -5,7 +5,10 @@ function actor(user){return active(user,user.role==='admin'?'admin':'academic_me
 function schoolSql(user,column='s.id'){
  if(user.role==='admin')return '1=1';
  const id=Number(user.id);if(!Number.isSafeInteger(id))fail('账号无效',403);
- return `EXISTS(SELECT 1 FROM school_managers sm JOIN school_applications sa ON sa.id=sm.application_id JOIN users mu ON mu.id=sm.mentor_id WHERE sm.school_id=${column} AND sm.mentor_id=${id} AND sm.active=1 AND sa.status='approved' AND mu.role='academic_mentor' AND mu.is_active=1 AND mu.archived_at IS NULL)`;
+ return schoolGrantSql(String(id),column);
+}
+function schoolGrantSql(mentor,column){
+ return `EXISTS(SELECT 1 FROM users school_actor WHERE school_actor.id=${mentor} AND school_actor.role='academic_mentor' AND school_actor.is_active=1 AND school_actor.archived_at IS NULL AND (EXISTS(SELECT 1 FROM school_managers sm JOIN school_applications sa ON sa.id=sm.application_id WHERE sm.school_id=${column} AND sm.mentor_id=school_actor.id AND sm.active=1 AND sa.status='approved') OR EXISTS(SELECT 1 FROM school_direct_grants dg WHERE dg.school_id=${column} AND dg.mentor_id=school_actor.id AND dg.active=1)))`;
 }
 function schools(user){actor(user);return db.prepare(`SELECT s.id,s.name,s.region FROM schools s WHERE s.is_active=1 AND ${schoolSql(user)} ORDER BY s.name,s.id`).all();}
 function school(user,id){actor(user);const row=db.prepare(`SELECT s.* FROM schools s WHERE s.id=? AND s.is_active=1 AND ${schoolSql(user)}`).get(id);if(!row)fail('学校不存在或管理授权已失效',403);return row;}
@@ -57,4 +60,4 @@ function delegate(user,schoolId,body){return db.transaction(()=>{
  db.prepare("INSERT INTO school_management_events(school_id,actor_id,mentor_id,action,detail) VALUES(?,?,?,'account_delegation',?)").run(schoolId,user.id,body.mentorId,JSON.stringify({studentId:body.studentId,active:body.active,reason:body.reason}));
  const result={saved:true,revision:(old?.revision||0)+1};requests.save(db,identity,result);return result;
  }).immediate();}
-module.exports={actor,schools,school,schoolSql,manages,accountScopeSql,accountSql,admissionSql,assertAdmission,assertPublish,read,save,delegate};
+module.exports={schoolGrantSql,actor,schools,school,schoolSql,manages,accountScopeSql,accountSql,admissionSql,assertAdmission,assertPublish,read,save,delegate};

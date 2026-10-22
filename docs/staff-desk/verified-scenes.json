@@ -1,0 +1,263 @@
+{
+  "verifiedAt": "2026-10-20T13:42:53.607Z",
+  "baseline": "6f998a2cf9cb686811bfcd91954644c207ca1dcb",
+  "lint": {
+    "passed": true
+  },
+  "build": {
+    "passed": true,
+    "entry": "/assets/index-XMC4Ynj2.js",
+    "indexSha256": "efcb913b6758dd22e4967dc4326c6b56a6f07e4156caa2211084b34f76f91502"
+  },
+  "frontend": {
+    "tests": 144,
+    "pass": 144,
+    "fail": 0
+  },
+  "backend": {
+    "tests": 107,
+    "pass": 107,
+    "fail": 0
+  },
+  "browser": {
+    "businessScenes": 26,
+    "nodeTests": 30,
+    "pass": 30,
+    "fail": 0,
+    "records": [
+      {
+        "suite": "工作台与指南",
+        "name": "admin：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "mentor：桌面/平板/手机、放大阅读和真实时钟，保留五项导航",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "报告与课程分页直达对象；返回保持队列和页码；不再请求旧重复统计",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "admin：角色指南权限、导航路径和去办理按钮",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "mentor：角色指南权限、导航路径和去办理按钮",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "旧学校申请深链接与会话共用原对象，保留列表筛选",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问",
+        "status": "passed"
+      },
+      {
+        "suite": "工作台与指南",
+        "name": "局部网络错误可重试；真实空队列；键盘焦点可见",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "学生显式课程反馈，导师列表直达且领取后能回复",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "内部原因转管理员与管理员转回，学生只见公开进展",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "学校申请原会话追问与补充，不自动授权，工作台待办可刷新",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办",
+        "status": "passed"
+      },
+      {
+        "suite": "反馈、通知与申请",
+        "name": "三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "导师网页上传校验预览；确认回包丢失后查询原结果，不重复导入",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "恢复暂存并向原课程追加，保留原课时；admin可同样新建导入",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "创建课程只有四公共主题；真实保存、默认关卡与本校授权报名",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "四主题真实地图3/4/7课时，五尺寸、连线、键盘、站位与无宇航员串入",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "主题桌面/手机预览、模块标题保存与空实验隐藏；原上传图优先及缺图降级",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "导入教材原位编辑、卡片发布/课时就绪分开；本校学习、教师只读、导师评审金币仍沿原规则",
+        "status": "passed"
+      },
+      {
+        "suite": "教材、课程包与学习闭环",
+        "name": "管理员可真实授予并撤销开发资格，导师只读准确限制；无代码运行入口",
+        "status": "passed"
+      },
+      {
+        "suite": "校园样式与其他角色",
+        "name": "admin：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度",
+        "status": "passed"
+      },
+      {
+        "suite": "校园样式与其他角色",
+        "name": "mentor：五入口与1440/768/390/360/横屏；吸顶偏移跟随真实顶栏高度",
+        "status": "passed"
+      },
+      {
+        "suite": "校园样式与其他角色",
+        "name": "hover/press/focus与减少运动；输入和disabled不缩放，真实弹窗Escape后回焦",
+        "status": "passed"
+      },
+      {
+        "suite": "校园样式与其他角色",
+        "name": "课程预览保留森林主题，通用后台始终校园；切换手机预览真实加载原图",
+        "status": "passed"
+      },
+      {
+        "suite": "校园样式与其他角色",
+        "name": "学生、教师与新媒体不挂管理端类名，退出后清除portal角色标志",
+        "status": "passed"
+      }
+    ],
+    "geometry": [
+      {
+        "role": "admin",
+        "width": 1440,
+        "height": 900,
+        "scrollHeight": 900,
+        "scrollWidth": 1440,
+        "clock": "21:38:25"
+      },
+      {
+        "role": "admin",
+        "width": 1280,
+        "height": 720,
+        "scrollHeight": 720,
+        "scrollWidth": 1280,
+        "clock": "21:38:26"
+      },
+      {
+        "role": "admin",
+        "width": 768,
+        "height": 1024,
+        "scrollHeight": 1292,
+        "scrollWidth": 768,
+        "clock": "21:38:26"
+      },
+      {
+        "role": "admin",
+        "width": 390,
+        "height": 844,
+        "scrollHeight": 1771,
+        "scrollWidth": 390,
+        "clock": "21:38:27"
+      },
+      {
+        "role": "admin",
+        "width": 360,
+        "height": 640,
+        "scrollHeight": 1805,
+        "scrollWidth": 360,
+        "clock": "21:38:27"
+      },
+      {
+        "role": "admin",
+        "width": 720,
+        "height": 450,
+        "scrollHeight": 1527,
+        "scrollWidth": 720,
+        "clock": "21:38:27"
+      },
+      {
+        "role": "mentor",
+        "width": 1440,
+        "height": 900,
+        "scrollHeight": 900,
+        "scrollWidth": 1440,
+        "clock": "21:38:30"
+      },
+      {
+        "role": "mentor",
+        "width": 1280,
+        "height": 720,
+        "scrollHeight": 721,
+        "scrollWidth": 1280,
+        "clock": "21:38:31"
+      },
+      {
+        "role": "mentor",
+        "width": 768,
+        "height": 1024,
+        "scrollHeight": 1189,
+        "scrollWidth": 768,
+        "clock": "21:38:31"
+      },
+      {
+        "role": "mentor",
+        "width": 390,
+        "height": 844,
+        "scrollHeight": 1662,
+        "scrollWidth": 390,
+        "clock": "21:38:32"
+      },
+      {
+        "role": "mentor",
+        "width": 360,
+        "height": 640,
+        "scrollHeight": 1696,
+        "scrollWidth": 360,
+        "clock": "21:38:32"
+      },
+      {
+        "role": "mentor",
+        "width": 720,
+        "height": 450,
+        "scrollHeight": 1466,
+        "scrollWidth": 720,
+        "clock": "21:38:32"
+      }
+    ]
+  },
+  "notes": [
+    "Synthetic SQLite and real Edge CSS viewports only",
+    "Hidden polling is covered by controlled scheduler unit tests",
+    "No live deployment, upstream PR, real teaching DB migration, hardware-mobile or native browser zoom test"
+  ]
+}

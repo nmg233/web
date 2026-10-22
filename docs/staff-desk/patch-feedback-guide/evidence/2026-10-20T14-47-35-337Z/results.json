@@ -1,0 +1,26 @@
+{
+  "records": [
+    {
+      "name": "学生通过真实表单提交课程反馈",
+      "status": "passed"
+    },
+    {
+      "name": "mentor：从指南点击进入学生反馈受理队列及原会话",
+      "status": "passed"
+    },
+    {
+      "name": "mentor：指南明确区分个人提交，原个人反馈列表仍可访问",
+      "status": "passed"
+    },
+    {
+      "name": "admin：从指南点击进入学生反馈受理队列及原会话",
+      "status": "passed"
+    },
+    {
+      "name": "admin：指南明确区分个人提交，原个人反馈列表仍可访问",
+      "status": "passed"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge; isolated synthetic SQLite; no live writes"
+}

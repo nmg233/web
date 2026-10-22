@@ -1,0 +1,23 @@
+{
+  "kind": "Independent review first failure, preserved before patch or rerun",
+  "files": [
+    {
+      "source": ".local/staff-desk-review/independent-browser.log",
+      "savedAs": "independent-browser.log",
+      "bytes": 5377,
+      "sha256": "aa2cee021d2608e12276b9aa18e7d89204d7b9c8335afa8bedb94b15eac5974d"
+    },
+    {
+      "source": "docs/staff-desk/evidence/school-grant-first-failure.txt",
+      "savedAs": "school-grant-first-failure.json",
+      "bytes": 1767,
+      "sha256": "2db80236ec99869845b774ed8c86248079779a2bcb0fc5038c834e47e978b6e8"
+    },
+    {
+      "source": "docs/staff-desk/evidence/school-grant-first-failure.png",
+      "savedAs": "school-grant-first-failure.png",
+      "bytes": 412986,
+      "sha256": "469353372a33df2bf96b6043f986d990e0b87ebccc1fd54d9ae5ea5392a78733"
+    }
+  ]
+}

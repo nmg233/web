@@ -47,7 +47,11 @@ function recipients(feedback,mode='staff'){
 function notify(feedback,payload,mode='staff'){
  return require('./notificationService').safeCreateForUsers({...payload,category:'feedback',businessType:'feedback',businessId:feedback.id,actionUrl:'/feedback/'+feedback.id,feedbackContext:{id:feedback.id,mode}},recipients(feedback,mode));
 }
-function refreshPending(){for(const f of db.prepare("SELECT * FROM feedbacks WHERE reception_level='mentor'").all())refresh(f);}
+function refreshPending(){
+ // Materialize only rows whose routing needs repair, rather than every mentor feedback.
+ const valid=`SELECT 1 FROM course_managers cm JOIN users mu ON mu.id=cm.mentor_id JOIN courses c ON c.id=cm.course_id JOIN enrollments e ON e.course_id=c.id JOIN users owner ON owner.id=e.student_id WHERE cm.course_id=f.course_id AND cm.active=1 AND mu.role='academic_mentor' AND mu.is_active=1 AND mu.archived_at IS NULL AND mu.force_reset_password=0 AND c.status='published' AND e.student_id=f.user_id AND e.status='active' AND owner.is_active=1 AND owner.archived_at IS NULL`;
+ for(const f of db.prepare(`SELECT f.id FROM feedbacks f WHERE f.reception_level='mentor' AND (NOT EXISTS(${valid}) OR f.assignee_id IS NOT NULL AND NOT EXISTS(${valid} AND cm.mentor_id=f.assignee_id)) ORDER BY f.id LIMIT 100`).all())refresh(f);
+}
 function guarded(operation,action){return(user,id,value,options={})=>db.transaction(()=>{
  const f=refresh(db.prepare('SELECT * FROM feedbacks WHERE id=?').get(id)||{});if(!f.id)fail('反馈不存在',404);if(!canRead(user,f))throw Object.assign(new Error('反馈不可访问'),{status:403,code:'FEEDBACK_FORBIDDEN'});
  const files=options.files||[],identity=requests.identity(user,'feedback-action:'+id+':'+action,{value,expectedRevision:options.expectedRevision,request_key:options.request_key},files);

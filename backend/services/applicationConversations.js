@@ -6,8 +6,19 @@ function get(user,kind,id){actor(user);const row=db.prepare('SELECT a.*,u.real_n
 function recipients(kind,id,mode){const row=db.prepare('SELECT applicant_id FROM '+table(kind)+' WHERE id=?').get(id);if(!row)fail('申请不存在',404);return mode==='applicant'?[row.applicant_id]:require('./notificationService').userIdsByRoles(['admin']);}
 function notify(user,kind,id,event,content,mode){return require('./notificationService').safeCreateForUsers({eventKey:'application.'+event,dedupeKey:`application:${kind}:${id}:${event}`,title:'申请有新进展',content,category:'account',businessType:'application:'+kind,businessId:id,actionUrl:`/mentor/requests?kind=${kind}&application=${id}`,createdBy:user.id,applicationContext:{kind,id,mode}},recipients(kind,id,mode));}
 function detail(user,kind,id){const app=get(user,kind,id),thread=db.prepare('SELECT * FROM application_conversations WHERE kind=? AND application_id=?').get(kind,id);if(!thread)fail('申请会话不存在，请联系管理员核对迁移',409);return{application:{...app,duplicates:kind==='school'&&user.role==='admin'?require('./schoolApplications').list(user).applications.find(a=>a.id===Number(id))?.duplicates||[]:[]},thread,messages:db.prepare('SELECT m.*,u.real_name sender_name,u.role sender_role FROM application_messages m JOIN users u ON u.id=m.sender_id WHERE m.kind=? AND m.application_id=? ORDER BY m.id').all(kind,id),attachments:db.prepare(`SELECT a.id,a.message_id,a.original_name,a.file_size FROM application_attachments a JOIN application_messages m ON m.id=a.message_id WHERE m.kind=? AND m.application_id=? ORDER BY a.id`).all(kind,id)};}
-function all(user){actor(user);const rows=[];for(const kind of Object.keys(tables))for(const row of db.prepare('SELECT a.id,a.applicant_id,a.status,a.created_at,a.revision,a.explanation,'+(kind==='school'?'a.name':'NULL')+' object_name,u.real_name applicant_name,t.needs_reply,t.updated_at FROM '+table(kind)+" a JOIN users u ON u.id=a.applicant_id JOIN application_conversations t ON t.kind=? AND t.application_id=a.id "+(user.role==='admin'?'':'WHERE a.applicant_id=?')+' ORDER BY a.id DESC').all(kind,...(user.role==='admin'?[]:[user.id])))rows.push({...row,kind,title:kind==='school'?row.object_name+' · '+row.applicant_name:({course:'既有课程管理申请',development:'自主开发方案申请'})[kind]+' #'+row.id,url:`/mentor/requests?kind=${kind}&application=${row.id}`});return rows.sort((a,b)=>b.updated_at.localeCompare(a.updated_at)||b.id-a.id);}
-function list(user,query={}){const rows=all(user).filter(r=>!query.kind||r.kind===query.kind),page=Math.max(1,parseInt(query.page,10)||1),pageSize=Math.min(100,Math.max(1,parseInt(query.pageSize,10)||20));return{items:rows.slice((page-1)*pageSize,page*pageSize),total:rows.length,page,pageSize};}
+function collectionSql(user){
+ actor(user);const uid=Number(user.id);
+ return Object.keys(tables).map(kind=>`SELECT a.id,a.applicant_id,a.status,a.created_at,a.revision,${kind==='school'?'a.name':'NULL'} object_name,u.real_name applicant_name,t.needs_reply,t.updated_at,'${kind}' kind FROM ${table(kind)} a JOIN users u ON u.id=a.applicant_id JOIN application_conversations t ON t.kind='${kind}' AND t.application_id=a.id ${user.role==='admin'?'':'WHERE a.applicant_id='+uid}`).join(' UNION ALL ');
+}
+function asRow(row){return {...row,title:row.kind==='school'?row.object_name+' · '+row.applicant_name:({course:'既有课程管理申请',development:'自主开发方案申请'})[row.kind]+' #'+row.id,url:`/mentor/requests?kind=${row.kind}&application=${row.id}`};}
+function all(user){return db.prepare('SELECT * FROM ('+collectionSql(user)+') ORDER BY updated_at DESC,id DESC').all().map(asRow);}
+function list(user,query={}){
+ const clauses=[],args=[];
+ const filterKind=query.filterKind||query.kind;if(filterKind){table(filterKind);clauses.push('kind=?');args.push(filterKind);}
+ if(query.status){if(!['pending','approved','rejected'].includes(query.status))fail('申请状态无效');clauses.push('status=?');args.push(query.status);}
+ const base='SELECT * FROM ('+collectionSql(user)+')'+(clauses.length?' WHERE '+clauses.join(' AND '):''),page=Math.min(1000000,Math.max(1,parseInt(query.page,10)||1)),pageSize=Math.min(100,Math.max(1,parseInt(query.pageSize,10)||20));
+ return db.transaction(()=>({items:db.prepare(base+' ORDER BY updated_at DESC,id DESC LIMIT ? OFFSET ?').all(...args,pageSize,(page-1)*pageSize).map(asRow),total:db.prepare('SELECT COUNT(*) n FROM ('+base+')').get(...args).n,page,pageSize}))();
+}
 function create(user,kind,body){actor(user);table(kind);
  if(kind==='school')return require('./schoolApplications').apply(user,body);
  return db.transaction(()=>{
@@ -56,4 +67,4 @@ function review(user,kind,id,body){return db.transaction(()=>{
  const result={saved:true,status:body.decision};requests.save(db,identity,result);return result;
  }).immediate();}
 function attachment(user,id){const row=db.prepare('SELECT a.*,m.kind,m.application_id FROM application_attachments a JOIN application_messages m ON m.id=a.message_id WHERE a.id=?').get(id);if(!row)fail('申请附件不存在',404);get(user,row.kind,row.application_id);return row;}
-module.exports={table,get,detail,all,list,create,reply,review,attachment,recipients,notify};
+module.exports={collectionSql,table,get,detail,all,list,create,reply,review,attachment,recipients,notify};

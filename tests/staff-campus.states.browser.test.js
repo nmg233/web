@@ -48,6 +48,8 @@ test('校园管理端：作用域、吸顶、输入与portal交互',{timeout:240
   }}finally{await p.context().close();}
  });
  await scene('hover/press/focus与减少运动；输入和disabled不缩放，真实弹窗Escape后回焦',async()=>{
+  // This interaction-only case edits a synthetic draft; formal lessons remain protected.
+  db.prepare("UPDATE lessons SET publication_state='draft' WHERE id=91001").run();
   const p=await login('admin');try{await p.goto(runtime.base+'/courses/91001?tab=maintenance');const open=p.getByRole('button',{name:'课时基本信息与关卡图',exact:true});await open.click();const modal=p.getByRole('dialog');await modal.waitFor();const input=modal.getByLabel('名称',{exact:true}),disabled=modal.getByRole('button',{name:'上传并保留到当前表单',exact:true});
    const baseline=await input.evaluate(e=>({transform:getComputedStyle(e).transform,scale:getComputedStyle(e).scale,translate:getComputedStyle(e).translate}));await input.hover();assert.deepEqual(await input.evaluate(e=>({transform:getComputedStyle(e).transform,scale:getComputedStyle(e).scale,translate:getComputedStyle(e).translate})),baseline);
    await disabled.hover();assert.equal(await disabled.isDisabled(),true);assert.equal(await disabled.evaluate(e=>getComputedStyle(e).scale),'none');

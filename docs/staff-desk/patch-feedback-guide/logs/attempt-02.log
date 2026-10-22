@@ -1,0 +1,55 @@
+Evidence: docs\staff-desk\patch-feedback-guide\selection-regression\2026-10-20T14-41-58-748Z
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (12010.8455ms)
+▶ 指南办理入口进入真实反馈受理队列，个人提交独立保留
+  ✔ 学生通过真实表单提交课程反馈 (1783.1375ms)
+  ✔ mentor：从指南点击进入学生反馈受理队列及原会话 (1103.9081ms)
+Evidence: docs\staff-desk\patch-feedback-guide\evidence\2026-10-20T14-42-11-027Z
+  ✖ mentor：指南明确区分个人提交，原个人反馈列表仍可访问 (10204.0633ms)
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (20124.2391ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33687.6997
+
+✖ failing tests:
+
+test at tests\school-grant-selection.browser.test.js:10:1
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (12010.8455ms)
+  page.waitForFunction: Timeout 5000ms exceeded.
+      at assertGrantSelected (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\school-grant-selection.mjs:6:14)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\school-grant-selection.browser.test.js:54:9) {
+    name: 'TimeoutError',
+    log: []
+  }
+
+test at tests\staff-guide-feedback.browser.test.js:21:13
+✖ mentor：指南明确区分个人提交，原个人反馈列表仍可访问 (10204.0633ms)
+  locator.waitFor: Timeout 8000ms exceeded.
+  Call log:
+  [2m  - waiting for getByText('你还没有提交反馈。遇到问题时，可以从“提交反馈”告诉管理员。', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:86:84
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:22:13)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:21:5)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:77:7) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByText('你还没有提交反馈。遇到问题时，可以从“提交反馈”告诉管理员。', { exact: true }) to be visible" ]
+  }
+
+test at tests\staff-guide-feedback.browser.test.js:9:1
+✖ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (20124.2391ms)
+  locator.waitFor: Timeout 8000ms exceeded.
+  Call log:
+  [2m  - waiting for getByText('你还没有提交反馈。遇到问题时，可以从“提交反馈”告诉管理员。', { exact: true }) to be visible[22m
+  
+      at C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:86:84
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:22:13)
+      at async scene (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:21:5)
+      at async TestContext.<anonymous> (C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\tests\staff-guide-feedback.browser.test.js:77:7) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByText('你还没有提交反馈。遇到问题时，可以从“提交反馈”告诉管理员。', { exact: true }) to be visible" ]
+  }

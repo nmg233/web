@@ -1,0 +1,194 @@
+
+> frontend@0.0.0 build
+> vite build --outDir ../build/staff-desk
+
+vite v8.2.1 building client environment for production...
+transforming...
+✓ 3709 modules transformed.
+
+(!) outDir C:\Users\shr\Desktop\nmg前端\.local\staff-desk-workspace\build\staff-desk is not inside project root and will not be emptied.
+Use --emptyOutDir to override.
+
+rendering chunks...
+computing gzip size...
+../build/staff-desk/index.html                                    6.39 kB │ gzip:   1.46 kB
+../build/staff-desk/assets/MarkdownContent-DQAigaRz.css           0.92 kB │ gzip:   0.38 kB
+../build/staff-desk/assets/Detail-B7CCNT7G.css                    0.97 kB │ gzip:   0.42 kB
+../build/staff-desk/assets/PublicThemePicker-D_SgzXSm.css         1.08 kB │ gzip:   0.50 kB
+../build/staff-desk/assets/ArticleContent-G24W9aoS.css            1.72 kB │ gzip:   0.69 kB
+../build/staff-desk/assets/Personal-CjsU5SxO.css                  2.02 kB │ gzip:   0.78 kB
+../build/staff-desk/assets/real-rewards-4Z8PksPG.css              2.11 kB │ gzip:   0.74 kB
+../build/staff-desk/assets/maintenance-BI2eCOa5.css               3.95 kB │ gzip:   1.24 kB
+../build/staff-desk/assets/BadgeRoom-VBvX91HD.css                 5.07 kB │ gzip:   1.63 kB
+../build/staff-desk/assets/pixel-archive-DrFSakwf.css             7.36 kB │ gzip:   1.62 kB
+../build/staff-desk/assets/desk-BvkgRVzN.css                     10.49 kB │ gzip:   2.68 kB
+../build/staff-desk/assets/StudyUI-CNWYZa9I.css                  11.51 kB │ gzip:   2.39 kB
+../build/staff-desk/assets/pixel-service-m6kMJ5eZ.css            11.68 kB │ gzip:   2.54 kB
+../build/staff-desk/assets/Rewards-CUbCjl-g.css                  12.01 kB │ gzip:   2.44 kB
+../build/staff-desk/assets/pixel-compatibility-CA-01HOA.css      12.35 kB │ gzip:   2.51 kB
+../build/staff-desk/assets/index-D39QV2ac.css                   126.40 kB │ gzip:  24.25 kB
+../build/staff-desk/assets/Learning-Cy8iW9E_.js                   0.06 kB │ gzip:   0.08 kB
+../build/staff-desk/assets/row-BFmE6flB.js                        0.06 kB │ gzip:   0.08 kB
+../build/staff-desk/assets/maintenanceCopy-mQ2cb-cl.js            0.08 kB │ gzip:   0.10 kB
+../build/staff-desk/assets/nextAssets-BoMyiJAx.js                 0.16 kB │ gzip:   0.15 kB
+../build/staff-desk/assets/requestKey-CK7EQWtO.js                 0.22 kB │ gzip:   0.17 kB
+../build/staff-desk/assets/CopyBlock-BxRsNxGe.js                  0.23 kB │ gzip:   0.20 kB
+../build/staff-desk/assets/SpaceLink-DhgOy_bJ.js                  0.26 kB │ gzip:   0.21 kB
+../build/staff-desk/assets/FeedbackPriorityTag-B6ZBGLm3.js        0.29 kB │ gzip:   0.24 kB
+../build/staff-desk/assets/RoleAlert-__laVpUn.js                  0.29 kB │ gzip:   0.22 kB
+../build/staff-desk/assets/StudentAlert-Dcfeay-m.js               0.29 kB │ gzip:   0.21 kB
+../build/staff-desk/assets/RoleSentence-OoqqzUWv.js               0.31 kB │ gzip:   0.23 kB
+../build/staff-desk/assets/exerciseAnswer-CkobpDfc.js             0.34 kB │ gzip:   0.29 kB
+../build/staff-desk/assets/collapse-DNXyBCq_.js                   0.38 kB │ gzip:   0.22 kB
+../build/staff-desk/assets/pixel-compatibility-BGKgk6ie.js        0.40 kB │ gzip:   0.29 kB
+../build/staff-desk/assets/ManagedText-DvI63Jtp.js                0.43 kB │ gzip:   0.34 kB
+../build/staff-desk/assets/useMergedMask-nu_siMB6.js              0.46 kB │ gzip:   0.31 kB
+../build/staff-desk/assets/PageContainer-DBdKrSem.js              0.51 kB │ gzip:   0.33 kB
+../build/staff-desk/assets/reflectionModel-DxCF7T3N.js            0.52 kB │ gzip:   0.28 kB
+../build/staff-desk/assets/StaffHeadingText-Bdsa2kDA.js           0.61 kB │ gzip:   0.44 kB
+../build/staff-desk/assets/status-O_ykdBb6.js                     0.63 kB │ gzip:   0.35 kB
+../build/staff-desk/assets/AsyncPageState-BBVfPm7F.js             0.68 kB │ gzip:   0.44 kB
+../build/staff-desk/assets/PublicThemePicker-DiA_XUtN.js          0.72 kB │ gzip:   0.46 kB
+../build/staff-desk/assets/StudentGuide-Bixz2UIF.js               0.80 kB │ gzip:   0.44 kB
+../build/staff-desk/assets/RightOutlined-HEU_FF4g.js              0.83 kB │ gzip:   0.57 kB
+../build/staff-desk/assets/maintenanceApi-QINFCtBk.js             0.87 kB │ gzip:   0.45 kB
+../build/staff-desk/assets/ArrowLeftOutlined-B65XHvRv.js          0.87 kB │ gzip:   0.61 kB
+../build/staff-desk/assets/FileOutlined-DgIi_0gz.js               0.88 kB │ gzip:   0.61 kB
+../build/staff-desk/assets/ActionButton-Bgra81BP.js               0.89 kB │ gzip:   0.55 kB
+../build/staff-desk/assets/UploadOutlined-CBGvAnlZ.js             0.95 kB │ gzip:   0.63 kB
+../build/staff-desk/assets/model-E0o1cdKi.js                      0.95 kB │ gzip:   0.62 kB
+../build/staff-desk/assets/DownloadOutlined-jVmdeJzq.js           0.95 kB │ gzip:   0.62 kB
+../build/staff-desk/assets/OpenReflectionForm-5pCifa7H.js         0.98 kB │ gzip:   0.55 kB
+../build/staff-desk/assets/useRemote-DoVNgl_l.js                  1.00 kB │ gzip:   0.58 kB
+../build/staff-desk/assets/PlayCircleOutlined-ni8ucFJR.js         1.00 kB │ gzip:   0.64 kB
+../build/staff-desk/assets/PurePanel-BwWMQki2.js                  1.02 kB │ gzip:   0.64 kB
+../build/staff-desk/assets/FileTextOutlined-BtflBWKw.js           1.07 kB │ gzip:   0.68 kB
+../build/staff-desk/assets/EyeOutlined-CNizwmRz.js                1.13 kB │ gzip:   0.71 kB
+../build/staff-desk/assets/Legacy-DdbNPVfz.js                     1.13 kB │ gzip:   0.70 kB
+../build/staff-desk/assets/TempPasswordModal-BpjNj1Ln.js          1.15 kB │ gzip:   0.75 kB
+../build/staff-desk/assets/SearchOutlined-DKohrzeq.js             1.16 kB │ gzip:   0.73 kB
+../build/staff-desk/assets/LegacyEntry-CRCQhCiL.js                1.16 kB │ gzip:   0.71 kB
+../build/staff-desk/assets/useClosable-C_EL7JMC.js                1.28 kB │ gzip:   0.68 kB
+../build/staff-desk/assets/CloseOutlined-BxOrMQ9Y.js              1.31 kB │ gzip:   0.73 kB
+../build/staff-desk/assets/FeedbackFilters-B5-L4khB.js            1.37 kB │ gzip:   0.56 kB
+../build/staff-desk/assets/modal-zS6Yl2Sp.js                      1.40 kB │ gzip:   0.76 kB
+../build/staff-desk/assets/RocketOutlined-C0uBON6B.js             1.60 kB │ gzip:   1.00 kB
+../build/staff-desk/assets/SceneArt-Ccnr9wV0.js                   1.72 kB │ gzip:   0.97 kB
+../build/staff-desk/assets/roleNavigation-DuAOoJtG.js             1.79 kB │ gzip:   0.64 kB
+../build/staff-desk/assets/useBreakpoint-Dc-SoC4j.js              1.85 kB │ gzip:   0.89 kB
+../build/staff-desk/assets/style-Dl5mysfQ.js                      1.97 kB │ gzip:   0.82 kB
+../build/staff-desk/assets/Sentence-CRqi_O74.js                   2.18 kB │ gzip:   1.18 kB
+../build/staff-desk/assets/NotificationLevelTag-C1eojtZi.js       2.23 kB │ gzip:   0.81 kB
+../build/staff-desk/assets/ArticleContent-rfOhRq7P.js             2.27 kB │ gzip:   1.00 kB
+../build/staff-desk/assets/ArchiveRecords-DEdihbB4.js             2.31 kB │ gzip:   0.98 kB
+../build/staff-desk/assets/feedback-Cms3wX3-.js                   2.36 kB │ gzip:   0.80 kB
+../build/staff-desk/assets/Input-BegV3GAZ.js                      2.42 kB │ gzip:   1.15 kB
+../build/staff-desk/assets/date-D3egdRiN.js                       2.43 kB │ gzip:   1.08 kB
+../build/staff-desk/assets/row-370aTqZ_.js                        2.52 kB │ gzip:   1.32 kB
+../build/staff-desk/assets/ReviewList-DwRdMR3E.js                 2.61 kB │ gzip:   1.47 kB
+../build/staff-desk/assets/publicThemes-nWhbhBqC.js               2.63 kB │ gzip:   0.71 kB
+../build/staff-desk/assets/SignedReplayPlayer-BWN3e24O.js         2.72 kB │ gzip:   1.47 kB
+../build/staff-desk/assets/Dashboard-DX6Xr6pW.js                  2.73 kB │ gzip:   1.27 kB
+../build/staff-desk/assets/CopyReview-BmY36tk0.js                 2.75 kB │ gzip:   1.35 kB
+../build/staff-desk/assets/LessonPreview-DcmK9l4c.js              2.80 kB │ gzip:   1.54 kB
+../build/staff-desk/assets/ContentHub-D-iAS7sR.js                 2.91 kB │ gzip:   1.46 kB
+../build/staff-desk/assets/CheckOutlined-CJ1jAirQ.js              3.00 kB │ gzip:   1.70 kB
+../build/staff-desk/assets/List-DmwOolgl.js                       3.02 kB │ gzip:   1.38 kB
+../build/staff-desk/assets/PixelUI-BrfJJJTg.js                    3.10 kB │ gzip:   1.35 kB
+../build/staff-desk/assets/style-Cpw6i4cg.js                      3.16 kB │ gzip:   1.22 kB
+../build/staff-desk/assets/Detail-CaWWv5ru.js                     3.23 kB │ gzip:   1.50 kB
+../build/staff-desk/assets/AISettings-CnH9bsnV.js                 3.38 kB │ gzip:   1.56 kB
+../build/staff-desk/assets/popconfirm-DY_iutw0.js                 3.58 kB │ gzip:   1.58 kB
+../build/staff-desk/assets/ChangePassword-nvNKrkFh.js             3.82 kB │ gzip:   1.65 kB
+../build/staff-desk/assets/TextArea-uGhYZpYr.js                   3.88 kB │ gzip:   1.78 kB
+../build/staff-desk/assets/AIKnowledge-6rzlPW5F.js                3.91 kB │ gzip:   1.85 kB
+../build/staff-desk/assets/AuthContext-Dtr6AGK9.js                4.00 kB │ gzip:   1.76 kB
+../build/staff-desk/assets/app-CgWO1lzu.js                        4.13 kB │ gzip:   2.01 kB
+../build/staff-desk/assets/statistic-B-amjrsc.js                  4.13 kB │ gzip:   1.92 kB
+../build/staff-desk/assets/archiveModel-CUPt_Els.js               4.17 kB │ gzip:   1.92 kB
+../build/staff-desk/assets/StudentList-CrXlbR8L.js                4.22 kB │ gzip:   2.16 kB
+../build/staff-desk/assets/checkbox-BY5XTurk.js                   4.46 kB │ gzip:   2.05 kB
+../build/staff-desk/assets/CourseManagers-q9J8MJ8h.js             4.61 kB │ gzip:   2.26 kB
+../build/staff-desk/assets/List-xH7RkIw7.js                       4.68 kB │ gzip:   2.26 kB
+../build/staff-desk/assets/useForm-C6eTZV4j.js                    4.74 kB │ gzip:   2.13 kB
+../build/staff-desk/assets/empty-CExrX6Q8.js                      4.75 kB │ gzip:   2.07 kB
+../build/staff-desk/assets/space-fqtaRIXn.js                      5.07 kB │ gzip:   2.08 kB
+../build/staff-desk/assets/Detail-BCJ6GOOF.js                     5.52 kB │ gzip:   2.36 kB
+../build/staff-desk/assets/Manage-BpZPiGXX.js                     5.68 kB │ gzip:   2.54 kB
+../build/staff-desk/assets/StudyUI-ow46-TxG.js                    5.85 kB │ gzip:   2.35 kB
+../build/staff-desk/assets/es-LFKtIgyo.js                         6.38 kB │ gzip:   2.57 kB
+../build/staff-desk/assets/alert-C3UeZom7.js                      6.40 kB │ gzip:   2.70 kB
+../build/staff-desk/assets/catalog-DcfiSki2.js                    6.47 kB │ gzip:   2.39 kB
+../build/staff-desk/assets/StudentDetail-BjC9_mLy.js              6.58 kB │ gzip:   2.84 kB
+../build/staff-desk/assets/Form-DfOu0WL0.js                       6.99 kB │ gzip:   3.24 kB
+../build/staff-desk/assets/List-DYN3g_Pi.js                       7.17 kB │ gzip:   2.88 kB
+../build/staff-desk/assets/Upload-vP7YQPBX.js                     7.19 kB │ gzip:   2.34 kB
+../build/staff-desk/assets/AI-CQsvyKTE.js                         7.33 kB │ gzip:   3.35 kB
+../build/staff-desk/assets/CourseReview-Z0KRrSTK.js               7.38 kB │ gzip:   2.37 kB
+../build/staff-desk/assets/spin-BI0UZZpf.js                       7.50 kB │ gzip:   3.11 kB
+../build/staff-desk/assets/switch-CNV4l-QJ.js                     7.53 kB │ gzip:   2.63 kB
+../build/staff-desk/assets/School-EX19oSsG.js                     7.77 kB │ gzip:   3.46 kB
+../build/staff-desk/assets/dayjs.min-CLFftfrj.js                  7.84 kB │ gzip:   3.38 kB
+../build/staff-desk/assets/Form-D73J0koS.js                       7.87 kB │ gzip:   2.99 kB
+../build/staff-desk/assets/BadgeRoom-QgHOGZb9.js                  7.98 kB │ gzip:   2.96 kB
+../build/staff-desk/assets/Rewards-CrauNE6f.js                    8.22 kB │ gzip:   3.34 kB
+../build/staff-desk/assets/Reflection-Dm9cIuoZ.js                 8.50 kB │ gzip:   2.63 kB
+../build/staff-desk/assets/List-C9sCFdTy.js                       8.57 kB │ gzip:   3.21 kB
+../build/staff-desk/assets/tag-B7NOBsNR.js                        8.57 kB │ gzip:   3.36 kB
+../build/staff-desk/assets/List-COY6C6RE.js                       9.04 kB │ gzip:   3.21 kB
+../build/staff-desk/assets/ModuleHub-BIjJVnJN.js                  9.16 kB │ gzip:   4.08 kB
+../build/staff-desk/assets/card-CwCJOTlh.js                       9.29 kB │ gzip:   3.27 kB
+../build/staff-desk/assets/skeleton-CTw4wfhA.js                   9.44 kB │ gzip:   3.24 kB
+../build/staff-desk/assets/ReviewDetail-Bv8NObLi.js               9.50 kB │ gzip:   4.19 kB
+../build/staff-desk/assets/list-D2N2RSD4.js                       9.73 kB │ gzip:   3.63 kB
+../build/staff-desk/assets/api-B8UTshQ_.js                       10.08 kB │ gzip:   2.68 kB
+../build/staff-desk/assets/radio-CE3x61hy.js                     10.93 kB │ gzip:   3.72 kB
+../build/staff-desk/assets/input-DXPO2s1O.js                     11.13 kB │ gzip:   5.16 kB
+../build/staff-desk/assets/Management-C0Fa7qI5.js                11.64 kB │ gzip:   4.78 kB
+../build/staff-desk/assets/CoursePackageImport-D94xytrM.js       11.89 kB │ gzip:   3.86 kB
+../build/staff-desk/assets/desk-CDJMDrZZ.js                      13.86 kB │ gzip:   5.98 kB
+../build/staff-desk/assets/progress-D2Mw4fRa.js                  14.89 kB │ gzip:   5.74 kB
+../build/staff-desk/assets/LessonLearn-DFSrtcVL.js               15.10 kB │ gzip:   5.98 kB
+../build/staff-desk/assets/Detail-C4bt1LGX.js                    15.51 kB │ gzip:   4.67 kB
+../build/staff-desk/assets/InlineTeachingEditor-BOscrOW5.js      16.08 kB │ gzip:   5.95 kB
+../build/staff-desk/assets/Personal-B_K9VsfE.js                  17.19 kB │ gzip:   5.29 kB
+../build/staff-desk/assets/LessonContentEditor-BHRdGzO8.js       17.44 kB │ gzip:   5.95 kB
+../build/staff-desk/assets/tooltip-nTCseI5u.js                   17.57 kB │ gzip:   5.96 kB
+../build/staff-desk/assets/Detail-CCK4eMob.js                    18.12 kB │ gzip:   6.25 kB
+../build/staff-desk/assets/Index-CTPw_xa8.js                     18.28 kB │ gzip:   6.70 kB
+../build/staff-desk/assets/Detail-gptxbE2_.js                    19.45 kB │ gzip:   7.34 kB
+../build/staff-desk/assets/List-B2gYHsQV.js                      20.17 kB │ gzip:   7.40 kB
+../build/staff-desk/assets/typography-BDqcovzs.js                20.82 kB │ gzip:   8.16 kB
+../build/staff-desk/assets/input-number-CzuDyPEi.js              20.99 kB │ gzip:   7.60 kB
+../build/staff-desk/assets/form-WhwEzZ8x.js                      22.14 kB │ gzip:   8.57 kB
+../build/staff-desk/assets/Index-DMS1tfDV.js                     23.70 kB │ gzip:   6.71 kB
+../build/staff-desk/assets/pagination-C9yCaDFQ.js                24.82 kB │ gzip:   7.41 kB
+../build/staff-desk/assets/useModal-DwFIMUyh.js                  25.30 kB │ gzip:   8.74 kB
+../build/staff-desk/assets/reportFields-CD9KIbxI.js              26.28 kB │ gzip:   7.20 kB
+../build/staff-desk/assets/upload-DlXM_G7S.js                    31.01 kB │ gzip:  11.19 kB
+../build/staff-desk/assets/result-DZKXKiBm.js                    34.55 kB │ gzip:  10.84 kB
+../build/staff-desk/assets/timeline-C6g_HY69.js                  36.39 kB │ gzip:  10.31 kB
+../build/staff-desk/assets/chunk-62JRHF6Z-CgbE3rX_.js            40.91 kB │ gzip:  14.63 kB
+../build/staff-desk/assets/tree-DasSdywA.js                      51.28 kB │ gzip:  15.78 kB
+../build/staff-desk/assets/tabs-COCnGE2E.js                      58.82 kB │ gzip:  18.58 kB
+../build/staff-desk/assets/select-DTdjTJe-.js                    69.44 kB │ gzip:  23.69 kB
+../build/staff-desk/assets/es-BRltznVk.js                        71.60 kB │ gzip:  21.90 kB
+../build/staff-desk/assets/workspaceCopy-1bQGMDh7.js             78.49 kB │ gzip:  12.85 kB
+../build/staff-desk/assets/Detail-Dl9rbh2c.js                   101.17 kB │ gzip:  31.79 kB
+../build/staff-desk/assets/table-CJ85HHEF.js                    132.24 kB │ gzip:  41.76 kB
+../build/staff-desk/assets/MarkdownContent-Dx4Y6ExG.js          155.15 kB │ gzip:  46.34 kB
+../build/staff-desk/assets/index-DveWB0Ux.js                    283.38 kB │ gzip:  85.39 kB
+../build/staff-desk/assets/StudentCopyManagement-BL4jjZ16.js    473.93 kB │ gzip:  63.97 kB
+../build/staff-desk/assets/Simulator-OV_NPSlW.js                664.25 kB │ gzip: 174.94 kB
+../build/staff-desk/assets/jsx-runtime-xxYwyZTK.js            2,117.88 kB │ gzip: 338.45 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/pages/auth/Login.jsx is dynamically imported by src/copy-review/StudentPreviewApp.jsx but also statically imported by src/App.jsx, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[INEFFECTIVE_DYNAMIC_IMPORT] src/student/Lab.jsx is dynamically imported by src/copy-review/StudentPreviewApp.jsx but also statically imported by src/App.jsx, dynamic import will not move module into another chunk.
+
+✓ built in 3.23s

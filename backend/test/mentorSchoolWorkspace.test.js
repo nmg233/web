@@ -1,7 +1,7 @@
 const {test,before,after}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),jwt=require('jsonwebtoken');
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pbl-mentor-school-'));
 Object.assign(process.env,{DB_PATH:path.join(dir,'test.db'),UPLOAD_PATH:path.join(dir,'uploads'),NODE_ENV:'test',JWT_SECRET:'mentor-workspace-isolated-secret'});
-const app=require('../app'),db=require('../config/database');let server,base,course,student,teacher;const tokens={},key=()=>crypto.randomUUID();
+const app=require('../app'),db=require('../config/database');let server,base,course,student,teacher,directStudent,directTeacher,directCourse;const tokens={},key=()=>crypto.randomUUID();
 async function call(id,url,body,method=body?'POST':'GET'){const r=await fetch(base+'/api'+url,{method,headers:{Authorization:'Bearer '+tokens[id],'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});return{status:r.status,data:await r.json()};}
 const scope=(actor,cid,ids,revision=1,extra={})=>call(actor,`/mentor-workspace/courses/${cid}/schools`,{school_ids:ids,expectedRevision:revision,reason:'隔离范围验收',request_key:key(),...extra},'PUT');
 before(async()=>{
@@ -80,4 +80,45 @@ test('管理员明确委托本校账号才可跨导师维护，导师不能自�
  assert.equal((await call(3,'/mentor-workspace/schools/11/observers')).data.students.some(s=>s.id===student),true);
  assert.equal((await call(1,url,{...body,active:false,expectedRevision:1,request_key:key()})).status,200);
  assert.equal((await call(3,'/mentor-workspace/schools/11/observers')).data.students.some(s=>s.id===student),false);
+});
+
+test('管理员直接授予学校不伪造申请，并发幂等及修订保护；课程与账号权限仍独立',async()=>{
+ const beforeApplications=db.prepare('SELECT count(*) n FROM school_applications').get().n;
+ const body={schoolId:11,mentorId:4,active:true,expectedRevision:0,reason:'单独学校授权验收',request_key:key()};
+ assert.equal((await call(4,'/mentor-workspace/school-grants',body)).status,403);
+ assert.equal((await call(1,'/mentor-workspace/school-grants',{...body,role:'admin'})).status,400);
+ const results=await Promise.all(Array.from({length:4},()=>call(1,'/mentor-workspace/school-grants',body)));
+ assert.ok(results.every(r=>r.status===200));assert.equal(db.prepare('SELECT count(*) n FROM school_management_events WHERE mentor_id=4').get().n,1);
+ assert.equal(db.prepare('SELECT count(*) n FROM school_applications').get().n,beforeApplications);
+ assert.deepEqual((await call(4,'/auth/schools')).data.schools.map(s=>s.id),[11]);
+ assert.equal((await call(4,'/auth/classes?school_id=12')).status,403);
+ assert.ok([403,404].includes((await call(4,`/courses/${course}/maintenance`)).status));
+ const students=(await call(4,'/mentor-workspace/schools/11/observers')).data.students;assert.ok(!students.some(s=>s.id===student));
+ const created=await call(4,'/school-applications/schools/11/students',{class_id:11,real_name:'直接授权本人新建学生',request_key:key()});assert.equal(created.status,200);directStudent=created.data.id;
+ directCourse=(await call(4,'/courses',{title:'直接学校授权课程',grade_level:'junior',difficulty:'basic',request_key:key()})).data.id;assert.equal((await scope(4,directCourse,[11])).status,200);require('./helpers/publicationFixture.cjs').publish({id:1,role:'admin'},directCourse);assert.equal((await call(4,`/courses/${directCourse}/enroll`,{student_ids:[directStudent]})).status,200);
+ directTeacher=(await call(4,'/mentor-workspace/schools/11/teachers',{class_id:11,real_name:'直接学校授权观察教师',request_key:key()})).data.id;db.prepare('UPDATE users SET force_reset_password=0 WHERE id=?').run(directTeacher);tokens[directTeacher]=jwt.sign({id:directTeacher,role:'teacher',auth_version:0,school_id:11},process.env.JWT_SECRET);assert.equal((await call(4,'/mentor-workspace/schools/11/observers',{teacherId:directTeacher,studentId:directStudent,courseId:directCourse,active:true,expectedRevision:0,reason:'仅本课观察',request_key:key()})).status,200);assert.equal((await call(directTeacher,'/observer/students')).data.pagination.total,1);
+ assert.equal((await call(1,'/mentor-workspace/school-grants',{...body,active:false,request_key:key()})).status,409);
+});
+test('直接学校授权撤销即时生效，恢复不改变已有教学及账号；停用导师立即拒绝',async()=>{
+ const teachingBefore=db.prepare('SELECT * FROM enrollments ORDER BY id').all();
+ const body={schoolId:11,mentorId:4,active:false,expectedRevision:1,reason:'验收撤权',request_key:key()};
+ assert.equal((await call(1,'/mentor-workspace/school-grants',body)).status,200);
+ assert.equal((await call(4,'/auth/classes?school_id=11')).status,403);assert.equal((await call(directTeacher,'/observer/students')).data.pagination.total,0);assert.equal((await call(4,`/courses/${directCourse}/maintenance`)).status,200);
+ assert.equal((await call(4,'/school-applications/schools/11/students',{class_id:11,real_name:'撤权不得建号',request_key:key()})).status,403);
+ assert.deepEqual(db.prepare('SELECT * FROM enrollments ORDER BY id').all(),teachingBefore);
+ assert.equal((await call(1,'/mentor-workspace/school-grants',{...body,active:true,expectedRevision:2,request_key:key()})).status,200);
+ db.prepare('UPDATE users SET is_active=0 WHERE id=4').run();assert.equal((await call(4,'/auth/schools')).status,401);db.prepare('UPDATE users SET is_active=1 WHERE id=4').run();
+});
+test('工作台和会话在数据库分页，导师不能读取他课待办，日志不含正文、查询和错误详情',async()=>{
+ for(let n=0;n<24;n++)db.prepare("INSERT INTO school_applications(applicant_id,name,normalized_name,region,explanation) VALUES(3,?,?,'测试','敏感私有说明')").run('分页学校'+n,'page-school-'+n);
+ const list=await call(1,'/mentor-requests?filterKind=school&status=pending&page=2&pageSize=5');assert.equal(list.status,200);assert.equal(list.data.items.length,5);assert.ok(list.data.total>=24);
+ assert.ok(!JSON.stringify(list.data.items).includes('敏感私有说明'));
+ const first=(await call(1,'/mentor-workspace/dashboard?category=applications&page=1&pageSize=5')).data,second=(await call(1,'/mentor-workspace/dashboard?category=applications&page=2&pageSize=5')).data;
+ assert.equal(first.total,first.counts.applications);assert.equal(second.items.length,5);assert.ok(first.items.every(a=>!second.items.some(b=>a.id===b.id)));assert.ok(first.pendingCount>=first.total);
+ for(const category of ['reports','works','preparing','publications','schools','feedback'])assert.equal((await call(1,'/mentor-workspace/dashboard?category='+category)).status,200);
+ const pendingId=db.prepare("SELECT id FROM school_applications WHERE status='pending' LIMIT 1").get().id;db.prepare("UPDATE application_conversations SET needs_reply='none' WHERE kind='school' AND application_id=?").run(pendingId);const before=(await call(1,'/mentor-workspace/dashboard')).data;db.prepare("UPDATE application_conversations SET needs_reply='admin' WHERE kind='school' AND application_id=?").run(pendingId);const after=(await call(1,'/mentor-workspace/dashboard')).data;assert.equal(after.counts.applicationReplies,before.counts.applicationReplies+1);assert.equal(after.pendingCount,before.pendingCount);
+ const mine=(await call(4,'/mentor-workspace/dashboard?category=courses&pageSize=50')).data;assert.ok(!mine.items.some(c=>c.id===course));
+ const {responseSummary,errorSummary}=require('../helpers/safeLogger');const secret='private-token-and-student-draft';
+ const logged=JSON.stringify([responseSummary({method:'POST',route:{path:'/auth/login'},originalUrl:'/auth/login?token='+secret,body:{password:secret}},401),errorSummary(Object.assign(Error(secret),{stack:secret,code:'SQLITE_BUSY'}))]);
+ assert.ok(!logged.includes(secret));assert.ok(logged.includes('SQLITE_BUSY'));assert.ok(!logged.includes('password'));
 });

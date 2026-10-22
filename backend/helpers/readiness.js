@@ -1,5 +1,6 @@
-const MIN_SCHEMA_VERSION=1035;
+const MIN_SCHEMA_VERSION=1036;
 const checks={
+ school_direct_grants:'school_id,mentor_id,active,revision,actor_id,reason',
  lesson_publication_events:'course_id,lesson_id,actor_id,action,content_version_id,reason',
  publication_requests:'course_id,lesson_id,content_version_id,fingerprint,status',course_content_audit:'course_id,actor_id,before_json,after_json',
  course_module_options:"course_id,settings_json,revision",development_qualifications:"mentor_id,course_id,active,revision",course_package_uploads:"id,actor_id,digest",course_package_imports:"id,course_id,result_json",

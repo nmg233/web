@@ -1,0 +1,53 @@
+▶ 导师第二步：课程反馈和申请会话浏览器
+  ✔ 学生显式课程反馈，导师列表直达且领取后能回复 (3759.6543ms)
+  ✔ 公开回复保存失败和刷新失败保留文字、附件；恢复后继续提交 (790.2476ms)
+  ✔ 内部原因转管理员与管理员转回，学生只见公开进展 (3095.5913ms)
+  ✔ 学校申请原会话追问与补充，不自动授权，工作台待办可刷新 (3727.0828ms)
+  ✔ 铃铛、通知详情按钮和工作台直达原会话，已读不消除业务待办 (4390.3306ms)
+  ✔ 三尺寸会话不横向溢出；撤权后反馈及旧收件不能访问 (2108.5752ms)
+✔ 导师第二步：课程反馈和申请会话浏览器 (24479.5116ms)
+Evidence: docs\staff-desk\patch-feedback-guide\selection-regression\2026-10-20T14-46-19-963Z
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (38256.9072ms)
+▶ 校园书桌、角色指南与独立学校授权真实浏览器
+  ✔ admin：桌面/平板/手机、放大阅读和真实时钟，保留五项导航 (4498.7515ms)
+  ✔ mentor：桌面/平板/手机、放大阅读和真实时钟，保留五项导航 (4222.9993ms)
+  ✔ 报告与课程分页直达对象；返回保持队列和页码；不再请求旧重复统计 (5139.1463ms)
+  ✔ admin：角色指南权限、导航路径和去办理按钮 (2290.1518ms)
+  ✔ mentor：角色指南权限、导航路径和去办理按钮 (2393.282ms)
+  ✔ 旧学校申请深链接与会话共用原对象，保留列表筛选 (4180.2189ms)
+  ✔ 管理员学校授权真实保存；保存失败保留说明；撤权立即停止本校访问 (5786.6154ms)
+  ✔ 局部网络错误可重试；真实空队列；键盘焦点可见 (4044.2224ms)
+✔ 校园书桌、角色指南与独立学校授权真实浏览器 (35999.478ms)
+▶ 指南办理入口进入真实反馈受理队列，个人提交独立保留
+  ✔ 学生通过真实表单提交课程反馈 (2047.5649ms)
+  ✔ mentor：从指南点击进入学生反馈受理队列及原会话 (1352.2933ms)
+  ✔ mentor：指南明确区分个人提交，原个人反馈列表仍可访问 (1132.1091ms)
+  ✔ admin：从指南点击进入学生反馈受理队列及原会话 (1098.9523ms)
+Evidence: docs\staff-desk\patch-feedback-guide\evidence\2026-10-20T14-47-35-337Z
+  ✔ admin：指南明确区分个人提交，原个人反馈列表仍可访问 (959.0797ms)
+✔ 指南办理入口进入真实反馈受理队列，个人提交独立保留 (14138.2562ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 22
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 115822.6449
+
+✖ failing tests:
+
+test at tests\school-grant-selection.browser.test.js:10:1
+✖ 学校授权：重复原生鼠标和键盘选择，提交前保持真实选中值 (38256.9072ms)
+  AssertionError [ERR_ASSERTION]: 键盘必须定位到指定选项：合成验收学校7001 #7001
+      at keyboardSelect (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/school-grant-selection.browser.test.js:33:12)
+      at async TestContext.<anonymous> (file:///C:/Users/shr/Desktop/nmg%E5%89%8D%E7%AB%AF/.local/staff-desk-workspace/tests/school-grant-selection.browser.test.js:48:34)
+      at async Test.run (node:internal/test_runner/test:1373:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

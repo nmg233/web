@@ -1,0 +1,15 @@
+{
+  "records": [
+    {
+      "name": "学生通过真实表单提交课程反馈",
+      "status": "passed"
+    },
+    {
+      "name": "mentor：从指南点击进入学生反馈受理队列及原会话",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/feedback'\n- '/mentor/feedback'\n"
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Real Edge; isolated synthetic SQLite; no live writes"
+}

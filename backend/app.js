@@ -65,12 +65,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(`${API_PREFIX}/student-copy`, express.json({limit:'2mb'}));
 app.use(express.json());
 
-// 响应日志：打印所有 4xx/5xx 响应的状态码和响应体，便于排查 400 等前端报错
+// Only allowlisted route/method/status metadata; never log queries or response bodies.
 app.use((req, res, next) => {
   const originalJson = res.json.bind(res);
   res.json = (body) => {
     if (res.statusCode >= 400) {
-      console.warn(`[API ${req.method} ${req.originalUrl}] → ${res.statusCode}:`, JSON.stringify(body));
+      console.warn(JSON.stringify(require('./helpers/safeLogger').responseSummary(req,res.statusCode)));
     }
     return originalJson(body);
   };
@@ -137,7 +137,7 @@ app.use((req, res) => {
 // 全局错误处理
 app.use((err, req, res, _next) => {
   const status = err.code === 'LIMIT_FILE_SIZE' ? 400 : err.status || err.statusCode || 500;
-  if (status >= 500) console.error('服务器错误:', err);
+  if (status >= 500) console.error('服务器错误:',require('./helpers/safeLogger').errorSummary(err));
   // 4xx 由业务/中间件主动抛出，error 字段透出具体原因（如不支持的文件类型），
   // 避免前端把客户端错误展示成「服务器内部错误」。
   const isClientError = status < 500;
