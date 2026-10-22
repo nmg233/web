@@ -1,4 +1,4 @@
-import {videoUploadHint} from '../../utils/videoPolicy';
+import {videoUploadHint,videoUploadLimits} from '../../utils/videoPolicy';
 import {useEffect,useRef,useState} from 'react';
 import {Alert,Button,Card,Input,Select,Space,Tag,Upload} from 'antd';
 import {maintenanceAPI as api} from './maintenanceApi';
@@ -19,8 +19,9 @@ export default function UploadQueue({courseId,lessons,policy,kind,refresh,dirty,
  const patch=(key,value)=>change(list=>list.map(row=>row.key===key?{...row,...value}:row));
  useEffect(()=>{live.current=true;return()=>{live.current=false;controller.current?.abort();};},[]);
  const accept=(kind==='resource'?policy.formats.filter(f=>!imageOnly||['.jpg','.jpeg','.png','.webp','.gif'].includes(f.ext)).map(f=>f.ext):kind==='replay'?policy.replayExtensions:policy.coverExtensions).join(',');
- const limit=kind==='resource'?policy.resourceLimitMB:kind==='replay'?policy.replayLimitMB:policy.coverLimitMB;
- const maxBytes=kind==='replay'?(policy.replayLimitBytes??limit*1024*1024):limit*1024*1024;
+ const replayLimit=videoUploadLimits(policy);
+ const limit=kind==='resource'?policy.resourceLimitMB:policy.coverLimitMB;
+ const maxBytes=kind==='replay'?replayLimit.maxBytes:limit*1024*1024;
  const select=file=>{
   // Ant Design invokes beforeUpload for each file: add this immutable source exactly once.
   if(rowsRef.current.some(row=>row.file===file))return Upload.LIST_IGNORE;
@@ -28,7 +29,7 @@ export default function UploadQueue({courseId,lessons,policy,kind,refresh,dirty,
   if(rowsRef.current.filter(row=>!['success','cancelled'].includes(row.status)).length>=20){setSelectionError(c('upload.limit'));return Upload.LIST_IGNORE;}
   const ext='.'+file.name.split('.').pop().toLowerCase(),valid=file.size>0&&accept.split(',').includes(ext)&&file.size<=maxBytes&&(kind!=='replay'||boundLessonId!=null);
   const prior=kind==='replay'?pending.find(r=>r.fileName===file.name&&r.size===file.size&&r.modified===file.lastModified):null;
-  const key=crypto.randomUUID();change(list=>[...list,{key,token:prior?.token||key,courseId:Number(courseId),lessonId:boundLessonId??lessonId,type,file,title:prior?.title||file.name,description:prior?.description||'',fingerprint:prior?.fingerprint,status:valid?'pending':'invalid',error:valid?'':`${c('upload.invalid')} (${accept}; ≤${kind==='replay'?policy.replayLimitLabel||limit+' MiB':limit+' MiB'})`}]);
+  const key=crypto.randomUUID();change(list=>[...list,{key,token:prior?.token||key,courseId:Number(courseId),lessonId:boundLessonId??lessonId,type,file,title:prior?.title||file.name,description:prior?.description||'',fingerprint:prior?.fingerprint,status:valid?'pending':'invalid',error:valid?'':`${c('upload.invalid')} (${accept}; ≤${kind==='replay'?replayLimit.label:limit+' MiB'})`}]);
   setSelectionError('');return Upload.LIST_IGNORE;
  };
  const upload=async retry=>{

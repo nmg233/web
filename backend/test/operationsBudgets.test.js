@@ -40,10 +40,11 @@ test('N15：DOCX真实解析不调用CLI格式化依赖，精度格式文本只�
   finally{Module._load=original;}
 });
 
-test('500MB 上传签名验证只读取16字节，不整体读入内存', () => {
+test('1.5GB 上传签名验证只读取16字节，不整体读入内存', () => {
   const file = path.join(directory, 'large.mp4');
   const descriptor = fs.openSync(file,'w');
-  fs.writeSync(descriptor,Buffer.from('0000ftypisom0000')); fs.ftruncateSync(descriptor,500 * 1024 * 1024); fs.closeSync(descriptor);
+  fs.writeSync(descriptor,Buffer.from('0000ftypisom0000')); fs.ftruncateSync(descriptor,require('../../shared/uploadPolicy.json').replayMaxBytes); fs.closeSync(descriptor);
+  assert.equal(fs.statSync(file).size,1_500_000_000);
   const { validateUploadedFiles } = require('../middleware/upload');
   const originalRead = fs.readFileSync;
   const originalReadBytes = fs.readSync;

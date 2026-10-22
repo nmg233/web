@@ -24,6 +24,18 @@ before(async()=>{
  for(const role of[1,2,3,4,5,6])tokens[role]=(await fetch(url+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'u'+role,password:'test123'})}).then(r=>r.json())).token;
 });
 after(async()=>{await new Promise(r=>server.close(r));db.close();});
+test('管理员与导师读取实际上传策略：1.5GB精确字节，普通资料和封面不扩大',async()=>{
+ const expected=require('../../shared/uploadPolicy.json');
+ for(const role of [1,4]){
+  const result=await request(role,'/courses/upload-formats');assert.equal(result.status,200);
+  assert.equal(result.body.replayLimitBytes,1_500_000_000);
+  assert.equal(result.body.replayLimitBytes,require('../middleware/upload').uploadReplay.limits.fileSize);
+  assert.equal(result.body.replayLimitLabel,expected.replayMaxLabel);
+  assert.equal(result.body.replayLimitMB*1024*1024,expected.replayMaxBytes);
+  assert.deepEqual(result.body.replayExtensions,['.mp4','.webm']);
+  assert.equal(result.body.resourceLimitMB,50);assert.equal(result.body.coverLimitMB,5);
+ }
+});
 test('维护角色与上传前授权：只读教师、学生、新媒体、他课导师均拒绝，管理员可维护',async()=>{
  const n=files().length;
  for(const role of[2,3,5,6]){assert.ok([403,404].includes((await request(role,route(''))).status));assert.ok([403,404].includes((await request(role,route('/chapters'),'POST',{title:'不允许'})).status));for(const kind of['resources','replays','cover'])assert.ok([403,404].includes((await file(role,1,'资料.txt','test','text/plain',{},kind)).status));}
