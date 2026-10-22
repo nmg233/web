@@ -51,6 +51,6 @@
 
 ## 文件
 
-课程主题与关卡图只接受 PNG/JPEG/WebP。普通资料沿用上传策略：jpg/jpeg/png/gif/webp/pdf/doc/docx/ppt/pptx/txt/md/csv/xls/xlsx/mp4/webm/zip/obj/glb/gltf/stl，≤50MB，文本必须有效 UTF-8，表格验证真实结构。回放使用专用 MP4/WebM 入口，≤500MB，并填写视频简介。详情以课程共享资料页的真实格式表为准。
+课程主题与关卡图只接受 PNG/JPEG/WebP。普通资料沿用上传策略：jpg/jpeg/png/gif/webp/pdf/doc/docx/ppt/pptx/txt/md/csv/xls/xlsx/mp4/webm/zip/obj/glb/gltf/stl，≤50MB，文本必须有效 UTF-8，表格验证真实结构。课时视频须在对应课时使用专用 MP4/WebM 入口，单文件≤1.5GB（1,500,000,000 字节），并填写视频简介。普通资料中的视频不随之扩大上限；详情以对应上传入口的真实格式表为准。
 
 图片/文件上传完成并不等于文章已保存；文件引导卡不是知识卡片；课时准备中/卡片草稿/已发布/历史快照分别显示。移除引用保留历史文件。失败、冲突或权限变化不可伪造成功。
