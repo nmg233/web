@@ -7,7 +7,7 @@ let server,url;const tokens={};
 async function request(role,p,method='GET',body){const r=await fetch(url+'/api'+p,{method,headers:{Authorization:'Bearer '+tokens[role],...(body instanceof FormData?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body)});let value;try{value=await r.json();}catch{}return{status:r.status,body:value};}
 async function file(role,course,name,bytes,mime='application/octet-stream',fields={},kind='resources'){const body=new FormData();body.append('file',new Blob([bytes],{type:mime}),name);for(const[k,v]of Object.entries(fields))if(v!=null)body.append(k,String(v));return request(role,'/courses/'+course+'/'+kind,'POST',body);}
 const files=()=>!fs.existsSync(process.env.UPLOAD_PATH)?[]:fs.readdirSync(process.env.UPLOAD_PATH,{recursive:true}).filter(n=>fs.statSync(path.join(process.env.UPLOAD_PATH,n)).isFile()).sort();
-const pub=require('./helpers/publicationFixture.cjs'),admin={id:4,role:'admin'},close=(id=1)=>pub.close(admin,id,id),publish=()=>pub.publish(admin,1,1);
+const pub=require('./helpers/publicationFixture.cjs'),admin={id:4,role:'admin'},close=(id=1)=>pub.edit(admin,id,id),publish=()=>pub.publish(admin,1,1);
 const route=(p,course=1)=>'/courses/'+course+'/maintenance'+p;
 async function freshStudent(id){const hash=require('bcryptjs').hashSync('test123',4);db.prepare("INSERT INTO users(id,username,password_hash,real_name,role) VALUES(?,?,?,'隔离新学生','student')").run(id,'u'+id,hash);db.prepare("INSERT INTO enrollments(student_id,course_id,status) VALUES(?,1,'active')").run(id);tokens[id]=(await fetch(url+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'u'+id,password:'test123'})}).then(r=>r.json())).token;}
 const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8pAAAAAASUVORK5CYII=','base64');
@@ -73,9 +73,9 @@ test('受控真实主题与实验关联：跨课和卡片拼接拒绝，启停/�
  for(const body of[{...values,lessonId:2},{...values,cardId:2},{...values,stage:2},{...values,experiment:'other'},{...values,url:'/x'}])assert.equal((await request(1,route('/experiments'),'POST',body)).status,400);
  const result=await request(1,route('/experiments'),'POST',values);assert.equal(result.status,200);const id=result.body.id;
  assert.equal((await request(1,route('/experiments'),'POST',values)).status,409);assert.equal((await request(1,route('/experiments/'+id,2),'PUT',values)).status,404);
- assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0,'关闭时不开放实验');publish();
+ assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0,'新增实验关联审批前不对学生开放');publish();
  assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments[0].cardId,1);close();
- await request(1,route('/experiments/'+id),'PUT',{...values,enabled:false});assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0);
+ await request(1,route('/experiments/'+id),'PUT',{...values,enabled:false});assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,1,'草稿停用不影响现有正式实验');publish();assert.equal((await request(2,'/course-spaces/1/courses/1')).body.experiments.length,0);
  await request(1,route('/experiments/'+id),'DELETE');assert.equal(db.prepare('SELECT count(*) n FROM works').get().n,1);
  // Existing legitimate IDs must not acquire an arbitrary one-million ceiling.
  db.prepare("INSERT INTO lessons(id,course_id,title,publication_state) VALUES(2000001,1,'大编号课时草稿','draft')").run();assert.equal((await request(1,route('/experiments'),'POST',{experiment:'glider',lessonId:2000001,stage:0,cardId:null,label:'合法大编号来源',enabled:true})).status,200);

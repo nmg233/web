@@ -1,0 +1,96 @@
+const {test,after}=require('node:test');
+const assert=require('node:assert/strict');
+const Database=require('better-sqlite3');
+const db=new Database(':memory:');db.pragma('foreign_keys=ON');
+const {runMigrations}=require('../database/migrate');runMigrations(db);
+require.cache[require.resolve('../config/database')]={exports:db};
+const gate=require('../helpers/lessonPublication');
+const publication=require('../services/publicationService'),learning=require('../services/learningService');
+const extension=require('../database/liveAuthoringExtension');
+const admin={id:1,role:'admin'},mentor={id:2,role:'academic_mentor'};
+for(const [id,role] of [[1,'admin'],[2,'academic_mentor'],[3,'student'],[4,'student'],[5,'student']])db.prepare('INSERT INTO users(id,username,real_name,role,password_hash) VALUES(?,?,?,?,?)').run(id,'live-'+id,'合成用户'+id,role,'hash');
+db.prepare("INSERT INTO schools(id,name) VALUES(1,'隔离学校')").run();
+after(()=>db.close());
+function fixture(){
+ const course=Number(db.prepare("INSERT INTO courses(title,description,status,created_by,grade_level,difficulty) VALUES('隔离课题','真实合成课程简介','published',2,'junior','basic')").run().lastInsertRowid);
+ const lesson=Number(db.prepare("INSERT INTO lessons(course_id,title,publication_state,review_content,content_state,cards_required) VALUES(?,'原正式课时','draft','原正式回顾','ready',0)").run(course).lastInsertRowid);
+ for(const student of[3,4,5])db.prepare('INSERT INTO enrollments(course_id,student_id) VALUES(?,?)').run(course,student);
+ const task=Number(db.prepare("INSERT INTO tasks(lesson_id,title,description,require_upload) VALUES(?,'原独立任务','原任务说明',0)").run(lesson).lastInsertRowid);
+ approve(course,lesson);return{course,lesson,task};
+}
+function approve(course,lesson){const r=publication.submit(mentor,course,{lesson_id:lesson,reason:'提交隔离教材'});publication.decide(admin,course,r.id,{decision:'approved',reason:'核对通过'});return r;}
+test('正式课时任务也隔离：新增/修改任务审批前不泄露，批准后独立任务使用最新正式定义',()=>{
+ const f=fixture();learning.lessonPackage(3,f.lesson);
+ db.prepare("UPDATE tasks SET description='未审任务修改' WHERE id=?").run(f.task);
+ const added=Number(db.prepare("INSERT INTO tasks(lesson_id,title,description) VALUES(?,'未审新增任务','未审新增说明')").run(f.lesson).lastInsertRowid);
+ assert.equal(gate.publishedTask(db,f.task).description,'原任务说明');assert.equal(gate.publishedTask(db,added),null);
+ assert.equal(learning.lessonPackage(3,f.lesson).consolidation_tasks.length,1);
+ const pending=publication.submit(mentor,f.course,{lesson_id:f.lesson,reason:'提交任务修订'});
+ assert.equal(gate.publishedTask(db,added),null);
+ publication.decide(admin,f.course,pending.id,{decision:'approved',reason:'批准新版任务'});
+ assert.equal(gate.publishedTask(db,f.task).description,'未审任务修改');assert.equal(gate.publishedTask(db,added).title,'未审新增任务');
+ assert.equal(learning.lessonPackage(3,f.lesson).consolidation_tasks.length,2);
+ assert.equal(publication.read(admin,f.course).lessons.find(l=>l.lesson_id===f.lesson).draft_changed,false);
+});
+test('历史关闭恢复仅切回原正式指针，草稿、申请、原答题机会和报告历史均保留；重启幂等',()=>{
+ const f=fixture(),old=learning.lessonPackage(3,f.lesson).content_version.id;
+ learning.completeReview(3,f.lesson);
+ const report=learning.submitReport(3,f.lesson,{report:{summary:'原报告'},reflection:{reflection_version:2,entry_note:'原反思'}});
+ const official=db.prepare('SELECT published_version_id FROM lessons WHERE id=?').get(f.lesson).published_version_id;
+ db.prepare("UPDATE lessons SET publication_state='closed',closure_reason='历史编辑关闭',review_content='未审批草稿回顾' WHERE id=?").run(f.lesson);
+ const pending=publication.submit(mentor,f.course,{lesson_id:f.lesson,reason:'保留历史未审批申请'});
+ // Simulate a real pre-upgrade request without the new task snapshot format.
+ const legacySnapshot=JSON.parse(db.prepare('SELECT snapshot_json FROM publication_requests WHERE id=?').get(pending.id).snapshot_json);delete legacySnapshot.tasks;
+ db.prepare('UPDATE publication_requests SET snapshot_json=? WHERE id=?').run(JSON.stringify(legacySnapshot),pending.id);
+ const histories=()=>({bindings:db.prepare('SELECT * FROM student_lesson_versions').all(),reports:db.prepare('SELECT * FROM lesson_learning_reports').all(),reviews:db.prepare('SELECT * FROM lesson_review_completions').all(),requests:db.prepare('SELECT * FROM publication_requests').all()});
+ const before=histories();db.prepare('DELETE FROM app_schema_extensions WHERE name=?').run(extension.NAME);
+ runMigrations(db);
+ assert.deepEqual(histories(),before);
+ assert.equal(db.prepare('SELECT publication_state FROM lessons WHERE id=?').get(f.lesson).publication_state,'published');
+ assert.equal(db.prepare('SELECT review_content FROM lessons WHERE id=?').get(f.lesson).review_content,'未审批草稿回顾');
+ assert.equal(gate.formalContent(db,f.lesson).lesson.review_content,'原正式回顾');
+ assert.equal(learning.lessonPackage(4,f.lesson).lesson.review_content,'原正式回顾');
+ assert.equal(learning.lessonPackage(3,f.lesson).content_version.id,old);
+ assert.equal(db.prepare('SELECT status FROM lesson_learning_reports WHERE id=?').get(report.id).status,'submitted');
+ assert.equal(db.prepare('SELECT status FROM publication_requests WHERE id=?').get(pending.id).status,'pending');
+ assert.equal(db.prepare('SELECT content_version_id FROM lesson_authoring_recoveries WHERE lesson_id=?').get(f.lesson).content_version_id,official);
+ const recoveries=db.prepare('SELECT * FROM lesson_authoring_recoveries').all();runMigrations(db);assert.deepEqual(db.prepare('SELECT * FROM lesson_authoring_recoveries').all(),recoveries);
+ assert.throws(()=>publication.decide(admin,f.course,pending.id,{decision:'approved',reason:'不能漏审任务'}),/升级前/);
+ publication.decide(admin,f.course,pending.id,{decision:'rejected',reason:'请重新提交含独立任务的完整教材'});
+ approve(f.course,f.lesson);assert.equal(learning.lessonPackage(5,f.lesson).lesson.review_content,'未审批草稿回顾');
+});
+test('旧正式版无指针时先冻结，直接改稿不会污染新学生所见；损坏的关闭课时禁止误发布草稿并回滚',()=>{
+ const f=fixture();db.prepare("UPDATE lessons SET publication_state='legacy',published_version_id=NULL WHERE id=?").run(f.lesson);
+ gate.assertEditable(db,f.lesson);
+ db.prepare("UPDATE lessons SET review_content='编辑中的未审回顾' WHERE id=?").run(f.lesson);
+ assert.equal(learning.lessonPackage(4,f.lesson).lesson.review_content,'原正式回顾');
+ const broken=Number(db.prepare("INSERT INTO lessons(course_id,title,publication_state,review_content) VALUES(?,'异常旧关闭课时','closed','不能自动发布')").run(f.course).lastInsertRowid);
+ db.prepare('DELETE FROM app_schema_extensions WHERE name=?').run(extension.NAME);
+ const before=db.prepare('SELECT * FROM lessons ORDER BY id').all();
+ assert.throws(()=>runMigrations(db),/缺少原正式版本/);
+ assert.deepEqual(db.prepare('SELECT * FROM lessons ORDER BY id').all(),before);
+ assert.equal(db.prepare('SELECT 1 FROM app_schema_extensions WHERE name=?').get(extension.NAME),undefined);
+ db.prepare('DELETE FROM lessons WHERE id=?').run(broken);runMigrations(db);
+});
+test('学生AI结构化来源与文档检索都遵循正式/绑定版本，草稿索引不会提前进入提示词',()=>{
+ const f=fixture(),student={id:3,role:'student'},fresh={id:4,role:'student'};
+ const card=learning.createCard(mentor,f.lesson,{title:'月球基地原卡片',content:'月球基地原正文',status:'published'}).id;
+ learning.createExercise(mentor,card,{question_type:'true_false',prompt:'月球基地原问题',answer:true,explanation:'原详解'});
+ approve(f.course,f.lesson);learning.lessonPackage(3,f.lesson);
+ learning.updateCard(mentor,card,{content:'月球基地未审批正文'});
+ db.prepare("UPDATE lessons SET title='未审批课时',description='未审批说明' WHERE id=?").run(f.lesson);
+ db.prepare("UPDATE tasks SET title='未审批任务',description='未审批任务说明' WHERE id=?").run(f.task);
+ const resource=Number(db.prepare("INSERT INTO resources(course_id,lesson_id,resource_type,title,file_path,upload_by) VALUES(?,?,'courseware','月球基地未审批附件','synthetic.txt',2)").run(f.course,f.lesson).lastInsertRowid);
+ const document=Number(db.prepare("INSERT INTO ai_documents(course_id,resource_id,status) VALUES(?,?,'ready')").run(f.course,resource).lastInsertRowid);
+ db.prepare("INSERT INTO ai_chunks(course_id,document_id,chunk_index,locator,text) VALUES(?,?,0,'合成段落','月球基地未审批附件正文')").run(f.course,document);
+ const ai=require('../services/aiAnswerService'),course=db.prepare('SELECT * FROM courses WHERE id=?').get(f.course);
+ const text=user=>JSON.stringify(ai.structuredSources(course,'课程任务与月球基地',user));
+ assert.match(text(student),/月球基地原正文/);assert.doesNotMatch(text(student),/未审批/);assert.doesNotMatch(text(fresh),/未审批/);
+ assert.deepEqual(ai.relevantFiles(f.course,'月球基地',student),[]);assert.deepEqual(ai.relevantFiles(f.course,'月球',student),[]);
+ assert.match(text(mentor),/未审批/);assert.equal(ai.relevantFiles(f.course,'月球基地',mentor)[0].id,resource);
+ approve(f.course,f.lesson);
+ assert.match(text(student),/月球基地原正文/);assert.doesNotMatch(text(student),/月球基地未审批正文/);assert.match(text(fresh),/月球基地未审批正文/);
+ assert.deepEqual(ai.relevantFiles(f.course,'月球基地',student),[]);
+ assert.equal(ai.relevantFiles(f.course,'月球基地',fresh)[0].id,resource);
+ assert.equal(ai.relevantFiles(f.course,'月球',fresh)[0].id,resource);
+});

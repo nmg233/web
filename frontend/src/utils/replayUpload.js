@@ -13,7 +13,6 @@ export function lessonReplayFields(courseId, lessons, targetLesson, values) {
   if (!lesson || Number(lesson.course_id) !== Number(courseId) || lesson.status === 'cancelled') {
     throw new Error('该课时已不可上传，请刷新课程后重试');
   }
-  if(['legacy','published'].includes(lesson.publication_state))throw new Error('正式课时须先关闭再上传，请进入课时内容维护选择“关闭并编辑”');
   return {
     lesson_id: String(lesson.id), title: values.title,
     description: values.description || '', summary: values.summary || '',

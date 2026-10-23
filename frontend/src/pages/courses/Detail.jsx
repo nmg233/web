@@ -154,7 +154,7 @@ function CourseDetailPage() {
 
   const openReplayModal = (replay = null) => {
     const lesson=lessons.find(l=>l.id===replay?.lesson_id);
-    if(lesson&&['legacy','published'].includes(lesson.publication_state)){message.warning('请先在对应课时工作区关闭课时，再修改视频信息');return;}
+    if(lesson?.status==='cancelled'){message.warning('课时已取消，仅保留历史');return;}
     setEditingReplay(replay);
     replayForm.resetFields();
     if (replay) {
@@ -337,8 +337,8 @@ function CourseDetailPage() {
             <Card key={lesson.id} id={`lesson-${lesson.id}`} size="small" style={{ marginBottom: 8 }} title={lesson.title}
               extra={<Space>
                 {isEnrolled && lesson.status!=='cancelled' && lesson.publication_state!=='closed' && lesson.learning_in_scope!==false && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/learn`)}>{siteText("site.7cbfd4a69b6bd74e")}</Button>}
-                {canEdit && lesson.status!=='cancelled' && !['legacy','published'].includes(lesson.publication_state) && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
-                {canEdit && lesson.status!=='cancelled' && !['legacy','published'].includes(lesson.publication_state) && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && <Button type="primary" size="small" onClick={() => navigate(`/courses/${course.id}/lessons/${lesson.id}/content`)}>{siteText("site.bb84a46624582e70")}</Button>}
+                {canEdit && lesson.status!=='cancelled' && <Button size="small" onClick={() => { setActiveLesson(lesson); setTaskModal(true); }}>{siteText("site.b0aa5aee80b7fa54")}</Button>}
               </Space>}
             >
               {course.can_manage&&!canEdit&&<Button size="small" onClick={()=>navigate(`/courses/${course.id}/lessons/${lesson.id}/preview`)}>只读预览知识卡片与习题</Button>}{lesson.publication_state==='closed'&&<Tag color="orange">课时暂停，记录保留，待审批后恢复</Tag>}{lesson.status==='cancelled'&&<Tag color="red">已取消，仅保留历史</Tag>}{lesson.readiness&&!lesson.readiness.ready&&<Text type="warning">课后学习尚未开放：{lesson.readiness.issues.join('；')}</Text>}{lesson.description && <p>{lesson.description}</p>}
@@ -368,9 +368,9 @@ function CourseDetailPage() {
             <Card key={replay.id} size="small" style={{ marginBottom: 8 }}
               extra={canReplayWrite && (
                 <Space size={4}>
-                  <Button size="small" type="link" disabled={['legacy','published'].includes(lessons.find(l=>l.id===replay.lesson_id)?.publication_state)} icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>{siteText("site.3be380b766bc89c7")}</Button>
+                  <Button size="small" type="link" disabled={lessons.find(l=>l.id===replay.lesson_id)?.status==='cancelled'} icon={<EditOutlined />} onClick={() => openReplayModal(replay)}>{siteText("site.3be380b766bc89c7")}</Button>
                   <Popconfirm title={siteText("site.e0427eaf97caa346")} okText={siteText("site.112c8da10fb2fc22")} cancelText={siteText("site.e22a4167edd7f34b")} onConfirm={() => handleDeleteReplay(replay.id)}>
-                    <Button size="small" type="link" disabled={['legacy','published'].includes(lessons.find(l=>l.id===replay.lesson_id)?.publication_state)} danger icon={<DeleteOutlined />}>{siteText("site.631573e93be5f4cf")}</Button>
+                    <Button size="small" type="link" disabled={lessons.find(l=>l.id===replay.lesson_id)?.status==='cancelled'} danger icon={<DeleteOutlined />}>{siteText("site.631573e93be5f4cf")}</Button>
                   </Popconfirm>
                 </Space>
               )}

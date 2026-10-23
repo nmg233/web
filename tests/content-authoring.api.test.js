@@ -57,7 +57,7 @@ test('集中填写真实接口、安全文章、发布与历史版本兼容',{ti
    const report=await request('student',`/learning/lessons/${practice}/report`,'POST',{report:{summary:'实践证据和比较结论'},reflection:{reflection_version:2,entry_note:'合成开放反思'}});assert.equal(report.status,201,JSON.stringify(report.body));
    const reportId=report.body.report.id;const reviewed=await request('mentor',`/mentor-reviews/${reportId}/review`,'POST',{status:'approved',score:86,comment:'核对实践证据后通过'});assert.equal(reviewed.status,200,JSON.stringify(reviewed.body));
    const settled=await request('student','/rewards/coins/reconcile','POST',{});assert.equal(settled.status,200);assert.equal(settled.body.created.find(x=>x.lessonId===practice)?.amount,86);await request('student','/rewards/coins/reconcile','POST',{});assert.equal(db.prepare("SELECT COUNT(*) n FROM student_coin_ledger WHERE lesson_id=? AND student_id=10004").get(practice).n,1);
-   assert.equal((await request('mentor','/courses/91001/publication/lessons/'+practice+'/close','POST',{reason:'核对历史教材保护'})).status,200);
+   assert.equal((await request('mentor','/courses/91001/publication/lessons/'+practice+'/close','POST',{reason:'核对历史教材保护'})).status,410);
    assert.equal((await save(practice,{review_content:'新进入学生使用的后续稿',cards_required:true})).status,200);
    const bound=db.prepare('SELECT content_json FROM lesson_content_versions WHERE id=?').get(version);assert.match(bound.content_json,/真实实践/);assert.equal(JSON.parse(bound.content_json).lesson.cards_required,0);
   });

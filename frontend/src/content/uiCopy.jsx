@@ -16060,7 +16060,7 @@ export const uiCopy = {
     "sourceLine": 1
   },
   "authoring.saved": {
-    "text": "已保存教材",
+    "text": "已保存教材草稿，管理员审批后生效",
     "enabled": true,
     "optional": false,
     "page": "真实课时可视化维护",
@@ -16158,7 +16158,7 @@ export const uiCopy = {
     "sourceLine": 1
   },
   "authoring.saveMeaning": {
-    "text": "保存写入真实教材；已发布课程的学生下次读取可见，不自动发布课程、卡片或切换内容就绪状态",
+    "text": "保存只更新课时草稿，管理员审批后才生效；审批期间学生继续学习原正式版，已有绑定版本与作答历史保留",
     "enabled": true,
     "optional": false,
     "page": "真实课时可视化维护",

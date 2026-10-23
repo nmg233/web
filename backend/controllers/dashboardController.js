@@ -178,17 +178,20 @@ exports.index = (req, res) => {
 
       // 下一节课：已报名课程中最近的上课场次
       const nextLesson = db.prepare(`
-        SELECT l.start_at, l.end_at, l.location, l.title AS lesson_title,
+        SELECT l.id, l.start_at, l.end_at, l.location, l.title AS lesson_title,
                c.id AS course_id, c.title AS course_title, u.real_name AS instructor_name
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id AND c.status = 'published'
         JOIN lessons l ON l.course_id = c.id
         LEFT JOIN users u ON u.id = l.instructor_id
         WHERE e.student_id = ? AND e.status = 'active'
-          AND l.status = 'scheduled'
-          AND l.start_at IS NOT NULL AND datetime(l.start_at) >= datetime('now', 'localtime', '-1 hour')
-        ORDER BY datetime(l.start_at) ASC LIMIT 1
-      `).get(user.id);
+          AND l.status = 'scheduled' AND l.publication_state IN ('legacy','published')
+      `).all(user.id).map(row=>{
+        const l=require('../helpers/lessonPublication').studentContent(db,user.id,row.id).lesson;
+        const time=db.prepare("SELECT datetime(?) >= datetime('now','localtime','-1 hour') eligible, datetime(?) sort_time").get(l.start_at,l.start_at);
+        return {...row,start_at:l.start_at,end_at:l.end_at,location:l.location,lesson_title:l.title,
+          instructor_name:db.prepare('SELECT real_name FROM users WHERE id=?').get(l.instructor_id)?.real_name||null,...time};
+      }).filter(l=>l.eligible).sort((a,b)=>a.sort_time.localeCompare(b.sort_time))[0];
 
       // 待办任务（要求提交附件且未提交或被退回）
       // 待办任务：以「是否存在有效提交」为准，不再要求附件（纯文字任务同样进入待办）
@@ -205,7 +208,7 @@ exports.index = (req, res) => {
                    WHERE w.student_id = e.student_id AND w.task_id = t.id
                    ORDER BY w.version DESC, w.created_at DESC, w.id DESC LIMIT 1) = 'rejected')
         ORDER BY t.created_at DESC
-      `).all(user.id);
+      `).all(user.id).map(t=>{const official=require('../helpers/lessonPublication').publishedTask(db,t.id);return official?{...t,title:official.title}:null;}).filter(Boolean);
 
       // 需修改的作品（被打回且尚未重新提交）
       const revisions = db.prepare(`

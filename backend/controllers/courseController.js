@@ -214,10 +214,11 @@ exports.detail = (req, res) => {
         readiness:l.publication_state==='closed'?{ready:false,issues:['课时暂时关闭，历史记录已保留，等待审批后恢复']}:versions.readiness(db,l.id,content),
         learning_in_scope:l.learning_in_scope};
     });
-    const tasks = db.prepare(`SELECT t.*, l.title AS lesson_title FROM tasks t
+    let tasks = db.prepare(`SELECT t.*, l.title AS lesson_title FROM tasks t
       JOIN lessons l ON l.id = t.lesson_id WHERE l.course_id = ?
       ${req.user.role === 'student' ? "AND l.status != 'cancelled' AND l.publication_state IN ('legacy','published') AND t.status = 'active'" : ''}
       ORDER BY l.sort_order, t.sort_order`).all(id);
+    if(req.user.role==='student')tasks=tasks.map(t=>{const official=require('../helpers/lessonPublication').publishedTask(db,t.id);return official?{...t,...official,lesson_title:require('../helpers/lessonPublication').studentContent(db,req.user.id,t.lesson_id).lesson.title}:null;}).filter(Boolean);
     const progress = completion?.percent || 0;
     const resources = db.prepare('SELECT * FROM resources WHERE course_id = ? ORDER BY created_at DESC').all(id).map(r=>req.user.role==='student'?require('../helpers/lessonPublication').studentAsset(db,req.user.id,id,'resource',r.id):r).filter(Boolean).map((r) => {
       const ext = path.extname(r.file_path || '');

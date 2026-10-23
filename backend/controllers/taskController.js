@@ -68,7 +68,7 @@ function taskQuery(user) {
     WHERE c.status = 'published' AND l.status != 'cancelled' AND t.status = 'active'${scopeSql}
     ORDER BY c.title, l.sort_order, t.sort_order, t.created_at
   `).all(userId || null, userId || null, userId || null, userId || null, ...scopeParams);
-  return tasks.map((task) => ({
+  return tasks.map(task=>{if(user.role!=='student')return task;const official=require('../helpers/lessonPublication').publishedTask(db,task.id);return official?{...task,...official,lesson_title:require('../helpers/lessonPublication').studentContent(db,user.id,task.lesson_id).lesson.title}:null;}).filter(Boolean).map((task) => ({
     ...task,
     status: taskStatusFromReview(task.review_status),
   }));
@@ -89,7 +89,9 @@ exports.list = (req, res) => {
         return { ...l, kind: 'learning', learning_progress: state.percent, report_status: state.report_status,
         status: taskStatusFromLearning(state.percent, state.report_status),
         started: Boolean(require('../helpers/lessonVersions').boundVersion(db, req.user.id, l.id)),
-        readiness: require('../helpers/lessonVersions').readiness(db, l.id) }; })
+        title: require('../helpers/lessonPublication').studentContent(db,req.user.id,l.id).lesson.title,
+        lesson_title: require('../helpers/lessonPublication').studentContent(db,req.user.id,l.id).lesson.title,
+        readiness: require('../helpers/lessonVersions').readiness(db, l.id,require('../helpers/lessonPublication').studentContent(db,req.user.id,l.id)) }; })
       .filter((l) => {
         const state = require('../helpers/lessonVersions').courseState(db, req.user.id, l.course_id);
         return (!state.completed || state.lesson_ids.includes(l.lesson_id)) && (!req.query.status || l.status === req.query.status);
@@ -103,7 +105,7 @@ exports.list = (req, res) => {
 
 exports.detail = (req, res) => {
   try {
-    const task = db.prepare(`
+    let task = db.prepare(`
       SELECT t.*, l.title AS lesson_title, l.course_id, c.title AS course_title,
         c.description AS course_description, c.created_by, c.status AS course_status, l.status AS lesson_status
       FROM tasks t JOIN lessons l ON l.id = t.lesson_id JOIN courses c ON c.id = l.course_id
@@ -118,6 +120,7 @@ exports.detail = (req, res) => {
       : null;
     if (userId && !enrollment) return res.status(404).json({ error: '任务不存在' });
     if(userId)require('../helpers/lessonPublication').assertStudentOpen(db,task.lesson_id);
+    if(userId){const official=require('../helpers/lessonPublication').publishedTask(db,task.id);if(!official)return res.status(404).json({error:'任务尚未审批发布'});task={...task,...official,lesson_title:require('../helpers/lessonPublication').studentContent(db,userId,task.lesson_id).lesson.title};}
     if (req.user.role === 'academic_mentor' && !canManageTask(req.user, task.id)) {
       return res.status(404).json({ error: '任务不存在' });
     }
